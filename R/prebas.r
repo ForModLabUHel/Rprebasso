@@ -22,7 +22,9 @@ prebas <- function(nYears,
                    ClCut = 1.,
                    inDclct = NA,
                    inAclct = NA,
-                   yassoRun = 0){
+                   yassoRun = 0,
+                   smoothP0 = 1,
+                   smoothETS = 1){
 
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -65,6 +67,7 @@ prebas <- function(nYears,
   Temp <- TAir[1:(365*nYears)]-5
   ETS <- pmax(0,Temp,na.rm=T)
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
+  if(smoothETS==1.) ETS <- rep(mean(ETS),nYears)
 
   ###if P0 is not provided use preles to compute P0
   if(is.na(P0)){
@@ -73,6 +76,8 @@ prebas <- function(nYears,
                  fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES)$GPP
     P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
   }
+  P0 <- matrix(P0,nYears,2)
+  if(smoothP0==1.) P0[,2] <- rep(mean(P0[,1]),nYears)
 
   ETSthres <- 1000; ETSmean <- mean(ETS)
 
@@ -147,7 +152,7 @@ prebas <- function(nYears,
                      fixBAinitClarcut=as.numeric(fixBAinitClarcut),
                      initCLcutRatio = as.double(initCLcutRatio),
                      ETS = as.numeric(ETS),
-                     P0 = as.numeric(P0),
+                     P0 = as.matrix(P0),
                      weather=as.array(weatherPreles),
                      DOY= as.integer(1:365),
                      pPRELES=as.numeric(pPRELES),

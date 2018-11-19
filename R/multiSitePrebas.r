@@ -27,7 +27,9 @@ InitMultiSite <- function(nYearsMS,
                           inDclct = NA,
                           inAclct = NA,
                           yassoRun = 0,
-                          lukeRuns){
+                          lukeRuns,
+                          smoothP0 = 1,
+                          smoothETS = 1){
 
   nSites <- length(nYearsMS)
   if(all(is.na(siteInfo))){
@@ -96,6 +98,7 @@ InitMultiSite <- function(nYearsMS,
                                                 which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
+  if(smoothETS==1. & maxYears > 1) multiETS <- matrix(rowMeans(multiETS),nClimID,maxYears)
 
   ####process clearcut
   for(i in 1: nSites){
@@ -140,7 +143,7 @@ InitMultiSite <- function(nYearsMS,
   ### compute P0
   ###if P0 is not provided use preles to compute P0
   if(all(is.na(multiP0))){
-    multiP0 <- matrix(NA,nClimID,maxYears)
+    multiP0 <- array(NA,dim=c(nClimID,maxYears,2))
     for(climID in 1:nClimID){
       nYearsX <- max(nYearsMS[which(climIDs==climID)])
       P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
@@ -148,8 +151,14 @@ InitMultiSite <- function(nYearsMS,
                    Precip=Precip[climID,1:(365*nYearsX)],CO2=rep(380,(365*nYearsX)),
                    fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
       P0 <- matrix(P0,365,nYearsX)
-      multiP0[climID,(1:nYearsX)] <- colSums(P0)
-    }}
+      multiP0[climID,(1:nYearsX),1] <- colSums(P0)
+    }
+    if(smoothP0==1 & maxYears > 1){
+      multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
+    } else{
+    multiP0[,,2] <- multiP0[,,1]
+    }
+  }
 
   if (all(is.na(multiInitVar))){
     multiInitVar <- array(NA,dim=c(nSites,6,maxNlayers))
@@ -203,7 +212,9 @@ InitMultiSite <- function(nYearsMS,
     dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
     yassoRun = yassoRun,
     lukeRuns = lukeRuns,
-    PREBASversion = PREBASversion)
+    PREBASversion = PREBASversion,
+    smoothP0 = smoothP0,
+    smoothETS = smoothETS)
   return(multiSiteInit)
 }
 
@@ -227,7 +238,7 @@ multiPrebas <- function(multiSiteInit){
                      fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClarcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                      ETSy=as.matrix(multiSiteInit$ETSy),
-                     P0y=as.matrix(multiSiteInit$P0y),
+                     P0y=as.array(multiSiteInit$P0y),
                      multiInitVar=as.array(multiSiteInit$multiInitVar),
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
@@ -284,7 +295,7 @@ regionPrebas <- function(multiSiteInit,
                    fixBAinitClarcut = as.double(multiSiteInit$fixBAinitClarcut),
                    initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                    ETSy=as.matrix(multiSiteInit$ETSy),
-                   P0y=as.matrix(multiSiteInit$P0y),
+                   P0y=as.array(multiSiteInit$P0y),
                    multiInitVar=as.array(multiSiteInit$multiInitVar),
                    weather=as.array(multiSiteInit$weather),
                    DOY= as.integer(multiSiteInit$DOY),

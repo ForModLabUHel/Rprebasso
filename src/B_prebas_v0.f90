@@ -27,7 +27,7 @@ implicit none
  integer, intent(inout) :: nThinning
  real (kind=8), intent(out) :: fAPAR(nYears)
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
- real (kind=8), intent(in) :: initVar(6,nLayers),P0y(nYears),ETSy(nYears),initCLcutRatio(nLayers)!
+ real (kind=8), intent(in) :: initVar(6,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
  real (kind=8), intent(inout) :: siteInfo(7)
  real (kind=8), intent(out) :: output(nYears,nVar,nLayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nYears,5,3,nLayers),soilCtotInOut(nYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -41,7 +41,7 @@ implicit none
  real (kind=8) :: STAND(nVar),STAND_tot(nVar),param(npar)!, output(nYear,nSites,nVar)
  integer :: i, ij, ijj,species,layer,nSpec,ll! tree species 1,2,3 = scots pine, norway spruce, birch
 
- real (kind=8) :: p0_ref, ETS_ref
+ real (kind=8) :: p0_ref, ETS_ref,P0yX(nYears,2)
  integer :: time, ki, year,yearX,Ainit, countThinning,domSp(1)
  real (kind=8) :: step, totBA
 
@@ -80,8 +80,10 @@ implicit none
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 
+ ! avP0 = sum(P0y)/nYears
+ ! avETS = sum(ETSy)/nYears
  ! open(2,file="test.txt")
- ! write(2,*) "site = ",siteInfo(1)
+  ! write(*,*) "avP0", avP0
 !###initialize model###!
 fbAWENH = 0.
 folAWENH = 0.
@@ -96,14 +98,14 @@ pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
-
+P0yX = P0y
 
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
   modOut(:,7,i,1) = initVar(2,i) ! assign initAge !age can be made species specific assigning different ages to different species
   modOut(1,39,i,1) = sum(soilC(1,:,:,i)) !assign initial soilC
-  modOut(:,5,i,1) = ETSy	! assign ETS
-  modOut(:,6,i,1) = P0y		! assign P0
+  modOut(:,5,i,1) = ETSy! assign ETS
+  modOut(:,6,i,1) = P0yX(:,2)	! assign P0
  enddo
  modOut(:,1,:,1) = siteInfo(1); modOut(:,2,:,1) = siteInfo(2)	!! assign siteID and climID
  modOut(1,11,:,1) = initVar(3,:)
@@ -350,7 +352,7 @@ if (year <= maxYearSite) then
    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
-   STAND_all(10,:) = prelesOut(1)/1000.! Photosynthesis in g C m-2 (converted to kg C m-2)
+   STAND_all(10,:) = prelesOut(1)/1000.*P0yX(year,2)/P0yX(year,1)! Photosynthesis in g C m-2 (converted to kg C m-2)
 
 endif
 !enddo !! end site loop
@@ -1085,5 +1087,3 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
