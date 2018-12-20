@@ -156,7 +156,8 @@ do year = 1, (nYears)
   do time = 1, inttimes !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
  ! do ki = 1, nSites
- ! calculate self-thinning using all tree classes
+  ! calculate self-thinning using all tree classes
+ if(time==inttimes)then
      Ntot = sum(STAND_all(17,:))
      B = sum(STAND_all(35,:)*STAND_all(17,:))/Ntot   !!!!!!!!!#####changed
      if(Ntot>0.) then
@@ -165,6 +166,7 @@ do year = 1, (nYears)
          Reineke = 0.
      endif
  ! end do
+ endif
 
 do ij = 1 , nLayers 		!loop Species
 
@@ -335,6 +337,8 @@ if (year <= maxYearSite) then
 
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARsite
+   
+		if(time==inttimes)then
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
 		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
@@ -351,7 +355,7 @@ if (year <= maxYearSite) then
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
    STAND_all(10,:) = prelesOut(1)/1000.! Photosynthesis in g C m-2 (converted to kg C m-2)
-
+		endif
 endif
 !enddo !! end site loop
 
@@ -524,7 +528,7 @@ endif
 
 ! Mortality - use Reineke from above
 !      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
-!     if(time==inttimes) then
+     if(time==inttimes) then
       Rein = Reineke / par_kRein
 
       if(Rein > 1.) then
@@ -546,6 +550,7 @@ endif
 				exp(-exp(pCrobas(34,species) + pCrobas(35,species)*ijj + pCrobas(36,species)*D + 0.))
 		enddo
 	  end if
+	 endif
 	  
 	  
 !!  Update state variables
