@@ -77,7 +77,10 @@ prebas <- function(nYears,
     P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
   }
   P0 <- matrix(P0,nYears,2)
-  if(smoothP0==1.) P0[,2] <- rep(mean(P0[,1]),nYears)
+  if(smoothP0==1.){
+    P0[1,2] <- P0[1,1]
+    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,5)
+  } 
 
   ETSthres <- 1000; ETSmean <- mean(ETS)
 

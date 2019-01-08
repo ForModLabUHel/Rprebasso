@@ -154,7 +154,9 @@ InitMultiSite <- function(nYearsMS,
       multiP0[climID,(1:nYearsX),1] <- colSums(P0)
     }
     if(smoothP0==1 & maxYears > 1){
-      multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
+      multiP0[,1,2] <- multiP0[,1,1]
+      for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,5)
+      # multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
     } else{
     multiP0[,,2] <- multiP0[,,1]
     }
