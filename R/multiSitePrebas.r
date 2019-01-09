@@ -98,8 +98,10 @@ InitMultiSite <- function(nYearsMS,
                                                 which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
-  if(smoothETS==1. & maxYears > 1) multiETS <- matrix(rowMeans(multiETS),nClimID,maxYears)
-
+  if(smoothETS==1. & maxYears > 1){
+    for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,5)
+  } 
+  
   ####process clearcut
   for(i in 1: nSites){
     if(ClCut[i]==1 & all(is.na(inDclct[i,]))) inDclct[i,] <-

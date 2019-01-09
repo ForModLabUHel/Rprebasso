@@ -67,7 +67,7 @@ prebas <- function(nYears,
   Temp <- TAir[1:(365*nYears)]-5
   ETS <- pmax(0,Temp,na.rm=T)
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
-  if(smoothETS==1.) ETS <- rep(mean(ETS),nYears)
+  if(smoothETS==1.) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,5)
 
   ###if P0 is not provided use preles to compute P0
   if(is.na(P0)){
