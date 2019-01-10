@@ -24,7 +24,8 @@ prebas <- function(nYears,
                    inAclct = NA,
                    yassoRun = 0,
                    smoothP0 = 1,
-                   smoothETS = 1){
+                   smoothETS = 1,
+                   smoothYear=5){
 
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -67,7 +68,7 @@ prebas <- function(nYears,
   Temp <- TAir[1:(365*nYears)]-5
   ETS <- pmax(0,Temp,na.rm=T)
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
-  if(smoothETS==1.) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,5)
+  if(smoothETS==1.) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,smoothYear)
 
   ###if P0 is not provided use preles to compute P0
   if(is.na(P0)){
@@ -79,7 +80,7 @@ prebas <- function(nYears,
   P0 <- matrix(P0,nYears,2)
   if(smoothP0==1.){
     P0[1,2] <- P0[1,1]
-    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,5)
+    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
   } 
 
   ETSthres <- 1000; ETSmean <- mean(ETS)

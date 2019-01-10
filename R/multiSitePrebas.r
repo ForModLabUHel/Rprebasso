@@ -29,7 +29,8 @@ InitMultiSite <- function(nYearsMS,
                           yassoRun = 0,
                           lukeRuns,
                           smoothP0 = 1,
-                          smoothETS = 1){
+                          smoothETS = 1,
+                          smoothYear=5){
 
   nSites <- length(nYearsMS)
   if(all(is.na(siteInfo))){
@@ -99,7 +100,7 @@ InitMultiSite <- function(nYearsMS,
   }
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
-    for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,5)
+    for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
   } 
   
   ####process clearcut
@@ -157,7 +158,7 @@ InitMultiSite <- function(nYearsMS,
     }
     if(smoothP0==1 & maxYears > 1){
       multiP0[,1,2] <- multiP0[,1,1]
-      for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,5)
+      for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,smoothYear)
       # multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
     } else{
     multiP0[,,2] <- multiP0[,,1]
