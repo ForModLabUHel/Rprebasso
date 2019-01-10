@@ -69,7 +69,7 @@ implicit none
  real (kind=8) :: hb, A, B2,beta0, beta1,beta2, betas, betab
  real (kind=8) :: c,dHc,dH,dLc,g0,g1,g2,g3,g4,g5
  real (kind=8) :: npp, p_eff_all
- real (kind=8) :: p_eff, par_alfar,p
+ real (kind=8) :: p_eff, par_alfar,p,gpp_sp
  real (kind=8) :: s0,par_s0scale
  real (kind=8) :: weight, dNp,dNb,dNs
  real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V,Vold
@@ -352,7 +352,7 @@ if (year <= maxYearSite) then
    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
-   STAND_all(10,:) = prelesOut(1)/1000.*P0yX(year,2)/P0yX(year,1)! Photosynthesis in g C m-2 (converted to kg C m-2)
+   STAND_all(10,:) = prelesOut(1)/1000. ! Photosynthesis in g C m-2 (converted to kg C m-2)
 
 endif
 !enddo !! end site loop
@@ -421,7 +421,7 @@ else
   leff = STAND(19)
   keff = STAND(20)
   lproj = STAND(21)
-  p_eff_all = STAND(10) !!##!!2
+  p_eff_all = STAND(10)*P0yX(year,2)/P0yX(year,1) !!##!!2
   weight = STAND(23)
 
   rc = Lc / (H-1.3) !crown ratio
@@ -466,6 +466,7 @@ if (N>0.) then
     !GPP all STAND$species   UNITS: g C  /  m2
     ! -------------------------------------
         p_eff = weight * p_eff_all
+		gpp_sp = weight * STAND(10)
 
     if(wf_STKG > 0.) then
         s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
@@ -639,7 +640,7 @@ endif
   STAND(35) = B
   STAND(36) = Light
   STAND(42) = Vold* min(1.,-dN*step/Nold)
-  STAND(44) = p_eff
+  STAND(44) = gpp_sp
 else
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
