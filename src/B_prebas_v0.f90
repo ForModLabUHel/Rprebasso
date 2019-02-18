@@ -924,7 +924,7 @@ if(defaultThin == 1.) then
     stand_all(13,ij) = BA
     Nold = stand_all(17,ij)
     N = BA/(pi*((D/2./100.)**2.))
-    Nthd = Nold - N
+	Nthd = max(0.,Nold - N)
     Hc = stand_all(14,ij)
     Lc = H - Hc !Lc
     rc = Lc / (H-1.3) !crown ratio
