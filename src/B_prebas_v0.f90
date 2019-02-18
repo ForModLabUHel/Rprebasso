@@ -583,8 +583,10 @@ endif
       W_wsap = N * par_rhow * A * (beta1 * H + beta2 * Hc)
       Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
 ! note changes in the equations below AM 15.5.2015
-      npp = (weight * p_eff_all - Respi_m / 10000.) / (1.+par_c)
-      Respi_tot = weight * p_eff_all - npp
+      ! npp = (weight * p_eff_all - Respi_m / 10000.) / (1.+par_c)
+      npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)
+	  ! Respi_tot = weight * p_eff_all - npp
+	  Respi_tot = gpp_sp - npp
       V_scrown =  A * (par_betas*Lc)
 ! note that this equation has changed AM 15.5.2015
       V_bole = (A+B+sqrt(A*B)) * Hc /2.9
@@ -695,7 +697,7 @@ endif
      wf_treeKG_old = wf_treeKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
-     Nthd = Nold-N ! number of cutted trees
+     Nthd = min(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
      A = rc * B
      wf_treeKG = par_rhof * A
