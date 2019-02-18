@@ -697,7 +697,7 @@ endif
      wf_treeKG_old = wf_treeKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
-     Nthd = min(0.,(Nold-N)) ! number of cutted trees
+     Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
      A = rc * B
      wf_treeKG = par_rhof * A
