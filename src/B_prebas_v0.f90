@@ -80,6 +80,9 @@ implicit none
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 
+ real (kind=8) :: theta
+
+
  ! open(2,file="test.txt")
  ! write(2,*) "site = ",siteInfo(1)
 !###initialize model###!
@@ -454,9 +457,15 @@ if (N>0.) then
   end if
 
 !relate metabolic and structural parameters to site conditions
-  par_mf = par_mf0 * p0 / p0_ref
-  par_mr = par_mr0 * p0 / p0_ref
-  par_mw = par_mw0 * p0 / p0_ref
+!  par_mf = par_mf0 * p0 / p0_ref
+!  par_mr = par_mr0 * p0 / p0_ref
+!  par_mw = par_mw0 * p0 / p0_ref
+
+  theta = par_thetaMax / (1. + exp(-(age-par_Age0)/par_gamma))  !!!!v1
+
+  par_mf = par_mf0* p0 / p0_ref + theta  !!!!v1
+  par_mr = par_mr0* p0 / p0_ref + theta  !!!!v1
+  par_mw = par_mw0* p0 / p0_ref + theta  !!!!v1
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
@@ -520,7 +529,8 @@ endif
 
             if(Lc > 0.) then
                 dA = par_z*A*(dH-dHc)/Lc
-                dB = par_z * (A / Lc) * dH
+!                dB = par_z * (A / Lc) * dH
+                dB = par_z * (A / Lc) * dH + theta * A !!!! v1
             else
                 dA = 0.
                 dB = 0.
