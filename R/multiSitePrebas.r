@@ -12,6 +12,7 @@ InitMultiSite <- function(nYearsMS,
                           multiInitClearCut = NA,
                           fixBAinitClarcut = 1.,
                           initCLcutRatio = NA,
+                          areas = NA,
                           PAR,
                           TAir,
                           VPD,
@@ -33,6 +34,7 @@ InitMultiSite <- function(nYearsMS,
                           smoothYear=5){
 
   nSites <- length(nYearsMS)
+  if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3),nSites,9,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
@@ -187,6 +189,7 @@ InitMultiSite <- function(nYearsMS,
     maxYears = maxYears,
     maxThin = maxThin,
     nYears = nYearsMS,
+    areas = areas,
     thinning = multiThin,
     pCROBAS = pCROBAS,
     allSp = allSp,
@@ -284,6 +287,7 @@ regionPrebas <- function(multiSiteInit,
                    minDharv = as.double(minDharv),
                    multiOut = as.array(multiSiteInit$multiOut),
                    nSites = as.integer(multiSiteInit$nSites),
+                   areas = as.double(multiSiteInit$areas),
                    nClimID = as.integer(multiSiteInit$nClimID),
                    nLayers = as.integer(multiSiteInit$nLayers),######
                    maxYears = as.integer(multiSiteInit$maxYears),
