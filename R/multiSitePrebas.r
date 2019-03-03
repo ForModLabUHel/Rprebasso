@@ -326,9 +326,10 @@ regionPrebas <- function(multiSiteInit,
                    lukeRuns=as.double(multiSiteInit$lukeRuns))
 class(prebas) <- "regionPrebas"
 if(prebas$maxNlayers>1){
-    prebas$totHarv <- apply(prebas$multiOut[,,37,,1],2,sum)
+    rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
+    prebas$totHarv <- apply(rescalVbyArea,2,sum)
   }else{
-    prebas$totHarv <- prebas$multiOut[,,37,,1]
+    prebas$totHarv <- colSums(prebas$multiOut[,,37,1,1]*prebas$areas)
   }
 return(prebas)
 }
