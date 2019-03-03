@@ -165,7 +165,7 @@ do ij = 1,maxYears
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
-	HarvArea = HarvArea + 300!sum(output(1,37,1:nLayers(i),1))*0.5!areas(i)
+	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
  end do !iz i
 
 
@@ -186,7 +186,7 @@ do ij = 1,maxYears
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
   ! close(10)
 !!   !!clearcut!!
-   HarvArea = HarvArea + 300!sum(multiOut(siteX,ij,30,1:nLayers(siteX),1))*areas(i)
+   HarvArea = HarvArea + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1))*areas(i)
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + multiOut(siteX,ij,30,1:nLayers(siteX),1)
    do ijj = 1, nLayers(siteX)
     multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
