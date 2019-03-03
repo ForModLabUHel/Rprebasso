@@ -165,7 +165,7 @@ do ij = 1,maxYears
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
-	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* real(areas(i))
+	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* max(areas(i),0.5)
  end do !iz i
 
 
