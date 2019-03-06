@@ -423,7 +423,7 @@ else
   leff = STAND(19)
   keff = STAND(20)
   lproj = STAND(21)
-  p_eff_all = STAND(10)*P0yX(year,2)/P0yX(year,1) !!##!!2
+  p_eff_all = STAND(10)*P0yX(year,2)/P0yX(year,1) !!##!!2    smoothing PHOTOSYNTHESIS
   weight = STAND(23)
 
   rc = Lc / (H-1.3) !crown ratio
