@@ -10,8 +10,8 @@ InitMultiSite <- function(nYearsMS,
                           multiThin = NA,
                           multiNthin = NA,
                           multiInitClearCut = NA,
-                          fixBAinitClarcut = 1.,
-                          initCLcutRatio = NA,
+                          fixBAinitClarcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
+                          initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                           areas = NA,
                           PAR,
                           TAir,
@@ -40,11 +40,6 @@ InitMultiSite <- function(nYearsMS,
     siteInfo[,1] <- 1:nSites
   }
   nLayers <- siteInfo[,8]
-  if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
-  if(all(is.na(initCLcutRatio))){
-    initCLcutRatio <- matrix(0.,nSites,max(nLayers))
-    for(iz in 1:nSites) initCLcutRatio[iz,1:nLayers[iz]] <- rep(1/nLayers[iz],nLayers[iz])
-  }
   # nSp <- siteInfo[,9]
   climIDs <- siteInfo[,2]
   # if(all(is.na(multiInitVar)) & all(is.na(nSp)) nSp <- rep(3,nSites)
@@ -173,6 +168,12 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
     multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
+  }
+  if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
+  if(all(is.na(initCLcutRatio))){
+    initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,])
+    # initCLcutRatio <- matrix(0.,nSites,max(nLayers))
+    # for(iz in 1:nSites) initCLcutRatio[iz,1:nLayers[iz]] <- rep(1/nLayers[iz],nLayers[iz])
   }
   if(all(is.na(litterSize))){
     litterSize <- matrix(0,3,allSp)
