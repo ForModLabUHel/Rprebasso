@@ -2,7 +2,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !subroutine bridging
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
+subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
 		nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
@@ -18,7 +18,7 @@ integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nS
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYears),minDharv
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
- real (kind=8), intent(inout) :: siteInfo(nSites,7)
+ real (kind=8), intent(inout) :: siteInfo(nSites,7), areas(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,8),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
@@ -28,7 +28,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
- real (kind=8), intent(inout) :: initVar(nSites,6,maxNlayers),P0y(nClimID,maxYears),ETSy(nClimID,maxYears)!,par_common
+ real (kind=8), intent(inout) :: initVar(nSites,6,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nSites,maxYears,5,3,maxNlayers),soilCtotInOut(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -106,7 +106,7 @@ do ij = 1,maxYears
 	if(prebasVersion(i)==0.) then
 	  call prebas_v0(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
-		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij),&
+		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
 		weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
@@ -114,7 +114,7 @@ do ij = 1,maxYears
 	elseif(prebasVersion(i)==1.) then
 	  call prebas_v1(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
-		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij),&
+		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
 		weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
@@ -165,7 +165,7 @@ do ij = 1,maxYears
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
-	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))
+	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
  end do !iz i
 
 
@@ -186,7 +186,7 @@ do ij = 1,maxYears
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
   ! close(10)
 !!   !!clearcut!!
-   HarvArea = HarvArea + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1))
+   HarvArea = HarvArea + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1))*areas(i)
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + multiOut(siteX,ij,30,1:nLayers(siteX),1)
    do ijj = 1, nLayers(siteX)
     multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)

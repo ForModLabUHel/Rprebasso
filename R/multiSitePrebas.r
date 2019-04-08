@@ -10,8 +10,9 @@ InitMultiSite <- function(nYearsMS,
                           multiThin = NA,
                           multiNthin = NA,
                           multiInitClearCut = NA,
-                          fixBAinitClarcut = 1.,
-                          initCLcutRatio = NA,
+                          fixBAinitClarcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
+                          initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
+                          areas = NA,
                           PAR,
                           TAir,
                           VPD,
@@ -27,19 +28,18 @@ InitMultiSite <- function(nYearsMS,
                           inDclct = NA,
                           inAclct = NA,
                           yassoRun = 0,
-                          lukeRuns){
+                          lukeRuns,
+                          smoothP0 = 1,
+                          smoothETS = 1,
+                          smoothYear=5){
 
   nSites <- length(nYearsMS)
+  if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3),nSites,9,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
   nLayers <- siteInfo[,8]
-  if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
-  if(all(is.na(initCLcutRatio))){
-    initCLcutRatio <- matrix(0.,nSites,max(nLayers))
-    for(iz in 1:nSites) initCLcutRatio[iz,1:nLayers[iz]] <- rep(1/nLayers[iz],nLayers[iz])
-  }
   # nSp <- siteInfo[,9]
   climIDs <- siteInfo[,2]
   # if(all(is.na(multiInitVar)) & all(is.na(nSp)) nSp <- rep(3,nSites)
@@ -96,7 +96,10 @@ InitMultiSite <- function(nYearsMS,
                                                 which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
-
+  if(smoothETS==1. & maxYears > 1){
+    for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
+  } 
+  
   ####process clearcut
   for(i in 1: nSites){
     if(ClCut[i]==1 & all(is.na(inDclct[i,]))) inDclct[i,] <-
@@ -140,7 +143,7 @@ InitMultiSite <- function(nYearsMS,
   ### compute P0
   ###if P0 is not provided use preles to compute P0
   if(all(is.na(multiP0))){
-    multiP0 <- matrix(NA,nClimID,maxYears)
+    multiP0 <- array(NA,dim=c(nClimID,maxYears,2))
     for(climID in 1:nClimID){
       nYearsX <- max(nYearsMS[which(climIDs==climID)])
       P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
@@ -148,8 +151,16 @@ InitMultiSite <- function(nYearsMS,
                    Precip=Precip[climID,1:(365*nYearsX)],CO2=rep(380,(365*nYearsX)),
                    fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
       P0 <- matrix(P0,365,nYearsX)
-      multiP0[climID,(1:nYearsX)] <- colSums(P0)
-    }}
+      multiP0[climID,(1:nYearsX),1] <- colSums(P0)
+    }
+    if(smoothP0==1 & maxYears > 1){
+      multiP0[,1,2] <- multiP0[,1,1]
+      for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,smoothYear)
+      # multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
+    } else{
+    multiP0[,,2] <- multiP0[,,1]
+    }
+  }
 
   if (all(is.na(multiInitVar))){
     multiInitVar <- array(NA,dim=c(nSites,6,maxNlayers))
@@ -157,6 +168,12 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
     multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
+  }
+  if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
+  if(all(is.na(initCLcutRatio))){
+    initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,])
+    # initCLcutRatio <- matrix(0.,nSites,max(nLayers))
+    # for(iz in 1:nSites) initCLcutRatio[iz,1:nLayers[iz]] <- rep(1/nLayers[iz],nLayers[iz])
   }
   if(all(is.na(litterSize))){
     litterSize <- matrix(0,3,allSp)
@@ -173,6 +190,7 @@ InitMultiSite <- function(nYearsMS,
     maxYears = maxYears,
     maxThin = maxThin,
     nYears = nYearsMS,
+    areas = areas,
     thinning = multiThin,
     pCROBAS = pCROBAS,
     allSp = allSp,
@@ -203,7 +221,9 @@ InitMultiSite <- function(nYearsMS,
     dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
     yassoRun = yassoRun,
     lukeRuns = lukeRuns,
-    PREBASversion = PREBASversion)
+    PREBASversion = PREBASversion,
+    smoothP0 = smoothP0,
+    smoothETS = smoothETS)
   return(multiSiteInit)
 }
 
@@ -227,7 +247,7 @@ multiPrebas <- function(multiSiteInit){
                      fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClarcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                      ETSy=as.matrix(multiSiteInit$ETSy),
-                     P0y=as.matrix(multiSiteInit$P0y),
+                     P0y=as.array(multiSiteInit$P0y),
                      multiInitVar=as.array(multiSiteInit$multiInitVar),
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
@@ -268,6 +288,7 @@ regionPrebas <- function(multiSiteInit,
                    minDharv = as.double(minDharv),
                    multiOut = as.array(multiSiteInit$multiOut),
                    nSites = as.integer(multiSiteInit$nSites),
+                   areas = as.double(multiSiteInit$areas),
                    nClimID = as.integer(multiSiteInit$nClimID),
                    nLayers = as.integer(multiSiteInit$nLayers),######
                    maxYears = as.integer(multiSiteInit$maxYears),
@@ -284,7 +305,7 @@ regionPrebas <- function(multiSiteInit,
                    fixBAinitClarcut = as.double(multiSiteInit$fixBAinitClarcut),
                    initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                    ETSy=as.matrix(multiSiteInit$ETSy),
-                   P0y=as.matrix(multiSiteInit$P0y),
+                   P0y=as.array(multiSiteInit$P0y),
                    multiInitVar=as.array(multiSiteInit$multiInitVar),
                    weather=as.array(multiSiteInit$weather),
                    DOY= as.integer(multiSiteInit$DOY),
@@ -306,9 +327,10 @@ regionPrebas <- function(multiSiteInit,
                    lukeRuns=as.double(multiSiteInit$lukeRuns))
 class(prebas) <- "regionPrebas"
 if(prebas$maxNlayers>1){
-    prebas$totHarv <- apply(prebas$multiOut[,,37,,1],2,sum)
+    rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
+    prebas$totHarv <- apply(rescalVbyArea,2,sum)
   }else{
-    prebas$totHarv <- prebas$multiOut[,,37,,1]
+    prebas$totHarv <- colSums(prebas$multiOut[,,37,1,1]*prebas$areas)
   }
 return(prebas)
 }

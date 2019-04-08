@@ -27,7 +27,7 @@ implicit none
  integer, intent(inout) :: nThinning
  real (kind=8), intent(out) :: fAPAR(nYears)
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
- real (kind=8), intent(in) :: initVar(6,nLayers),P0y(nYears),ETSy(nYears),initCLcutRatio(nLayers)!
+ real (kind=8), intent(in) :: initVar(6,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
  real (kind=8), intent(inout) :: siteInfo(7)
  real (kind=8), intent(out) :: output(nYears,nVar,nLayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nYears,5,3,nLayers),soilCtotInOut(nYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -41,7 +41,7 @@ implicit none
  real (kind=8) :: STAND(nVar),STAND_tot(nVar),param(npar)!, output(nYear,nSites,nVar)
  integer :: i, ij, ijj,species,layer,nSpec,ll! tree species 1,2,3 = scots pine, norway spruce, birch
 
- real (kind=8) :: p0_ref, ETS_ref
+ real (kind=8) :: p0_ref, ETS_ref,P0yX(nYears,2)
  integer :: time, ki, year,yearX,Ainit, countThinning,domSp(1)
  real (kind=8) :: step, totBA
 
@@ -69,7 +69,7 @@ implicit none
  real (kind=8) :: hb, A, B2,beta0, beta1,beta2, betas, betab
  real (kind=8) :: c,dHc,dH,dLc,g0,g1,g2,g3,g4,g5
  real (kind=8) :: npp, p_eff_all
- real (kind=8) :: p_eff, par_alfar,p
+ real (kind=8) :: p_eff, par_alfar,p,gpp_sp
  real (kind=8) :: s0,par_s0scale
  real (kind=8) :: weight, dNp,dNb,dNs
  real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V,Vold
@@ -79,12 +79,9 @@ implicit none
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
-
+!v1 version definitions
  real (kind=8) :: theta
 
-
- ! open(2,file="test.txt")
- ! write(2,*) "site = ",siteInfo(1)
 !###initialize model###!
 fbAWENH = 0.
 folAWENH = 0.
@@ -99,14 +96,14 @@ pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
-
+P0yX = P0y
 
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
   modOut(:,7,i,1) = initVar(2,i) ! assign initAge !age can be made species specific assigning different ages to different species
   modOut(1,39,i,1) = sum(soilC(1,:,:,i)) !assign initial soilC
-  modOut(:,5,i,1) = ETSy	! assign ETS
-  modOut(:,6,i,1) = P0y		! assign P0
+  modOut(:,5,i,1) = ETSy! assign ETS
+  modOut(:,6,i,1) = P0yX(:,2)	! assign P0
  enddo
  modOut(:,1,:,1) = siteInfo(1); modOut(:,2,:,1) = siteInfo(2)	!! assign siteID and climID
  modOut(1,11,:,1) = initVar(3,:)
@@ -357,8 +354,8 @@ if (year <= maxYearSite) then
    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
-   STAND_all(10,:) = prelesOut(1)/1000.! Photosynthesis in g C m-2 (converted to kg C m-2)
-		endif
+   STAND_all(10,:) = prelesOut(1)/1000. ! Photosynthesis in g C m-2 (converted to kg C m-2)
+
 endif
 !enddo !! end site loop
 
@@ -426,7 +423,7 @@ else
   leff = STAND(19)
   keff = STAND(20)
   lproj = STAND(21)
-  p_eff_all = STAND(10) !!##!!2
+  p_eff_all = STAND(10)*P0yX(year,2)/P0yX(year,1) !!##!!2    smoothing PHOTOSYNTHESIS
   weight = STAND(23)
 
   rc = Lc / (H-1.3) !crown ratio
@@ -456,7 +453,8 @@ if (N>0.) then
    par_alfar = par_alfar5
   end if
 
-!relate metabolic and structural parameters to site conditions
+!!relate metabolic and structural parameters to site conditions
+
 !  par_mf = par_mf0 * p0 / p0_ref
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
@@ -477,6 +475,7 @@ if (N>0.) then
     !GPP all STAND$species   UNITS: g C  /  m2
     ! -------------------------------------
         p_eff = weight * p_eff_all
+		gpp_sp = weight * STAND(10)
 
     if(wf_STKG > 0.) then
         s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
@@ -595,8 +594,10 @@ endif
       W_wsap = N * par_rhow * A * (beta1 * H + beta2 * Hc)
       Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
 ! note changes in the equations below AM 15.5.2015
-      npp = (weight * p_eff_all - Respi_m / 10000.) / (1.+par_c)
-      Respi_tot = weight * p_eff_all - npp
+      ! npp = (weight * p_eff_all - Respi_m / 10000.) / (1.+par_c)
+      npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)
+	  ! Respi_tot = weight * p_eff_all - npp
+	  Respi_tot = gpp_sp - npp
       V_scrown =  A * (par_betas*Lc)
 ! note that this equation has changed AM 15.5.2015
       V_bole = (A+B+sqrt(A*B)) * Hc /2.9
@@ -652,7 +653,7 @@ endif
   STAND(35) = B
   STAND(36) = Light
   STAND(42) = Vold* min(1.,-dN*step/Nold)
-  STAND(44) = p_eff
+  STAND(44) = gpp_sp
 else
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
@@ -1085,7 +1086,8 @@ enddo
 
  ! write(2,*) "here4"
 
-modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
+modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp is not smoothed
+!modOut(:,46,:,1) = modOut(:,18,:,1) - modOut(:,45,:,1) !!!everything smoothed
 
 ! write(2,*) "here5"
 
@@ -1100,5 +1102,3 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
