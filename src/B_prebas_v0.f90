@@ -82,10 +82,6 @@ implicit none
 !v1 version definitions
  real (kind=8) :: theta
 
- ! avP0 = sum(P0y)/nYears
- ! avETS = sum(ETSy)/nYears
- ! open(2,file="test.txt")
-  ! write(*,*) "avP0", avP0
 !###initialize model###!
 fbAWENH = 0.
 folAWENH = 0.
@@ -160,7 +156,8 @@ do year = 1, (nYears)
   do time = 1, inttimes !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
  ! do ki = 1, nSites
- ! calculate self-thinning using all tree classes
+  ! calculate self-thinning using all tree classes
+ if(time==inttimes)then
      Ntot = sum(STAND_all(17,:))
      B = sum(STAND_all(35,:)*STAND_all(17,:))/Ntot   !!!!!!!!!#####changed
      if(Ntot>0.) then
@@ -169,6 +166,7 @@ do year = 1, (nYears)
          Reineke = 0.
      endif
  ! end do
+ endif
 
 do ij = 1 , nLayers 		!loop Species
 
@@ -339,6 +337,8 @@ if (year <= maxYearSite) then
 
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARsite
+   
+		if(time==inttimes)then
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
 		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
@@ -454,6 +454,7 @@ if (N>0.) then
   end if
 
 !!relate metabolic and structural parameters to site conditions
+
 !  par_mf = par_mf0 * p0 / p0_ref
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
@@ -536,7 +537,7 @@ endif
 
 ! Mortality - use Reineke from above
 !      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
-!     if(time==inttimes) then
+     if(time==inttimes) then
       Rein = Reineke / par_kRein
 
       if(Rein > 1.) then
@@ -558,6 +559,7 @@ endif
 				exp(-exp(pCrobas(34,species) + pCrobas(35,species)*ijj + pCrobas(36,species)*D + 0.))
 		enddo
 	  end if
+	 endif
 	  
 	  
 !!  Update state variables
@@ -933,7 +935,7 @@ if(defaultThin == 1.) then
     stand_all(13,ij) = BA
     Nold = stand_all(17,ij)
     N = BA/(pi*((D/2./100.)**2.))
-	Nthd = max(0.,Nold - N)
+    Nthd = max(0.,(Nold - N))
     Hc = stand_all(14,ij)
     Lc = H - Hc !Lc
     rc = Lc / (H-1.3) !crown ratio
