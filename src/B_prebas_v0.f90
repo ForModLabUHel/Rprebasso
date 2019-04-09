@@ -338,7 +338,6 @@ if (year <= maxYearSite) then
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARsite
    
-		if(time==inttimes)then
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
 		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
