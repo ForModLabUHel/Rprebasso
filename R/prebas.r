@@ -116,6 +116,7 @@ prebas <- function(nYears,
   xx <- min(10,nYears)
   Ainit = 6 + 2*3.5 - 0.005*(sum(ETS[1:xx])/xx) + 2.25
   initVar[2,which(is.na(initVar[2,]))] <- initClearcut[5] <- round(Ainit)
+  
 
   ####process weather PRELES (!!to check 365/366 days per year)
   weatherPreles <- array(c(PAR,TAir,VPD,Precip,CO2),dim=c(365,nYears,5))
