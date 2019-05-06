@@ -96,11 +96,12 @@ InitMultiSite <- function(nYearsMS,
     multiETS[climID,(1:nYearsX)] <- ETS
 
     xx <- min(10,nYearsX)
-    Ainit = 6 + 2*3.5 - 0.005*mean(ETS[1:xx]) + 2.25 ## this is not dependent to site type? check with Annikki
+    Ainit = 6 - 0.005*mean(ETS[1:xx]) + 2.25 ## need to add 2*sitetype
     sitesClimID <- which(climIDs==climID)
     multiInitClearCut[sitesClimID,5] <- replace(multiInitClearCut[sitesClimID,5],
                                                 which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
+  for(xd in 1:nSites) multiInitClearCut[xd,5] =multiInitClearCut[xd,5] +2*3.5# multiInitClearCut[xd,5] + 2* siteInfo[xd,3]
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
