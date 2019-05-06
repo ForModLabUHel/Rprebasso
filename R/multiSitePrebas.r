@@ -102,7 +102,7 @@ InitMultiSite <- function(nYearsMS,
                                                 which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
   for(xd in 1:nSites) multiInitClearCut[xd,5] = 
-    multiInitClearCut[xd,5] + 2* siteInfo[xd,3] ## here we add 2*sitetype to make Ainit sitetype dependent
+     multiInitClearCut[xd,5] + 2* siteInfo[xd,3] ## here we add 2*sitetype to make Ainit sitetype dependent
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
