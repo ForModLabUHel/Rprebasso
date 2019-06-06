@@ -131,7 +131,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   5."ETS" effective temperature sums \cr
   6."P0" Potential annual gross primary production (gC m-2 y-1) \cr
   7."age" Age of the layer (years) \cr
-  8."Respi_m /10000." (kgC m-2 y-1) \cr
+  8."DeadWoodVolume" Dead wood volume (m3 ha-1) \cr
   9."Respi_tot" Autotrophic respiration (gC m-2 y-1) \cr
   10."GPP/1000" Total GPP  (kgC ha-1 y-1) \cr
   11."H" Layer average height (m) \cr
@@ -145,7 +145,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   19."leff" Effective leaf area \cr
   20."keff" Effective light extintion coefficient \cr
   21."lproj" Projected leaf area \cr
-  22."ET_preles" Annual evapotranspiration (mm m-2) \cr
+  22."ET_preles" Annual evapotranspiration (mm y-1) \cr
   23."weight" Layer weight on photosynthesis \cr
   24."Wbranch" Branch biomass (kgC ha-1) \cr
   25."WfineRoots" Fine roots biomass (kgC ha-1) \cr
@@ -161,10 +161,10 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   35."B_tree" Basal area of average tree (m2 ha-1) \cr
   36."Light" light interseption \cr
   37."Vharvested" harvested volume (m3 ha-1) \cr
-  38."Vtot" total volume of the Layer considering also dead trees and harvested volume (m3 ha-1) \cr
+  38."Wharvested" haversted biomass (kgC ha-1) \cr
   39."soilC" totaal soil carbon (kgC ha-1) \cr
-  40."aSW" average available soil water (mm m-2) \cr
-  41."summerSW" summer soil water (mm m-2) \cr
+  40."aSW" average available soil water (mm) \cr
+  41."summerSW" summer soil water (mm) \cr
   42."Vmort" volume of dead trees (m3 ha-1) \cr
   43."gross growth" (m3 ha-1 y-1) \cr
   44."GPPspecies" Gross primary production per layer (gC m-2 y-1) \cr
