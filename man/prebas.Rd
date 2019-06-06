@@ -133,7 +133,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   7."age" Age of the layer (years) \cr
   8."DeadWoodVolume" Dead wood volume (m3 ha-1) \cr
   9."Respi_tot" Autotrophic respiration (gC m-2 y-1) \cr
-  10."GPP/1000" Total GPP  (kgC ha-1 y-1) \cr
+  10."GPP/1000" Total GPP  (kgC m-2 y-1) \cr
   11."H" Layer average height (m) \cr
   12."D" Layer average diameter at breast height (cm) \cr
   13."BA" Layer basal area (m-2 ha-1) \cr
