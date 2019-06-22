@@ -177,6 +177,9 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
     multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
   }
+  ####if Height of the crown base is not available use model
+  multiInitVar <- aaply(multiInitVar,1,findHcNAs)
+  
   if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,])
