@@ -1,5 +1,6 @@
 InitMultiSite <- function(nYearsMS,
                           pCROBAS = pCROB,
+                          pHcMod = pHcM,
                           pPRELES = pPREL,
                           PREBASversion = 0,
                           etmodel = 0,
@@ -178,7 +179,7 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
   }
   ####if Height of the crown base is not available use model
-  multiInitVar <- aaply(multiInitVar,1,findHcNAs)
+  multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
   
   if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
   if(all(is.na(initCLcutRatio))){

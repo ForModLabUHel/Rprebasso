@@ -1,8 +1,9 @@
 ###function to replace HC NAs in initial variable initVar
-findHcNAs <- function(initVar){
+findHcNAs <- function(initVar,pHcMod){
   if(any(is.na(initVar[6,]))){
+    initVar[1,][which(initVar[1,]==0)] <- 1 ###deals with 0 species ID
     HcNAs <- which(is.na(initVar[6,]))
-    BAtot <- sum(initVar[5,])
+    BAtot <- sum(initVar[5,],na.rm = T)
     if(length(HcNAs)==1){
       inModHc <- c(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
                    initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
@@ -16,7 +17,6 @@ findHcNAs <- function(initVar){
   return(initVar)
 }
 
-
 ##Height of the crown base model
 model.Hc <- function(inputs){ 
   pValues=inputs[1:6]
@@ -29,7 +29,7 @@ model.Hc <- function(inputs){
     pValues[4]*log(age)+ pValues[5]*log(BA_sp)+
     pValues[6]*(BA_sp/BA_tot)
   Hc_sim <- exp(lnHc_sim)
-  return(pmax(Hc_sim,0.)) 
+  return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 varNames  <- c('siteID','climID','sitetype','species','ETS' ,'P0','age', 'DeadWoodVolume', 'Respi_tot','GPP/1000',
                'H','D', 'BA','Hc_base','Cw','Lc','N','npp','leff','keff','lproj','ET_preles','weight',
@@ -37,13 +37,9 @@ varNames  <- c('siteID','climID','sitetype','species','ETS' ,'P0','age', 'DeadWo
                'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"Vharvested","Wharvested","soilC",
                "aSW","summerSW","Vmort","gross growth", "GPPspecies","Rh species", "NEP sp")
 
-#   getVarNam <- function(){
-#     return(c('siteID','climID','sitetype','species','ETS' ,'P0','age', 'DeadWoodVolume', 'Respi_tot','GPP/1000',
-#               'H','D', 'BA','Hc_base','Cw','Lc','N','npp','leff','keff','lproj','ET_preles','weight',
-#               'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_branch','Litter_wood','V',
-#               'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"Vharvested","Wharvested","soilC",
-#               "aSW","summerSW","Vmort","gross growth", "GPPspecies","Rh species", "NEP sp"))
-# }
+  getVarNam <- function(){
+    return(varNames)
+}
 
 
   aTmean <- function(TAir,nYears){

@@ -165,6 +165,7 @@ do year = 1, (nYears)
      else
          Reineke = 0.
      endif
+	 stand_all(15,:) = Reineke
  ! end do
  endif
 
@@ -234,7 +235,7 @@ else
   Lc = H - Hc
   hb = par_betab * Lc ** par_x
   Cw = 2. * hb
-  STAND(15) = Cw
+  ! STAND(15) = Cw
   STAND(16) = LC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
@@ -297,7 +298,7 @@ if (N>0.) then
   STAND(12) = D
   STAND(13) = BA ! * par_ops2
   STAND(14) = Hc
-  STAND(15) = Cw
+  ! STAND(15) = Cw
   STAND(17) = N
   STAND(33) = wf_STKG
   STAND(34) = wf_treeKG
@@ -415,7 +416,7 @@ else
   D = STAND(12)
   BA = STAND(13)! * par_ops2
   Hc = STAND(14)
-  Cw = STAND(15)
+  ! Cw = STAND(15)
   Lc = STAND(16)
   N = STAND(17)
   Lc = H - Hc
@@ -537,6 +538,7 @@ endif
 ! Mortality - use Reineke from above
 !      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
      if(time==inttimes) then
+	 Reineke = stand(15)
       Rein = Reineke / par_kRein
 
       if(Rein > 1.) then
@@ -635,7 +637,7 @@ endif
   STAND(12) = D
   STAND(13) = BA
   STAND(14) = Hc
-  STAND(15) = Cw
+  ! STAND(15) = Cw
   STAND(16) = Lc
   STAND(17) = N
   STAND(24) = W_branch
@@ -734,7 +736,7 @@ endif
      outt(12,ij,2) = STAND_tot(12)
      outt(13,ij,2) = STAND_tot(13) - BA
      outt(14,ij,2) = STAND_tot(14)
-     outt(15,ij,2) = STAND_tot(15)
+     ! outt(15,ij,2) = STAND_tot(15)
      outt(16,ij,2) = STAND_tot(16)
      outt(17,ij,2) = Nthd
      outt(18:23,ij,2) = -999.
@@ -752,7 +754,7 @@ endif
      STAND(12) = D
      STAND(13) = BA
      STAND(14) = Hc  ! stand Hc
-     STAND(15) = Cw
+     ! STAND(15) = Cw
      STAND(16) = Lc  ! stand Lc
      STAND(17) = N
      STAND(26) = S_fol
@@ -979,7 +981,7 @@ if(defaultThin == 1.) then
     outt(12,ij,2)= STAND_tot(12)
     outt(13,ij,2)= STAND_tot(13) - BA
     outt(14,ij,2)= STAND_tot(14)
-    outt(15,ij,2)= STAND_tot(15)
+    ! outt(15,ij,2)= STAND_tot(15)
     outt(16,ij,2)= STAND_tot(16)
     outt(17,ij,2)= Nthd
     outt(18:23,ij,2)= -999.

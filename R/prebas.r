@@ -1,6 +1,7 @@
 
 prebas <- function(nYears,
                    pCROBAS = pCROB,
+                   pHcMod = pHcM,
                    pPRELES = pPREL,
                    PREBASversion = 0,
                    etmodel = 0,
@@ -113,7 +114,7 @@ prebas <- function(nYears,
     initVar[5,] <- initClearcut[3]/nLayers; initVar[6,] <- initClearcut[4]
   }
 ####if Height of the crown base is not available use model
-  initVar <- findHcNAs(initVar)
+  initVar <- findHcNAs(initVar,pHcMod)
   
   xx <- min(10,nYears)
   Ainit = 6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25
