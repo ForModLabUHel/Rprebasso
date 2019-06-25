@@ -50,7 +50,17 @@ InitMultiSite <- function(nYearsMS,
 
   nClimID <- length(unique(climIDs))
   if(!all((1:nClimID) %in% climIDs) | length(climIDs) != nSites) return("check consistency between weather inputs and climIDs")
-
+  if(nClimID == 1){
+    nClimID = 2
+    climIDs[1] <- 2
+    siteInfo[1,2] <- 2
+    PAR = matrix(PAR,2,length(PAR),byrow = T)
+    TAir = matrix(TAir,2,length(TAir),byrow = T)
+    VPD = matrix(VPD,2,length(VPD),byrow = T)
+    Precip = matrix(Precip,2,length(Precip),byrow = T)
+    CO2 <- matrix(CO2,2,length(CO2),byrow = T)
+  }
+    
   maxYears <- max(nYearsMS)
   maxNlayers <- max(nLayers)
   layerNam <- paste("layer",1:maxNlayers)
