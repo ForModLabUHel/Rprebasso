@@ -21,14 +21,14 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
  real (kind=8), intent(inout) :: siteInfo(nSites,7), areas(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,8),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
- real (kind=8), intent(inout) :: initClearcut(nSites,6),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
+ real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites),prebasVersion(nSites)
  real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
- real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
+ real (kind=8), intent(inout) :: initVar(nSites,6,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nSites,maxYears,5,3,maxNlayers),soilCtotInOut(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -85,7 +85,6 @@ do ij = 1,maxYears
 	   initVar(i,5,ijj) = initClearcut(i,3) * relBA(i,ijj)
       endif
 	  initVar(i,6,ijj) = initClearcut(i,4)
-	  initVar(i,7,ijj) = initClearcut(i,6) * initCLcutRatio(i,ijj)
 	  do ki = 1,int(initClearcut(i,5)+1)
 	   multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	  enddo !ki
@@ -166,7 +165,6 @@ do ij = 1,maxYears
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
-	initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
 	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
  end do !iz i
 
@@ -220,7 +218,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 
   !initVar(siteX,1,1:nLayers(siteX)) = 0. !output(1,4,:,1)
   initVar(siteX,2,1:nLayers(siteX)) = 0.!output(1,7,:,1)
-  initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)
+  initVar(siteX,3:6,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)
 endif !(maxState(i)>minDharv)
   enddo !end do while
  endif !HarvArea < HarvLim .and. HarvLim /= 0.
