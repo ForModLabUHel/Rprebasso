@@ -39,7 +39,7 @@ implicit none
      LAIe(i) = STAND_all(19,i) ! leff
      k(i) = PARAM(4)               ! k 
      LAI(i) = STAND_all(33,i) * PARAM(3) / 10000.   ! WF_stand * sla
-     par_betab(i) = PARAM(17)   ! betab
+     ! par_betab(i) = PARAM(17)   ! betab
      rc(i) = STAND_all(15,i)/2.         ! rc
      N(i) = STAND_all(17,i) / 10000.   ! N per m2
  end do
