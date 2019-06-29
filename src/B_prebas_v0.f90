@@ -9,7 +9,7 @@ subroutine prebas_v0(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output
 
 implicit none
 
- integer, parameter :: nVar=46,npar=37, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=46,npar=38, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1.
  ! logical steadystate_pred= .false.
 !define arguments
@@ -138,6 +138,7 @@ do year = 1, (nYears)
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
    do ijj = 1,nLayers
+     species = int(modOut(year,13,ijj,1))  ! read species
 	 if(fixBAinitClarcut==1) then
 	  modOut(year,13,ijj,1) = initClearcut(3) * initCLcutRatio(ijj)
 	 else
@@ -146,6 +147,8 @@ do year = 1, (nYears)
 	 modOut(year,11,ijj,1) = initClearcut(1)
      modOut(year,12,ijj,1) = initClearcut(2)
      modOut(year,14,ijj,1) = initClearcut(4)
+	 modOut(year,16,ijj,1) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(1) - &
+		initClearcut(4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 	if(modOut(1,12,ijj,1) > 0.) then
 	  modOut(1,17,ijj,1) = modOut(1,13,ijj,1)/(pi*((modOut(1,12,ijj,1)/2/100)**2))
 	  modOut(1,35,ijj,1) =  modOut(1,13,ijj,1)/modOut(1,17,ijj,1)
@@ -558,6 +561,8 @@ endif
                 dA = 0.
                 dB = 0.
             endif
+    ! STAND(40) = A
+    ! STAND(41) = dA
 
 ! Mortality - use Reineke from above
 !      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
@@ -734,7 +739,7 @@ endif
      N = BA/(pi*((D/2./100.)**2.)) ! N
      Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
-     A = rc * B
+     A = stand(16) * B/stand(35)
      wf_treeKG = par_rhof * A
 
      V_scrown =  A * (par_betas*Lc)
@@ -966,7 +971,7 @@ if(defaultThin == 1.) then
     wf_treeKG_old = stand_all(34,ij)
     W_stem_old = stand_all(31,ij)
     B = BA/N
-    A = rc * B
+    A = stand_all(16,ij) * B/stand_all(35,ij)
     wf_treeKG = par_rhof * A
     V_scrown =  A * (par_betas*Lc)
     V_bole = (A+B+sqrt(A*B)) * Hc /2.9

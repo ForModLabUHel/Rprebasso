@@ -69,7 +69,7 @@ InitMultiSite <- function(nYearsMS,
                                     c("stand","thinned")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
-  multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
+  # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
   ###process yasso inputs if missing
   if(is.na(soilC)) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
   if(is.na(soilCtot)) soilCtot <- matrix(0,nSites,maxYears)
@@ -188,7 +188,7 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
     multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
     for(ikj in 1:maxNlayers){
-      p_ksi=0.07
+      p_ksi <- pCROBAS[38,multiInitVar[,1,ikj]]
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
       Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
@@ -209,14 +209,12 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[which(is.na(multiInitVar))] <- 0.
     ops <- which(multiInitVar[,6,]<1.3 & multiInitVar[,3,]>0.,arr.ind = T)
     if(length(ops)>0.){
-      for(ivk in 1:nrow(ops)){
-        p_ksi=0.07
-        p_rhof <- pCROBAS[15,multiInitVar[,1,][ops[ivk]]]
-        p_z <- pCROBAS[11,multiInitVar[,1,][ops[ivk]]]
-        Lc <- multiInitVar[,3,][ops[ivk]] - multiInitVar[,6,][ops[ivk]]
-        A <- p_ksi/p_rhof * Lc^p_z
-        multiInitVar[,7,][ops[ivk]] <- A
-      } 
+      p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
+      p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
+      p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
+      Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
+      A <- p_ksi/p_rhof * Lc^p_z
+      multiInitVar[,7,][ops] <- A
     }
   }
   

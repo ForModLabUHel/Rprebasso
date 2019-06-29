@@ -119,7 +119,7 @@ prebas <- function(nYears,
   initVar <- findHcNAs(initVar,pHcMod)
   # initialize A
   for(ikj in 1:nLayers){
-    p_ksi=0.07
+    p_ksi=pCROBAS[38,initVar[1,ikj]]
     p_rhof <- pCROBAS[15,initVar[1,ikj]]
     p_z <- pCROBAS[11,initVar[1,ikj]]
     Lc <- initVar[3,ikj] - initVar[6,ikj]

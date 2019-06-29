@@ -1,3 +1,13 @@
+#### function to calculate initial sapwood area at crown base (A)
+compA <- function(inputs){
+  p_ksi = inputs[1]
+  p_rhof = inputs[2]
+  p_z <- inputs[3]
+  Lc = inputs[4]
+  A <- p_ksi/p_rhof * Lc^p_z
+  return(A)
+}
+
 ###function to replace HC NAs in initial variable initVar
 findHcNAs <- function(initVar,pHcMod){
   if(any(is.na(initVar[6,]))){
