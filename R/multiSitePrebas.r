@@ -156,7 +156,7 @@ InitMultiSite <- function(nYearsMS,
     
     weatherPreles <- aperm(weatherPreles, c(2,1,3))
     
-    multiweather[i,(1:nYearsMS[i]),,] <- weatherPreles
+    multiweather[i,(1:nYearsX),,] <- weatherPreles
   }
   
   ### compute P0
