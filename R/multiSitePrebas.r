@@ -199,7 +199,13 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[which(is.na(multiInitVar))] <- 0.
   }else{
     ####if Height of the crown base is not available use model
-    multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
+    if(maxNlayers==1){
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod),dim=c(nSites,7,1))
+    }else{
+      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
+    }
+    
+    
     
     ####compute A
     N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
@@ -221,11 +227,15 @@ InitMultiSite <- function(nYearsMS,
   
   
   if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
+  
   if(all(is.na(initCLcutRatio))){
-    initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,])
-    # initCLcutRatio <- matrix(0.,nSites,max(nLayers))
-    # for(iz in 1:nSites) initCLcutRatio[iz,1:nLayers[iz]] <- rep(1/nLayers[iz],nLayers[iz])
+    if(maxNlayers==1){
+      initCLcutRatio <- rep(1,nSites)  
+    }else{
+      initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,]) 
+    }
   }
+  
   if(all(is.na(litterSize))){
     litterSize <- matrix(0,3,allSp)
     litterSize[2,] <- 2

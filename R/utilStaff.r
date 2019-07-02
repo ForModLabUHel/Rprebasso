@@ -10,7 +10,11 @@ compA <- function(inputs){
 
 ###function to replace HC NAs in initial variable initVar
 findHcNAs <- function(initVar,pHcMod){
-  if(any(is.na(initVar[6,]))){
+  if(is.vector(initVar)){
+    if(is.na(initVar[6])){
+      initVar[6] <- model.Hc(inModHc)
+    }
+  } else if(any(is.na(initVar[6,]))){
     initVar[1,][which(initVar[1,]==0)] <- 1 ###deals with 0 species ID
     HcNAs <- which(is.na(initVar[6,]))
     BAtot <- sum(initVar[5,],na.rm = T)
