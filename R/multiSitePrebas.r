@@ -118,7 +118,7 @@ InitMultiSite <- function(nYearsMS,
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
   } 
-  
+  multiETS[which(is.na(multiETS))] <- 0.
   ####process clearcut
   for(i in 1: nSites){
     if(ClCut[i]==1 & all(is.na(inDclct[i,]))) inDclct[i,] <-
@@ -180,6 +180,7 @@ InitMultiSite <- function(nYearsMS,
       multiP0[,,2] <- multiP0[,,1]
     }
   }
+  multiP0[which(is.na(multiP0))] <- 0.
   
   if (all(is.na(multiInitVar))){
     multiInitVar <- array(NA,dim=c(nSites,7,maxNlayers))
