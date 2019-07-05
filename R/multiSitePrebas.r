@@ -32,7 +32,9 @@ InitMultiSite <- function(nYearsMS,
                           lukeRuns,
                           smoothP0 = 1,
                           smoothETS = 1,
-                          smoothYear=5){
+                          smoothYear=5,
+                          HcModV=1  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          ){  
   
   nSites <- length(nYearsMS)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
@@ -208,21 +210,32 @@ InitMultiSite <- function(nYearsMS,
     
     
     ####compute A
-    N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
-    B = multiInitVar[,5,]/N
-    Lc = multiInitVar[,3,] - multiInitVar[,6,]
-    rc = Lc / (multiInitVar[,3,]-1.3) 
-    multiInitVar[,7,] = rc * B
-    multiInitVar[which(is.na(multiInitVar))] <- 0.
-    ops <- which(multiInitVar[,6,]<1.3 & multiInitVar[,3,]>0.,arr.ind = T)
-    if(length(ops)>0.){
-      p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
-      p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
-      p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
-      Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
-      A <- p_ksi/p_rhof * Lc^p_z
-      multiInitVar[,7,][ops] <- A
-    }
+     p_ksi=pCROBAS[38,multiInitVar[,1,]]
+     p_rhof <- pCROBAS[15,multiInitVar[,1,]]
+     p_z <- pCROBAS[11,multiInitVar[,1,]]
+     Lc <- multiInitVar[,3,] - multiInitVar[,6,]
+     A <- p_ksi/p_rhof * Lc^p_z
+     multiInitVar[,7,] <- A      # p_ksi=pCROBAS[38,multiInitVar[,1,]]
+     p_rhof <- pCROBAS[15,multiInitVar[,1,]]
+     p_z <- pCROBAS[11,multiInitVar[,1,]]
+     Lc <- multiInitVar[,3,] - multiInitVar[,6,]
+     A <- p_ksi/p_rhof * Lc^p_z
+     multiInitVar[,7,] <- A
+    # N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
+    # B = multiInitVar[,5,]/N
+    # Lc = multiInitVar[,3,] - multiInitVar[,6,]
+    # rc = Lc / (multiInitVar[,3,]-1.3) 
+    # multiInitVar[,7,] = rc * B
+    # multiInitVar[which(is.na(multiInitVar))] <- 0.
+    # ops <- which(multiInitVar[,6,]<1.3 & multiInitVar[,3,]>0.,arr.ind = T)
+    # if(length(ops)>0.){
+      # p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
+      # p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
+      # p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
+      # Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
+      # A <- p_ksi/p_rhof * Lc^p_z
+      # multiInitVar[,7,][ops] <- A
+    # }
   }
   
   
