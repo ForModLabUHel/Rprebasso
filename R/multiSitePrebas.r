@@ -216,11 +216,11 @@ InitMultiSite <- function(nYearsMS,
      Lc <- multiInitVar[,3,] - multiInitVar[,6,]
      A <- p_ksi/p_rhof * Lc^p_z
      multiInitVar[,7,] <- A      # p_ksi=pCROBAS[38,multiInitVar[,1,]]
-     p_rhof <- pCROBAS[15,multiInitVar[,1,]]
-     p_z <- pCROBAS[11,multiInitVar[,1,]]
-     Lc <- multiInitVar[,3,] - multiInitVar[,6,]
-     A <- p_ksi/p_rhof * Lc^p_z
-     multiInitVar[,7,] <- A
+     # p_rhof <- pCROBAS[15,multiInitVar[,1,]]
+     # p_z <- pCROBAS[11,multiInitVar[,1,]]
+     # Lc <- multiInitVar[,3,] - multiInitVar[,6,]
+     # A <- p_ksi/p_rhof * Lc^p_z
+     # multiInitVar[,7,] <- A
     # N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
     # B = multiInitVar[,5,]/N
     # Lc = multiInitVar[,3,] - multiInitVar[,6,]
