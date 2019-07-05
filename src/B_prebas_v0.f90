@@ -50,12 +50,12 @@ implicit none
  real (kind=8) :: modOut((nYears+1),nVar,nLayers,2)
  real (kind=8) :: soilC((nYears+1),5,3,nLayers),soilCtot((nYears+1))
  real (kind=8) :: par_phib,par_phic,par_alfat,par_alfar1,par_alfar2,par_alfar3,par_alfar4
- real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0, mrFact
+ real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0, mrFact,par_vr0
  real (kind=8) :: par_z,par_rhos,par_cR, par_x, Light,MeanLight(nLayers),par_mf0,par_mr0,par_mw0
  real (kind=8) :: par_sarShp, par_S_branchMod
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
- real (kind=8) :: BA, dA, dB, reineke, dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma
+ real (kind=8) :: BA, dA, dB, reineke, dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma,par_H0
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30)
 
 !management routines
@@ -207,7 +207,7 @@ do ij = 1 , nLayers 		!loop Species
  par_sla =param(3)
  par_k =param(4)
  par_vf0 =param(5)
- par_vr =param(6)
+ par_vr0 =param(6)
  par_c=param(7)
  par_mf0=param(8)
  par_mr0=param(9)
@@ -274,7 +274,7 @@ if (N>0.) then
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-!  par_vr = par_vr / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+  par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!!new version
 
  !calculate derived variables
   rc = Lc / (H-1.3) !crown ratio
@@ -396,7 +396,7 @@ do ij = 1 , nLayers
  par_sla =param(3)
  par_k =param(4)
  par_vf0 =param(5)
- par_vr =param(6)
+ par_vr0 =param(6)
  par_c=param(7)
  par_mf0=param(8)
  par_mr0=param(9)
@@ -590,7 +590,7 @@ endif
 	  modOut((year+1),8,ij,1) = modOut((year+1),8,ij,1) + Vold* min(1.,-dN*step/Nold)
 	    do ijj = 1,(nyears-year)
 			modOut((year+ijj+1),8,ij,1) = modOut((year+ijj+1),8,ij,1) + (Vold/Nold) * (-dN*step) * &
-				exp(-exp(pCrobas(34,species) + pCrobas(35,species)*ijj + pCrobas(36,species)*D + 0.))
+				exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + 0.))
 		enddo
 	  end if
 	 endif
@@ -927,7 +927,7 @@ if(defaultThin == 1.) then
     par_sla =param(3)
     par_k =param(4)
     par_vf0 =param(5)
-    par_vr =param(6)
+    par_vr0 =param(6)
     par_c=param(7)
     par_mf0=param(8)
     par_mr0=param(9)
