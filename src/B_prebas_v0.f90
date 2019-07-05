@@ -50,12 +50,12 @@ implicit none
  real (kind=8) :: modOut((nYears+1),nVar,nLayers,2)
  real (kind=8) :: soilC((nYears+1),5,3,nLayers),soilCtot((nYears+1))
  real (kind=8) :: par_phib,par_phic,par_alfat,par_alfar1,par_alfar2,par_alfar3,par_alfar4
- real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0
+ real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0, mrFact
  real (kind=8) :: par_z,par_rhos,par_cR, par_x, Light,MeanLight(nLayers),par_mf0,par_mr0,par_mw0
  real (kind=8) :: par_sarShp, par_S_branchMod
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
- real (kind=8) :: BA, dA, dB, reineke, dN, wf_test,par_thetaMax, par_Age0, par_gamma
+ real (kind=8) :: BA, dA, dB, reineke, dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30)
 
 !management routines
@@ -232,10 +232,11 @@ do ij = 1 , nLayers 		!loop Species
  p0_ref = param(29)
  ETS_ref = param(30)
  par_thetaMax = param(31)
- par_Age0 = param(32)
+ par_H0max = param(32)
  par_gamma = param(33)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
+ par_kH = param(34)
 
 
 ! do siteNo = 1, nSites  !loop sites
@@ -420,8 +421,9 @@ do ij = 1 , nLayers
  p0_ref = param(29)
  ETS_ref = param(30)
  par_thetaMax = param(31)
- par_Age0 = param(32)
+ par_H0max = param(32)
  par_gamma = param(33)
+ par_kH = param(34)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
 
@@ -486,16 +488,19 @@ if (N>0.) then
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
 
-  theta = par_thetaMax / (1. + exp(-(age-par_Age0)/par_gamma))  !!!!v1
+  par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!!new version
+  theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!!new version
 
-  par_mf = par_mf0* p0 / p0_ref + theta  !!!!v1
-  par_mr = par_mr0* p0 / p0_ref + theta  !!!!v1
-  par_mw = par_mw0* p0 / p0_ref + theta  !!!!v1
+  mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
+  par_mr = par_mr0* p0 / p0_ref + theta + (1+par_c) * mrFact / par_vr0    !!!new version
+  par_mf = par_mf0* p0 / p0_ref + theta  
+  ! par_mr = par_mr0* p0 / p0_ref + theta
+  par_mw = par_mw0* p0 / p0_ref + theta
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-!  par_vr = par_vr / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+  par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
   par_rhor = par_alfar * par_rhof
 
     ! -------------------------------------
@@ -947,8 +952,9 @@ if(defaultThin == 1.) then
     p0_ref = param(29)
     ETS_ref = param(30)
     par_thetaMax = param(31)
-    par_Age0 = param(32)
+    par_H0max = param(32)
     par_gamma = param(33)
+	par_kH = param(34)
     par_rhof1 = 0.!param(20)
     par_Cr2 = 0.!param(24)
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
