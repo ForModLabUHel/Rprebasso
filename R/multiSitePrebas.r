@@ -33,7 +33,7 @@ InitMultiSite <- function(nYearsMS,
                           smoothP0 = 1,
                           smoothETS = 1,
                           smoothYear=5,
-                          HcModV=1  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          HcModV=2  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
                           ){  
   
   nSites <- length(nYearsMS)
@@ -195,7 +195,7 @@ InitMultiSite <- function(nYearsMS,
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
       Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
-      A <- p_ksi/p_rhof * Lc^p_z
+      A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
       multiInitVar[,7,ikj] <- A     
     } 
     multiInitVar[which(is.na(multiInitVar))] <- 0.
@@ -210,9 +210,9 @@ InitMultiSite <- function(nYearsMS,
     
     
     ####compute A
-     p_ksi=pCROBAS[38,multiInitVar[,1,]]
-     p_rhof <- pCROBAS[15,multiInitVar[,1,]]
-     p_z <- pCROBAS[11,multiInitVar[,1,]]
+     p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
+     p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
+     p_z <- matrix(pCROBAS[11,multiInitVar[,1,]],nSites,maxNlayers)
      Lc <- multiInitVar[,3,] - multiInitVar[,6,]
      A <- p_ksi/p_rhof * Lc^p_z
      multiInitVar[,7,] <- A      # p_ksi=pCROBAS[38,multiInitVar[,1,]]
