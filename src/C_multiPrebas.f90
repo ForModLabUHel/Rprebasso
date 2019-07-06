@@ -40,6 +40,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
 
 !!!!initialize run
 multiOut = 0.
+output = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
@@ -56,7 +57,7 @@ soilCtot = soilCtotInOut
 		litterSize,soilCtot(i,1:nYears(i)),&
 		defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i))
 
-		multiOut(i,:,:,1:nLayers(i),:) = output(:,:,1:nLayers(i),:)
+		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
 
 end subroutine
