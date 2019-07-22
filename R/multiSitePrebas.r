@@ -202,9 +202,9 @@ InitMultiSite <- function(nYearsMS,
   }else{
     ####if Height of the crown base is not available use model
     if(maxNlayers==1){
-      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod),dim=c(nSites,7,1))
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV),dim=c(nSites,7,1))
     }else{
-      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
+      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV)
     }
     
     
