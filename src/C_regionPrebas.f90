@@ -42,7 +42,14 @@ multiOut = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
-
+!!inititialize A
+do i = 1,nSites
+ do ijj = 1,nLayers(i)
+	species = int(multiOut(i,1,4,ijj,1))
+		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+ enddo
+enddo
 do i = 1,nSites
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
