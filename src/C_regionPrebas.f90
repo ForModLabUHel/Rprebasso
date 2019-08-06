@@ -45,7 +45,7 @@ soilCtot = soilCtotInOut
 !!inititialize A
 do i = 1,nSites
  do ijj = 1,nLayers(i)
-	species = int(multiOut(i,1,4,ijj,1))
+	species = int(initVar(i,1,ijj))
 		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
 			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
  enddo
