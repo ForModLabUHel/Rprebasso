@@ -37,7 +37,8 @@ implicit none
  real (kind=8),DIMENSION(nLayers,5) :: fbAWENH,folAWENH,stAWENH
  real (kind=8),DIMENSION(nLayers) :: Lb,Lf,Lst
 ! real (kind=8),DIMENSION(nLayers) :: speciesIDs
-
+ real (kind=8),DIMENSION(nLayers) :: valX
+ integer,DIMENSION(nLayers) :: layerX
  real (kind=8) :: STAND(nVar),STAND_tot(nVar),param(npar)!, output(nYear,nSites,nVar)
  integer :: i, ij, ijj,species,layer,nSpec,ll! tree species 1,2,3 = scots pine, norway spruce, birch
 
@@ -55,7 +56,7 @@ implicit none
  real (kind=8) :: par_sarShp, par_S_branchMod
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
- real (kind=8) :: BA, dA, dB, reineke, dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma,par_H0
+ real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma,par_H0
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30)
 
 !management routines
@@ -99,7 +100,7 @@ pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
 P0yX = P0y
-Reineke = 0.
+Reineke(:) = 0.
 
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
@@ -138,7 +139,7 @@ do year = 1, (nYears)
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
    do ijj = 1,nLayers
-     species = int(modOut(year,13,ijj,1))  ! read species
+     species = int(modOut(year,4,ijj,1))  ! read species
 	 if(fixBAinitClarcut==1) then
 	  modOut(year,13,ijj,1) = initClearcut(3) * initCLcutRatio(ijj)
 	 else
@@ -181,17 +182,24 @@ do year = 1, (nYears)
  ! do ki = 1, nSites
   ! calculate self-thinning using all tree classes
  if(time==inttimes)then
-     Ntot = sum(STAND_all(17,:))
-     B = sum(STAND_all(35,:)*STAND_all(17,:))/Ntot   !!!!!!!!!#####changed
+    valX = STAND_all(11,:)
+	do ij = 1, nLayers
+	  domSp = maxloc(valX)
+ 	  layerX(ij) = int(domSp(1))
+	  valX(layerX(ij)) = -999.
+	
+     Ntot = sum(STAND_all(17,layerX(1:ij)))
+     B = sum(STAND_all(35,layerX(1:ij))*STAND_all(17,layerX(1:ij)))/Ntot   !!!!!!!!!#####changed
      if(Ntot>0.) then
-         Reineke = Ntot*(sqrt(B*4/pi)*100./25.)**(1.66)
+         Reineke(layerX(ij)) = Ntot*(sqrt(B*4/pi)*100./25.)**(1.66)
      else
-         Reineke = 0.
+         Reineke(layerX(ij)) = 0.
      endif
    ! STAND_all(40,:) = Ntot
    ! STAND_all(41,:) = B
 
  ! write(2,*) reineke
+	enddo
  endif
 
 do ij = 1 , nLayers 		!loop Species
@@ -572,7 +580,7 @@ endif
 ! Mortality - use Reineke from above
 !      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
      if(time==inttimes) then
-      Rein = Reineke / par_kRein
+      Rein = Reineke(ij) / par_kRein
 
       if(Rein > 1.) then
            dN = - 0.02 * N * Rein
