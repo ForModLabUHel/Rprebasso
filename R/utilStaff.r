@@ -1,21 +1,63 @@
+#### function to calculate initial sapwood area at crown base (A)
+compA <- function(inputs){
+  p_ksi = inputs[1]
+  p_rhof = inputs[2]
+  p_z <- inputs[3]
+  Lc = inputs[4]
+  A <- p_ksi/p_rhof * Lc^p_z
+  return(A)
+}
+
+
+# Function to Compute Hc based on ksi parameter
+ksiHcMod <- function(initVar){
+  h <- initVar[3] - 1.3
+  b <- pi * initVar[4]^2 / 40000
+  p_ksi <- pCROBAS[38,initVar[1]]
+  p_rhof <- pCROBAS[15,initVar[1]]
+  p_z <- pCROBAS[11,initVar[1]]
+  Lc <- h* ((p_rhof * b)/(p_ksi * h^p_z))^(1/(p_z-1))
+  Hc <- max(0.,(h-Lc))
+  return(Hc)
+}
+
 ###function to replace HC NAs in initial variable initVar
-findHcNAs <- function(initVar,pHcMod){
-  if(any(is.na(initVar[6,]))){
+findHcNAs <- function(initVar,pHcMod,HcModV){
+  if(is.vector(initVar)){
+    if(is.na(initVar[6])){
+      if(HcModV==1){
+        initVar[6] <- ksiHcMod(initVar)
+      }else if(HcModV==2){
+        inModHc <- c(pHcMod[,initVar[1]],initVar[3],
+                     initVar[4],initVar[2],initVar[5],initVar[5])
+        initVar[6] <- model.Hc(inModHc)
+      }
+    }
+  } else if(any(is.na(initVar[6,]))){
     initVar[1,][which(initVar[1,]==0)] <- 1 ###deals with 0 species ID
     HcNAs <- which(is.na(initVar[6,]))
     BAtot <- sum(initVar[5,],na.rm = T)
     if(length(HcNAs)==1){
-      inModHc <- c(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
-                   initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
-      initVar[6,HcNAs] <- model.Hc(inModHc)
+      if(HcModV==1){
+        initVar[6,HcNAs] <- ksiHcMod(initVar[,HcNAs])
+      }else if(HcModV==2){
+        inModHc <- c(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
+                     initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
+        initVar[6,HcNAs] <- model.Hc(inModHc)
+      }
     }else{
-      inModHc <- rbind(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
-                       initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
-      initVar[6,HcNAs] <- apply(inModHc,2,model.Hc)
+      if(HcModV==1){
+        initVar[6,HcNAs] <- apply(initVar,1,ksiHcMod)
+      }else if(HcModV==2){
+        inModHc <- rbind(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
+                         initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
+        initVar[6,HcNAs] <- apply(inModHc,2,model.Hc)
+      }
     }
   }
   return(initVar)
 }
+
 
 ##Height of the crown base model
 model.Hc <- function(inputs){ 
@@ -32,7 +74,7 @@ model.Hc <- function(inputs){
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 varNames  <- c('siteID','climID','sitetype','species','ETS' ,'P0','age', 'DeadWoodVolume', 'Respi_tot','GPP/1000',
-               'H','D', 'BA','Hc_base','Cw','Lc','N','npp','leff','keff','lproj','ET_preles','weight',
+               'H','D', 'BA','Hc_base','Cw','Ac','N','npp','leff','keff','lproj','ET_preles','weight',
                'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_branch','Litter_wood','V',
                'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"Vharvested","Wharvested","soilC",
                "aSW","summerSW","Vmort","gross growth", "GPPspecies","Rh species", "NEP sp")

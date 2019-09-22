@@ -9,7 +9,7 @@ subroutine prebas_v0(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output
 
 implicit none
 
- integer, parameter :: nVar=46,npar=37, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=46,npar=38, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1.
  ! logical steadystate_pred= .false.
 !define arguments
@@ -17,7 +17,7 @@ implicit none
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(inout) :: pPRELES(30)
- real (kind=8), intent(inout) :: thinning(nThinning,8)
+ real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
  integer, intent(in) :: maxYearSite
@@ -37,7 +37,8 @@ implicit none
  real (kind=8),DIMENSION(nLayers,5) :: fbAWENH,folAWENH,stAWENH
  real (kind=8),DIMENSION(nLayers) :: Lb,Lf,Lst
 ! real (kind=8),DIMENSION(nLayers) :: speciesIDs
-
+ real (kind=8),DIMENSION(nLayers) :: valX
+ integer,DIMENSION(nLayers) :: layerX
  real (kind=8) :: STAND(nVar),STAND_tot(nVar),param(npar)!, output(nYear,nSites,nVar)
  integer :: i, ij, ijj,species,layer,nSpec,ll! tree species 1,2,3 = scots pine, norway spruce, birch
 
@@ -50,12 +51,12 @@ implicit none
  real (kind=8) :: modOut((nYears+1),nVar,nLayers,2)
  real (kind=8) :: soilC((nYears+1),5,3,nLayers),soilCtot((nYears+1))
  real (kind=8) :: par_phib,par_phic,par_alfat,par_alfar1,par_alfar2,par_alfar3,par_alfar4
- real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0
+ real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0, mrFact,par_vr0
  real (kind=8) :: par_z,par_rhos,par_cR, par_x, Light,MeanLight(nLayers),par_mf0,par_mr0,par_mw0
  real (kind=8) :: par_sarShp, par_S_branchMod
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
- real (kind=8) :: BA, dA, dB, reineke, dN, wf_test,par_thetaMax, par_Age0, par_gamma
+ real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma,par_H0
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30)
 
 !management routines
@@ -99,7 +100,7 @@ pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
 P0yX = P0y
-Reineke = 0.
+Reineke(:) = 0.
 
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
@@ -137,6 +138,7 @@ do year = 1, (nYears)
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
    do ijj = 1,nLayers
+     species = int(modOut(year,4,ijj,1))  ! read species
 	 if(fixBAinitClarcut==1) then
 	  modOut(year,13,ijj,1) = initClearcut(3) * initCLcutRatio(ijj)
 	 else
@@ -145,6 +147,8 @@ do year = 1, (nYears)
 	 modOut(year,11,ijj,1) = initClearcut(1)
      modOut(year,12,ijj,1) = initClearcut(2)
      modOut(year,14,ijj,1) = initClearcut(4)
+	 modOut(year,16,ijj,1) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(1) - &
+		initClearcut(4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 	if(modOut(1,12,ijj,1) > 0.) then
 	  modOut(1,17,ijj,1) = modOut(1,13,ijj,1)/(pi*((modOut(1,12,ijj,1)/2/100)**2))
 	  modOut(1,35,ijj,1) =  modOut(1,13,ijj,1)/modOut(1,17,ijj,1)
@@ -177,17 +181,24 @@ do year = 1, (nYears)
  ! do ki = 1, nSites
   ! calculate self-thinning using all tree classes
  if(time==inttimes)then
-     Ntot = sum(STAND_all(17,:))
-     B = sum(STAND_all(35,:)*STAND_all(17,:))/Ntot   !!!!!!!!!#####changed
+    valX = STAND_all(11,:)
+	do ij = 1, nLayers
+	  domSp = maxloc(valX)
+ 	  layerX(ij) = int(domSp(1))
+	  valX(layerX(ij)) = -999.
+	
+     Ntot = sum(STAND_all(17,layerX(1:ij)))
+     B = sum(STAND_all(35,layerX(1:ij))*STAND_all(17,layerX(1:ij)))/Ntot   !!!!!!!!!#####changed
      if(Ntot>0.) then
-         Reineke = Ntot*(sqrt(B*4/pi)*100./25.)**(1.66)
+         Reineke(layerX(ij)) = Ntot*(sqrt(B*4/pi)*100./25.)**(1.66)
      else
-         Reineke = 0.
+         Reineke(layerX(ij)) = 0.
      endif
    ! STAND_all(40,:) = Ntot
    ! STAND_all(41,:) = B
 
  ! write(2,*) reineke
+	enddo
  endif
 
 do ij = 1 , nLayers 		!loop Species
@@ -203,7 +214,7 @@ do ij = 1 , nLayers 		!loop Species
  par_sla =param(3)
  par_k =param(4)
  par_vf0 =param(5)
- par_vr =param(6)
+ par_vr0 =param(6)
  par_c=param(7)
  par_mf0=param(8)
  par_mr0=param(9)
@@ -228,10 +239,11 @@ do ij = 1 , nLayers 		!loop Species
  p0_ref = param(29)
  ETS_ref = param(30)
  par_thetaMax = param(31)
- par_Age0 = param(32)
+ par_H0max = param(32)
  par_gamma = param(33)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
+ par_kH = param(34)
 
 
 ! do siteNo = 1, nSites  !loop sites
@@ -268,7 +280,7 @@ if (N>0.) then
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-!  par_vr = par_vr / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+  par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!!new version
 
  !calculate derived variables
   rc = Lc / (H-1.3) !crown ratio
@@ -390,7 +402,7 @@ do ij = 1 , nLayers
  par_sla =param(3)
  par_k =param(4)
  par_vf0 =param(5)
- par_vr =param(6)
+ par_vr0 =param(6)
  par_c=param(7)
  par_mf0=param(8)
  par_mr0=param(9)
@@ -415,8 +427,9 @@ do ij = 1 , nLayers
  p0_ref = param(29)
  ETS_ref = param(30)
  par_thetaMax = param(31)
- par_Age0 = param(32)
+ par_H0max = param(32)
  par_gamma = param(33)
+ par_kH = param(34)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
 
@@ -480,16 +493,19 @@ if (N>0.) then
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
 
-  theta = par_thetaMax / (1. + exp(-(age-par_Age0)/par_gamma))  !!!!v1
+  par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!!new version
+  theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!!new version
 
-  par_mf = par_mf0* p0 / p0_ref + theta  !!!!v1
-  par_mr = par_mr0* p0 / p0_ref + theta  !!!!v1
-  par_mw = par_mw0* p0 / p0_ref + theta  !!!!v1
+  mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
+  par_mr = par_mr0* p0 / p0_ref + theta + (1+par_c) * mrFact / par_vr0    !!!new version
+  par_mf = par_mf0* p0 / p0_ref + theta  
+  ! par_mr = par_mr0* p0 / p0_ref + theta
+  par_mw = par_mw0* p0 / p0_ref + theta
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-!  par_vr = par_vr / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+  par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
   par_rhor = par_alfar * par_rhof
 
     ! -------------------------------------
@@ -555,11 +571,13 @@ endif
                 dA = 0.
                 dB = 0.
             endif
+    ! STAND(40) = A
+    ! STAND(41) = dA
 
 ! Mortality - use Reineke from above
 !      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
      if(time==inttimes) then
-      Rein = Reineke / par_kRein
+      Rein = Reineke(ij) / par_kRein
 
       if(Rein > 1.) then
            dN = - 0.02 * N * Rein
@@ -577,7 +595,7 @@ endif
 	  modOut((year+1),8,ij,1) = modOut((year+1),8,ij,1) + Vold* min(1.,-dN*step/Nold)
 	    do ijj = 1,(nyears-year)
 			modOut((year+ijj+1),8,ij,1) = modOut((year+ijj+1),8,ij,1) + (Vold/Nold) * (-dN*step) * &
-				exp(-exp(pCrobas(34,species) + pCrobas(35,species)*ijj + pCrobas(36,species)*D + 0.))
+				exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + 0.))
 		enddo
 	  end if
 	 endif
@@ -689,7 +707,9 @@ endif
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 	STAND_tot = STAND
-
+	if(thinning(countThinning,9) .NE. -999) then
+	 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
+	endif
 !    STAND(11) =
     if(thinning(countThinning,4)==0.) then
      STAND(8:21) = 0. !#!#
@@ -731,7 +751,7 @@ endif
      N = BA/(pi*((D/2./100.)**2.)) ! N
      Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
-     A = rc * B
+     A = stand(16) * B/stand(35)
      wf_treeKG = par_rhof * A
 
      V_scrown =  A * (par_betas*Lc)
@@ -914,7 +934,7 @@ if(defaultThin == 1.) then
     par_sla =param(3)
     par_k =param(4)
     par_vf0 =param(5)
-    par_vr =param(6)
+    par_vr0 =param(6)
     par_c=param(7)
     par_mf0=param(8)
     par_mr0=param(9)
@@ -939,8 +959,9 @@ if(defaultThin == 1.) then
     p0_ref = param(29)
     ETS_ref = param(30)
     par_thetaMax = param(31)
-    par_Age0 = param(32)
+    par_H0max = param(32)
     par_gamma = param(33)
+	par_kH = param(34)
     par_rhof1 = 0.!param(20)
     par_Cr2 = 0.!param(24)
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
@@ -963,7 +984,7 @@ if(defaultThin == 1.) then
     wf_treeKG_old = stand_all(34,ij)
     W_stem_old = stand_all(31,ij)
     B = BA/N
-    A = rc * B
+    A = stand_all(16,ij) * B/stand_all(35,ij)
     wf_treeKG = par_rhof * A
     V_scrown =  A * (par_betas*Lc)
     V_bole = (A+B+sqrt(A*B)) * Hc /2.9

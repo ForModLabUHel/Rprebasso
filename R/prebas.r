@@ -41,7 +41,10 @@ prebas <- function(nYears,
   ###
 
   ###proc thinnings##
-  if(all(is.na(thinning))) thinning=matrix(0,1,8)
+  if(all(is.na(thinning))){
+    thinning=matrix(0,1,9)
+    thinning[,9] <- -999
+  } 
   thinning[is.na(thinning)] <- -999
   nThinning = max(1,nrow(thinning))
   thinning <- thinning[order(thinning[,2],thinning[,1],thinning[,3]),]
@@ -115,11 +118,23 @@ prebas <- function(nYears,
   }
 ####if Height of the crown base is not available use model
   initVar <- findHcNAs(initVar,pHcMod)
-  
+
+  # initialize A
+  for(ikj in 1:nLayers){
+    p_ksi=pCROBAS[38,initVar[1,ikj]]
+    p_rhof <- pCROBAS[15,initVar[1,ikj]]
+    p_z <- pCROBAS[11,initVar[1,ikj]]
+    Lc <- initVar[3,ikj] - initVar[6,ikj]
+    A <- p_ksi/p_rhof * Lc^p_z
+    initVar[7,ikj] <- A     
+  } 
+ 
+  # print(initVar)
   xx <- min(10,nYears)
   Ainit = 6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25
-  initVar[2,which(is.na(initVar[2,]))] <- initClearcut[5] <- round(Ainit)
-  
+  if(length(initVar[2,which(is.na(initVar[2,]))])>0){
+    initVar[2,which(is.na(initVar[2,]))] <- initClearcut[5] <- as.numeric(round(Ainit))}
+  # print(initVar)
 
   ####process weather PRELES (!!to check 365/366 days per year)
   weatherPreles <- array(c(PAR,TAir,VPD,Precip,CO2),dim=c(365,nYears,5))

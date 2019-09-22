@@ -20,7 +20,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
  real (kind=8), intent(inout) :: siteInfo(nSites,7)
- real (kind=8), intent(in) :: thinning(nSites,maxThin,8),pAWEN(12,allSP)
+ real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
@@ -35,15 +35,24 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
  real (kind=8) :: output(maxYears,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers)
- real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,8)
+ real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
 !!!!initialize run
 multiOut = 0.
+output = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
- do i = 1,nSites
+do i = 1,nSites
+ do ijj = 1,nLayers(i)
+	species = int(initVar(i,1,ijj))
+		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+ enddo
+enddo
+
+do i = 1,nSites
  ! write(*,*) i
 	climID = siteInfo(i,2)
 	thinningX = thinning(i,:,:)
@@ -56,7 +65,7 @@ soilCtot = soilCtotInOut
 		litterSize,soilCtot(i,1:nYears(i)),&
 		defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i))
 
-		multiOut(i,:,:,1:nLayers(i),:) = output(:,:,1:nLayers(i),:)
+		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
 
 end subroutine
