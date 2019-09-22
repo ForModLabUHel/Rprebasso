@@ -52,7 +52,7 @@ do i = 1,nSites
  enddo
 enddo
 
- do i = 1,nSites
+do i = 1,nSites
  ! write(*,*) i
 	climID = siteInfo(i,2)
 	thinningX = thinning(i,:,:)
