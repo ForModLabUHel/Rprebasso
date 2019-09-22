@@ -17,7 +17,7 @@ implicit none
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(inout) :: pPRELES(30)
- real (kind=8), intent(inout) :: thinning(nThinning,8)
+ real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
  integer, intent(in) :: maxYearSite
@@ -710,7 +710,9 @@ endif
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 	STAND_tot = STAND
-
+	if(thinning(countThinning,9) .NE. -999) then
+	 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
+	endif
 !    STAND(11) =
     if(thinning(countThinning,4)==0.) then
      STAND(8:21) = 0. !#!#
