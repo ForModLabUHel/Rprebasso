@@ -27,7 +27,7 @@ prebas <- function(nYears,
                    smoothP0 = 1,
                    smoothETS = 1,
                    smoothYear=5){
-
+  
   ###process weather###
   if(length(PAR) >= (nYears*365)){
     PAR = PAR[1:(nYears*365)]
@@ -39,7 +39,7 @@ prebas <- function(nYears,
     stop("daily weather inputs < nYears*365")
   }
   ###
-
+  
   ###proc thinnings##
   if(all(is.na(thinning))){
     thinning=matrix(0,1,9)
@@ -51,29 +51,29 @@ prebas <- function(nYears,
   ###
   if(all(is.na(initVar))) {
     nLayers <- 3 }else {
-    nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
-  }
+      nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
+    }
   nSp = ncol(pCROBAS)
   if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20) ###default values for nspecies and site type = 3
-
+  
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
   }
-
+  
   varNam <- getVarNam()
   nVar <- length(varNam)
-
+  
   layerNam <- paste("layer",1:nLayers)
   output <- array(0, dim=c((nYears),nVar,nLayers,2),
-        dimnames = list(NULL,varNam,layerNam,c("stand","thinned")))
+                  dimnames = list(NULL,varNam,layerNam,c("stand","thinned")))
   fAPAR <- rep(0.7,nYears)
-
+  
   ###compute ETS year
   Temp <- TAir[1:(365*nYears)]-5
   ETS <- pmax(0,Temp,na.rm=T)
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
   if(smoothETS==1.) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,smoothYear)
-
+  
   ###if P0 is not provided use preles to compute P0
   if(is.na(P0)){
     P0 <- PRELES(DOY=rep(1:365,nYears),
@@ -86,9 +86,9 @@ prebas <- function(nYears,
     P0[1,2] <- P0[1,1]
     for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
   } 
-
+  
   ETSthres <- 1000; ETSmean <- mean(ETS)
-
+  
   ####process clearcut
   if(any(!is.na(c(inDclct,inAclct)))){
     if(is.na(inDclct)) inDclct <- 9999999.99
@@ -108,17 +108,18 @@ prebas <- function(nYears,
   if(length(inDclct)==1) inDclct<- rep(inDclct,nSp)
   if(any(is.na(inAclct))) inAclct[is.na(inAclct)] <- 9999999.99
   if(length(inAclct)==1) inAclct<- rep(inAclct,nSp)
-
-###if any initial value is given the model is initialized from plantation
+  
+  ###if any initial value is given the model is initialized from plantation
   if (all(is.na(initVar))){
     initVar <- matrix(NA,7,nLayers)
     initVar[1,] <- 1:nLayers
     initVar[3,] <- initClearcut[1]; initVar[4,] <- initClearcut[2]
     initVar[5,] <- initClearcut[3]/nLayers; initVar[6,] <- initClearcut[4]
   }
-####if Height of the crown base is not available use model
+  
+  
+  ####if Height of the crown base is not available use model
   initVar <- findHcNAs(initVar,pHcMod)
-
   # initialize A
   for(ikj in 1:nLayers){
     p_ksi=pCROBAS[38,initVar[1,ikj]]
@@ -128,18 +129,18 @@ prebas <- function(nYears,
     A <- p_ksi/p_rhof * Lc^p_z
     initVar[7,ikj] <- A     
   } 
- 
+  
   # print(initVar)
   xx <- min(10,nYears)
   Ainit = 6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
     initVar[2,which(is.na(initVar[2,]))] <- initClearcut[5] <- as.numeric(round(Ainit))}
   # print(initVar)
-
+  
   ####process weather PRELES (!!to check 365/366 days per year)
   weatherPreles <- array(c(PAR,TAir,VPD,Precip,CO2),dim=c(365,nYears,5))
   weatherPreles <- aperm(weatherPreles, c(2,1,3))
-
+  
   ###initialise soil inputs
   if(all(is.na(soilCtot))) soilCtot = numeric(nYears)
   if(all(is.na(soilC))) soilC = array(0,dim = c(nYears,5,3,nLayers))
@@ -148,17 +149,17 @@ prebas <- function(nYears,
     litterSize[2,] <- 2
     for (i in 1:nLayers) litterSize[1,i] <- ifelse(initVar[1,i]==3,10,30)
   }
-
-##process weather inputs for YASSO
+  
+  ##process weather inputs for YASSO
   if(all(is.na(weatherYasso))){
     weatherYasso = matrix(0,nYears,3)
     weatherYasso[,1] = aTmean(TAir,nYears)
     weatherYasso[,3] = aTampl(TAir,nYears)
     weatherYasso[,2] = aPrecip(Precip,nYears)
   }
-
+  
   PREBASversion <- paste("prebas_v",PREBASversion,sep='')
-
+  
   prebas <- .Fortran(PREBASversion,
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),

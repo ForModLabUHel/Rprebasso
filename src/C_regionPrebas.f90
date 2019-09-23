@@ -28,7 +28,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
- real (kind=8), intent(inout) :: initVar(nSites,6,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
+ real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nSites,maxYears,5,3,maxNlayers),soilCtotInOut(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -175,6 +175,7 @@ do ij = 1,maxYears
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
+	initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
 	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
  end do !iz i
 
@@ -228,7 +229,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 
   !initVar(siteX,1,1:nLayers(siteX)) = 0. !output(1,4,:,1)
   initVar(siteX,2,1:nLayers(siteX)) = 0.!output(1,7,:,1)
-  initVar(siteX,3:6,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)
+  initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)
 endif !(maxState(i)>minDharv)
   enddo !end do while
  endif !HarvArea < HarvLim .and. HarvLim /= 0.
@@ -258,3 +259,5 @@ soilCtotInOut = soilCtot
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+

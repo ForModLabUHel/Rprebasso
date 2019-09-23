@@ -27,7 +27,7 @@ implicit none
  integer, intent(inout) :: nThinning
  real (kind=8), intent(out) :: fAPAR(nYears)
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
- real (kind=8), intent(in) :: initVar(6,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
+ real (kind=8), intent(in) :: initVar(7,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
  real (kind=8), intent(inout) :: siteInfo(7)
  real (kind=8), intent(out) :: output(nYears,nVar,nLayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nYears,5,3,nLayers),soilCtotInOut(nYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -121,6 +121,7 @@ Reineke(:) = 0.
  enddo
  modOut(:,1,:,1) = siteInfo(1); modOut(:,2,:,1) = siteInfo(2)	!! assign siteID and climID
  modOut(1,11,:,1) = initVar(3,:)
+ modOut(1,16,:,1) = initVar(7,:)
  ! modOut(1,12,:,1) = initVar(4,:)
  ! modOut(1,13,:,1) = initVar(5,:)
  modOut(1,14,:,1) = initVar(6,:)
@@ -264,12 +265,13 @@ else
   Hc = STAND(14)
   N = BA/(pi*((D/2/100)**2))
   B = BA/N! * par_ops2
+  A = stand(16)
 !  Cw = STAND(15)
   Lc = H - Hc
   hb = par_betab * Lc ** par_x
   Cw = 2. * hb
   STAND(15) = Cw
-  STAND(16) = LC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! STAND(16) = LC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
 
@@ -284,7 +286,7 @@ if (N>0.) then
 
  !calculate derived variables
   rc = Lc / (H-1.3) !crown ratio
-  A = rc * B
+  ! A = rc * B
   wf_treeKG = par_rhof * A
   par_ksi = wf_treeKG / (Lc ** par_z)
   wf_STKG = wf_treeKG * N !needle mass per STAND in units C
@@ -451,7 +453,7 @@ else
   BA = STAND(13)! * par_ops2
   Hc = STAND(14)
   Cw = STAND(15)
-  Lc = STAND(16)
+  ! Lc = STAND(16)
   N = STAND(17)
   Lc = H - Hc
   leff = STAND(19)
@@ -459,10 +461,11 @@ else
   lproj = STAND(21)
   p_eff_all = STAND(10)*P0yX(year,2)/P0yX(year,1) !!##!!2    smoothing PHOTOSYNTHESIS
   weight = STAND(23)
+  A = STAND(16)
 
   rc = Lc / (H-1.3) !crown ratio
   B = BA / N
-  A = rc * B
+  ! A = rc * B
 
   wf_STKG = STAND(33)
   wf_treeKG = STAND(34)
@@ -676,7 +679,7 @@ endif
   STAND(13) = BA
   STAND(14) = Hc
   STAND(15) = Cw
-  STAND(16) = Lc
+  STAND(16) = A
   STAND(17) = N
   STAND(24) = W_branch
   STAND(25) = W_froot
@@ -795,7 +798,7 @@ endif
      STAND(13) = BA
      STAND(14) = Hc  ! stand Hc
      STAND(15) = Cw
-     STAND(16) = Lc  ! stand Lc
+     STAND(16) = A  ! stand Lc
      STAND(17) = N
      STAND(26) = S_fol
      STAND(27) = S_fr
@@ -1039,6 +1042,7 @@ if(defaultThin == 1.) then
     stand_all(11,ij) = H
     stand_all(12,ij) = D
     stand_all(13,ij) = BA
+    stand_all(16,ij) = A
     stand_all(17,ij) = N
     stand_all(26,ij) = S_fol
     stand_all(27,ij) = S_fr

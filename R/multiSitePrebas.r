@@ -49,7 +49,7 @@ InitMultiSite <- function(nYearsMS,
   allSp = ncol(pCROBAS)
   varNam <- getVarNam()
   nVar <- length(varNam)
-
+  
   nClimID <- length(unique(climIDs))
   if(!all((1:nClimID) %in% climIDs) | length(climIDs) != nSites) return("check consistency between weather inputs and climIDs")
   if(nClimID == 1){
@@ -62,7 +62,7 @@ InitMultiSite <- function(nYearsMS,
     Precip = matrix(Precip,2,length(Precip),byrow = T)
     CO2 <- matrix(CO2,2,length(CO2),byrow = T)
   }
-    
+  
   maxYears <- max(nYearsMS)
   maxNlayers <- max(nLayers)
   layerNam <- paste("layer",1:maxNlayers)
@@ -71,13 +71,11 @@ InitMultiSite <- function(nYearsMS,
                                     c("stand","thinned")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
-  
   # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
-
   ###process yasso inputs if missing
   if(is.na(soilC)) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
   if(is.na(soilCtot)) soilCtot <- matrix(0,nSites,maxYears)
-
+  
   ##process weather inputs for YASSO
   if(all(is.na(weatherYasso))){
     weatherYasso <- array(0,dim=c(nClimID,maxYears,3))
@@ -100,7 +98,7 @@ InitMultiSite <- function(nYearsMS,
   if (length(inAclct) == nSites) inAclct=matrix(inAclct,nSites,allSp)
   if (length(yassoRun) == 1) yassoRun=as.double(rep(yassoRun,nSites))
   if (length(PREBASversion) == 1) PREBASversion=as.double(rep(PREBASversion,nSites))
-
+  
   ###process ETS
   multiETS <- matrix(NA,nClimID,maxYears)
   for(climID in 1:nClimID){
@@ -109,7 +107,7 @@ InitMultiSite <- function(nYearsMS,
     ETS <- pmax(0,Temp,na.rm=T)
     ETS <- matrix(ETS,365,nYearsX); ETS <- colSums(ETS)
     multiETS[climID,(1:nYearsX)] <- ETS
-
+    
     xx <- min(10,nYearsX)
     Ainit = 6 - 0.005*mean(ETS[1:xx]) + 2.25 ## need to add 2*sitetype
     sitesClimID <- which(climIDs==climID)
@@ -123,7 +121,6 @@ InitMultiSite <- function(nYearsMS,
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
   } 
   multiETS[which(is.na(multiETS))] <- 0.
-
   ####process clearcut
   for(i in 1: nSites){
     if(ClCut[i]==1 & all(is.na(inDclct[i,]))) inDclct[i,] <-
@@ -139,7 +136,7 @@ InitMultiSite <- function(nYearsMS,
     if(any(!is.na(inAclct[i,]))) inAclct[i,is.na(inAclct[i,])] <- max(inAclct[i,],na.rm=T)
     if(all(is.na(inAclct[i,]))) inAclct[i,] <- 9999999.99
   }
-
+  
   maxThin <- max(multiNthin)
   ###thinning if missing.  To improve
   if(all(is.na(multiThin))){
@@ -149,22 +146,22 @@ InitMultiSite <- function(nYearsMS,
     multiThin[,,9] <- -999
   }
   multiThin[is.na(multiThin)] <- -999
-
+  
   ###PROCESS weather inputs for prebas
   multiweather <- array(-999,dim=c(nClimID,maxYears,365,5))
-
+  
   ##extract weather inputs
   for(i in 1:nClimID){
     nYearsX <- max(nYearsMS[which(climIDs==i)])
     weatherPreles <- array(c(PAR[i,1:(365*nYearsX)],TAir[i,1:(365*nYearsX)],
                              VPD[i,1:(365*nYearsX)],Precip[i,1:(365*nYearsX)],
                              CO2[i,1:(365*nYearsX)]),dim=c(365,nYearsX,5))
-
+    
     weatherPreles <- aperm(weatherPreles, c(2,1,3))
-
+    
     multiweather[i,(1:nYearsX),,] <- weatherPreles
   }
-
+  
   ### compute P0
   ###if P0 is not provided use preles to compute P0
   if(all(is.na(multiP0))){
@@ -183,7 +180,7 @@ InitMultiSite <- function(nYearsMS,
       for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,smoothYear)
       # multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
     } else{
-    multiP0[,,2] <- multiP0[,,1]
+      multiP0[,,2] <- multiP0[,,1]
     }
   }
   multiP0[which(is.na(multiP0))] <- 0.
@@ -210,6 +207,8 @@ InitMultiSite <- function(nYearsMS,
     }else{
       multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV)
     }
+    
+    
     
     ####compute A
     for(ikj in 1:maxNlayers){
@@ -248,8 +247,7 @@ InitMultiSite <- function(nYearsMS,
       # multiInitVar[,7,][ops] <- A
     # }
   }
-  ####if Height of the crown base is not available use model
-  multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
+  
   
   if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
   
@@ -267,7 +265,7 @@ InitMultiSite <- function(nYearsMS,
     litterSize[1,] <- c(30,30,10)
     # siteInfo <- siteInfo[,-c(4,5)]
   }
-
+  
   multiSiteInit <- list(
     multiOut = multiOut,
     nSites = nSites,
@@ -359,66 +357,66 @@ multiPrebas <- function(multiSiteInit){
 
 
 regionPrebas <- function(multiSiteInit,
-                        HarvLim = NA,
-                        minDharv = 15){
-
+                         HarvLim = NA,
+                         minDharv = 15){
+  
   if(length(HarvLim)==1) HarvLim <- rep(HarvLim,multiSiteInit$maxYears)
   if(any(is.na(HarvLim))) HarvLim[which(is.na(HarvLim))] <- 0.
-
+  
   siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
   siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
-
+  
   prebas <- .Fortran("regionPrebas",
-                   siteOrder = as.matrix(siteOrder),
-                   HarvLim = as.double(HarvLim),
-                   minDharv = as.double(minDharv),
-                   multiOut = as.array(multiSiteInit$multiOut),
-                   nSites = as.integer(multiSiteInit$nSites),
-                   areas = as.double(multiSiteInit$areas),
-                   nClimID = as.integer(multiSiteInit$nClimID),
-                   nLayers = as.integer(multiSiteInit$nLayers),######
-                   maxYears = as.integer(multiSiteInit$maxYears),
-                   maxThin = as.integer(multiSiteInit$maxThin),
-                   nYears = as.integer(multiSiteInit$nYears),
-                   thinning=as.array(multiSiteInit$thinning),
-                   pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
-                   allSp = as.integer(multiSiteInit$allSp),       ####
-                   siteInfo = as.matrix(multiSiteInit$siteInfo[,1:7]),  ####
-                   maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
-                   nThinning=as.integer(multiSiteInit$nThinning),
-                   fAPAR=as.matrix(multiSiteInit$fAPAR),
-                   initClearcut=as.matrix(multiSiteInit$initClearcut),
-                   fixBAinitClarcut = as.double(multiSiteInit$fixBAinitClarcut),
-                   initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
-                   ETSy=as.matrix(multiSiteInit$ETSy),
-                   P0y=as.array(multiSiteInit$P0y),
-                   multiInitVar=as.array(multiSiteInit$multiInitVar),
-                   weather=as.array(multiSiteInit$weather),
-                   DOY= as.integer(multiSiteInit$DOY),
-                   pPRELES=as.double(multiSiteInit$pPRELES),
-                   etmodel=as.integer(multiSiteInit$etmodel),
-                   soilC = as.array(multiSiteInit$soilC),
-                   pYASSO=as.double(multiSiteInit$pYASSO),
-                   pAWEN = as.matrix(multiSiteInit$pAWEN),
-                   weatherYasso = as.array(multiSiteInit$weatherYasso),
-                   litterSize = as.array(multiSiteInit$litterSize),
-                   soilCtot = as.matrix(multiSiteInit$soilCtot),
-                   defaultThin=as.double(multiSiteInit$defaultThin),
-                   ClCut=as.double(multiSiteInit$ClCut),
-                   inDclct=as.matrix(multiSiteInit$inDclct),
-                   inAclct=as.matrix(multiSiteInit$inAclct),
-                   dailyPRELES = as.array(multiSiteInit$dailyPRELES),
-                   yassoRun=as.double(multiSiteInit$yassoRun),
-                   PREBASversion=as.double(multiSiteInit$PREBASversion),
-                   lukeRuns=as.double(multiSiteInit$lukeRuns))
-class(prebas) <- "regionPrebas"
-if(prebas$maxNlayers>1){
+                     siteOrder = as.matrix(siteOrder),
+                     HarvLim = as.double(HarvLim),
+                     minDharv = as.double(minDharv),
+                     multiOut = as.array(multiSiteInit$multiOut),
+                     nSites = as.integer(multiSiteInit$nSites),
+                     areas = as.double(multiSiteInit$areas),
+                     nClimID = as.integer(multiSiteInit$nClimID),
+                     nLayers = as.integer(multiSiteInit$nLayers),######
+                     maxYears = as.integer(multiSiteInit$maxYears),
+                     maxThin = as.integer(multiSiteInit$maxThin),
+                     nYears = as.integer(multiSiteInit$nYears),
+                     thinning=as.array(multiSiteInit$thinning),
+                     pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
+                     allSp = as.integer(multiSiteInit$allSp),       ####
+                     siteInfo = as.matrix(multiSiteInit$siteInfo[,1:7]),  ####
+                     maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
+                     nThinning=as.integer(multiSiteInit$nThinning),
+                     fAPAR=as.matrix(multiSiteInit$fAPAR),
+                     initClearcut=as.matrix(multiSiteInit$initClearcut),
+                     fixBAinitClarcut = as.double(multiSiteInit$fixBAinitClarcut),
+                     initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
+                     ETSy=as.matrix(multiSiteInit$ETSy),
+                     P0y=as.array(multiSiteInit$P0y),
+                     multiInitVar=as.array(multiSiteInit$multiInitVar),
+                     weather=as.array(multiSiteInit$weather),
+                     DOY= as.integer(multiSiteInit$DOY),
+                     pPRELES=as.double(multiSiteInit$pPRELES),
+                     etmodel=as.integer(multiSiteInit$etmodel),
+                     soilC = as.array(multiSiteInit$soilC),
+                     pYASSO=as.double(multiSiteInit$pYASSO),
+                     pAWEN = as.matrix(multiSiteInit$pAWEN),
+                     weatherYasso = as.array(multiSiteInit$weatherYasso),
+                     litterSize = as.array(multiSiteInit$litterSize),
+                     soilCtot = as.matrix(multiSiteInit$soilCtot),
+                     defaultThin=as.double(multiSiteInit$defaultThin),
+                     ClCut=as.double(multiSiteInit$ClCut),
+                     inDclct=as.matrix(multiSiteInit$inDclct),
+                     inAclct=as.matrix(multiSiteInit$inAclct),
+                     dailyPRELES = as.array(multiSiteInit$dailyPRELES),
+                     yassoRun=as.double(multiSiteInit$yassoRun),
+                     PREBASversion=as.double(multiSiteInit$PREBASversion),
+                     lukeRuns=as.double(multiSiteInit$lukeRuns))
+  class(prebas) <- "regionPrebas"
+  if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
     prebas$totHarv <- apply(rescalVbyArea,2,sum)
   }else{
     prebas$totHarv <- colSums(prebas$multiOut[,,37,1,1]*prebas$areas)
   }
-return(prebas)
+  return(prebas)
 }
 
 
