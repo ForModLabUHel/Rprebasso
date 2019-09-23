@@ -220,6 +220,7 @@ end do
 	end subroutine Ffotos2
 
 
+
 !***************************************************************
 !  WWX
 !
@@ -723,60 +724,21 @@ IMPLICIT NONE
 	! AWENH(5) = 0.
     END SUBROUTINE compAWENH
 
-!! Note for Birch Betula pubenscens and brown leaves is used
-!    SUBROUTINE foliageAWENH(Lf,folAWENH)
-!        IMPLICIT NONE
-!        INTEGER,PARAMETER :: n = 5, nSp=3
-!        REAL (kind=8),DIMENSION(nSp,n),INTENT(OUT) :: folAWENH
-!        REAL (kind=8),DIMENSION(nSp),INTENT(IN) :: Lf
-!!	folAWENH = 0.
-!	folAWENH(1,1) = 0.518*Lf(1)
-!	folAWENH(2,1) = 0.4826*Lf(2)
-!	folAWENH(3,1) = 0.4079*Lf(3)
-!	folAWENH(1,2) = 0.1773*Lf(1)
-!	folAWENH(2,2) = 0.1317*Lf(2)
-!	folAWENH(3,2) = 0.198*Lf(3)
-!	folAWENH(1,3) = 0.0887*Lf(1)
-!	folAWENH(2,3) = 0.0658*Lf(2)
-!	folAWENH(3,3) = 0.099*Lf(3)
-!	folAWENH(1,4) = 0.216*Lf(1)
-!	folAWENH(2,4) = 0.3199*Lf(2)
-!	folAWENH(3,4) = 0.2951*Lf(3)
-!   END SUBROUTINE foliageAWENH
-
-!! Branches are here
-!! It seems that there is only valiues for pine (these are applied for others as well)
-!    SUBROUTINE branchesAWENH(Lb, fbAWENH)
-!        IMPLICIT NONE
-!        INTEGER,PARAMETER :: n = 5, nSp=3
-!        REAL (kind=8),DIMENSION(nSp,n),INTENT(OUT) :: fbAWENH
-!        REAL (kind=8),DIMENSION(nSp),INTENT(IN) :: Lb
-!!	fbAWENH = 0.
-!	fbAWENH(:,1) = 0.47466*Lb
-!	fbAWENH(:,2) = 0.019012*Lb
-!	fbAWENH(:,3) = 0.078308*Lb
-!	fbAWENH(:,4) = 0.430248*Lb
-!   END SUBROUTINE branchesAWENH
+! ! Note for Birch Betula pubenscens and brown leaves is used
+    ! SUBROUTINE compAc(p_ksi,Ac)
+        ! IMPLICIT NONE
+        ! REAL (kind=8),DIMENSION(4),INTENT(IN) :: inputs
+        ! REAL (kind=8),INTENT(inout) :: Ac
+	! A <- p_ksi/p_rhof * Lc^p_z
+    ! END SUBROUTINE compAWENH
 
 
-!    SUBROUTINE stemAWENH(Lst, stAWENH)
-!        IMPLICIT NONE
-!        INTEGER,PARAMETER :: n = 5, nSp=3
-!        REAL (kind=8),DIMENSION(nSp,n),INTENT(OUT) :: stAWENH
-!        REAL (kind=8),DIMENSION(nSp),INTENT(IN) :: Lst
-!!	stAWENH = 0.
-!	stAWENH(1,1) = 0.5*(0.66+0.68)*Lst(1)
-!  	stAWENH(2,1) = 0.5*(0.63+0.7)*Lst(2)
-!  	stAWENH(3,1) = 0.5*(0.65+0.78)*Lst(3)
-!  	stAWENH(1,2) = 0.5*(0.03+0.015)*Lst(1)
-!  	stAWENH(2,2) = 0.5*(0.03+0.005)*Lst(2)
-!  	stAWENH(3,2) = 0.5*(0.03+0)*Lst(3)
-!  	stAWENH(1,3) = 0.5*(0+0.015)*Lst(1)
-!  	stAWENH(2,3) = 0.5*(0+0.005)*Lst(2)
-!  	stAWENH(3,3) = 0
-!  	stAWENH(1,4) = 0.5*(0.28+0.29)*Lst(1)
-!  	stAWENH(2,4) = 0.5*(0.33+0.28)*Lst(2)
-!  	stAWENH(3,4) = 0.5*(0.22+0.33)*Lst(3)
-!   END SUBROUTINE stemAWENH
-
-
+! #### function to calculate initial sapwood area at crown base (A)
+! compA <- function(inputs){
+  ! p_ksi = inputs[1]
+  ! p_rhof = inputs[2]
+  ! p_z <- inputs[3]
+  ! Lc = inputs[4]
+  ! A <- p_ksi/p_rhof * Lc^p_z
+  ! return(A)
+! }

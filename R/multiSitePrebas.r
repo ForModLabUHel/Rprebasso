@@ -32,8 +32,10 @@ InitMultiSite <- function(nYearsMS,
                           lukeRuns,
                           smoothP0 = 1,
                           smoothETS = 1,
-                          smoothYear=5){
-
+                          smoothYear=5,
+                          HcModV=2  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          ){  
+  
   nSites <- length(nYearsMS)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
@@ -69,6 +71,8 @@ InitMultiSite <- function(nYearsMS,
                                     c("stand","thinned")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
+  
+  # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
 
   ###process yasso inputs if missing
   if(is.na(soilC)) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
@@ -141,7 +145,8 @@ InitMultiSite <- function(nYearsMS,
   if(all(is.na(multiThin))){
     multiNthin <- rep(0,nSites)
     maxThin <- 2
-    multiThin <- array(0, dim=c(nSites,maxThin,8))
+    multiThin <- array(0, dim=c(nSites,maxThin,9))
+    multiThin[,,9] <- -999
   }
   multiThin[is.na(multiThin)] <- -999
 
@@ -189,16 +194,73 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
     multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
+    for(ikj in 1:maxNlayers){
+      p_ksi <- pCROBAS[38,multiInitVar[,1,ikj]]
+      p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
+      p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
+      Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
+      A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
+      multiInitVar[,7,ikj] <- A     
+    } 
+    multiInitVar[which(is.na(multiInitVar))] <- 0.
+  }else{
+    ####if Height of the crown base is not available use model
+    if(maxNlayers==1){
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV),dim=c(nSites,7,1))
+    }else{
+      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV)
+    }
+    
+    ####compute A
+    for(ikj in 1:maxNlayers){
+      not0 <- which(multiInitVar[,3,ikj]>0)
+      p_ksi <- pCROBAS[38,multiInitVar[not0,1,ikj]]
+      p_rhof <- pCROBAS[15,multiInitVar[not0,1,ikj]]
+      p_z <- pCROBAS[11,multiInitVar[not0,1,ikj]]
+      Lc <- multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj]
+      A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
+      multiInitVar[not0,7,ikj] <- A     
+    } 
+    # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
+    #  p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
+    #  p_z <- matrix(pCROBAS[11,multiInitVar[,1,]],nSites,maxNlayers)
+    #  Lc <- multiInitVar[,3,] - multiInitVar[,6,]
+    #  A <- p_ksi/p_rhof * Lc^p_z
+    #  multiInitVar[,7,] <- A      # p_ksi=pCROBAS[38,multiInitVar[,1,]]
+     # p_rhof <- pCROBAS[15,multiInitVar[,1,]]
+     # p_z <- pCROBAS[11,multiInitVar[,1,]]
+     # Lc <- multiInitVar[,3,] - multiInitVar[,6,]
+     # A <- p_ksi/p_rhof * Lc^p_z
+     # multiInitVar[,7,] <- A
+    # N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
+    # B = multiInitVar[,5,]/N
+    # Lc = multiInitVar[,3,] - multiInitVar[,6,]
+    # rc = Lc / (multiInitVar[,3,]-1.3) 
+    # multiInitVar[,7,] = rc * B
+    # multiInitVar[which(is.na(multiInitVar))] <- 0.
+    # ops <- which(multiInitVar[,6,]<1.3 & multiInitVar[,3,]>0.,arr.ind = T)
+    # if(length(ops)>0.){
+      # p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
+      # p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
+      # p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
+      # Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
+      # A <- p_ksi/p_rhof * Lc^p_z
+      # multiInitVar[,7,][ops] <- A
+    # }
   }
   ####if Height of the crown base is not available use model
   multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
   
   if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
+  
   if(all(is.na(initCLcutRatio))){
-    initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,])
-    # initCLcutRatio <- matrix(0.,nSites,max(nLayers))
-    # for(iz in 1:nSites) initCLcutRatio[iz,1:nLayers[iz]] <- rep(1/nLayers[iz],nLayers[iz])
+    if(maxNlayers==1){
+      initCLcutRatio <- rep(1,nSites)  
+    }else{
+      initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,]) 
+    }
   }
+  
   if(all(is.na(litterSize))){
     litterSize <- matrix(0,3,allSp)
     litterSize[2,] <- 2

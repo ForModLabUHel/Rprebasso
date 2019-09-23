@@ -11,7 +11,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=46,npar=37!, nSp=3
+integer, parameter :: nVar=46,npar=38!, nSp=3
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nSites,maxYears)
@@ -19,7 +19,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
  real (kind=8), intent(inout) :: siteInfo(nSites,7), areas(nSites)
- real (kind=8), intent(in) :: thinning(nSites,maxThin,8),pAWEN(12,allSP)
+ real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
@@ -34,15 +34,22 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
  real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers)
- real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,8)
- integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1)
+ real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
+ integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
 !!!!initialize run
 multiOut = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
-
+!!inititialize A
+do i = 1,nSites
+ do ijj = 1,nLayers(i)
+	species = int(initVar(i,1,ijj))
+		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+ enddo
+enddo
 do i = 1,nSites
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
@@ -75,6 +82,7 @@ do ij = 1,maxYears
 	 yearX(i) = 0
 
 	 do ijj = 1,nLayers(i)
+	  species = int(multiOut(i,1,4,ijj,1))
 	  initVar(i,1,ijj) = multiOut(i,1,4,ijj,1)
 	  initVar(i,2,ijj) = initClearcut(i,5)
 	  initVar(i,3,ijj) = initClearcut(i,1)
@@ -85,6 +93,8 @@ do ij = 1,maxYears
 	   initVar(i,5,ijj) = initClearcut(i,3) * relBA(i,ijj)
       endif
 	  initVar(i,6,ijj) = initClearcut(i,4)
+	  initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(i,1) -&
+		initClearcut(i,4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 	  do ki = 1,int(initClearcut(i,5)+1)
 	   multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	  enddo !ki
@@ -248,5 +258,3 @@ soilCtotInOut = soilCtot
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
