@@ -111,7 +111,7 @@ prebas <- function(nYears,
 
 ###if any initial value is given the model is initialized from plantation
   if (all(is.na(initVar))){
-    initVar <- matrix(NA,6,nLayers)
+    initVar <- matrix(NA,7,nLayers)
     initVar[1,] <- 1:nLayers
     initVar[3,] <- initClearcut[1]; initVar[4,] <- initClearcut[2]
     initVar[5,] <- initClearcut[3]/nLayers; initVar[6,] <- initClearcut[4]

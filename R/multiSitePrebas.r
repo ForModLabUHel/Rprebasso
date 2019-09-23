@@ -189,7 +189,7 @@ InitMultiSite <- function(nYearsMS,
   multiP0[which(is.na(multiP0))] <- 0.
   
   if (all(is.na(multiInitVar))){
-    multiInitVar <- array(NA,dim=c(nSites,6,maxNlayers))
+    multiInitVar <- array(NA,dim=c(nSites,7,maxNlayers))
     multiInitVar[,1,] <- rep(1:maxNlayers,each=nSites)
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
