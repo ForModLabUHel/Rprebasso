@@ -507,7 +507,6 @@ if (N>0.) then
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
-  par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
   par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
   par_rhor = par_alfar * par_rhof
 
@@ -516,13 +515,14 @@ if (N>0.) then
     ! -------------------------------------
         p_eff = weight * p_eff_all
 		gpp_sp = weight * STAND(10)
-
+		
     if(wf_STKG > 0.) then
         s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
     else
         s0 = 0.
     endif
 
+	gpp_sp = (s0 - par_s1 * H) * wf_STKG / 10000
         !---------------------------------------
         ! DYNAMIC GROWTH MODEL STARTS
         !Updating the tree H, D, Hc and Cw for the next year, according to the method by Valentine & Makela (2005)
@@ -656,11 +656,13 @@ endif
       S_fr  = W_froot / par_vr	!fine root litter
 ! ! branch litter fall pine from Lehtonen et al. 2004 Table 7, with impact of N on litter fall
 ! ! branch litter for spruce Muukkonen and Lehtonen 2004 Eqn 11
-    if(par_S_branchMod .eq. 1.) then
-      S_branch = W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*D**2)+0.00723)
-    else
-      S_branch = W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*D**2)+0.00467)
-    endif
+    ! if(par_S_branchMod .eq. 1.) then
+      ! S_branch = W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*D**2)+0.00723)
+    ! else
+      ! S_branch = W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*D**2)+0.00467)
+    ! endif
+	S_branch = N * par_rhow * betab * A * (dHc *(par_z+1) + theta*Lc)
+	
       if (dN<0. .and. Nold>0.) then
 	S_branch = S_branch + W_branch * min(1.,-dN*step/N)
 	S_wood = (W_croot + W_stem) * min(1.,-dN*step/N)
@@ -786,7 +788,7 @@ endif
      outt(24,ij,2) = STAND_tot(24) - W_branch
      outt(25,ij,2) = STAND_tot(25) - W_froot
      outt(26:29,ij,2) = -999.
-     outt(30,ij,2) = STAND_tot(30) - V
+     outt(30,ij,2) = STAND_tot(30) - V!*0.9
      outt(31,ij,2) = STAND_tot(31) - W_stem
      outt(32,ij,2) = Nthd * W_croot/N
      outt(33,ij,2) = STAND_tot(33) - wf_STKG
@@ -1099,13 +1101,14 @@ enddo !end year loop
 
 !soil and harvested volume outputs
 modOut(:,37,:,1) = modOut(:,30,:,2)
+modOut(:,38,:,1) = modOut(:,31,:,2)*0.9
 
 do year = 1,(nYears+1)
   do ijj = 1, nLayers
 	! modOut(year,38,ijj,1) = sum(modOut(1:year,30,ijj,2)) + &
 		! sum(modOut(1:year,42,ijj,1)) + modOut(year,30,ijj,1)
 	modOut(year,39,ijj,1) = sum(soilC(year,:,:,ijj))
-	modOut(year,38,ijj,1) = pCrobas(2,int(modOut(year,4,ijj,1))) * modOut(year,37,ijj,1)
+	! modOut(year,38,ijj,1) = pCrobas(2,int(modOut(year,4,ijj,1))) * modOut(year,37,ijj,1) * 0.9 !!! 0.9 means 10% of 
 	if(year > 1.5) then
 	!compute gross growth
 	  modOut(year,43,ijj,1) = modOut(year,30,ijj,1) - modOut((year-1),30,ijj,1) + &
@@ -1126,12 +1129,14 @@ enddo
 
  ! write(2,*) "here3"
 
- modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10.
+ modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
+	modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
+	modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
 
  ! write(2,*) "here4"
 
-modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp is not smoothed
-!modOut(:,46,:,1) = modOut(:,18,:,1) - modOut(:,45,:,1) !!!everything smoothed
+! modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp is not smoothed
+ modOut(:,46,:,1) = modOut(:,18,:,1) - modOut(:,45,:,1) !!!everything smoothed
 
 ! write(2,*) "here5"
 
