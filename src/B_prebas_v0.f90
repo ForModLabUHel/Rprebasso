@@ -1126,7 +1126,7 @@ enddo
 
  ! write(2,*) "here3"
 
- modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. 
+ modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10.
 
  ! write(2,*) "here4"
 
