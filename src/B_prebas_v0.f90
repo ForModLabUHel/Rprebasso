@@ -522,7 +522,7 @@ if (N>0.) then
         s0 = 0.
     endif
 
-	gpp_sp = (s0 - par_s1 * H) * wf_STKG / 10000
+	! gpp_sp = (s0 - par_s1 * H) * wf_STKG / 10000
         !---------------------------------------
         ! DYNAMIC GROWTH MODEL STARTS
         !Updating the tree H, D, Hc and Cw for the next year, according to the method by Valentine & Makela (2005)
