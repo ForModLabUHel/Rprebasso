@@ -18,7 +18,7 @@ integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nS
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYears),minDharv
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
- real (kind=8), intent(inout) :: siteInfo(nSites,7), areas(nSites)
+ real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)

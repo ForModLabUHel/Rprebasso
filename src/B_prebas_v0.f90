@@ -28,7 +28,7 @@ implicit none
  real (kind=8), intent(out) :: fAPAR(nYears)
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
  real (kind=8), intent(inout) :: initVar(7,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
- real (kind=8), intent(inout) :: siteInfo(7)
+ real (kind=8), intent(inout) :: siteInfo(10)
  real (kind=8), intent(inout) :: output(nYears,nVar,nLayers,2)
  real (kind=8), intent(inout) :: soilCinOut(nYears,5,3,nLayers),soilCtotInOut(nYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3),litterSize(3,nSp) !litterSize dimensions: treeOrgans,species
@@ -95,6 +95,9 @@ modOut(1,:,:,:) = output(1,:,:,:)
 soilC = 0.
 countThinning = 1
 pars = pPRELES
+pars(1:3) = siteInfo(8:10)
+! write(2,*) pars
+! close(2)
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit

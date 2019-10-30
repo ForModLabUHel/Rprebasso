@@ -54,7 +54,7 @@ prebas <- function(nYears,
       nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
     }
   nSp = ncol(pCROBAS)
-  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20) ###default values for nspecies and site type = 3
+  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118) ###default values for nspecies and site type = 3
   
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
@@ -170,7 +170,7 @@ prebas <- function(nYears,
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
                      nSp=as.integer(nSp),
-                     siteInfo = as.numeric(siteInfo),
+                     siteInfo = as.numeric(siteInfo[c(1:7,10:12)]),
                      pCROBAS = as.matrix(pCROBAS),
                      initVar=as.matrix(initVar),
                      thinning=as.matrix(thinning),
