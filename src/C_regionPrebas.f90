@@ -11,7 +11,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=46,npar=38!, nSp=3
+integer, parameter :: nVar=54,npar=38!, nSp=3
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nSites,maxYears)
@@ -38,18 +38,18 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
 !!!!initialize run
-multiOut = 0.
+! multiOut = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 !!inititialize A
-do i = 1,nSites
- do ijj = 1,nLayers(i)
-	species = int(initVar(i,1,ijj))
-		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
-			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
- enddo
-enddo
+! do i = 1,nSites
+ ! do ijj = 1,nLayers(i)
+	! species = int(initVar(i,1,ijj))
+		! initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			! initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+ ! enddo
+! enddo
 do i = 1,nSites
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
@@ -93,6 +93,7 @@ do ij = 1,maxYears
 	   initVar(i,5,ijj) = initClearcut(i,3) * relBA(i,ijj)
       endif
 	  initVar(i,6,ijj) = initClearcut(i,4)
+	  ! initVar(i,8,ijj) = 0. !!newX
 	  initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(i,1) -&
 		initClearcut(i,4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 	  do ki = 1,int(initClearcut(i,5)+1)
@@ -111,9 +112,13 @@ do ij = 1,maxYears
   ! if(ij==1) then
    ! write(*,*) sum(soilCinOut(i,ij,:,:,1:nLayers(i)))
   ! endif
-  
-  
-	if(prebasVersion(i)==0.) then
+	if(ij>2) then
+		output(1,1:7,1:nLayers(i),:) = multiOut(i,ij-1,1:7,1:nLayers(i),:)
+		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,ij-1,9:nVar,1:nLayers(i),:)
+	else
+		output(1,:,:,:) = multiOut(i,1,:,:,:)
+	endif
+	! if(prebasVersion(i)==0.) then
 	  call prebas_v0(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
@@ -121,15 +126,15 @@ do ij = 1,maxYears
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
-	elseif(prebasVersion(i)==1.) then
-	  call prebas_v1(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
-		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
-		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
-		weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
-		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
-		litterSize,soilCtot(i,ij),&
-		defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
-	endif
+	! elseif(prebasVersion(i)==1.) then
+	  ! call prebas_v1(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+		! thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
+		! fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
+		! weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
+		! soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
+		! litterSize,soilCtot(i,ij),&
+		! defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
+	! endif
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
@@ -176,6 +181,7 @@ do ij = 1,maxYears
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
 	initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
+	! initVar(i,8,1:nLayers(i)) = output(1,2,1:nLayers(i),1)  !!newX
 	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
  end do !iz i
 
@@ -207,8 +213,10 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* 0.1 + &
 	multiOut(siteX,ij,32,ijj,1) + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
     multiOut(siteX,ij,8:21,ijj,1) = 0.
+	multiOut(siteX,ij,2,ijj,1) = 0. !!newX
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
     multiOut(siteX,ij,43:44,ijj,1) = 0.
+	multiOut(siteX,ij,47:51,ijj,1) = 0.
     multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
 		sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
    enddo
@@ -229,7 +237,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 
   !initVar(siteX,1,1:nLayers(siteX)) = 0. !output(1,4,:,1)
   initVar(siteX,2,1:nLayers(siteX)) = 0.!output(1,7,:,1)
-  initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)
+  initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
 endif !(maxState(i)>minDharv)
   enddo !end do while
  endif !HarvArea < HarvLim .and. HarvLim /= 0.

@@ -158,6 +158,12 @@ prebas <- function(nYears,
     weatherYasso[,2] = aPrecip(Precip,nYears)
   }
   
+  ###init biomasses
+  initVarX <- rbind(initVar,siteInfo[3])
+  biomasses <- initBiomasses(pCROBAS,initVarX)
+  output[1,c(33,25,47:49,24,32,50,51,31,30),,1] <- biomasses
+  print(biomasses)
+  initVar <- initVar[1:7,]
   PREBASversion <- paste("prebas_v",PREBASversion,sep='')
   
   prebas <- .Fortran(PREBASversion,

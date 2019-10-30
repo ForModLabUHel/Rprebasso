@@ -11,7 +11,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 
 implicit none
 
-integer, parameter :: nVar=46,npar=38!, nSp=3
+integer, parameter :: nVar=54,npar=38!, nSp=3
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
@@ -39,22 +39,25 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
 !!!!initialize run
-multiOut = 0.
+! multiOut = 0.
 output = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
-do i = 1,nSites
- do ijj = 1,nLayers(i)
-	species = int(initVar(i,1,ijj))
-		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
-			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
- enddo
-enddo
+! do i = 1,nSites
+ ! do ijj = 1,nLayers(i)
+	! species = int(initVar(i,1,ijj))
+		! initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			! initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+ ! enddo
+! enddo
 
- do i = 1,nSites
+do i = 1,nSites
  ! write(*,*) i
+ output(1,:,:,:) = multiOut(i,1,:,:,:)
 	climID = siteInfo(i,2)
+	defaultThinX = defaultThin(i)
+	ClCutX = ClCut(i)
 	thinningX = thinning(i,:,:)
 	! nYears(i) = nYears(i)
 	  call prebas_v0(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&

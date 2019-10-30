@@ -29,12 +29,11 @@ InitMultiSite <- function(nYearsMS,
                           inDclct = NA,
                           inAclct = NA,
                           yassoRun = 0,
-                          lukeRuns,
                           smoothP0 = 1,
                           smoothETS = 1,
                           smoothYear=5,
                           HcModV=2  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
-                          ){  
+){  
   
   nSites <- length(nYearsMS)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
@@ -203,7 +202,7 @@ InitMultiSite <- function(nYearsMS,
   }else{
     ####if Height of the crown base is not available use model
     if(maxNlayers==1){
-      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV),dim=c(nSites,7,1))
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV),dim=c(nSites,8,1))
     }else{
       multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV)
     }
@@ -226,11 +225,11 @@ InitMultiSite <- function(nYearsMS,
     #  Lc <- multiInitVar[,3,] - multiInitVar[,6,]
     #  A <- p_ksi/p_rhof * Lc^p_z
     #  multiInitVar[,7,] <- A      # p_ksi=pCROBAS[38,multiInitVar[,1,]]
-     # p_rhof <- pCROBAS[15,multiInitVar[,1,]]
-     # p_z <- pCROBAS[11,multiInitVar[,1,]]
-     # Lc <- multiInitVar[,3,] - multiInitVar[,6,]
-     # A <- p_ksi/p_rhof * Lc^p_z
-     # multiInitVar[,7,] <- A
+    # p_rhof <- pCROBAS[15,multiInitVar[,1,]]
+    # p_z <- pCROBAS[11,multiInitVar[,1,]]
+    # Lc <- multiInitVar[,3,] - multiInitVar[,6,]
+    # A <- p_ksi/p_rhof * Lc^p_z
+    # multiInitVar[,7,] <- A
     # N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
     # B = multiInitVar[,5,]/N
     # Lc = multiInitVar[,3,] - multiInitVar[,6,]
@@ -239,12 +238,12 @@ InitMultiSite <- function(nYearsMS,
     # multiInitVar[which(is.na(multiInitVar))] <- 0.
     # ops <- which(multiInitVar[,6,]<1.3 & multiInitVar[,3,]>0.,arr.ind = T)
     # if(length(ops)>0.){
-      # p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
-      # p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
-      # p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
-      # Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
-      # A <- p_ksi/p_rhof * Lc^p_z
-      # multiInitVar[,7,][ops] <- A
+    # p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
+    # p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
+    # p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
+    # Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
+    # A <- p_ksi/p_rhof * Lc^p_z
+    # multiInitVar[,7,][ops] <- A
     # }
   }
   
@@ -265,6 +264,11 @@ InitMultiSite <- function(nYearsMS,
     litterSize[1,] <- c(30,30,10)
     # siteInfo <- siteInfo[,-c(4,5)]
   }
+  ###!!!###initiaize biomasses
+  initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
+  biomasses <- aaply(initVarX,1,initBiomasses,pCro=pCROBAS)
+  multiOut[,1,c(33,25,47:49,24,32,50,51,31,30),,1] <- biomasses
+  multiInitVar <- multiInitVar[,1:7,]
   
   multiSiteInit <- list(
     multiOut = multiOut,
@@ -288,7 +292,7 @@ InitMultiSite <- function(nYearsMS,
     ETSy = multiETS,
     P0y = multiP0,
     multiInitVar = multiInitVar,
-    weather = multiweather,
+    weather = multiweather, 
     DOY = 1:365,
     pPRELES = pPRELES,
     etmodel = etmodel,
@@ -304,7 +308,6 @@ InitMultiSite <- function(nYearsMS,
     inAclct = inAclct,
     dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
     yassoRun = yassoRun,
-    lukeRuns = lukeRuns,
     PREBASversion = PREBASversion,
     smoothP0 = smoothP0,
     smoothETS = smoothETS)
@@ -349,8 +352,7 @@ multiPrebas <- function(multiSiteInit){
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     PREBASversion=as.double(multiSiteInit$PREBASversion),
-                     lukeRuns=as.double(multiSiteInit$lukeRuns))
+                     PREBASversion=as.double(multiSiteInit$PREBASversion))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -407,8 +409,7 @@ regionPrebas <- function(multiSiteInit,
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     PREBASversion=as.double(multiSiteInit$PREBASversion),
-                     lukeRuns=as.double(multiSiteInit$lukeRuns))
+                     PREBASversion=as.double(multiSiteInit$PREBASversion))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
