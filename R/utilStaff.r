@@ -1,5 +1,6 @@
 ####init Biomass
 initBiomasses <- function(pCro,initVarX){
+  initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
   siteType <- initVarX[8,1]
   ##set parameters
   par_betab <- pCro[13,initVarX[1,]]
