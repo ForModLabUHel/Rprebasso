@@ -269,6 +269,10 @@ InitMultiSite <- function(nYearsMS,
   biomasses <- aaply(initVarX,1,initBiomasses,pCro=pCROBAS)
   multiOut[,1,c(33,25,47:49,24,32,50,51,31,30),,1] <- biomasses
   multiInitVar <- multiInitVar[,1:7,]
+  for(i in 1:maxNlayers){
+    sitxx <- which(multiInitVar[,3,i]==0)
+    multiOut[sitxx,,,i,] <- 0.
+  }
   
   multiSiteInit <- list(
     multiOut = multiOut,

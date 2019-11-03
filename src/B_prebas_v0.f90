@@ -96,8 +96,6 @@ soilC = 0.
 countThinning = 1
 pars = pPRELES
 pars(1:3) = siteInfo(8:10)
-! write(2,*) pars
-! close(2)
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
@@ -824,14 +822,12 @@ endif
 endif
 
   !Perform manual thinning or defoliation events for this time period
-! If (STAND(13) > 0) then
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 	STAND_tot = STAND
 	if(thinning(countThinning,9) .NE. -999) then
 	 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
 	endif
-!    STAND(11) =
     if(thinning(countThinning,4)==0.) then
      STAND(2) = 0. !!newX
 	 STAND(8:21) = 0. !#!#
@@ -904,7 +900,6 @@ endif
 		V = W_stem / par_rhow
 		W_croot = W_crs + W_crh
 		W_branch = W_bs + W_bh
-
 !! calculate litter including residuals from thinned trees
     S_fol = stand(26) + stand(33) - wf_STKG
     S_fr = stand(27) + stand(25) - W_froot
@@ -929,30 +924,30 @@ endif
      outt(34,ij,2) = (STAND_tot(34)*Nold - wf_treeKG*N)/Nthd
      outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
 
-    stand_all(11,ij) = H
-    stand_all(12,ij) = D
-    stand_all(13,ij) = BA
-    stand_all(16,ij) = A
-    stand_all(17,ij) = N
-    stand_all(26,ij) = S_fol
-    stand_all(27,ij) = S_fr
-    stand_all(28,ij) = S_branch
-    stand_all(29,ij) = S_wood
-    stand_all(24,ij) = W_branch
-    stand_all(25,ij) = W_froot
-    stand_all(30,ij) = V  !
-    stand_all(31,ij) = W_stem
-    stand_all(32,ij) = W_croot
-    stand_all(33,ij) = wf_STKG
-    stand_all(34,ij) = wf_treeKG
-    stand_all(35,ij) = B
-	stand_all(47,ij) = W_wsap
-	stand_all(48,ij) = W_c
-	stand_all(49,ij) = W_s
-	stand_all(53,ij) = W_bh
-	stand_all(54,ij) = W_crh
-	stand_all(50,ij) = Wsh
-	stand_all(51,ij) = Wdb
+    stand(11) = H
+    stand(12) = D
+    stand(13) = BA
+    stand(16) = A
+    stand(17) = N
+    stand(26) = S_fol
+    stand(27) = S_fr
+    stand(28) = S_branch
+    stand(29) = S_wood
+    stand(24) = W_branch
+    stand(25) = W_froot
+    stand(30) = V  !
+    stand(31) = W_stem
+    stand(32) = W_croot
+    stand(33) = wf_STKG
+    stand(34) = wf_treeKG
+    stand(35) = B
+	stand(47) = W_wsap
+	stand(48) = W_c
+	stand(49) = W_s
+	stand(53) = W_bh
+	stand(54) = W_crh
+	stand(50) = Wsh
+	stand(51) = Wdb
     endif
 
 	countThinning = countThinning + 1
@@ -1305,7 +1300,6 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp i
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- ! close(1)
  ! close(2)
  ! close(3)
 
