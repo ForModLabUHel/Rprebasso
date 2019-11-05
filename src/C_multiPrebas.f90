@@ -12,11 +12,11 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 implicit none
 
 integer, parameter :: nVar=54,npar=38!, nSp=3
-integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
+integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
+integer, intent(in) :: nYears(nSites),nLayers(nSites)
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
-integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers
-real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
+ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
  real (kind=8), intent(inout) :: siteInfo(nSites,10)
@@ -44,24 +44,26 @@ output = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
-! do i = 1,nSites
- ! do ijj = 1,nLayers(i)
-	! species = int(initVar(i,1,ijj))
-		! initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
-			! initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
- ! enddo
-! enddo
+do i = 1,nSites
+ do ijj = 1,nLayers(i)
+	species = int(initVar(i,1,ijj))
+		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
+ enddo
+enddo
 
 do i = 1,nSites
  ! write(*,*) i
  output(1,:,:,:) = multiOut(i,1,:,:,:)
+
 	climID = siteInfo(i,2)
 	defaultThinX = defaultThin(i)
 	ClCutX = ClCut(i)
 	thinningX = thinning(i,:,:)
 	! nYears(i) = nYears(i)
 	  call prebas_v0(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
-		thinningX,output(1:nYears(i),:,1:nLayers(i),:),maxThin,maxYearSite,fAPAR(i,1:nYears(i)),initClearcut(i,:),&
+		thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),P0y(climID,1:nYears(i),:),&
 		weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES,etmodel, &
 		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
@@ -70,7 +72,6 @@ do i = 1,nSites
 
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
-
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

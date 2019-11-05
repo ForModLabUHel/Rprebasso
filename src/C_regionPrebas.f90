@@ -42,14 +42,15 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
-!!inititialize A
-! do i = 1,nSites
- ! do ijj = 1,nLayers(i)
-	! species = int(initVar(i,1,ijj))
-		! initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
-			! initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
- ! enddo
-! enddo
+!!inititialize A and biomasses
+do i = 1,nSites
+ do ijj = 1,nLayers(i)
+	species = int(initVar(i,1,ijj))
+		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
+ enddo
+enddo
 do i = 1,nSites
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo

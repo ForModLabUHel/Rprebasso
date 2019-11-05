@@ -165,7 +165,7 @@ prebas <- function(nYears,
   # print(biomasses)
   initVar <- initVar[1:7,]
   PREBASversion <- paste("prebas_v",PREBASversion,sep='')
-  
+
   prebas <- .Fortran(PREBASversion,
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),

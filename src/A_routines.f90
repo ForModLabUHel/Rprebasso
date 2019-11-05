@@ -1,3 +1,79 @@
+subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
+	implicit none
+    integer, parameter :: nVar=54, npar=38
+	real (kind=8), parameter :: pi = 3.1415927
+	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
+	real (kind=8), intent(inout) :: biomasses(nvar)
+	real (kind=8) :: par_betab, par_x, par_beta0, par_betas, par_mf, par_mr
+	real (kind=8) :: par_mw, par_alfar, par_c, par_rhof, par_rhor , par_rhow
+	real (kind=8) :: par_S_branchMod, gammaC, Tbd
+	real (kind=8) :: A, ba, d, N, h, hc, B, Lc, betab, beta0, beta1, beta2, betaC, V
+	real (kind=8) :: wf_STKG, W_froot, W_wsap, W_c, W_s, W_branch, W_croot, Wdb, W_stem, Wsh
+  
+ 	
+  !initBiomasses = function(pCrobas,initVarX){
+  ! initVarX<-as.matrix(initVarX) change vector to matrix when maxlayer=1
+  ! siteType = siteInfo(3)
+  !##set parameters
+  par_betab = pCrobas(13)
+  par_x = pCrobas(19)
+  par_beta0 = pCrobas(12)
+  par_betas = pCrobas(14)
+  par_mf = pCrobas(8)
+  par_mr = pCrobas(9)
+  par_mw = pCrobas(10)
+  par_alfar = pCrobas(int(20+min(siteType,5.)))
+  par_c = pCrobas(7)
+  par_rhof = pCrobas(15)
+  par_rhor = par_alfar * par_rhof
+  par_rhow = pCrobas(2)
+  par_S_branchMod = pCrobas(27)
+  gammaC = 0. !#initVarX(8,)
+  Tbd = 10 !#####to include in the parameters
+  
+  !###set variables
+  A = initVar(7)
+  ba = initVar(5); d = initVar(4)
+  N = ba/(pi*((d/2/100)**2))
+  h = initVar(3); hc = initVar(6)
+  B = ba/N
+  Lc = h - hc
+  betab =  par_betab * Lc**(par_x-1)
+  beta0 = par_beta0
+  beta1 = (beta0 + betab + par_betas) 
+  beta2 = 1. - betab - par_betas 		
+  betaC = (beta1 + gammaC * beta2) / par_betas
+  wf_STKG = par_rhof * A * N
+  W_froot = par_rhor * A * N  
+  W_wsap = par_rhow * A * N * (beta1 * h + beta2 * hc) 
+  W_c = par_rhow * A * N * hc 
+  W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
+  W_branch =  par_rhow * A * N * betab * Lc !branches biomass
+  W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	!#coarse root biomass
+  Wsh = max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !#initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
+  !#initialize Wdb dead branches biomass
+  if(par_S_branchMod == 1.) then
+	Wdb = Tbd * W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*d**2)+0.00723)
+  else
+    Wdb = Tbd * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*d**2)+0.00467)
+  endif
+  W_stem = W_c + W_s + Wsh
+  V = W_stem / par_rhow
+  
+  biomasses(33) = wf_STKG
+  biomasses(25) = W_froot
+  biomasses(47) = W_wsap
+  biomasses(48) = W_c
+  biomasses(49) = W_s
+  biomasses(24) = W_branch
+  biomasses(32) = W_croot
+  biomasses(50) = Wsh
+  biomasses(51) = Wdb
+  biomasses(31) = W_stem
+  biomasses(30) = V
+	
+end subroutine
+
 SUBROUTINE Ffotos2(STAND_all,nClass,nSp,pCrobas,nVar,nPar,MeanLight,coeff,qcTOT)
 implicit none
 
@@ -439,7 +515,6 @@ prelesOut(16) = sum(SW(152:243))/92
 
 end subroutine
 
-
 SUBROUTINE mod5c(theta,time,climate,init,b,d,leac,xt,steadystate_pred)
 IMPLICIT NONE
     !********************************************* &
@@ -557,7 +632,7 @@ IMPLICIT NONE
 
 	IF(ss_pred) THEN
 		! Solve DE directly in steady state conditions (time = infinity)
-		! using the formula 0 = x'(t) = A*x + b => x = -A^-1*b
+		! using the formula 0 = x'(t) = A*x + b => x = -A**-1*b
 		CALL solve(-A, b, xt)
 	ELSE
 		! Solve DE in given time
@@ -729,16 +804,16 @@ IMPLICIT NONE
         ! IMPLICIT NONE
         ! REAL (kind=8),DIMENSION(4),INTENT(IN) :: inputs
         ! REAL (kind=8),INTENT(inout) :: Ac
-	! A <- p_ksi/p_rhof * Lc^p_z
+	! A = p_ksi/p_rhof * Lc**p_z
     ! END SUBROUTINE compAWENH
 
 
 ! #### function to calculate initial sapwood area at crown base (A)
-! compA <- function(inputs){
-  ! p_ksi = inputs[1]
-  ! p_rhof = inputs[2]
-  ! p_z <- inputs[3]
-  ! Lc = inputs[4]
-  ! A <- p_ksi/p_rhof * Lc^p_z
+! compA = function(inputs){
+  ! p_ksi = inputs(1)
+  ! p_rhof = inputs(2)
+  ! p_z = inputs(3)
+  ! Lc = inputs(4)
+  ! A = p_ksi/p_rhof * Lc**p_z
   ! return(A)
 ! }

@@ -859,9 +859,10 @@ endif
 	endif
      endif
      if (thinning(countThinning,4) /= -999.) H = thinning(countThinning,4)
-     if (thinning(countThinning,7) /= -999.) Hc = thinning(countThinning,7)
+     if (thinning(countThinning,7) /= -999.) stand(14) = thinning(countThinning,7)
      if (thinning(countThinning,5) /= -999.) D = thinning(countThinning,5)
      BA = thinning(countThinning,6)
+	 Hc=stand(14)
      Lc = H - Hc !Lc
      rc = Lc / (H-1.3) !crown ratio
      Nold = N
@@ -873,16 +874,18 @@ endif
      A = stand(16) * B/stand(35)
 
      ! Update dependent variables
-	 ! gammaC = par_cR/stand_all(36,ij)
-	 ! par_rhof = par_rhof1 * ETS + par_rhof2
- 	 ! par_rhor = par_alfar * par_rhof
+	 hb = par_betab * Lc**par_x
+	 gammaC = par_cR/stand(36)
+	 par_rhof = par_rhof1 * ETS + par_rhof2
+ 	 par_rhor = par_alfar * par_rhof
      betab = hb/Lc
-     ! beta0 = par_beta0
+     beta0 = par_beta0
      beta1 = (beta0 + betab + par_betas) !!newX
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
 
-		W_bh = stand(53)
+
+	    W_bh = stand(53)
 		W_crh = stand(54)
 		wf_treeKG = par_rhof * A
 		wf_STKG = N * wf_treeKG
@@ -906,6 +909,13 @@ endif
     S_branch = stand(28) + stand(24) - W_branch
     S_wood = stand(29) + (stand(31) - W_stem) * 0.1 + stand(32) - W_croot
 	
+!! calculate litter including residuals from thinned trees
+    S_fol = stand_all(26,ij) + stand_all(33,ij) - wf_STKG
+    S_fr = stand_all(27,ij) + stand_all(25,ij) - W_froot
+    S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch
+    S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * 0.1 + stand_all(32,ij) - W_croot
+
+
      outt(11,ij,2) = STAND_tot(11)
      outt(12,ij,2) = STAND_tot(12)
      outt(13,ij,2) = STAND_tot(13) - BA
@@ -1300,7 +1310,7 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp i
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- ! close(2)
+ ! close(1)
  ! close(3)
 
 end subroutine
