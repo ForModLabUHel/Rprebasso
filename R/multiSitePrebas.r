@@ -266,7 +266,10 @@ InitMultiSite <- function(nYearsMS,
   }
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
-  biomasses <- aaply(initVarX,1,initBiomasses,pCro=pCROBAS)
+  biomasses <- array(apply(initVarX,1,initBiomasses,pCro=pCROBAS),dim=c(11,maxNlayers,nSites))
+  biomasses <- aperm(biomasses,c(3,1,2))
+  biomasses[which(is.na(biomasses))] <- 0
+  
   multiOut[,1,c(33,25,47:49,24,32,50,51,31,30),,1] <- biomasses
   multiInitVar <- multiInitVar[,1:7,]
   
