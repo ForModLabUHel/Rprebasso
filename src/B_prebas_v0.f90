@@ -359,7 +359,7 @@ if (N>0.) then
   STAND(29) = S_wood
   STAND(31) = W_stem
   STAND(32) = W_croot
-  STAND(42) = Vold* min(1.,-dN*step/Nold)
+  STAND(42) = Vold - V!* min(1.,-dN*step/Nold)
   STAND(47) = W_wsap
   STAND(48) = W_c
   STAND(49) = W_s
@@ -373,6 +373,7 @@ if (N>0.) then
   STAND(27) = 0.
   STAND(28) = 0.
   STAND(29) = 0.
+  STAND(42) = 0.
       endif
 
 	  !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
