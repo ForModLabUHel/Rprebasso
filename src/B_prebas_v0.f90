@@ -839,7 +839,7 @@ endif
      S_fol = wf_STKG
      S_fr = W_froot
      S_branch = W_branch
-     S_wood = S_wood + W_stem* (1-harvRatio) + W_croot !(1-harvRatio) takes into account of the stem residuals after thinnings
+     S_wood = S_wood + W_stem* (1-0.9) + W_croot !(1-0.9) takes into account of the stem residuals after thinnings
      STAND(26) = S_fol
      STAND(27) = S_fr
      STAND(28) = S_branch
@@ -908,13 +908,13 @@ endif
     S_fol = stand(26) + stand(33) - wf_STKG
     S_fr = stand(27) + stand(25) - W_froot
     S_branch = stand(28) + stand(24) - W_branch
-    S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) + stand(32) - W_croot
+    S_wood = stand(29) + (stand(31) - W_stem) * (1-0.9) + stand(32) - W_croot
 	
 ! !! calculate litter including residuals from thinned trees
     ! S_fol = stand_all(26,ij) + stand_all(33,ij) - wf_STKG
     ! S_fr = stand_all(27,ij) + stand_all(25,ij) - W_froot
     ! S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch
-    ! S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + stand_all(32,ij) - W_croot
+    ! S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-0.9) + stand_all(32,ij) - W_croot
 
 
      outt(11,ij,2) = STAND_tot(11)
@@ -990,7 +990,7 @@ if (ClCut == 1.) then
    S_fol = stand_all(33,ij) + stand_all(26,ij)
    S_fr = stand_all(25,ij) + stand_all(27,ij)
    S_branch = stand_all(24,ij) + stand_all(28,ij)
-   S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+   S_wood = stand_all(31,ij)* (1-0.9) + stand_all(32,ij) + stand_all(29,ij) !(1-0.9) takes into account of the stem residuals after clearcuts
    stand_all(2,ij) = 0. !!newX
    stand_all(8:21,ij) = 0.
    stand_all(23:37,ij) = 0.
@@ -1186,7 +1186,7 @@ if(defaultThin == 1.) then
     S_fol = stand_all(26,ij) + stand_all(33,ij) - wf_STKG
     S_fr = stand_all(27,ij) + stand_all(25,ij) - W_froot
     S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch
-    S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + stand_all(32,ij) - W_croot
+    S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-0.9) + stand_all(32,ij) - W_croot
 	
     outt(11,ij,2) = STAND_tot(11)
     outt(12,ij,2) = STAND_tot(12)
@@ -1271,8 +1271,8 @@ enddo !end year loop
 ! write(2,*) "after loop years"
 
 !soil and harvested volume outputs
-modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
-modOut(:,38,:,1) = modOut(:,31,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
+modOut(:,37,:,1) = modOut(:,30,:,2) * 0.9!! 0.9 takes into account the residuals left in the soil 
+modOut(:,38,:,1) = modOut(:,31,:,2) * 0.9!! 0.9 takes into account the residuals left in the soil 
 
 do year = 1,(nYears+1)
   do ijj = 1, nLayers
@@ -1283,7 +1283,7 @@ do year = 1,(nYears+1)
 	if(year > 1.5) then
 	!compute gross growth
 	  modOut(year,43,ijj,1) = modOut(year,30,ijj,1) - modOut((year-1),30,ijj,1) + &
-				modOut(year,42,ijj,1) + modOut(year,37,ijj,1)/harvRatio
+				modOut(year,42,ijj,1) + modOut(year,37,ijj,1)/0.9
 	endif
 	! write(*,*) modOut(year,39,ijj,1)
   enddo
