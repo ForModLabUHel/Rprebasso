@@ -12,6 +12,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 implicit none
 
 integer, parameter :: nVar=54,npar=38!, nSp=3
+real (kind=8), parameter :: harvRatio = 0.9
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nSites,maxYears)
@@ -205,7 +206,8 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
   ! close(10)
 !!   !!clearcut!!
    HarvArea = HarvArea + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1))*areas(i)
-   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + multiOut(siteX,ij,30,1:nLayers(siteX),1)
+   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
+   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
    do ijj = 1, nLayers(siteX)
     multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
     multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
@@ -218,8 +220,8 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
     multiOut(siteX,ij,43:44,ijj,1) = 0.
 	multiOut(siteX,ij,47:51,ijj,1) = 0.
-    multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
-		sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
+    ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
+		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
    enddo
 	 if((maxYears-ij)<10) then
 	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25)
@@ -253,7 +255,7 @@ do i = 1,nSites
 	  if(ij > 1.5) then
 	!compute gross growth
 	   multiOut(i,ij,43,ijj,1) = multiOut(i,ij,30,ijj,1) - multiOut(i,(ij-1),30,ijj,1) + & 
-			multiOut(i,ij,37,ijj,1) + multiOut(i,ij,42,ijj,1)
+			multiOut(i,ij,37,ijj,1)/harvRatio + multiOut(i,ij,42,ijj,1)
 	  endif
 
 	enddo !ijj
