@@ -515,6 +515,7 @@ prelesOut(16) = sum(SW(152:243))/92
 
 end subroutine
 
+
 SUBROUTINE mod5c(theta,time,climate,init,b,d,leac,xt,steadystate_pred)
 IMPLICIT NONE
     !********************************************* &
@@ -799,21 +800,54 @@ IMPLICIT NONE
 	! AWENH(5) = 0.
     END SUBROUTINE compAWENH
 
-! ! Note for Birch Betula pubenscens and brown leaves is used
-    ! SUBROUTINE compAc(p_ksi,Ac)
-        ! IMPLICIT NONE
-        ! REAL (kind=8),DIMENSION(4),INTENT(IN) :: inputs
-        ! REAL (kind=8),INTENT(inout) :: Ac
-	! A = p_ksi/p_rhof * Lc**p_z
-    ! END SUBROUTINE compAWENH
+	
+SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso,weatherYasso,soilC)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION 
+    !********************************************* &
+    ! run yasso for some years with litterfal inputs from prebas.
 
+	integer, intent(in) :: nYears, nLayers, nSites, nSp,nClimID
+	REAL (kind=8),INTENT(IN) :: litter(nSites, nYears, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
+	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
+	REAL (kind=8),INTENT(IN) :: species(nSites, nLayers),litterSize(3,nSp)
+	REAL (kind=8),INTENT(IN) :: pAWEN(12, nSp), pYasso(35)
+	integer,INTENT(IN) :: climIDs(nSites)
+	INTEGER :: year, site, layer, spec
+	real (kind=8) :: t=1.,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
+	real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
+	real (kind=8),DIMENSION(5) :: soilC(nSites,(nYears+1),5,3,nLayers)
 
-! #### function to calculate initial sapwood area at crown base (A)
-! compA = function(inputs){
-  ! p_ksi = inputs(1)
-  ! p_rhof = inputs(2)
-  ! p_z = inputs(3)
-  ! Lc = inputs(4)
-  ! A = p_ksi/p_rhof * Lc**p_z
-  ! return(A)
-! }
+fbAWENH = 0.
+folAWENH = 0.
+stAWENH = 0.
+
+!!!!run Yasso
+do site = 1, nSites
+ do layer = 1,nLayers
+  do year = 1,nYears
+
+   Lst = litter(site,year,layer,3)
+   Lb = litter(site,year,layer,2)
+   Lf = litter(site,year,layer,1)
+
+   spec = int(species(site,layer))
+   call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+   call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+   call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
+	leac,soilC(site,(year+1),:,1,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
+	leac,soilC(site,(year+1),:,2,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
+	leac,soilC(site,(year+1),:,3,layer),stSt)
+
+!   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
+
+  enddo
+ enddo
+enddo
+
+END SUBROUTINE runYasso  
