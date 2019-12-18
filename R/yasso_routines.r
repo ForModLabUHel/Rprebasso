@@ -495,3 +495,45 @@ sCststPrebasOut <- function(x){
 }
 
 
+####Wrapper function for YASSO runs (fortran version) with PREBAS inputs
+####Wrapper function for YASSO runs (fortran version) with PREBAS inputs
+yassoPREBASin <- function(litter,species,initSoilC,weatherYasso,climIDs,pYASSO = pYAS,litterSize = NA,pAWEN=parsAWEN){
+  ###litter is array with dimensions:(nSites, nYears, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
+  ####species is a matrix dims= nSites,nLayers
+  #### initSoilC is array dim=nSites,5,3,nLayers;;!!! third dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
+  #### weatherYasso dims=nClimID, nYears, 3; dim 3 are weather inputs Tmean precip Tampl
+  ###### climIDs vector of climIDs(nSites)
+  ##### litterSize dimensions of litterfall matrix (nrow=3(stem,branch,fineLit), ncol=nSp) 
+  
+  nSites <- dim(litter)[1]
+  nYears <- dim(litter)[2]
+  nLayers <- dim(litter)[3]
+  nSp <- ncol(parsAWEN)
+  if(all(is.na(litterSize))){
+    litterSize <- matrix(0,3,nSp)
+    litterSize[2,] <- 2
+    litterSize[1,] <- c(30,30,10)
+    # siteInfo <- siteInfo[,-c(4,5)]
+  }
+  nSp <- ncol(parsAWEN)
+  nClimID <- dim(weatherYasso)[1]
+  soilC <- array(0., dim=c(nSites,(nYears+1),5,3,nLayers))
+  soilC[,1,,,] <- initSoilC
+  
+  xx <- .Fortran("runYasso",
+                 litter = as.array(litter),
+                 litterSize = as.array(litterSize),
+                 nYears = as.integer(nYears),
+                 nLayers = as.integer(nLayers), 
+                 nSites = as.integer(nSites), 
+                 nSp = as.integer(nSp),
+                 species = as.matrix(species),
+                 nClimID = as.integer(nClimID),
+                 climIDs = as.integer(climIDs),
+                 pAWEN = as.matrix(pAWEN),
+                 pYASSO=as.double(pYASSO),
+                 weatherYasso = as.array(weatherYasso),
+                 soilC = as.array(soilC)
+  )
+  return(xx)
+}
