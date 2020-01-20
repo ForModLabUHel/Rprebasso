@@ -101,6 +101,7 @@ do ij = 1,maxYears
 	  do ki = 1,int(initClearcut(i,5)+1)
 	   multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	  enddo !ki
+	  call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,(ij-1),:,ijj,1))
 	 enddo !ijj
 	endif
 

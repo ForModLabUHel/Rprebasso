@@ -167,23 +167,83 @@ do year = 1, (nYears)
      modOut(year,12,ijj,1) = initClearcut(2)
      modOut(year,14,ijj,1) = initClearcut(4)
 	 modOut(year,16,ijj,1) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(1) - &
-		initClearcut(4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
-	if(modOut(1,12,ijj,1) > 0.) then
-	  modOut(1,17,ijj,1) = modOut(1,13,ijj,1)/(pi*((modOut(1,12,ijj,1)/2/100)**2))
-	  modOut(1,35,ijj,1) =  modOut(1,13,ijj,1)/modOut(1,17,ijj,1)
+		initClearcut(4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc**p_z
+	if(modOut(year,12,ijj,1) > 0.) then
+	  modOut(year,17,ijj,1) = modOut(year,13,ijj,1)/(pi*((modOut(year,12,ijj,1)/2/100)**2))
+	  modOut(year,35,ijj,1) =  modOut(year,13,ijj,1)/modOut(year,17,ijj,1)
     else
-	  modOut(1,17,ijj,1) = 0. 
-	  modOut(1,35,ijj,1) = 0. 
+	  modOut(year,17,ijj,1) = 0. 
+	  modOut(year,35,ijj,1) = 0. 
     endif
      ! modOut(year,35,ijj,1) = modOut(year,13,ijj,1) / modOut(year,17,ijj,1)
+	 
+	   siteType = siteInfo(3)
+  !!set parameters
+  par_betab = pCrobas(13,int(initVar(1,ijj)))
+  par_x = pCrobas(19,int(initVar(1,ijj)))
+  par_beta0 = pCrobas(12,int(initVar(1,ijj)))
+  par_betas = pCrobas(14,int(initVar(1,ijj)))
+  par_mf = pCrobas(8,int(initVar(1,ijj)))
+  par_mr = pCrobas(9,int(initVar(1,ijj)))
+  par_mw = pCrobas(10,int(initVar(1,ijj)))
+  par_alfar = pCrobas(int(20+min(siteType,5.)),int(initVar(1,ijj)))
+  par_c = pCrobas(7,int(initVar(1,ijj)))
+  par_rhof = pCrobas(15,int(initVar(1,ijj)))
+  par_rhor = par_alfar * par_rhof
+  par_rhow = pCrobas(2,int(initVar(1,ijj)))
+  par_S_branchMod = pCrobas(27,int(initVar(1,ijj)))
+  gammaC = 0. !initVarX(8,)
+  ! Tbd = 10 !!!!to include in the parameters
+  
+  !!set variables
+  A = modOut(year,16,ijj,1)
+  ba = modOut(year,13,ijj,1)
+  d = modOut(year,12,ijj,1)
+  N = ba/(pi*((d/2/100)**2))
+  h = modOut(year,11,ijj,1)
+  hc = modOut(year,14,ijj,1)
+  B = ba/N
+  Lc = h - hc
+  betab =  par_betab * Lc**(par_x-1)
+  beta0 = par_beta0
+  beta1 = (beta0 + betab + par_betas) 
+  beta2 = 1. - betab - par_betas 		
+  betaC = (beta1 + gammaC * beta2) / par_betas
+  wf_STKG = par_rhof * A * N
+  W_froot = par_rhor * A * N  !!to check  ##newX
+  W_wsap = par_rhow * A * N * (beta1 * h + beta2 * hc) 
+  W_c = par_rhow * A * N * hc !sapwood stem below Crown
+  W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
+  W_branch =  par_rhow * A * N * betab * Lc !branches biomass
+  W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	#coarse root biomass
+  Wsh = 0.!max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
+  !initialize Wdb dead branches biomass
+  Wdb = 0.
+  W_stem = W_c + W_s + Wsh
+  V = W_stem / par_rhow
+  
+  modOut(year,33,ijj,1) = wf_STKG
+  modOut(year,25,ijj,1) = W_froot
+  modOut(year,47,ijj,1) = W_wsap
+  modOut(year,48,ijj,1) = W_c
+  modOut(year,49,ijj,1) = W_s
+  modOut(year,24,ijj,1) = W_branch
+  modOut(year,32,ijj,1) = W_croot
+  modOut(year,50,ijj,1) = Wsh
+  modOut(year,51,ijj,1) = Wdb
+  modOut(year,31,ijj,1) = W_stem
+  modOut(year,30,ijj,1) = V
+  
    enddo
    do ki = 1,int(Ainit)
     do ijj = 1,nLayers
      modOut((year-Ainit+ki),7,ijj,1) = ki !#!#
      modOut((year-Ainit+ki),4,ijj,1) = initVar(1,ijj) !#!#
     enddo
-   enddo
-    yearX = 0
+   enddo	
+	yearX = 0
+	
+	
   endif
 
   stand_all = modOut(year,:,:,1)

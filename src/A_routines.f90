@@ -873,3 +873,4 @@ subroutine calWf(pars,Wf,inputs,nData)
 	Wf(:,1) = par_rhof * As
 	Wf(:,2) = par_ksi * Lc ** par_z 
 END SUBROUTINE calWf
+
