@@ -673,7 +673,7 @@ if (N>0.) then
 
     if(wf_STKG > 0.) then
 		if(H < 10.) then
-        s0 = min(0.3 * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
+        s0 = min(0.35 * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
 else
         s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
 endif
