@@ -672,11 +672,11 @@ if (N>0.) then
 		! gpp_sp = weight * STAND(10)
 
     if(wf_STKG > 0.) then
-		if(H < 10.) then
-        s0 = min(0.35 * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
-else
+!if(H < 10.) then
+ !       s0 = min(0.35 * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
+!else
         s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
-endif
+! endif
 		! if(ij==1 .and. output(year,1,ij,1) == 3.) write(1,*) year, s0, &
 	! par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.
   ! if(ij==2) write(2,*) s0,par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.
