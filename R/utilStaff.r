@@ -40,7 +40,7 @@ initBiomasses <- function(pCro,initVarX){
   W_croot = par_rhow * beta0 * A * h * N #W_stem * (beta0 - 1.)	#coarse root biomass
   Wsh = pmax((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0) #initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
   #initialize Wdb dead branches biomass
-  Wdb = max(0,ifelse(par_S_branchMod == 1.,Tbd * W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*d^2)+0.00723),
+  Wdb = pmax(0,ifelse(par_S_branchMod == 1.,Tbd * W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*d^2)+0.00723),
          Tbd * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*d^2)+0.00467)))
   W_stem = W_c + W_s + Wsh
   V = W_stem / par_rhow
