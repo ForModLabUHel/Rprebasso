@@ -768,19 +768,19 @@ endif
 
        ! diameter growth
             if(Lc > 0.) then
-                dA = max(0.,par_z*A*(dH-dHc)/Lc)
+                dA = par_z*A*(dH-dHc)/Lc
 !                dB = par_z * (A / Lc) * dH
-                dB = max(0.,par_z * A / Lc * dH + theta * A) !!!! v1
+                dB = par_z * A / Lc * dH + theta * A !!!! v1
             else
                 dA = 0.
                 dB = 0.
             endif
             
 ! Calculate change rates for non-living wood   - DECLARE dWsh etc...          
-            dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
-            dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
-            dW_crh = max(0.,W_crs*theta)
-            dWdb = max(0.,W_branch/Lc * gammaC * dH - Wdb/Tdb)
+            dWsh = (par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
+            dW_bh = (W_bs*theta - W_bh * gammaC * dH / Lc) 
+            dW_crh = (W_crs*theta)
+            dWdb = (W_branch/Lc * gammaC * dH - Wdb/Tdb)
 
 !!  Update state variables
           H = H + step * dH
