@@ -31,18 +31,18 @@ initBiomasses <- function(pCro,initVarX){
   beta1 = (beta0 + betab + par_betas) 
   beta2 = 1. - betab - par_betas 		
   betaC = (beta1 + gammaC * beta2) / par_betas
-  wf_STKG <- par_rhof * A * N
-  W_froot = par_rhor * A * N  ##to check  ##newX
-  W_wsap = par_rhow * A * N * (beta1 * h + beta2 * hc) ##newX
-  W_c = par_rhow * A * N * hc #sapwood stem below Crown
-  W_s = par_rhow * A * N * par_betas * Lc #sapwood stem within crown
-  W_branch =  par_rhow * A * N * betab * Lc #branches biomass
-  W_croot = par_rhow * beta0 * A * h * N #W_stem * (beta0 - 1.)	#coarse root biomass
+  wf_STKG <- max(0.,par_rhof * A * N)
+  W_froot = max(0.,par_rhor * A * N)  ##to check  ##newX
+  W_wsap = max(0.,par_rhow * A * N * (beta1 * h + beta2 * hc)) ##newX
+  W_c = max(0.,par_rhow * A * N * hc) #sapwood stem below Crown
+  W_s = max(0.,par_rhow * A * N * par_betas * Lc) #sapwood stem within crown
+  W_branch =  max(0.,par_rhow * A * N * betab * Lc) #branches biomass
+  W_croot = max(0.,par_rhow * beta0 * A * h * N) #W_stem * (beta0 - 1.)	#coarse root biomass
   Wsh = pmax((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0) #initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
   #initialize Wdb dead branches biomass
   Wdb = pmax(0,ifelse(par_S_branchMod == 1.,Tbd * W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*d^2)+0.00723),
          Tbd * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*d^2)+0.00467)))
-  W_stem = W_c + W_s + Wsh
+  W_stem = max(0.,W_c + W_s + Wsh)
   V = W_stem / par_rhow
   biomasses <- rbind(wf_STKG,W_froot,W_wsap,W_c,W_s,W_branch,W_croot,Wsh,Wdb,W_stem,V)
   return(biomasses)
@@ -55,7 +55,7 @@ compA <- function(inputs){
   p_rhof = inputs[2]
   p_z <- inputs[3]
   Lc = inputs[4]
-  A <- p_ksi/p_rhof * Lc^p_z
+  A <- max(0.,p_ksi/p_rhof * Lc^p_z)
   return(A)
 }
 
