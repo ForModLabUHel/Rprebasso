@@ -768,7 +768,7 @@ endif
 
        ! diameter growth
             if(Lc > 0.) then
-                dA = par_z*A*(dH-dHc)/Lc
+                dA = max(A,par_z*A*(dH-dHc)/Lc)
 !                dB = par_z * (A / Lc) * dH
                 dB = par_z * A / Lc * dH + theta * A !!!! v1
             else
@@ -784,7 +784,7 @@ endif
 
 !!  Update state variables
           H = H + step * dH
-          A = A + step * dA
+          A = max(0.,A + step * dA)
           B = B + step * dB
 		  Hc = Hc + step * dHc
           
