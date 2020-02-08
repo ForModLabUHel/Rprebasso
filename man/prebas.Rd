@@ -40,7 +40,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
 %%     ~~Describe \code{pYASSO} here~~
 }
   \item{siteInfo}{
-  Vector of site info SiteID, climID, siteType. Default = c(1,1,3), i.e. siteType = 3.
+  Vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3, 160, 0, 0, 20, 413.,0.45, 0.118), i.e. siteType = 3.
 %%     ~~Describe \code{siteInfo} here~~
 }
   \item{initVar}{
