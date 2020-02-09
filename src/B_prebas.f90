@@ -777,14 +777,14 @@ endif
             endif
             
 ! Calculate change rates for non-living wood   - DECLARE dWsh etc...          
-            dWsh = (par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
-            dW_bh = (W_bs*theta - W_bh * gammaC * dH / Lc) 
-            dW_crh = (W_crs*theta)
-            dWdb = (W_branch/Lc * gammaC * dH - Wdb/Tdb)
+            dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
+            dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
+            dW_crh = max(0.,W_crs*theta)
+            dWdb = max(0.,W_branch/Lc * gammaC * dH - Wdb/Tdb)
 
 !!  Update state variables
           H = H + step * dH
-          A = max(0.,A + step * dA)
+          A = A + step * dA
           B = B + step * dB
 		  Hc = Hc + step * dHc
           
