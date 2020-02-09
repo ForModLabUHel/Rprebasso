@@ -726,11 +726,11 @@ if (N>0.) then
 			if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
 				par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 				
-			dH = (H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+			dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
 				(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-				gammaC * W_bs + betaC * W_s)
+				gammaC * W_bs + betaC * W_s))
 
-            if(dH < 0.) dH = 0.
+            ! if(dH < 0.) dH = 0.
         !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
