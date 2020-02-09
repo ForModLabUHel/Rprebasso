@@ -768,9 +768,9 @@ endif
 
        ! diameter growth
             if(Lc > 0.) then
-                dA = par_z*A*(dH-dHc)/Lc
+                dA = max(0.,par_z*A*(dH-dHc)/Lc)
 !                dB = par_z * (A / Lc) * dH
-                dB = par_z * A / Lc * dH + theta * A !!!! v1
+                dB = max(0.,par_z * A / Lc * dH + theta * A) !!!! v1
             else
                 dA = 0.
                 dB = 0.
