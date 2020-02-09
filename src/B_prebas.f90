@@ -730,7 +730,8 @@ if (N>0.) then
 				(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
 				gammaC * W_bs + betaC * W_s))
 
-            ! if(dH < 0.) dH = 0.
+            if((par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+				gammaC * W_bs + betaC * W_s) < 0.) dH = 0.
         !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
