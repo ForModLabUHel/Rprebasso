@@ -83,7 +83,8 @@ implicit none
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.
 
- ! open(2,file="rein.txt")
+  open(1,file="test1.txt")
+  open(2,file="test2.txt")
 
 !###initialize model###!
 fbAWENH = 0.
@@ -722,20 +723,12 @@ if (N>0.) then
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
 			
         !Height growth-----------------------
-
+			if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
+				par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
+				
 			dH = (H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
 				(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
 				gammaC * W_bs + betaC * W_s)
-			!if(ij==1 .and. stand(1)==1) write(2,*) dH,theta,W_wsap, par_z,gammaC, W_c,W_branch,betaC
-					
-            ! g0 = par_rhof  *  par_s1  +  par_rhow  *  par_mw  *  beta1
-            ! g1 = (1. / (1. + par_z)) * (g0 / (beta1  *  par_rhow * (1. + par_c)))
-            ! g2 = ((par_rhof  *  (s0 - par_mf)  -  (par_rhor  *  par_mr)) / g0) - &
-		! ((1. + par_c) / g0) * (par_rhof  /  par_vf  +  par_rhor  /  par_vr)
-            ! g3 = (par_z / (1. + par_z))  *  ((par_rhof + par_rhor)  /  (par_rhow * beta1))
-            ! g4 = 1 + (par_rhow * par_mw * beta2 - par_rhof * par_s1) / g0
-            ! g5 = (par_z / (1. + par_z)) * (1. / (betab + par_betas))
-            ! dH = g1 * (Lc) * ((g2 - (g4 - 1.) * (H-Lc) - H) / (g3 + (g5 - 1.) * (H-Lc) + H))
 
             if(dH < 0.) dH = 0.
         !-----------------------------------
@@ -743,14 +736,8 @@ if (N>0.) then
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
 !        if(2.*hb > 100./sqrt(N) ) then
         dHc = gammaC * dH
-		! if(dH > 0.) then    !!newX
-		  ! gammaC = dHc/dH   !!newX
-		! else				!!newX
-		  ! gammaC = 0.		!!newX
-		! endif				!!newX
-  ! if(ij==1) write(1,*) gammaC,dH,dHc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap,par_z,W_froot,W_c,W_branch,betaC
-  ! if(ij==2) write(2,*) gammaC,dH,dHc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap,par_z,W_froot, W_c, W_branch, betaC 
-  ! if(ij==3) write(3,*) gammaC,dH,dHc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap,par_z,W_froot, W_c, W_branch, betaC
+			if(ij==1 .and. stand(1)==13429) write(2,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
+				par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 		
 if(time==1)then
       dHcCum = 0.
@@ -1376,7 +1363,8 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp i
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- ! close(1)
+ close(1)
+ close(2)
  ! close(3)
 
 end subroutine
