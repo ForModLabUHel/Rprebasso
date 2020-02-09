@@ -43,6 +43,9 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
+  open(1,file="test1.txt")
+  open(2,file="test2.txt")
+
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
@@ -262,7 +265,8 @@ do i = 1,nSites
 	enddo !ijj
   enddo
 enddo	
-! close(10)
+close(1)
+close(2)
 ! write(10,*) "here5"
 ! close(10)
 soilCinOut = soilC

@@ -83,8 +83,8 @@ implicit none
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.
 
-  open(1,file="test1.txt")
-  open(2,file="test2.txt")
+  ! open(1,file="test1.txt")
+  ! open(2,file="test2.txt")
 
 !###initialize model###!
 fbAWENH = 0.
@@ -1363,8 +1363,8 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp i
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- close(1)
- close(2)
+ ! close(1)
+ ! close(2)
  ! close(3)
 
 end subroutine
