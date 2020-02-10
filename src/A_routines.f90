@@ -838,11 +838,11 @@ do site = 1, nSites
    call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
 
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
-	leac,soilC(site,(year+1),:,1,layer),stSt)
+	leac,soilC(site,(year+1),:,1,layer),0.)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
-	leac,soilC(site,(year+1),:,2,layer),stSt)
+	leac,soilC(site,(year+1),:,2,layer),0.)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
-	leac,soilC(site,(year+1),:,3,layer),stSt)
+	leac,soilC(site,(year+1),:,3,layer),0.)
 
 !   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
 
