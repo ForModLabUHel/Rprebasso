@@ -838,11 +838,11 @@ do site = 1, nSites
    call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
 
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
-	leac,soilC(site,(year+1),:,1,layer),0.)
+	leac,soilC(site,(year+1),:,1,layer),stSt)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
-	leac,soilC(site,(year+1),:,2,layer),0.)
+	leac,soilC(site,(year+1),:,2,layer),stSt)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
-	leac,soilC(site,(year+1),:,3,layer),0.)
+	leac,soilC(site,(year+1),:,3,layer),stSt)
 
 !   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
 
@@ -875,7 +875,7 @@ subroutine calWf(pars,Wf,inputs,nData)
 END SUBROUTINE calWf
 
 
-SUBROUTINE runYassoStst(litter,litterSize, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso,weatherYasso,soilC)
+SUBROUTINE StstYasso(litter,litterSize, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso,weatherYasso,soilC)
 IMPLICIT NONE
     !********************************************* &
     ! GENERAL DESCRIPTION 
@@ -922,4 +922,4 @@ do site = 1, nSites
  enddo
 enddo
 
-END SUBROUTINE runYassoStst
+END SUBROUTINE StstYasso
