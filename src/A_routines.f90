@@ -905,25 +905,32 @@ soilC = 0.
 !!!!run Yasso
 do site = 1, nSites
  do layer = 1,nLayers
-
+	
    Lst = litter(site,layer,3)
    Lb = litter(site,layer,2)
    Lf = litter(site,layer,1)
-
    spec = int(species(site,layer))
-   call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
-   call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
-   call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
-
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,1,layer),stAWENH,litterSize(1,spec), &
-	leac,soilC(site,:,1,layer),stSt)
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,2,layer),fbAWENH,litterSize(2,spec), &
-	leac,soilC(site,:,2,layer),stSt)
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,3,layer),folAWENH,litterSize(3,spec), &
-	leac,soilC(site,:,3,layer),stSt)
-
-!   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
-
+	if(Lst>0) then
+		call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+		call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,1,layer),stAWENH,litterSize(1,spec), &
+			leac,soilC(site,:,1,layer),stSt)
+	else
+		soilC(site,:,1,layer) = 0.
+   endif
+   if(Lf>0) then
+		call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+		call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,3,layer),folAWENH,litterSize(3,spec), &
+			leac,soilC(site,:,3,layer),stSt)
+	else
+		soilC(site,:,3,layer) = 0.
+   endif
+   if(Lb>0) then
+		call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+		call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,2,layer),fbAWENH,litterSize(2,spec), &
+			leac,soilC(site,:,2,layer),stSt)
+   else
+		soilC(site,:,2,layer) = 0.
+   endif
  enddo
 enddo
 
