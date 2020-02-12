@@ -890,7 +890,7 @@ IMPLICIT NONE
 	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, 3)
 	REAL (kind=8),INTENT(IN) :: species(nSites, nLayers),litterSize(3,nSp)
 	REAL (kind=8),INTENT(IN) :: pAWEN(12, nSp), pYasso(35)
-	real (kind=8),INTENT(INOUT) :: soilC(nSites,5,3,nLayers)
+	real (kind=8),INTENT(OUT) :: soilC(nSites,5,3,nLayers)
 	integer,INTENT(IN) :: climIDs(nSites)
 	INTEGER :: year, site, layer, spec
 	real (kind=8) :: t=1.,Lst,Lb,Lf,leac=0.,stSt=1. !leaching parameter for Yasso
@@ -900,6 +900,7 @@ IMPLICIT NONE
 fbAWENH = 0.
 folAWENH = 0.
 stAWENH = 0.
+soilC = 0.
 
 !!!!run Yasso
 do site = 1, nSites
