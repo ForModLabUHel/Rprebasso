@@ -11,7 +11,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=54,npar=38!, nSp=3
+integer, parameter :: nVar=55,npar=38!, nSp=3
 real (kind=8), parameter :: harvRatio = 0.9
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
@@ -223,7 +223,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	multiOut(siteX,ij,2,ijj,1) = 0. !!newX
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
     multiOut(siteX,ij,43:44,ijj,1) = 0.
-	multiOut(siteX,ij,47:51,ijj,1) = 0.
+	multiOut(siteX,ij,47:nVar,ijj,1) = 0.
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
    enddo

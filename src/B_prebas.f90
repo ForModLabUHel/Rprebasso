@@ -9,7 +9,7 @@ subroutine prebas_v0(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output
 
 implicit none
 
- integer, parameter :: nVar=54,npar=38, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=55,npar=38, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1. , harvRatio = 0.9
  ! logical steadystate_pred= .false.
 !define arguments
@@ -328,7 +328,7 @@ if (year > maxYearSite) then
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
   STAND(42:44) = 0. !#!#
-  STAND(47:54) = 0. !#!#
+  STAND(47:nVar) = 0. !#!#
 else
 ! initialize site variables
 !  sitetype = STAND(3)
@@ -350,6 +350,7 @@ else
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
   V = stand(30)
+  dH = stand(55)
 
 if (N>0.) then
 
@@ -376,6 +377,8 @@ if (N>0.) then
       else
            dN = 0.
       endif
+	  if(dH == 999.) dN = min(-0.1*N,dN)
+	  
       Vold = V
       Nold = N
       if(N < 5.) N = 0.0
@@ -492,7 +495,7 @@ else
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
   STAND(42:44) = 0. !#!#
-  STAND(47:54) = 0. !#!#
+  STAND(47:nVar) = 0. !#!#
 endif
 endif
 ! end do !!!!!!!end loop sites
@@ -592,7 +595,7 @@ if (year > maxYearSite) then
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
   STAND(42:44) = 0. !#!#
-  STAND(47:54) = 0. !#!#
+  STAND(47:nVar) = 0. !#!#
 else
 
 ! initialize site variables
@@ -826,6 +829,7 @@ endif
       ! endif
 
   age = age + step
+  if(dH == 0. .and. N > 0.) dH = 999.
   ! if(ij==1) write(11,*)gammaC , dH, dHc,H,Hc
   ! if(ij==2) write(12,*)gammaC , dH, dHc,H,Hc
   ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
@@ -865,13 +869,14 @@ endif
   STAND(54) = W_crh
   STAND(51) = Wdb
   STAND(52) = dHc
+  STAND(55) = dH
   ! stand(22) = theta
 else
   STAND(2) = 0. !!newX
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
   STAND(42:44) = 0. !#!#
-  STAND(47:54) = 0. !#!#
+  STAND(47:nVar) = 0. !#!#
   STAND(7) = STAND(7) + step
 endif
 endif
@@ -888,7 +893,7 @@ endif
 	 STAND(8:21) = 0. !#!#
      STAND(23:37) = 0. !#!#
      STAND(43:44) = 0. !#!#
-	 STAND(47:54) = 0. !#!#
+	 STAND(47:nVar) = 0. !#!#
  !! calculate litter including residuals from thinned trees
      S_fol = wf_STKG
      S_fr = W_froot
@@ -1049,7 +1054,7 @@ if (ClCut == 1.) then
    stand_all(8:21,ij) = 0.
    stand_all(23:37,ij) = 0.
    stand_all(43:44,ij) = 0.
-   stand_all(47:54,ij) = 0.
+   stand_all(47:nVar,ij) = 0.
    stand_all(26,ij) = S_fol
    stand_all(27,ij) = S_fr
    stand_all(28,ij) = S_branch
