@@ -9,7 +9,7 @@ subroutine prebas_v0(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output
 
 implicit none
 
- integer, parameter :: nVar=55,npar=38, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=54,npar=38, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1. , harvRatio = 0.9
  ! logical steadystate_pred= .false.
 !define arguments
@@ -350,7 +350,7 @@ else
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
   V = stand(30)
-  dH = stand(55)
+  dH = stand(41)
 
 if (N>0.) then
 
@@ -377,8 +377,7 @@ if (N>0.) then
       else
            dN = 0.
       endif
-	  if(dH == 999.) dN = min(-0.1*N,dN)
-	  
+	  if(dH == 888.) dN = min(dN,-(0.1*N))
       Vold = V
       Nold = N
       if(N < 5.) N = 0.0
@@ -534,8 +533,8 @@ if (year <= maxYearSite) then
 		etmodel)		!type of ET model
 
    STAND_all(22,:) = prelesOut(2)  	!ET
-   STAND_all(40,:) = prelesOut(15)
-   STAND_all(41,:) = prelesOut(16)
+   STAND_all(40,:) = prelesOut(15)  !aSW
+   ! STAND_all(41,:) = prelesOut(16)  !summerSW 
 
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
    pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
@@ -829,7 +828,7 @@ endif
       ! endif
 
   age = age + step
-  if(dH == 0. .and. N > 0.) dH = 999.
+  if (dH==0.) dH=888.
   ! if(ij==1) write(11,*)gammaC , dH, dHc,H,Hc
   ! if(ij==2) write(12,*)gammaC , dH, dHc,H,Hc
   ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
@@ -869,7 +868,6 @@ endif
   STAND(54) = W_crh
   STAND(51) = Wdb
   STAND(52) = dHc
-  STAND(55) = dH
   ! stand(22) = theta
 else
   STAND(2) = 0. !!newX
