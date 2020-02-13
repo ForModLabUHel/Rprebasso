@@ -70,7 +70,7 @@ InitMultiSite <- function(nYearsMS,
   maxNlayers <- max(nLayers)
   layerNam <- paste("layer",1:maxNlayers)
   multiOut <- array(0, dim=c(nSites,(maxYears),nVar,maxNlayers,2),
-                    dimnames = list(nSites=NULL,nYears=NULL,vars=varNam,layer=layerNam,
+                    dimnames = list(site=NULL,year=NULL,variable=varNam,layer=layerNam,
                                     status=c("stand","thinned")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
