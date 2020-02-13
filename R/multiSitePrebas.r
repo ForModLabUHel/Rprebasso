@@ -41,6 +41,10 @@ InitMultiSite <- function(nYearsMS,
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118),nSites,12,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
+  colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit", 
+                          "SOGinit", "Sinit", "soildepth", "nLayers", "nSpecies", 
+                          "effective field capacity", "permanent wilting point") 
+  
   nLayers <- siteInfo[,8]
   # nSp <- siteInfo[,9]
   climIDs <- siteInfo[,2]
@@ -66,8 +70,8 @@ InitMultiSite <- function(nYearsMS,
   maxNlayers <- max(nLayers)
   layerNam <- paste("layer",1:maxNlayers)
   multiOut <- array(0, dim=c(nSites,(maxYears),nVar,maxNlayers,2),
-                    dimnames = list(NULL,NULL,varNam,layerNam,
-                                    c("stand","thinned")))
+                    dimnames = list(nSites=NULL,nYears=NULL,vars=varNam,layer=layerNam,
+                                    status=c("stand","thinned")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
   # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
