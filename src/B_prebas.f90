@@ -834,6 +834,7 @@ endif
   ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
 ! write(3,*) gammaC, dH,dHc
   STAND(2) = gammaC
+  STAND(41) = dH
   STAND(7) = age !#!#
   STAND(18) = npp
   !STAND(8) = Respi_m /10000.
