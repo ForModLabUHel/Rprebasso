@@ -936,7 +936,6 @@ enddo
 
 END SUBROUTINE StstYasso
 
-
 subroutine calW(pars,Wf,Wbr,Wstem,inputs,nData)
  IMPLICIT NONE
  integer, intent(in) :: nData
@@ -944,30 +943,30 @@ subroutine calW(pars,Wf,Wbr,Wstem,inputs,nData)
  REAL (kind=8),INTENT(OUT) :: Wbr(nData),Wstem(nData)
  REAL (kind=8) W_c(nData),W_s(nData),Wsh(nData)
  REAL (kind=8),INTENT(IN) :: pars(6),inputs(nData,3) !inputs col#1 = basal area;
-								!col#2=height; col#3 = height of crown base
+!col#2=height; col#3 = height of crown base
  REAL (kind=8) ba(ndata), h(ndata), hc(ndata), Lc(ndata), As(ndata) !!variables
  REAL (kind=8) par_rhow, par_z, par_betab, par_betas, par_rhof, par_ksi!!parameters
 
-	ba = inputs(:,1)
-	h = inputs(:,2)
-	hc = inputs(:,3)
-	Lc = h-hc
-	As = ba * Lc/(H-1.3)
+ba = inputs(:,1)
+h = inputs(:,2)
+hc = inputs(:,3)
+Lc = h-hc
+As = ba * Lc/(H-1.3)
 
-	par_rhow = pars(1)
-	par_z = pars(2)
-	par_betab = pars(3)
-	par_betas = pars(4)
-	par_rhof = pars(5)
-	par_ksi = pars(6)
+par_rhow = pars(1)
+par_z = pars(2)
+par_betab = pars(3)
+par_betas = pars(4)
+par_rhof = pars(5)
+par_ksi = pars(6)
 
-	Wf(:,1) = par_rhof * As
-	Wf(:,2) = par_ksi  Lc * par_z
-	Wbr =  par_rhow  As   par_betab * Lc !branches biomass
+Wf(:,1) = par_rhof * As
+Wf(:,2) = par_ksi * Lc ** par_z
+Wbr =  par_rhow * As *  par_betab * Lc !branches biomass
 
-	W_c = par_rhow  As  hc !sapwood stem below Crown
-  W_s = par_rhow  As  par_betas * Lc !sapwood stem within crown
-	Wsh = max((As+ba+sqrt(As*ba))  hc  par_rhow /2.9 - W_c,0.0) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
-	Wstem = W_c + W_s + Wsh
+W_c = par_rhow * As * hc !sapwood stem below Crown
+  W_s = par_rhow * As * par_betas * Lc !sapwood stem within crown
+Wsh = max((As+ba+sqrt(As*ba)) * hc * par_rhow /2.9 - W_c,0.0) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
+Wstem = W_c + W_s + Wsh
 
 END SUBROUTINE calW
