@@ -188,7 +188,11 @@ do ij = 1,maxYears
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
 	initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
 	! initVar(i,8,1:nLayers(i)) = output(1,2,1:nLayers(i),1)  !!newX
-	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
+	if(isnan(sum(output(1,37,1:nLayers(i),1)))) then
+		HarvArea = HarvArea
+	else
+		HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
+	endif
  end do !iz i
 
 
