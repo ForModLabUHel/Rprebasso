@@ -9,8 +9,8 @@ subroutine prebas_v0(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output
 
 implicit none
 
- integer, parameter :: nVar=54,npar=38, inttimes = 1!, nSp=3
- real (kind=8), parameter :: pi = 3.1415927, t=1. , harvRatio = 0.9
+ integer, parameter :: nVar=54,npar=40, inttimes = 1!, nSp=3
+ real (kind=8), parameter :: pi = 3.1415927, t=1. , harvRatio = 0.9, ln2 = 0.693147181
  ! logical steadystate_pred= .false.
 !define arguments
  integer, intent(in) :: nYears,nLayers,nSp
@@ -71,7 +71,7 @@ implicit none
  real (kind=8) :: c,dHc,dH,dLc,g0,g1,g2,g3,g4,g5
  real (kind=8) :: npp, p_eff_all, gammaC, betaC, W_c, W_s,Wdb,Wsh
  real (kind=8) :: p_eff, par_alfar,p,gpp_sp
- real (kind=8) :: s0,par_s0scale
+ real (kind=8) :: s0,par_s0scale,par_sla0,par_tsla
  real (kind=8) :: weight, dNp,dNb,dNs
  real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V,Vold
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
@@ -285,9 +285,9 @@ do ij = 1 , nLayers 		!loop Species
  species = int(stand(4))
  param = pCrobas(:,species)
 
- par_cR=param(1)
- par_rhow=param(2)
- par_sla =param(3)
+ par_cR= param(1)
+ par_rhow= param(2)
+ par_sla = param(3)
  par_k =param(4)
  par_vf0 =param(5)
  par_vr0 =param(6)
@@ -320,6 +320,8 @@ do ij = 1 , nLayers 		!loop Species
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
  par_kH = param(34)
+ par_sla0 = param(39)
+ par_tsla = param(40)
 
 ! do siteNo = 1, nSites  !loop sites
 
@@ -351,7 +353,8 @@ else
   Light = STAND(36)
   V = stand(30)
   dH = stand(41)
-
+  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  
 if (N>0.) then
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
@@ -586,6 +589,8 @@ do ij = 1 , nLayers
  par_kH = param(34)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
+ par_sla0 = param(39)
+ par_tsla = param(40)
 
 ! do siteNo = 1, nSites  !start site loop
 
@@ -621,6 +626,7 @@ else
   S_fol = STAND(26)
   S_fr = STAND(27)
   S_branch = STAND(28)
+  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 
   rc = Lc / (H-1.3) !crown ratio
   B = BA / N

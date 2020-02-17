@@ -1,6 +1,6 @@
 subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
 	implicit none
-    integer, parameter :: nVar=54, npar=38
+    integer, parameter :: nVar=54, npar=40
 	real (kind=8), parameter :: pi = 3.1415927
 	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
 	real (kind=8), intent(inout) :: biomasses(nvar)
@@ -85,7 +85,7 @@ implicit none
  real (kind=8), intent(inout) :: coeff(nclass) , qcTOT
 !****************************************************************************************
  integer  :: ki
- real (kind=8) :: param(nPar)
+ real (kind=8) :: param(nPar), ln2 = 0.693147181
  real (kind=8) :: ht(nclass),hc(nclass),h(nclass)
  real (kind=8) :: LAIe(nclass),qc(nclass),btc(nclass),LAI(nclass),N(nclass)
  real (kind=8) :: l(2*nclass),vrel(2*nclass,nclass)
@@ -93,7 +93,7 @@ implicit none
  real (kind=8) :: bt(2*nclass), k(nclass), par_betab(nclass), rc(nclass)
  real (kind=8) :: kLAIetot, kLAItot, Atot
  real (kind=8), intent(inout) :: MeanLight(nclass)
- real (kind=8) :: x1,x2,apuJ,apuI
+ real (kind=8) :: x1,x2,apuJ,apuI,par_sla,par_sla0,par_tsla,age
 	   integer :: iclass,i2,i1,species,nv				!!**!! nv defined as integer
        integer :: i, j, ii(2*nclass), iapu
  real (kind=8) :: apu, b1,  qctot0, qctot1, wwx, dc, e1
@@ -108,13 +108,19 @@ implicit none
 	 species = int(stand_all(4,i))
      param = pCrobas(:,species)
      qc(i) = 0.
-     
+
+     par_sla = param(3)
+	 par_sla0 = param(39)
+	 par_tsla = param(40)
+	 age = STAND_all(7,i)
+	 par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+ 
      ht(i) = STAND_all(11,i)   ! H
      hc(i) = STAND_all(14,i)   ! Hc
      h(i) = ht(i) - hc(i)        ! Lc
      LAIe(i) = STAND_all(19,i) ! leff
      k(i) = PARAM(4)               ! k 
-     LAI(i) = STAND_all(33,i) * PARAM(3) / 10000.   ! WF_stand * sla
+     LAI(i) = STAND_all(33,i) * par_sla / 10000.   ! WF_stand * sla
      ! par_betab(i) = PARAM(17)   ! betab
      rc(i) = STAND_all(15,i)/2.         ! rc
      N(i) = STAND_all(17,i) / 10000.   ! N per m2
