@@ -1037,7 +1037,7 @@ if (ClCut == 1.) then
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   do ij = 1, nLayers
-  if(stand_all(1,1)==6944. .and. ij==3) then
+  if(stand_all(1,1)==6944. .and. ij==1) then
 	write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
   endif
    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
