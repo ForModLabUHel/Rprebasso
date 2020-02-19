@@ -733,14 +733,29 @@ if (N>0.) then
         !Height growth-----------------------
 			! if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
 				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
-				
-			dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
-				(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-				gammaC * W_bs + betaC * W_s))
-
-            if((par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+		if((npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)) < 0.) then
+				dH = 0.
+		else
+			if(gammaC <= 1) then 	
+				dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+					(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+					gammaC * W_bs + betaC * W_s))
+				if((par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
 				gammaC * W_bs + betaC * W_s) < 0.) dH = 0.
-			if((npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)) < 0.) dH = 0.
+			else
+				dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+					(par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+					gammaC * W_bs + betaC * W_s))
+				if((par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+				gammaC * W_bs + betaC * W_s) < 0.) dH = 0.
+				
+				S_fol = S_fol + par_z * wf_STKG/Lc * (gammaC-1) * dH
+				S_fr = S_fr + par_z * W_froot/Lc * (gammaC-1) * dH
+
+			endif
+		endif
+
+			
         !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
