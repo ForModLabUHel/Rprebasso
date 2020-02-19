@@ -745,7 +745,7 @@ if (N>0.) then
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
 !        if(2.*hb > 100./sqrt(N) ) then
-        dHc = gammaC * dH
+        dHc = min(gammaC * dH,(H - Hc))
 			! if(ij==1 .and. stand(1)==13429) write(2,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
 				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 		
