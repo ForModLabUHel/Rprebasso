@@ -884,11 +884,10 @@ else
   STAND(47:nVar) = 0. !#!#
   STAND(7) = STAND(7) + step
 endif
+endif
   if(stand_all(1,1)==6944. .and. ij==1) then
 	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
   endif
-endif
-
   !Perform manual thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
@@ -1050,7 +1049,6 @@ if (ClCut == 1.) then
 	A_clearcut = inAclct(species)
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
-
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   do ij = 1, nLayers
   if(stand_all(1,1)==6944. .and. ij==1) then
@@ -1075,7 +1073,6 @@ if (ClCut == 1.) then
    ! modOut((year+ki),7,ij,1) = ki !#!#
    ! modOut((year+ki),4,ij,1) = initVar(1,ij) !#!#
   ! enddo
-
   enddo
  endif
 endif
