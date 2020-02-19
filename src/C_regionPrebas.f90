@@ -124,7 +124,7 @@ do ij = 1,maxYears
 	else
 		output(1,:,:,:) = multiOut(i,1,:,:,:)
 	endif
-	! if(prebasVersion(i)==0.) then
+
 	  call prebas_v0(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
@@ -132,15 +132,6 @@ do ij = 1,maxYears
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
-	! elseif(prebasVersion(i)==1.) then
-	  ! call prebas_v1(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
-		! thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
-		! fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
-		! weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
-		! soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
-		! litterSize,soilCtot(i,ij),&
-		! defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
-	! endif
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then

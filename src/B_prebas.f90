@@ -1023,7 +1023,7 @@ end do !!!!end loop species
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !do siteNo = 1, nSites
  ! write(2,*) "before clcut"
- if(stand_all(1,1)==6944. .and. ij==1) then
+ if(stand_all(1,1)==6944. .and. ij==3) then
 	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
   endif
 !!!!test for clearcut!!!!
@@ -1037,7 +1037,7 @@ if (ClCut == 1.) then
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   do ij = 1, nLayers
-  if(stand_all(1,1)==6944. .and. ij==1) then
+  if(stand_all(1,1)==6944. .and. ij==3) then
 	write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
   endif
    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
@@ -1047,7 +1047,8 @@ if (ClCut == 1.) then
    S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
    stand_all(2,ij) = 0. !!newX
    stand_all(8:21,ij) = 0.
-   stand_all(23:37,ij) = 0.
+   stand_all(23:38,ij) = 0.
+   stand_all(41,ij) = 0.
    stand_all(43:44,ij) = 0.
    stand_all(47:nVar,ij) = 0.
    stand_all(26,ij) = S_fol
