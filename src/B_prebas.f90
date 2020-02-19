@@ -1023,7 +1023,7 @@ end do !!!!end loop species
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !do siteNo = 1, nSites
  ! write(2,*) "before clcut"
- if(stand_all(1,1)==6944. .and. ij==3) then
+ if(stand_all(1,1)==6944.) then
 	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
   endif
 !!!!test for clearcut!!!!
