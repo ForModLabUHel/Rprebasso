@@ -1023,9 +1023,9 @@ end do !!!!end loop species
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !do siteNo = 1, nSites
  ! write(2,*) "before clcut"
- if(stand_all(1,1)==6944.) then
-	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
-  endif
+ ! if(stand_all(1,1)==6944.) then
+	! write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
+ ! endif
 !!!!test for clearcut!!!!
  domSp = maxloc(STAND_all(13,:))
  layer = int(domSp(1))
@@ -1037,9 +1037,9 @@ if (ClCut == 1.) then
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   do ij = 1, nLayers
-  if(stand_all(1,1)==6944. .and. ij==1) then
-	write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
-  endif
+  ! if(stand_all(1,1)==6944. .and. ij==1) then
+	! write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
+  ! endif
    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
    S_fol = stand_all(33,ij) + stand_all(26,ij)
    S_fr = stand_all(25,ij) + stand_all(27,ij)
