@@ -884,6 +884,9 @@ else
   STAND(47:nVar) = 0. !#!#
   STAND(7) = STAND(7) + step
 endif
+  if(stand_all(1,1)==6944. .and. ij==1) then
+	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
+  endif
 endif
 
   !Perform manual thinning or defoliation events for this time period
