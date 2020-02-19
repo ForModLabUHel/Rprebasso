@@ -1050,6 +1050,9 @@ if (ClCut == 1.) then
 
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   do ij = 1, nLayers
+  if(stand_all(1,1)==6944. .and. ij==1) then
+	write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
+  endif
    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
    S_fol = stand_all(33,ij) + stand_all(26,ij)
    S_fr = stand_all(25,ij) + stand_all(27,ij)
