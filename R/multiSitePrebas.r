@@ -372,7 +372,7 @@ multiPrebas <- function(multiSiteInit){
 
 regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
-                         minDharv = 15){
+                         minDharv = 999.){
   
   if(length(HarvLim)==1) HarvLim <- rep(HarvLim,multiSiteInit$maxYears)
   if(any(is.na(HarvLim))) HarvLim[which(is.na(HarvLim))] <- 0.
