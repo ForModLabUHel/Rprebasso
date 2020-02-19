@@ -819,20 +819,6 @@ endif
 		W_branch = W_bs + W_bh
 		W_croot = W_crs + W_crh
 		
-
-!calculate litterfall
-	 ! ! ! litter fall in the absence of thinning
-      ! S_fol = wf_STKG / par_vf	!foliage litterfall
-      ! S_fr  = W_froot / par_vr	!fine root litter
-	  ! S_branch = N * par_rhow * betab * A * (dHc + theta*Lc)
-
-	  ! if (dN<0. .and. Nold>0.) then
-	! S_branch = S_branch + W_branch * min(1.,-dN*step/N)
-	! S_wood = (W_croot + W_stem) * min(1.,-dN*step/N)
-      ! else
-	! S_wood = 0.
-      ! endif
-
   age = age + step
   if (dH==0.) dH=888.
   ! if(ij==1) write(11,*)gammaC , dH, dHc,H,Hc
@@ -885,9 +871,7 @@ else
   STAND(7) = STAND(7) + step
 endif
 endif
-  if(stand_all(1,1)==6944. .and. ij==1) then
-	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
-  endif
+ 
   !Perform manual thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
@@ -1039,7 +1023,9 @@ end do !!!!end loop species
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !do siteNo = 1, nSites
  ! write(2,*) "before clcut"
-
+ if(stand_all(1,1)==6944. .and. ij==1) then
+	write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
+  endif
 !!!!test for clearcut!!!!
  domSp = maxloc(STAND_all(13,:))
  layer = int(domSp(1))
