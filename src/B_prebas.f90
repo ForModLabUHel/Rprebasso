@@ -763,10 +763,23 @@ if (N>0.) then
 			endif
 		endif
 
- if(stand_all(1,1)==167. .and. ij==2) then
-	 write(1,*) f1,f2,dH,gammaC
+ if(stand_all(1,1)==167. .and. ij==1) then
+	 write(1,*) f1,f2,dH,gammaC, ij,&
+	 H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
+	 par_z,W_c,W_bs,betaC,W_s
  endif
-        !-----------------------------------
+ if(stand_all(1,1)==167. .and. ij==2) then
+	 write(2,*) f1,f2,dH,gammaC, ij,&
+	 H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
+	 par_z,W_c,W_bs,betaC,W_s
+ endif
+if(stand_all(1,1)==167. .and. ij==3) then
+	 write(3,*) f1,f2,dH,gammaC, ij,&
+	 H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
+	 par_z,W_c,W_bs,betaC,W_s
+ endif
+  
+ !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
 !        if(2.*hb > 100./sqrt(N) ) then
@@ -1372,7 +1385,7 @@ enddo
 
  ! write(2,*) "here2"
 
-!compute fluxes in g C m−2 day−1
+!compute fluxes in g C m−2 y−1
  modOut(:,44,:,1) = modOut(:,44,:,1)*1000. !*1000 coverts units to g C m−2 y−1
  modOut(:,9,:,1) = modOut(:,9,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
  modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
