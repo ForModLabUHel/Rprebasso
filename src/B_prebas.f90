@@ -81,7 +81,7 @@ implicit none
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
- real (kind=8) :: theta,Tdb=10.
+ real (kind=8) :: theta,Tdb=10.,f1,f2
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -733,29 +733,39 @@ if (N>0.) then
         !Height growth-----------------------
 			! if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
 				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
-		if((npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)) < 0.) then
+		f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
+		if(f1 < 0.) then
 				dH = 0.
 		else
 			if(gammaC <= 1) then 	
-				dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
-					(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-					gammaC * W_bs + betaC * W_s))
-				if((par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-				gammaC * W_bs + betaC * W_s) < 0.) dH = 0.
+				f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+				gammaC * W_bs + betaC * W_s)
+				if(f2 < 0.) then
+					dH = 0.
+				else
+				 dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+						(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+						gammaC * W_bs + betaC * W_s))
+				endif
 			else
-				dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+				f2 = (par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+				gammaC * W_bs + betaC * W_s)
+				if(f2 < 0.) then
+					dH = 0.
+				else
+				 dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
 					(par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
 					gammaC * W_bs + betaC * W_s))
-				if((par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-				gammaC * W_bs + betaC * W_s) < 0.) dH = 0.
 				
-				S_fol = S_fol + par_z * wf_STKG/Lc * (gammaC-1) * dH
-				S_fr = S_fr + par_z * W_froot/Lc * (gammaC-1) * dH
-
+				 S_fol = S_fol + par_z * wf_STKG/Lc * (gammaC-1) * dH
+				 S_fr = S_fr + par_z * W_froot/Lc * (gammaC-1) * dH
+				endif
 			endif
 		endif
 
-			
+ if(stand_all(1,1)==167. .and. ij==2) then
+	 write(1,*) f1,f2,dH,gammaC
+ endif
         !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
