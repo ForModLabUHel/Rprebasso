@@ -763,21 +763,21 @@ if (N>0.) then
 			endif
 		endif
 
- if(stand_all(1,1)==4746. .and. ij==1) then
-	 write(1,*) f1,f2,dH,gammaC, ij,&
-	 H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
-	 par_z,W_c,W_bs,betaC,W_s
- endif
- if(stand_all(1,1)==4746. .and. ij==2) then
-	 write(2,*) f1,f2,dH,gammaC, ij,&
-	 H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
-	 par_z,W_c,W_bs,betaC,W_s
- endif
-if(stand_all(1,1)==4746. .and. ij==3) then
-	 write(3,*) f1,f2,dH,gammaC, ij,&
-	 H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
-	 par_z,W_c,W_bs,betaC,W_s
- endif
+ ! if(stand_all(1,1)==4746. .and. ij==1) then
+	 ! write(1,*) f1,f2,dH,gammaC, ij,&
+	 ! H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
+	 ! par_z,W_c,W_bs,betaC,W_s
+ ! endif
+ ! if(stand_all(1,1)==4746. .and. ij==2) then
+	 ! write(2,*) f1,f2,dH,gammaC, ij,&
+	 ! H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
+	 ! par_z,W_c,W_bs,betaC,W_s
+ ! endif
+! if(stand_all(1,1)==4746. .and. ij==3) then
+	 ! write(3,*) f1,f2,dH,gammaC, ij,&
+	 ! H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
+	 ! par_z,W_c,W_bs,betaC,W_s
+ ! endif
   
  !-----------------------------------
         !crown rise
