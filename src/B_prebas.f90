@@ -217,7 +217,7 @@ do year = 1, (nYears)
   W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
   W_branch =  par_rhow * A * N * betab * Lc !branches biomass
   Wsh = 0.!max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
-  W_croot = par_rhow * beta0 * A * h * N !coarse root biomass
+!  W_croot = par_rhow * beta0 * A * h * N !coarse root biomass
   W_croot = Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0 !coarse root biomass
   !initialize Wdb dead branches biomass
   Wdb = 0.
@@ -742,7 +742,8 @@ if (N>0.) then
 		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
 		
 		if(f1 < 0.) then
-			dH = 0.	
+			dH = 0.
+			mort = 888.
 		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
 			gammaC = 1.
 			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
@@ -846,7 +847,7 @@ endif
 		W_croot = W_crs + W_crh
 		
   age = age + step
-  if (dH==0.) dH=888.
+  ! if (dH==0.) mort=888.
   ! if(ij==1) write(11,*)gammaC , dH, dHc,H,Hc
   ! if(ij==2) write(12,*)gammaC , dH, dHc,H,Hc
   ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
