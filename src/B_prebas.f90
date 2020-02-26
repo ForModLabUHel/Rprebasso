@@ -81,7 +81,7 @@ implicit none
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
- real (kind=8) :: theta,Tdb=10.,f1,f2
+ real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -216,8 +216,9 @@ do year = 1, (nYears)
   W_c = par_rhow * A * N * hc !sapwood stem below Crown
   W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
   W_branch =  par_rhow * A * N * betab * Lc !branches biomass
-  W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	#coarse root biomass
   Wsh = 0.!max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
+  W_croot = par_rhow * beta0 * A * h * N !coarse root biomass
+  W_croot = Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0 !coarse root biomass
   !initialize Wdb dead branches biomass
   Wdb = 0.
   W_stem = W_c + W_s + Wsh
@@ -352,7 +353,7 @@ else
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
   V = stand(30)
-  dH = stand(41)
+  mort = stand(40)
   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
   
 if (N>0.) then
@@ -380,7 +381,7 @@ if (N>0.) then
       else
            dN = 0.
       endif
-	  if(dH == 888.) dN = min(dN,-(0.1*N))
+	  if(mort == 888.) dN = min(dN,-(0.1*N))
       Vold = V
       Nold = N
       if(N < 5.) N = 0.0
@@ -393,7 +394,7 @@ if (N>0.) then
 			W_c = stand(48) !sapwood stem below Crown
 			W_s = stand(49) !sapwood stem within crown
 			W_branch = stand(24) !branches biomass
-			W_croot = stand(32) !W_stem * (beta0 - 1.)	!coarse root biomass
+			W_croot = stand(32) !coarse root biomass
 			Wsh = stand(50)
 			Wdb = stand(51)
 			W_bh = stand(53)
@@ -536,7 +537,7 @@ if (year <= maxYearSite) then
 		etmodel)		!type of ET model
 
    STAND_all(22,:) = prelesOut(2)  	!ET
-   STAND_all(40,:) = prelesOut(15)  !aSW
+   ! STAND_all(40,:) = prelesOut(15)  !aSW
    ! STAND_all(41,:) = prelesOut(16)  !summerSW 
 
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
@@ -734,33 +735,20 @@ if (N>0.) then
 			! if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
 				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 		f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
+		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
+				(par_z+1)/par_z *W_bs + beta0 * W_c) + betaC * W_s)
+		dH = max(0.,((H-Hc) * f1/f2))
+		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
+		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
+		
 		if(f1 < 0.) then
-				dH = 0.
-		else
-			if(gammaC <= 1) then 	
-				f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-				gammaC * W_bs + betaC * W_s)
-				if(f2 < 0.) then
-					dH = 0.
-				else
-				 dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
-						(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-						gammaC * W_bs + betaC * W_s))
-				endif
-			else
-				f2 = (par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-				gammaC * W_bs + betaC * W_s)
-				if(f2 < 0.) then
-					dH = 0.
-				else
-				 dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
-					(par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
-					gammaC * W_bs + betaC * W_s))
-				
-				 S_fol = S_fol + par_z * wf_STKG/Lc * (gammaC-1) * dH
-				 S_fr = S_fr + par_z * W_froot/Lc * (gammaC-1) * dH
-				endif
-			endif
+			dH = 0.	
+		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
+			gammaC = 1.
+			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
+				(par_z+1)/par_z *W_bs + beta0 * W_c) + betaC * W_s)
+			dH = max(0.,((H-Hc) * f1/f2))
+			mort = 888.
 		endif
 
  ! if(stand_all(1,1)==4746. .and. ij==1) then
@@ -814,8 +802,8 @@ endif
 ! Calculate change rates for non-living wood   - DECLARE dWsh etc...          
             dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
             dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
-            dW_crh = max(0.,W_crs*theta)
-            dWdb = max(0.,W_branch/Lc * gammaC * dH - Wdb/Tdb)
+            dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
+            dWdb = max(0.,W_branch/Lc * (par_z+1)/par_z * gammaC * dH - Wdb/Tdb)
 
 !!  Update state variables
           H = H + step * dH
@@ -850,7 +838,7 @@ endif
 		W_c = par_rhow * A * N * Hc !sapwood stem below Crown
 		W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
 		W_bs =  par_rhow * A * N * betab * Lc !branches biomass
-        W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
+        W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root sapwood biomass
 		! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
 		W_stem = W_c + W_s + Wsh
 		V = W_stem / par_rhow
@@ -864,6 +852,7 @@ endif
   ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
 ! write(3,*) gammaC, dH,dHc
   STAND(2) = gammaC
+  STAND(40) = mort
   STAND(41) = dH
   STAND(7) = age !#!#
   STAND(18) = npp
