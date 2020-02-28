@@ -11,7 +11,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=54,npar=40!, nSp=3
+integer, parameter :: nVar=54,npar=41!, nSp=3
 real (kind=8), parameter :: harvRatio = 0.9
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
@@ -212,9 +212,10 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
     multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
     multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
     multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
-    multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1)
+    multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
+	 multiOut(siteX,ij,32,ijj,1) * 0.7
     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* 0.1 + &
-	multiOut(siteX,ij,32,ijj,1) + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	 multiOut(siteX,ij,32,ijj,1) * 0.3 + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
     multiOut(siteX,ij,8:21,ijj,1) = 0.
 	multiOut(siteX,ij,2,ijj,1) = 0. !!newX
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
