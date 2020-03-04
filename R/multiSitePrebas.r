@@ -76,8 +76,8 @@ InitMultiSite <- function(nYearsMS,
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
   # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
   ###process yasso inputs if missing
-  if(is.na(soilC)) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
-  if(is.na(soilCtot)) soilCtot <- matrix(0,nSites,maxYears)
+  if(all(is.na(soilC))) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
+  if(all(is.na(soilCtot))) soilCtot <- matrix(0,nSites,maxYears)
   
   ##process weather inputs for YASSO
   if(all(is.na(weatherYasso))){
