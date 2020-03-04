@@ -270,13 +270,12 @@ do year = 1, (nYears)
 	
      Ntot = sum(STAND_all(17,layerX(1:ij)))
      B = sum(STAND_all(35,layerX(1:ij))*STAND_all(17,layerX(1:ij)))/Ntot   !!!!!!!!!#####changed
+	 ! B = STAND_all(35,layerX(1:ij))/STAND_all(17,layerX(1:ij))   !!!!!!!!!#####changed
      if(Ntot>0.) then
          Reineke(layerX(ij)) = Ntot*(sqrt(B*4/pi)*100./25.)**(1.66)
      else
          Reineke(layerX(ij)) = 0.
      endif
-   ! STAND_all(40,:) = Ntot
-   ! STAND_all(41,:) = B
 	enddo
  endif
 
