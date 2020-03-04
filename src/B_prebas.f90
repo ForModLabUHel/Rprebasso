@@ -9,7 +9,7 @@ subroutine prebas_v0(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output
 
 implicit none
 
- integer, parameter :: nVar=54,npar=41, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=54,npar=40, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1. , harvRatio = 0.9, ln2 = 0.693147181
  ! logical steadystate_pred= .false.
 !define arguments
@@ -52,7 +52,7 @@ implicit none
  real (kind=8) :: soilC((nYears+1),5,3,nLayers),soilCtot((nYears+1))
  real (kind=8) :: par_phib,par_phic,par_alfat,par_alfar1,par_alfar2,par_alfar3,par_alfar4
  real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0, mrFact,par_vr0
- real (kind=8) :: par_z,par_rhos,par_cR, par_x, Light,MeanLight(nLayers),par_mf0,par_mr0,par_mw0,par_zb!par_zb= ratio between dead branches l and mean pipe leanght
+ real (kind=8) :: par_z,par_rhos,par_cR, par_x, Light,MeanLight(nLayers),par_mf0,par_mr0,par_mw0
  real (kind=8) :: par_sarShp, par_S_branchMod
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
@@ -81,7 +81,7 @@ implicit none
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
- real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
+ real (kind=8) :: theta,Tdb=10.,f1,f2
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -216,9 +216,8 @@ do year = 1, (nYears)
   W_c = par_rhow * A * N * hc !sapwood stem below Crown
   W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
   W_branch =  par_rhow * A * N * betab * Lc !branches biomass
+  W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	#coarse root biomass
   Wsh = 0.!max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
-!  W_croot = par_rhow * beta0 * A * h * N !coarse root biomass
-  W_croot = Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0 !coarse root biomass
   !initialize Wdb dead branches biomass
   Wdb = 0.
   W_stem = W_c + W_s + Wsh
@@ -353,7 +352,7 @@ else
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
   V = stand(30)
-  mort = stand(40)
+  dH = stand(41)
   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
   
 if (N>0.) then
@@ -381,7 +380,7 @@ if (N>0.) then
       else
            dN = 0.
       endif
-	  if(mort == 888.) dN = min(dN,-(0.1*N))
+	  if(dH == 888.) dN = min(dN,-(0.1*N))
       Vold = V
       Nold = N
       if(N < 5.) N = 0.0
@@ -394,14 +393,14 @@ if (N>0.) then
 			W_c = stand(48) !sapwood stem below Crown
 			W_s = stand(49) !sapwood stem within crown
 			W_branch = stand(24) !branches biomass
-			W_croot = stand(32) !coarse root biomass
+			W_croot = stand(32) !W_stem * (beta0 - 1.)	!coarse root biomass
 			Wsh = stand(50)
 			Wdb = stand(51)
 			W_bh = stand(53)
 			W_crh = stand(54)
 			W_stem = stand(31)
-	S_branch = (W_branch + W_croot*0.7) * min(1.,-dN*step/Nold)
-	S_wood = (W_croot*0.3 + W_stem) * min(1.,-dN*step/Nold)
+	S_branch = (W_branch + W_croot * 0.7) * min(1.,-dN*step/Nold)
+	S_wood = (W_croot * 0.3 + W_stem) * min(1.,-dN*step/Nold)
     S_fol = wf_STKG * min(1.,-dN*step/Nold) !foliage litterfall
     S_fr  = W_froot * min(1.,-dN*step/Nold)  !fine root litter
 			W_wsap = W_wsap * N/Nold
@@ -537,7 +536,7 @@ if (year <= maxYearSite) then
 		etmodel)		!type of ET model
 
    STAND_all(22,:) = prelesOut(2)  	!ET
-   ! STAND_all(40,:) = prelesOut(15)  !aSW
+   STAND_all(40,:) = prelesOut(15)  !aSW
    ! STAND_all(41,:) = prelesOut(16)  !summerSW 
 
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
@@ -592,7 +591,6 @@ do ij = 1 , nLayers
  par_Cr2 = 0.!param(24)
  par_sla0 = param(39)
  par_tsla = param(40)
- par_zb = param(41)
 
 ! do siteNo = 1, nSites  !start site loop
 
@@ -736,21 +734,33 @@ if (N>0.) then
 			! if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
 				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 		f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
-		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
-		dH = max(0.,((H-Hc) * f1/f2))
-		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
-		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
-		
 		if(f1 < 0.) then
-			dH = 0.
-			mort = 888.
-		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
-			gammaC = 1.
-			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
-			dH = max(0.,((H-Hc) * f1/f2))
-			mort = 888.
+				dH = 0.
+		else
+			if(gammaC <= 1) then 	
+				f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+				gammaC * W_bs + betaC * W_s)
+				if(f2 < 0.) then
+					dH = 0.
+				else
+				 dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+						(par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+						gammaC * W_bs + betaC * W_s))
+				endif
+			else
+				f2 = (par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+				gammaC * W_bs + betaC * W_s)
+				if(f2 < 0.) then
+					dH = 0.
+				else
+				 dH = max(0.,(H - Hc) * (npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap))/ &
+					(par_z* (W_wsap)* (1-gammaC) + par_z * gammaC * W_c + &
+					gammaC * W_bs + betaC * W_s))
+				
+				 S_fol = S_fol + par_z * wf_STKG/Lc * (gammaC-1) * dH
+				 S_fr = S_fr + par_z * W_froot/Lc * (gammaC-1) * dH
+				endif
+			endif
 		endif
 
  ! if(stand_all(1,1)==4746. .and. ij==1) then
@@ -804,8 +814,8 @@ endif
 ! Calculate change rates for non-living wood   - DECLARE dWsh etc...          
             dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
             dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
-            dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
-            dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
+            dW_crh = max(0.,W_crs*theta)
+            dWdb = max(0.,W_branch/Lc * gammaC * dH - Wdb/Tdb)
 
 !!  Update state variables
           H = H + step * dH
@@ -840,7 +850,7 @@ endif
 		W_c = par_rhow * A * N * Hc !sapwood stem below Crown
 		W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
 		W_bs =  par_rhow * A * N * betab * Lc !branches biomass
-        W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root sapwood biomass
+        W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
 		! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
 		W_stem = W_c + W_s + Wsh
 		V = W_stem / par_rhow
@@ -848,13 +858,12 @@ endif
 		W_croot = W_crs + W_crh
 		
   age = age + step
-  ! if (dH==0.) mort=888.
+  if (dH==0.) dH=888.
   ! if(ij==1) write(11,*)gammaC , dH, dHc,H,Hc
   ! if(ij==2) write(12,*)gammaC , dH, dHc,H,Hc
   ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
 ! write(3,*) gammaC, dH,dHc
   STAND(2) = gammaC
-  STAND(40) = mort
   STAND(41) = dH
   STAND(7) = age !#!#
   STAND(18) = npp
@@ -917,8 +926,8 @@ endif
  !! calculate litter including residuals from thinned trees
      S_fol = wf_STKG
      S_fr = W_froot
-     S_branch = W_branch + W_croot * 0.7
-     S_wood = S_wood + W_stem* (1-harvRatio) + W_croot * 0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
+     S_branch = W_branch + W_croot*0.7
+     S_wood = S_wood + W_stem* (1-harvRatio) + W_croot*0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
      STAND(26) = S_fol
      STAND(27) = S_fr
      STAND(28) = S_branch
@@ -986,8 +995,8 @@ endif
 !! calculate litter including residuals from thinned trees
     S_fol = stand(26) + stand(33) - wf_STKG
     S_fr = stand(27) + stand(25) - W_froot
-    S_branch = stand(28) + stand(24) - W_branch + (stand(32) - W_croot) * 0.7
-    S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) + (stand(32) - W_croot) * 0.3
+    S_branch = stand(28) + stand(24) - W_branch + (stand(32) - W_croot)*0.7
+    S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) + (stand(32) - W_croot)*0.3
 	
 ! !! calculate litter including residuals from thinned trees
     ! S_fol = stand_all(26,ij) + stand_all(33,ij) - wf_STKG
@@ -1072,8 +1081,8 @@ if (ClCut == 1.) then
    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
    S_fol = stand_all(33,ij) + stand_all(26,ij)
    S_fr = stand_all(25,ij) + stand_all(27,ij)
-   S_branch = stand_all(24,ij) + stand_all(28,ij) + stand_all(32,ij) * 0.7
-   S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) * 0.3 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+   S_branch = stand_all(24,ij) + stand_all(28,ij)
+   S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
    stand_all(2,ij) = 0. !!newX
    stand_all(8:21,ij) = 0.
    stand_all(23:38,ij) = 0.
