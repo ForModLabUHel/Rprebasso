@@ -49,7 +49,7 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   W_c = par_rhow * A * N * hc 
   W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
   W_branch =  par_rhow * A * N * betab * Lc !branches biomass
-  W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	!#coarse root biomass
+  ! W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	!#coarse root biomass
   Wsh = max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !#initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
   !#initialize Wdb dead branches biomass
   if(par_S_branchMod == 1.) then
@@ -58,6 +58,9 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
     Wdb = Tbd * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*d**2)+0.00467)
   endif
   W_stem = W_c + W_s + Wsh
+
+  W_croot = max(0.,(Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) !#coarse root biomass
+
   V = W_stem / par_rhow
   
   biomasses(33) = wf_STKG
