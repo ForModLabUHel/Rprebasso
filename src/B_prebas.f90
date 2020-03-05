@@ -1081,8 +1081,8 @@ if (ClCut == 1.) then
    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
    S_fol = stand_all(33,ij) + stand_all(26,ij)
    S_fr = stand_all(25,ij) + stand_all(27,ij)
-   S_branch = stand_all(24,ij) + stand_all(28,ij)
-   S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+   S_branch = stand_all(24,ij) + stand_all(28,ij) + stand_all(32,ij) * 0.7
+   S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) *0.3 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
    stand_all(2,ij) = 0. !!newX
    stand_all(8:21,ij) = 0.
    stand_all(23:38,ij) = 0.
