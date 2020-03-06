@@ -45,6 +45,18 @@ parsAWEN[,2] <- c(0.482600,0.131700,0.065800,0.319900,0.474660,0.019012,
 parsAWEN[,3] <- c(0.407900,0.198000,0.099000,0.295100,0.474660,0.019012,
                   0.078308,0.430248,0.715000,0.015000,0.000000,0.275000)
 
+ClCut_birch <- matrix(NA,2,4)
+ClCut_birch[1,] <- c(30.0,60,28.5,60)
+ClCut_birch[2,] <- c(28.5,60,27.0,60)
+ClCut_pine <- matrix(NA,3,4)
+ClCut_pine[1,] <- c(29.0,70,26.0,80)
+ClCut_pine[2,] <- c(27.5,80,25.0,90)
+ClCut_pine[3,] <- c(24.0,90,23.5,100)
+ClCut_spruce <- matrix(NA,2,4)
+ClCut_spruce[1,] <- c(30,60,28.0,70)
+ClCut_spruce[2,] <- c(28,70,26.5,80)
+
+
 ####init Biomass
 initBiomasses <- function(pCro,initVarX){
   initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
