@@ -21,6 +21,7 @@ prebas <- function(nYears,
                    soilCtot = NA,
                    defaultThin = 1.,
                    ClCut = 1.,
+                   energyCut = 0.,
                    inDclct = NA,
                    inAclct = NA,
                    yassoRun = 0,
@@ -65,7 +66,9 @@ prebas <- function(nYears,
   
   layerNam <- paste("layer",1:nLayers)
   output <- array(0, dim=c((nYears),nVar,nLayers,2),
-                  dimnames = list(NULL,varNam,layerNam,c("stand","thinned")))
+                  dimnames = list(year=NULL,variable=varNam,layer=layerNam,status=c("stand","thinned")))
+  energyWood <- array(0, dim=c((nYears),nLayers,2),
+                      dimnames = list(year=NULL,layer=layerNam,variable=c("volume","biomass")))
   fAPAR <- rep(0.7,nYears)
   
   ###compute ETS year
@@ -196,10 +199,12 @@ prebas <- function(nYears,
                      soilCtot=as.numeric(soilCtot),
                      defaultThin=as.double(defaultThin),
                      ClCut=as.double(ClCut),
+                     energyCut=as.double(energyCut),
                      inDclct=as.double(inDclct),
                      inAclct=as.double(inAclct),
                      dailyPRELES = matrix(-999,(nYears*365),3),
-                     yassoRun=as.double(yassoRun))
+                     yassoRun=as.double(yassoRun),
+                     energyWood = as.array(energyWood))
   class(prebas) <- "prebas"
   return(prebas)
 }

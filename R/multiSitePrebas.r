@@ -26,6 +26,7 @@ InitMultiSite <- function(nYearsMS,
                           soilCtot = NA,
                           defaultThin = 1.,
                           ClCut = 1.,
+                          energyCut = 0.,
                           inDclct = NA,
                           inAclct = NA,
                           yassoRun = 0,
@@ -72,6 +73,9 @@ InitMultiSite <- function(nYearsMS,
   multiOut <- array(0, dim=c(nSites,(maxYears),nVar,maxNlayers,2),
                     dimnames = list(site=NULL,year=NULL,variable=varNam,layer=layerNam,
                                     status=c("stand","thinned")))
+  multiEnergyWood <- array(0, dim=c(nSites,(maxYears),maxNlayers,2),
+                    dimnames = list(site=NULL,year=NULL,layer=layerNam,
+                                    variable=c("volume","biomass")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
   # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
@@ -95,6 +99,7 @@ InitMultiSite <- function(nYearsMS,
   
   if (length(defaultThin) == 1) defaultThin=as.double(rep(defaultThin,nSites))
   if (length(ClCut) == 1) ClCut=as.double(rep(ClCut,nSites))
+  if (length(energyCut) == 1) energyCut=as.double(rep(energyCut,nSites))
   if (length(inDclct) == 1) inDclct=matrix(inDclct,nSites,allSp)
   if (length(inAclct) == 1) inAclct=matrix(inAclct,nSites,allSp)
   if (length(inDclct) == nSites) inDclct=matrix(inDclct,nSites,allSp)
@@ -284,6 +289,7 @@ InitMultiSite <- function(nYearsMS,
   
   multiSiteInit <- list(
     multiOut = multiOut,
+    multiEnergyWood = multiEnergyWood,
     nSites = nSites,
     nClimID = nClimID,
     nLayers = nLayers,
@@ -316,6 +322,7 @@ InitMultiSite <- function(nYearsMS,
     soilCtot = soilCtot,
     defaultThin = defaultThin,
     ClCut = ClCut,
+    energyCut = energyCut,
     inDclct = inDclct,
     inAclct = inAclct,
     dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
@@ -360,11 +367,12 @@ multiPrebas <- function(multiSiteInit){
                      soilCtot = as.matrix(multiSiteInit$soilCtot),
                      defaultThin=as.double(multiSiteInit$defaultThin),
                      ClCut=as.double(multiSiteInit$ClCut),
+                     energyCut=as.double(multiSiteInit$energyCut),
                      inDclct=as.matrix(multiSiteInit$inDclct),
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     PREBASversion=as.double(multiSiteInit$PREBASversion))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -374,15 +382,15 @@ regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.){
   
-  if(length(HarvLim)==1) HarvLim <- rep(HarvLim,multiSiteInit$maxYears)
-  if(any(is.na(HarvLim))) HarvLim[which(is.na(HarvLim))] <- 0.
+  if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
+  if(any(is.na(HarvLim))) HarvLim[which(is.na(HarvLim))] <- matrix(0.,multiSiteInit$maxYears,2)
   
   siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
   siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
   
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
-                     HarvLim = as.double(HarvLim),
+                     HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -417,11 +425,12 @@ regionPrebas <- function(multiSiteInit,
                      soilCtot = as.matrix(multiSiteInit$soilCtot),
                      defaultThin=as.double(multiSiteInit$defaultThin),
                      ClCut=as.double(multiSiteInit$ClCut),
+                     energyCut=as.double(multiSiteInit$energyCut),
                      inDclct=as.matrix(multiSiteInit$inDclct),
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     PREBASversion=as.double(multiSiteInit$PREBASversion))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
