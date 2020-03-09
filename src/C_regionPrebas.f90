@@ -7,7 +7,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
-		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood)		!!energCuts
+		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood)		!!energCuts
 
 implicit none
 
@@ -32,11 +32,11 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
- real (kind=8), intent(inout) :: multiEnergyWood(nSites,maxYears,maxNlayers,2)!!energCuts
+ real (kind=8), intent(inout) :: multiWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilCinOut(nSites,maxYears,5,3,maxNlayers),soilCtotInOut(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
- real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers)
+ real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
   real (kind=8) :: energyWood, roundWood, energyCutX	!!energCuts
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
@@ -46,8 +46,8 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
-multiEnergyWood = 0.
-   ! open(1,file="test1.txt")
+multiWood = 0.
+    open(1,file="test.txt")
    ! open(2,file="test2.txt")
    ! open(3,file="test3.txt")
 
@@ -143,7 +143,7 @@ do ij = 1,maxYears
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
-		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),multiEnergyWood(ij,i,1:nLayers(i),:)) !!energCuts
+		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:)) !!energCuts
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
@@ -171,7 +171,7 @@ do ij = 1,maxYears
 		enddo
 	  end if
 	enddo
-	
+	multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
 	multiOut(i,ij,1:7,1:nLayers(i),:) = output(1,1:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
 	! do ijj = 1,nLayers(i)
@@ -196,7 +196,7 @@ do ij = 1,maxYears
 		energyWood = energyWood
 	else
 		roundWood = roundWood + sum(output(1,37,1:nLayers(i),1))* areas(i)
-		energyWood = energyWood + sum(multiEnergyWood(ij,i,1:nLayers(i),1))* areas(i)   !!energCuts !!!we are looking at volumes
+		energyWood = energyWood + sum(wood(1,1:nLayers(i),1))* areas(i)   !!energCuts !!!we are looking at volumes
 	endif
  end do !iz i
 
@@ -233,11 +233,11 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
 !!energCuts
 	if(energyCuts(siteX) == 1.) then
-	 multiEnergyWood(siteX,ij,ijj,2) = multiEnergyWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
+	 multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
 	   multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)) * energyRatio
 	 species = int(multiOut(siteX,ij,4,ijj,1))
-	 multiEnergyWood(siteX,ij,ijj,1) = multiEnergyWood(siteX,ij,ijj,2) / pCrobas(2,species)
-	 energyWood = energyWood + multiEnergyWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
+	 multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
+	 energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
 	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) * (1-energyRatio) + &
 		multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.7
      multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)+ &
@@ -279,6 +279,7 @@ endif !(maxState(i)>minDharv)
   enddo !end do while
  endif !roundWood < HarvLim .and. HarvLim /= 0.
 ! write(10,*) "here4"
+  write(1,*) roundWood,energyWood
 end do
 do i = 1,nSites
   do ij = 1, maxYears 
@@ -295,7 +296,7 @@ do i = 1,nSites
 	enddo !ijj
   enddo
 enddo	
- ! close(1)
+  close(1)
  ! close(2)
  ! close(3)
 ! write(10,*) "here5"
