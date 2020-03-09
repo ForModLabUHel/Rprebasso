@@ -16,10 +16,10 @@ real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nSites,maxYears)
-real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYears,2),minDharv !!energCuts
+real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv !!energCuts
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
- real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites)
+ real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
@@ -47,7 +47,7 @@ yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 multiWood = 0.
-    open(1,file="test.txt")
+    ! open(1,file="test.txt")
    ! open(2,file="test2.txt")
    ! open(3,file="test3.txt")
 
@@ -279,8 +279,10 @@ endif !(maxState(i)>minDharv)
   enddo !end do while
  endif !roundWood < HarvLim .and. HarvLim /= 0.
 ! write(10,*) "here4"
-  write(1,*) roundWood,energyWood
-end do
+  ! write(1,*) roundWood,energyWood
+  HarvLim(ij,1) = roundWood
+  HarvLim(ij,2) = energyWood
+end do !end Year loop 
 do i = 1,nSites
   do ij = 1, maxYears 
 	do ijj = 1,nLayers(i)
@@ -296,7 +298,7 @@ do i = 1,nSites
 	enddo !ijj
   enddo
 enddo	
-  close(1)
+  ! close(1)
  ! close(2)
  ! close(3)
 ! write(10,*) "here5"
