@@ -749,7 +749,7 @@ if (N>0.) then
 			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
 				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
 			dH = max(0.,((H-Hc) * f1/f2))
-			mort = 888.
+			mort = 0.!888.
 		endif
 
  ! if(stand_all(1,1)==4746. .and. ij==1) then

@@ -42,7 +42,7 @@ InitMultiSite <- function(nYearsMS,
     siteInfo[,1] <- 1:nSites
   }
   colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit", 
-                          "SOGinit", "Sinit", "soildepth", "nLayers", "nSpecies", 
+                          "SOGinit", "Sinit", "nLayers", "nSpecies", "soildepth", 
                           "effective field capacity", "permanent wilting point") 
   
   nLayers <- siteInfo[,8]
