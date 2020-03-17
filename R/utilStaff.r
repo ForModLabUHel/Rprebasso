@@ -56,6 +56,13 @@ parsAWEN[,3] <- c(0.407900,0.198000,0.099000,0.295100,0.474660,0.019012,
 parsAWEN[,4] <- c(0.407900,0.198000,0.099000,0.295100,0.474660,0.019012,
                   0.078308,0.430248,0.715000,0.015000,0.000000,0.275000)
 
+##litterSize default values##
+litterSize <- matrix(NA,3,4,dimnames = list(c("CwoodLit","FwoodLit","NwoodLit"),c("pisy","piab","beal","eugl")))
+litterSize[,1] <- c(30,2,0)
+litterSize[,2] <- c(30,2,0)
+litterSize[,3] <- c(10,2,0)
+litterSize[,4] <- c(20,2,0)
+
 ClCut_birch <- matrix(NA,2,4)
 ClCut_birch[1,] <- c(30.0,60,28.5,60)
 ClCut_birch[2,] <- c(28.5,60,27.0,60)
