@@ -41,7 +41,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
 
 !!!!initialize run
 ! multiOut = 0.
-   ! open(1,file="test1.txt")
+! open(1,file="test1.txt")
 output = 0.
 yearX = 0.
 multiEnergyWood = 0.
@@ -59,7 +59,7 @@ enddo
 do i = 1,nSites
  ! write(*,*) i
  output(1,:,:,:) = multiOut(i,1,:,:,:)
- write(1,*) i
+ ! write(1,*) i
 
 	climID = siteInfo(i,2)
 	defaultThinX = defaultThin(i)
@@ -72,12 +72,12 @@ do i = 1,nSites
 		P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES,etmodel, &
 		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
 		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
-		ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
+		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:)) !energyCut)
-
+		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
-close(1)
+! close(1)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

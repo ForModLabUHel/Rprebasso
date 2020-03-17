@@ -369,7 +369,8 @@ multiPrebas <- function(multiSiteInit){
                      inDclct=as.matrix(multiSiteInit$inDclct),
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
-                     yassoRun=as.double(multiSiteInit$yassoRun))
+                     yassoRun=as.double(multiSiteInit$yassoRun),
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
