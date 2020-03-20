@@ -132,14 +132,15 @@ ksiHcMod <- function(initVar){
 
 ###function to replace HC NAs in initial variable initVar
 findHcNAs <- function(initVar,pHcMod,HcModV){
+  hcFactor <- 0.8
   if(is.vector(initVar)){
     if(is.na(initVar[6])){
       if(HcModV==1){
-        initVar[6] <- ksiHcMod(initVar)
+        initVar[6] <- ksiHcMod(initVar) * hcFactor
       }else if(HcModV==2){
         inModHc <- c(pHcMod[,initVar[1]],initVar[3],
                      initVar[4],initVar[2],initVar[5],initVar[5])
-        initVar[6] <- model.Hc(inModHc)
+        initVar[6] <- model.Hc(inModHc) * hcFactor
       }
     }
   } else if(any(is.na(initVar[6,]))){
@@ -148,19 +149,19 @@ findHcNAs <- function(initVar,pHcMod,HcModV){
     BAtot <- sum(initVar[5,],na.rm = T)
     if(length(HcNAs)==1){
       if(HcModV==1){
-        initVar[6,HcNAs] <- ksiHcMod(initVar[,HcNAs])
+        initVar[6,HcNAs] <- ksiHcMod(initVar[,HcNAs]) * hcFactor
       }else if(HcModV==2){
         inModHc <- c(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
                      initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
-        initVar[6,HcNAs] <- model.Hc(inModHc)
+        initVar[6,HcNAs] <- model.Hc(inModHc) * hcFactor
       }
     }else{
       if(HcModV==1){
-        initVar[6,HcNAs] <- apply(initVar,2,ksiHcMod)
+        initVar[6,HcNAs] <- apply(initVar,2,ksiHcMod) * hcFactor
       }else if(HcModV==2){
         inModHc <- rbind(pHcMod[,initVar[1,HcNAs]],initVar[3,HcNAs],
                          initVar[4,HcNAs],initVar[2,HcNAs],initVar[5,HcNAs],BAtot)
-        initVar[6,HcNAs] <- apply(inModHc,2,model.Hc)
+        initVar[6,HcNAs] <- apply(inModHc,2,model.Hc) * hcFactor
       }
     }
   }
