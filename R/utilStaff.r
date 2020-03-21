@@ -131,8 +131,7 @@ ksiHcMod <- function(initVar){
 }
 
 ###function to replace HC NAs in initial variable initVar
-findHcNAs <- function(initVar,pHcMod,HcModV){
-  hcFactor <- 1
+findHcNAs <- function(initVar,pHcMod,HcModV,hcFactor=1.){
   if(is.vector(initVar)){
     if(is.na(initVar[6])){
       if(HcModV==1){
