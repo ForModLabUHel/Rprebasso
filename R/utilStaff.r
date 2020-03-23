@@ -3,7 +3,7 @@ pCROB <- matrix(NA,41,4,dimnames = list(NULL,c("pisy","piab","beal","eugl")))
 rownames(pCROB) <-  c("cR","rhow","sla","k","vf","vr","c","mf","mr","mw",
                       "z","beta0","betab","betas","rhof2","s1","kRein","s0scale","x","aETS",
                       "alfar1","alfar2","alfar3","alfar4","alfar5","sarShp","S_branchMod","conifers=1 or decidous=2","p0_ref","ETS_ref",
-                      "thetaMax","H0max","gamma","kH","decayVp1","decayVp2","decayVp3","ksi","sla0","tsla")
+                      "thetaMax","H0max","gamma","kH","decayVp1","decayVp2","decayVp3","ksi","sla0","tsla","zb")
 
 pCROB[,1] <- c(0.22406007,195.16571750,20.00788979,0.25003240,3.90739583,0.90777990,
                0.29990356,0.40000000,0.50000000,0.03002172,1.79017546,0.28690180,
