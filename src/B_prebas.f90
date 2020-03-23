@@ -515,6 +515,7 @@ if (year <= maxYearSite) then
 	ll = nLayers
     call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
 		nVar,nPar,MeanLight,coeff,fAPARsite)
+		
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
 ! fAPARsite=0.7
@@ -581,7 +582,7 @@ do ij = 1 , nLayers
  par_alfar3 =param(23)
  par_alfar4 =param(24)
  par_alfar5 =param(25)
- par_sarShp = param(26) !Shape surface area of the crown: 1.= cone; 2.=ellipsoide
+ par_sarShp = param(26) !Shape surface area of the crown: 2.= cone; 1.=ellipsoide
  par_S_branchMod = param(27) !model for branch litter model
  p0_ref = param(29)
  ETS_ref = param(30)
