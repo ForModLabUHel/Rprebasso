@@ -26,7 +26,8 @@ prebas <- function(nYears,
                    yassoRun = 0,
                    smoothP0 = 1,
                    smoothETS = 1,
-                   smoothYear=5){
+                   smoothYear=5,
+                   HcModV=2){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
