@@ -454,21 +454,26 @@ if (N>0.) then
 		enddo
 	  end if
 	 endif
-	 
-  !Surface area of the crown
-  sar_ell= 4. * pi *  (((((Lc/2)**ppow)*((Cw/2)**ppow)+((Lc/2)**ppow)*((Cw/2)**ppow)+((Cw/2)**ppow)*((Cw/2)**ppow))/3)**(1/ppow))!surface area per tree
-  sar_con = pi * ((0.8*hb)**2) * (1 + sqrt(1 + 1 / (((0.8*hb) / Lc)**2))) !surface area per tree
-  !Ellipsoid for pine and birch, cone for spruce
-  if(par_sarShp==1.) then
-   sar = sar_ell
+!!keff calculations
+  if(par_sarShp==0.) then
+	keff = par_k
   else
-   sar = sar_con
-   slc = 0.005
-  end if
+	  !Surface area of the crown
+	  sar_ell= 4. * pi *  (((((Lc/2)**ppow)*((Cw/2)**ppow)+((Lc/2)**ppow)*((Cw/2)**ppow)+((Cw/2)**ppow)*((Cw/2)**ppow))/3)**(1/ppow))!surface area per tree
+	  sar_con = pi * ((0.8*hb)**2) * (1 + sqrt(1 + 1 / (((0.8*hb) / Lc)**2))) !surface area per tree
+	  !Ellipsoid for pine and birch, cone for spruce
+	  if(par_sarShp==1.) then
+	   sar = sar_ell
+	  else
+	   sar = sar_con
+	   slc = 0.005
+	  end if
 
-  !specific leaf area ------------------------------------------------
-  laPer_sar = wf_treeKG * par_sla / sar !leaf area per tree  /  crown surface area
-  keff = 0.4 * (1. - exp( - par_k / 0.4 * laPer_sar)) / laPer_sar !effective extinction coefficient    }
+	  !specific leaf area ------------------------------------------------
+	  laPer_sar = wf_treeKG * par_sla / sar !leaf area per tree  /  crown surface area
+	  keff = 0.4 * (1. - exp( - par_k / 0.4 * laPer_sar)) / laPer_sar !effective extinction coefficient    }
+  endif
+  
   !projected leaf area on the STAND -----------------------------------
   if (wf_STKG>0.) then
    lproj = par_sla * wf_STKG / 10000.
