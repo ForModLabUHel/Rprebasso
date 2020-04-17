@@ -32,8 +32,7 @@ InitMultiSite <- function(nYearsMS,
                           yassoRun = 0,
                           smoothP0 = 1,
                           smoothETS = 1,
-                          smoothYear=5,
-                          HcModV=2  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          smoothYear=5
 ){  
   
   nSites <- length(nYearsMS)
@@ -211,9 +210,9 @@ InitMultiSite <- function(nYearsMS,
   }else{
     ####if Height of the crown base is not available use model
     if(maxNlayers==1){
-      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV),dim=c(nSites,7,1))
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod),dim=c(nSites,7,1))
     }else{
-      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV)
+      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
     }
     
     
