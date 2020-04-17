@@ -148,9 +148,7 @@ prebas <- function(nYears,
   if(all(is.na(soilCtot))) soilCtot = numeric(nYears)
   if(all(is.na(soilC))) soilC = array(0,dim = c(nYears,5,3,nLayers))
   if(all(is.na(litterSize))){
-    litterSize = matrix(0,3,nLayers)
-    litterSize[2,] <- 2
-    for (i in 1:nLayers) litterSize[1,i] <- ifelse(initVar[1,i]==3,10,30)
+    litterSize <- litterSizeDef[,initVar[1,]]
   }
   
   ##process weather inputs for YASSO
