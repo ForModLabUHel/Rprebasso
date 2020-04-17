@@ -22,7 +22,7 @@ InitMultiSite <- function(nYearsMS,
                           multiP0=NA,
                           soilC = NA,
                           weatherYasso = NA,
-                          litterSize = NA,
+                          litterSize = litterSizeDef,
                           soilCtot = NA,
                           defaultThin = 1.,
                           ClCut = 1.,
@@ -267,12 +267,12 @@ InitMultiSite <- function(nYearsMS,
     }
   }
   
-  if(all(is.na(litterSize))){
-    litterSize <- matrix(0,3,allSp)
-    litterSize[2,] <- 2
-    litterSize[1,] <- c(30,30,10)
-    # siteInfo <- siteInfo[,-c(4,5)]
-  }
+  # if(all(is.na(litterSize))){
+  #   litterSize <- matrix(0,3,allSp)
+  #   litterSize[2,] <- 2
+  #   litterSize[1,] <- c(30,30,10)
+  #   # siteInfo <- siteInfo[,-c(4,5)]
+  # }
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
   biomasses <- array(apply(initVarX,1,initBiomasses,pCro=pCROBAS),dim=c(11,maxNlayers,nSites))
