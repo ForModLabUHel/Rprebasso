@@ -99,14 +99,16 @@ prebas <- function(nYears,
   }
   # if(ClCut==1 & all(is.na(initVar)) & is.na(inDclct)) inDclct <-
   if(ClCut==1 & all(is.na(inDclct))) inDclct <-
-    c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]),
-      ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]),
-      ClCutD_Birch(ETSmean,ETSthres,siteInfo[3]))
+    c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]), ####pine in Finland
+      ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
+      ClCutD_Birch(ETSmean,ETSthres,siteInfo[3]), ####birch in Finland
+      NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops"
   # if(ClCut==1 & all(is.na(initVar)) & is.na(inAclct)) inAclct <-
   if(ClCut==1 & all(is.na(inAclct))) inAclct <-
-    c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),
-      ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]),
-      ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]))
+    c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),   ####pine in Finland
+      ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland 
+      ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]),  ####birch in Finland
+      80,50,13,30)  ###"fasy","pipi","eugl","rops"  
   if(any(is.na(inDclct))) inDclct[is.na(inDclct)] <- 9999999.99
   if(length(inDclct)==1) inDclct<- rep(inDclct,nSp)
   if(any(is.na(inAclct))) inAclct[is.na(inAclct)] <- 9999999.99
