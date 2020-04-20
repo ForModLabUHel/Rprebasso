@@ -49,7 +49,7 @@ InitMultiSite <- function(nYearsMS,
   # nSp <- siteInfo[,9]
   climIDs <- siteInfo[,2]
   # if(all(is.na(multiInitVar)) & all(is.na(nSp)) nSp <- rep(3,nSites)
-  allSp = max(siteInfo[,9])#ncol(pCROBAS)
+  allSp = dim(pCROBAS)[2]#max(siteInfo[,9])#ncol(pCROBAS)
   varNam <- getVarNam()
   nVar <- length(varNam)
   
