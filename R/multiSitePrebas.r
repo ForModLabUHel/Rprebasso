@@ -32,7 +32,8 @@ InitMultiSite <- function(nYearsMS,
                           yassoRun = 0,
                           smoothP0 = 1,
                           smoothETS = 1,
-                          smoothYear=5
+                          smoothYear=5,
+                          tapioPars=pTapio
 ){  
   
   nSites <- length(nYearsMS)
@@ -330,7 +331,8 @@ InitMultiSite <- function(nYearsMS,
     yassoRun = yassoRun,
     PREBASversion = PREBASversion,
     smoothP0 = smoothP0,
-    smoothETS = smoothETS)
+    smoothETS = smoothETS,
+    tapioPars=tapioPars)
   return(multiSiteInit)
 }
 
@@ -373,7 +375,8 @@ multiPrebas <- function(multiSiteInit){
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
+                     tapioPars = as.array(multiSiteInit$tapioPars))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -431,7 +434,8 @@ regionPrebas <- function(multiSiteInit,
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
+                     tapioPars = as.array(multiSiteInit$tapioPars))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
