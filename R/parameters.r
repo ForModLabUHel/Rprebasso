@@ -116,3 +116,58 @@ ClCut_spruce <- matrix(NA,2,4)
 ClCut_spruce[1,] <- c(30,60,28.0,70)
 ClCut_spruce[2,] <- c(28,70,26.5,80)
 
+pTapio <- array(NA,dim = c(5,2,2,15),dimnames = list(
+  c("sType1","sType2","sType3","sType4","sType5"),
+  c("conifers","decidous"),
+  c("South","North"),
+  c("ETSthreshold","HthinStart","HthinLim", ###ets threshold, Height at which thinning start, Height limit for young and mature stands
+    "p1BAlimY","p2BAlimY","p3BAlimY", ## "pars for BA limit of young stands
+    "p1BAthdY","p2BAthdY","p3BAlimY",
+    "p1BAlimM","p2BAlimM","p3BAlimM", ## "pars for BA limit of mature stands
+    "p1BAthdM","p2BAthdM","p3BAlimM") ## "pars for BA thinned of mature stands
+))
+# siteType 1, Conifers, South, 
+pTapio[1,1,1,1:3] <- c(999, 12,20)
+pTapio[1,1,1,4:6] <- c(-0.0893, 4.0071,-11.343)
+pTapio[1,1,1,7:9] <- c(-0.0536, 2.7643,- 9.6857)
+pTapio[1,1,1,10:12] <- c(0., 0.,33)
+pTapio[1,1,1,13:15] <- c(0., 0.,24)
+# siteType 2, Conifers, South, 
+pTapio[2,1,1,1:3] <- c(999, 12,20)
+pTapio[2,1,1,4:6] <- c(-0.0893, 4.0071,-11.343)
+pTapio[2,1,1,7:9] <- c(-0.0536, 2.7643,- 9.6857)
+pTapio[2,1,1,10:12] <- c(0., 0.,33)
+pTapio[2,1,1,13:15] <- c(0., 0.,24)
+# siteType 3, Conifers, South, 
+pTapio[3,1,1,1:3] <- c(999, 12,20)
+pTapio[3,1,1,4:6] <- c(-0.125, + 4.95, - 20.9)
+pTapio[3,1,1,7:9] <- c(-0.1071,3.9286, - 15.771)
+pTapio[3,1,1,10:12] <- c(0., 0.,28)
+pTapio[3,1,1,13:15] <- c(0., 0.,20)
+# siteType 4, Conifers, South, 
+pTapio[4,1,1,1:3] <- c(999, 12,20)
+pTapio[4,1,1,4:6] <- c(-0.1071,4.2286, -15.571)
+pTapio[4,1,1,7:9] <- c(-0.0714,2.7857, -9.1143)
+pTapio[4,1,1,10:12] <- c(0., 0.,26)
+pTapio[4,1,1,13:15] <- c(0., 0.,18)
+# siteType 5, Conifers, South, 
+pTapio[5,1,1,1:3] <- c(999, 12,20)
+pTapio[5,1,1,4:6] <- c(-0.0714, 2.9857,-7.9143)
+pTapio[5,1,1,7:9] <- c(-0.0714,2.7857, -11.114)
+pTapio[5,1,1,10:12] <- c(0., 0.,23)
+pTapio[5,1,1,13:15] <- c(0., 0.,16)
+# siteType 1:5, Conifers, North = south 
+pTapio[,1,2,] <- pTapio[,1,1,]
+# siteType 1, deciduous, South, 
+pTapio[1,2,1,1:3] <- c(999, 12,20)
+pTapio[1,2,1,4:6] <- c(-0.0179, 1.2214, 3.7714)
+pTapio[1,2,1,7:9] <- c(-0.0536,2.4643, -12.886)
+pTapio[1,2,1,10:12] <- c(0., 0.,21)
+pTapio[1,2,1,13:15] <- c(0., 0.,15)
+# siteType 1, deciduous, North=south
+pTapio[1,2,2,] <- pTapio[1,2,1,]
+# siteType 2:5, deciduous, Northand northsouth
+pTapio[2,2,1,] <- pTapio[3,2,1,] <- pTapio[4,2,1,] <- 
+  pTapio[5,2,1,] <- pTapio[1,2,1,]
+pTapio[2,2,2,] <- pTapio[3,2,2,] <- pTapio[4,2,2,] <- 
+  pTapio[5,2,2,] <- pTapio[1,2,2,]

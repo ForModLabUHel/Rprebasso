@@ -32,7 +32,8 @@ InitMultiSite <- function(nYearsMS,
                           smoothP0 = 1,
                           smoothETS = 1,
                           smoothYear=5,
-                          HcModV=2  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          HcModV=2,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          tapioPars=pTapio
 ){  
   
   nSites <- length(nYearsMS)
@@ -330,7 +331,8 @@ InitMultiSite <- function(nYearsMS,
     dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
     yassoRun = yassoRun,
     smoothP0 = smoothP0,
-    smoothETS = smoothETS)
+    smoothETS = smoothETS,
+    tapioPars=tapioPars)
   return(multiSiteInit)
 }
 
@@ -373,7 +375,8 @@ multiPrebas <- function(multiSiteInit){
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
+                     tapioPars = as.array(multiSiteInit$tapioPars))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -431,7 +434,8 @@ regionPrebas <- function(multiSiteInit,
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
+                     tapioPars = as.array(multiSiteInit$tapioPars))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas

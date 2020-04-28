@@ -27,7 +27,8 @@ prebas <- function(nYears,
                    yassoRun = 0,
                    smoothP0 = 1,
                    smoothETS = 1,
-                   smoothYear=5){
+                   smoothYear=5,
+                   tapioPars=pTapio){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -206,7 +207,8 @@ prebas <- function(nYears,
                      inAclct=as.double(inAclct),
                      dailyPRELES = matrix(-999,(nYears*365),3),
                      yassoRun=as.double(yassoRun),
-                     energyWood = as.array(energyWood))
+                     energyWood = as.array(energyWood),
+                     tapioPars = as.array(tapioPars))
   class(prebas) <- "prebas"
   return(prebas)
 }

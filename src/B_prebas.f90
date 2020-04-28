@@ -5,7 +5,7 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
 		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
 		litterSize,soilCtotInOut,&
-		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood) !energyCut
+		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars) !energyCut
 
 implicit none
 
@@ -17,7 +17,7 @@ implicit none
  integer, intent(in) :: nYears,nLayers,nSp
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(inout) :: pPRELES(30)
+ real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,2,15)
  real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
@@ -84,6 +84,7 @@ implicit none
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
+ real (kind=8) :: ETSmean, BAtapio(2)
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -107,6 +108,7 @@ pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
 P0yX = P0y
 Reineke(:) = 0.
+ETSmean = sum(ETSy)/nYears
 
  modOut(:,1,:,1) = siteInfo(1)  !! assign siteID 
  ! modOut(1,2,:,1) = initVar(8,:)	!! assign initial gammaC values !!newX
@@ -1139,63 +1141,15 @@ if(defaultThin == 1.) then
 ! sitetype = siteInfo(3)
  BA_tot = sum(stand_all(13,:))!+stand_all(13,2)+stand_all(13,3)
  BAr = stand_all(13,:)/BA_tot
-! BAr_SP = stand_all(13,2)/BA_tot
-! BAr_B = stand_all(13,3)/BA_tot
- BA_lim = 9999999999.9
- BA_thd = 0.
  domSp = maxloc(STAND_all(13,:))
  layer = int(domSp(1))
  H = stand_all(11,layer)
- if(H>12.) then
-  species = int(stand_all(4,layer))
-  if(pCrobas(28,species)==1.) then
-   if(sitetype < 3.) then
-    if(H<20.) then
-     BA_lim = -0.0893*H**2. + 4.0071*H - 11.343
-     BA_thd = -0.0536*H**2. + 2.7643*H - 9.6857
-    else
-     BA_lim = 33.
-     BA_thd = 24.
-    endif
-   endif
-   if(sitetype == 3.) then
-    if(H<20.) then
-     BA_lim = -0.125*H**2. + 4.95*H - 20.9
-     BA_thd = -0.1071*H**2. + 3.9286*H - 15.771
-    else
-     BA_lim = 28.
-     BA_thd = 20.
-    endif
-   endif
-   if(sitetype == 4.) then
-    if(H<20.) then
-     BA_lim = -0.1071*H**2. + 4.2286*H - 15.571
-     BA_thd = -0.0714*H**2. + 2.7857*H - 9.1143
-    else
-     BA_lim = 26.
-     BA_thd = 18.
-    endif
-   endif
-   if(sitetype >= 5.) then
-    if(H<20.) then
-     BA_lim = -0.0714*H**2. + 2.9857*H - 7.9143
-     BA_thd = -0.0714*H**2. + 2.7857*H - 11.114
-    else
-     BA_lim = 23.
-     BA_thd = 16.
-    endif
-   endif
-!!!!!!!for decidous dominated stands!!!!!!
-  elseif(pCrobas(28,species)==2.) then
-   if(H<20.) then
-    BA_lim = -0.0179*H**2. + 1.2214*H + 3.7714
-    BA_thd = -0.0536*H**2. + 2.4643*H - 12.886
-   else
-    BA_lim = 21.
-    BA_thd = 15.
-   endif
-  endif
- endif
+ species = int(stand_all(4,layer))
+
+ call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio)
+ BA_lim = BAtapio(1)
+ BA_thd = BAtapio(2)
+
  if (BA_tot > BA_lim) then
   do ij = 1, nLayers
 !ij=1

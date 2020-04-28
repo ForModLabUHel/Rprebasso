@@ -976,3 +976,72 @@ Wsh = max((As+ba+sqrt(As*ba)) * hc * par_rhow /2.9 - W_c,0.0) !initialize heart 
 Wstem = W_c + W_s + Wsh
 
 END SUBROUTINE calW
+
+!***************************************************************
+!  tapioThin
+!
+!  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
+!  and the BA after thinnings are applied (ba_thd)
+!***************************************************************
+subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
+
+	implicit none
+    real (kind=8),dimension(2) :: baThin
+    real (kind=8) :: forType !1 for conifers; 2 for deciduous
+	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
+    real (kind=8) :: BA_lim, BA_thd
+	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,2,15) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
+	real (kind=8) :: pX(2,15) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
+    real (kind=8) :: p1,p2,p3,p4,p5,p6
+
+ pX = tapioPars(int(siteType), int(ForType),:,:)
+ if(ETSmean > pX(1,1)) then
+	HthinStart =  pX(1,2)
+	HthinLim =  pX(1,3)
+	if(H< HthinLim) then
+ 	 p1 = pX(1,4)
+	 p2 = pX(1,5)
+	 p3 = pX(1,6)
+ 	 p4 = pX(1,7)
+	 p5 = pX(1,8)
+	 p6 = pX(1,9)
+	else
+	 p1 = pX(1,10)
+	 p2 = pX(1,11)
+	 p3 = pX(1,12)
+ 	 p4 = pX(1,13)
+	 p5 = pX(1,14)
+	 p6 = pX(1,15)
+	endif
+ else
+	HthinStart =  pX(2,2)
+	HthinLim =  pX(2,3)
+	if(H< HthinLim) then
+ 	 p1 = pX(2,4)
+	 p2 = pX(2,5)
+	 p3 = pX(2,6)
+ 	 p4 = pX(2,7)
+	 p5 = pX(2,8)
+	 p6 = pX(2,9)
+	else
+	 p1 = pX(2,10)
+	 p2 = pX(2,11)
+	 p3 = pX(2,12)
+ 	 p4 = pX(2,13)
+	 p5 = pX(2,14)
+	 p6 = pX(2,15)
+	endif
+ endif
+
+
+ if(H>HthinStart) then !!!first check if height is above 12 meters
+     BA_lim = p1*H**2. + p2*H + p3
+     BA_thd = p4*H**2. + p5*H + p6
+  baThin(1) = BA_lim
+  baThin(2) = BA_thd
+ else
+  baThin(1) = 9999999999.9
+  baThin(2) = 0.
+ endif
+end subroutine tapioThin
+!*************************************************************
