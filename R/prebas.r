@@ -3,10 +3,10 @@ prebas <- function(nYears,
                    pCROBAS = pCROB,
                    pHcMod = pHcM,
                    pPRELES = pPREL,
-                   PREBASversion = 0,
-                   etmodel = 0,
                    pYASSO = pYAS,
                    pAWEN = parsAWEN,
+                   # PREBASversion = 0,
+                   etmodel = 0,
                    siteInfo = NA,
                    thinning=NA,
                    initClearcut = c(1.5,0.5,0.0431969,0.,0.),
@@ -17,16 +17,18 @@ prebas <- function(nYears,
                    initVar = NA,
                    soilC = NA,
                    weatherYasso = NA,
-                   litterSize = NA,
+                   litterSize = litterSizeDef,
                    soilCtot = NA,
                    defaultThin = 1.,
                    ClCut = 1.,
+                   energyCut = 0.,
                    inDclct = NA,
                    inAclct = NA,
                    yassoRun = 0,
                    smoothP0 = 1,
                    smoothETS = 1,
-                   smoothYear=5){
+                   smoothYear=5,
+                   tapioPars=pTapio){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -65,7 +67,9 @@ prebas <- function(nYears,
   
   layerNam <- paste("layer",1:nLayers)
   output <- array(0, dim=c((nYears),nVar,nLayers,2),
-                  dimnames = list(NULL,varNam,layerNam,c("stand","thinned")))
+                  dimnames = list(year=NULL,variable=varNam,layer=layerNam,status=c("stand","thinned")))
+  energyWood <- array(0, dim=c((nYears),nLayers,2),
+                      dimnames = list(year=NULL,layer=layerNam,variable=c("volume","biomass")))
   fAPAR <- rep(0.7,nYears)
   
   ###compute ETS year
@@ -96,14 +100,16 @@ prebas <- function(nYears,
   }
   # if(ClCut==1 & all(is.na(initVar)) & is.na(inDclct)) inDclct <-
   if(ClCut==1 & all(is.na(inDclct))) inDclct <-
-    c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]),
-      ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]),
-      ClCutD_Birch(ETSmean,ETSthres,siteInfo[3]))
+    c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]), ####pine in Finland
+      ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
+      ClCutD_Birch(ETSmean,ETSthres,siteInfo[3]), ####birch in Finland
+      NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops"
   # if(ClCut==1 & all(is.na(initVar)) & is.na(inAclct)) inAclct <-
   if(ClCut==1 & all(is.na(inAclct))) inAclct <-
-    c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),
-      ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]),
-      ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]))
+    c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),   ####pine in Finland
+      ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland 
+      ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]),  ####birch in Finland
+      80,50,13,30)  ###"fasy","pipi","eugl","rops"  
   if(any(is.na(inDclct))) inDclct[is.na(inDclct)] <- 9999999.99
   if(length(inDclct)==1) inDclct<- rep(inDclct,nSp)
   if(any(is.na(inAclct))) inAclct[is.na(inAclct)] <- 9999999.99
@@ -144,11 +150,11 @@ prebas <- function(nYears,
   ###initialise soil inputs
   if(all(is.na(soilCtot))) soilCtot = numeric(nYears)
   if(all(is.na(soilC))) soilC = array(0,dim = c(nYears,5,3,nLayers))
-  if(all(is.na(litterSize))){
-    litterSize = matrix(0,3,nLayers)
-    litterSize[2,] <- 2
-    for (i in 1:nLayers) litterSize[1,i] <- ifelse(initVar[1,i]==3,10,30)
-  }
+  # if(all(is.na(litterSize))){
+  #   litterSize = matrix(0,3,nLayers)
+  #   litterSize[2,] <- 2
+  #   for (i in 1:nLayers) litterSize[1,i] <- ifelse(initVar[1,i]==3,10,30)
+  # }
   
   ##process weather inputs for YASSO
   if(all(is.na(weatherYasso))){
@@ -165,9 +171,9 @@ prebas <- function(nYears,
   output[1,c(33,25,47:49,24,32,50,51,31,30),,1] <- biomasses
   # print(biomasses)
   initVar <- initVar[1:7,]
-  PREBASversion <- paste("prebas_v",PREBASversion,sep='')
+  # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
 
-  prebas <- .Fortran(PREBASversion,
+  prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
                      nSp=as.integer(nSp),
@@ -196,10 +202,13 @@ prebas <- function(nYears,
                      soilCtot=as.numeric(soilCtot),
                      defaultThin=as.double(defaultThin),
                      ClCut=as.double(ClCut),
+                     energyCut=as.double(energyCut),
                      inDclct=as.double(inDclct),
                      inAclct=as.double(inAclct),
                      dailyPRELES = matrix(-999,(nYears*365),3),
-                     yassoRun=as.double(yassoRun))
+                     yassoRun=as.double(yassoRun),
+                     energyWood = as.array(energyWood),
+                     tapioPars = as.array(tapioPars))
   class(prebas) <- "prebas"
   return(prebas)
 }

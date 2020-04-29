@@ -7,35 +7,38 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
-		defaultThin,ClCut,inDclct,inAclct,dailyPRELES,yassoRun,prebasVersion)
+		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,tapioPars)		!!energCuts
+
 
 implicit none
 
-integer, parameter :: nVar=54,npar=38!, nSp=3
-real (kind=8), parameter :: harvRatio = 0.9
+integer, parameter :: nVar=54,npar=41!, nSp=3
+real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nSites,maxYears)
-real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYears),minDharv
+real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
- real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites)
+ real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,2,15)
+ real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
- real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites),prebasVersion(nSites)
+ real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
  real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
-! integer, intent(in) :: siteThinning(nSites)
+ real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
+ real (kind=8), intent(inout) :: multiWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilCinOut(nSites,maxYears,5,3,maxNlayers),soilCtotInOut(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
- real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers)
- real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
+ real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
+ real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
+ real (kind=8) :: energyWood, roundWood, energyCutX	!!energCuts
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
 !!!!initialize run
@@ -43,6 +46,12 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),HarvLim(maxYe
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
+multiWood = 0.
+
+   ! open(1,file="test1.txt")
+   ! open(2,file="test2.txt")
+   ! open(3,file="test3.txt")
+
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
@@ -57,7 +66,8 @@ do i = 1,nSites
 enddo
 
 do ij = 1,maxYears
- HarvArea = 0.
+ roundWood = 0.
+ energyWood = 0.	!!energCuts
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
 ! open(10,file="multiSite.txt")
@@ -65,6 +75,7 @@ do ij = 1,maxYears
 ! close(10)
 	ClCutX = ClCut(i)
 	defaultThinX = defaultThin(i)
+	energyCutX = energyCuts(i)		!!energCuts
 	thinningX(:,:) = -999.
 	az = 0
 
@@ -73,10 +84,15 @@ do ij = 1,maxYears
 	endif
 
 !!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
-	if (HarvLim(ij) > 0. .and. HarvArea >= HarvLim(ij)) then
+	if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
+
 	 ClCutX = 0.
 	 defaultThinX = 0.
 	endif
+	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
+	 energyCutX = 0.
+	endif
+
 !!!
 	climID = siteInfo(i,2)
 	if(ij==int(min(yearX(i),maxYears)))then
@@ -96,8 +112,8 @@ do ij = 1,maxYears
       endif
 	  initVar(i,6,ijj) = initClearcut(i,4)
 	  ! initVar(i,8,ijj) = 0. !!newX
-	  initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(i,1) -&
-		initClearcut(i,4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
+	  initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initClearcut(i,1) -&
+		initClearcut(i,4))**pCrobas(11,species))!A = p_ksi/p_rhof * Lc^p_z
 	  do ki = 1,int(initClearcut(i,5)+1)
 	   multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	  enddo !ki
@@ -121,23 +137,15 @@ do ij = 1,maxYears
 	else
 		output(1,:,:,:) = multiOut(i,1,:,:,:)
 	endif
-	! if(prebasVersion(i)==0.) then
-	  call prebas_v0(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+
+	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
 		weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
-		defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
-	! elseif(prebasVersion(i)==1.) then
-	  ! call prebas_v1(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
-		! thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
-		! fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
-		! weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
-		! soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
-		! litterSize,soilCtot(i,ij),&
-		! defaultThinX,ClCutX,inDclct(i,:),inAclct(i,:),dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i))
-	! endif
+		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
+		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),tapioPars) !!energCuts
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
@@ -165,7 +173,8 @@ do ij = 1,maxYears
 		enddo
 	  end if
 	enddo
-	
+
+	multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
 	multiOut(i,ij,1:7,1:nLayers(i),:) = output(1,1:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
 	! do ijj = 1,nLayers(i)
@@ -185,7 +194,13 @@ do ij = 1,maxYears
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
 	initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
 	! initVar(i,8,1:nLayers(i)) = output(1,2,1:nLayers(i),1)  !!newX
-	HarvArea = HarvArea + sum(output(1,37,1:nLayers(i),1))* areas(i)
+	if(isnan(sum(output(1,37,1:nLayers(i),1)))) then
+		roundWood = roundWood
+		energyWood = energyWood
+	else
+		roundWood = roundWood + sum(output(1,37,1:nLayers(i),1))* areas(i)
+		energyWood = energyWood + sum(wood(1,1:nLayers(i),1))* areas(i)   !!energCuts !!!we are looking at volumes	
+	endif
  end do !iz i
 
 
@@ -193,9 +208,9 @@ do ij = 1,maxYears
 
 
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by basal area
- if (HarvArea < HarvLim(ij)) then
+ if (roundWood < HarvLim(ij,1)) then		!!energCuts
   n = 0
-  do while(n < nSites .and. HarvArea < HarvLim(ij))
+  do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
    n = n + 1
    do i = 1, nSites
 	maxState(i) = maxval(multiOut(i,ij,12,1:nLayers(i),1))!!!search for site with highest DBH
@@ -204,23 +219,43 @@ do ij = 1,maxYears
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
+	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
+	 energyCuts(siteX) = 0.
+	endif
   ! close(10)
 !!   !!clearcut!!
-   HarvArea = HarvArea + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1))*areas(i)
-   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
-   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
+   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
+   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
+		multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
+   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
+		multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
    do ijj = 1, nLayers(siteX)
     multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
     multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
     multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
-    multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1)
-    multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* 0.1 + &
-	multiOut(siteX,ij,32,ijj,1) + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
-    multiOut(siteX,ij,8:21,ijj,1) = 0.
+!!energCuts
+	if(energyCuts(siteX) == 1.) then
+	 multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
+	   multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)) * energyRatio
+	 species = int(multiOut(siteX,ij,4,ijj,1))
+	 multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
+	 energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
+	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) * (1-energyRatio) + &
+		multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.7
+     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)+ &
+	  multiOut(siteX,ij,32,ijj,1)*0.3  * (1-energyRatio)+ multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	else
+	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
+	  multiOut(siteX,ij,32,ijj,1)*0.7
+     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* 0.1 + &
+	  multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	endif
+!!energCuts
+	multiOut(siteX,ij,8:21,ijj,1) = 0.
 	multiOut(siteX,ij,2,ijj,1) = 0. !!newX
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
     multiOut(siteX,ij,43:44,ijj,1) = 0.
-	multiOut(siteX,ij,47:51,ijj,1) = 0.
+	multiOut(siteX,ij,47:nVar,ijj,1) = 0.
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
    enddo
@@ -244,9 +279,12 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
   initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
 endif !(maxState(i)>minDharv)
   enddo !end do while
- endif !HarvArea < HarvLim .and. HarvLim /= 0.
+ endif !roundWood < HarvLim .and. HarvLim /= 0.
+
 ! write(10,*) "here4"
-end do
+  HarvLim(ij,1) = roundWood
+  HarvLim(ij,2) = energyWood
+end do !end Year loop 
 do i = 1,nSites
   do ij = 1, maxYears 
 	do ijj = 1,nLayers(i)
@@ -262,7 +300,9 @@ do i = 1,nSites
 	enddo !ijj
   enddo
 enddo	
-! close(10)
+ ! close(1)
+ ! close(2)
+ ! close(3)
 ! write(10,*) "here5"
 ! close(10)
 soilCinOut = soilC

@@ -1,6 +1,6 @@
 subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
 	implicit none
-    integer, parameter :: nVar=54, npar=38
+    integer, parameter :: nVar=54, npar=40
 	real (kind=8), parameter :: pi = 3.1415927
 	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
 	real (kind=8), intent(inout) :: biomasses(nvar)
@@ -49,7 +49,6 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   W_c = par_rhow * A * N * hc 
   W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
   W_branch =  par_rhow * A * N * betab * Lc !branches biomass
-  W_croot = par_rhow * beta0 * A * h * N !W_stem * (beta0 - 1.)	!#coarse root biomass
   Wsh = max((A+B+sqrt(A*B)) * hc * par_rhow * N/2.9 - W_c,0.) !#initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
   !#initialize Wdb dead branches biomass
   if(par_S_branchMod == 1.) then
@@ -59,7 +58,8 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   endif
   W_stem = W_c + W_s + Wsh
   V = W_stem / par_rhow
-  
+  W_croot = max(0.,(Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) !#coarse root biomass
+
   biomasses(33) = wf_STKG
   biomasses(25) = W_froot
   biomasses(47) = W_wsap
@@ -85,7 +85,7 @@ implicit none
  real (kind=8), intent(inout) :: coeff(nclass) , qcTOT
 !****************************************************************************************
  integer  :: ki
- real (kind=8) :: param(nPar)
+ real (kind=8) :: param(nPar), ln2 = 0.693147181
  real (kind=8) :: ht(nclass),hc(nclass),h(nclass)
  real (kind=8) :: LAIe(nclass),qc(nclass),btc(nclass),LAI(nclass),N(nclass)
  real (kind=8) :: l(2*nclass),vrel(2*nclass,nclass)
@@ -93,7 +93,7 @@ implicit none
  real (kind=8) :: bt(2*nclass), k(nclass), par_betab(nclass), rc(nclass)
  real (kind=8) :: kLAIetot, kLAItot, Atot
  real (kind=8), intent(inout) :: MeanLight(nclass)
- real (kind=8) :: x1,x2,apuJ,apuI
+ real (kind=8) :: x1,x2,apuJ,apuI,par_sla,par_sla0,par_tsla,age
 	   integer :: iclass,i2,i1,species,nv				!!**!! nv defined as integer
        integer :: i, j, ii(2*nclass), iapu
  real (kind=8) :: apu, b1,  qctot0, qctot1, wwx, dc, e1
@@ -108,13 +108,19 @@ implicit none
 	 species = int(stand_all(4,i))
      param = pCrobas(:,species)
      qc(i) = 0.
-     
+
+     par_sla = param(3)
+	 par_sla0 = param(39)
+	 par_tsla = param(40)
+	 age = STAND_all(7,i)
+	 par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+ 
      ht(i) = STAND_all(11,i)   ! H
      hc(i) = STAND_all(14,i)   ! Hc
      h(i) = ht(i) - hc(i)        ! Lc
      LAIe(i) = STAND_all(19,i) ! leff
      k(i) = PARAM(4)               ! k 
-     LAI(i) = STAND_all(33,i) * PARAM(3) / 10000.   ! WF_stand * sla
+     LAI(i) = STAND_all(33,i) * par_sla / 10000.   ! WF_stand * sla
      ! par_betab(i) = PARAM(17)   ! betab
      rc(i) = STAND_all(15,i)/2.         ! rc
      N(i) = STAND_all(17,i) / 10000.   ! N per m2
@@ -560,7 +566,9 @@ IMPLICIT NONE
         ! ss_pred = steadystate_pred
     ! ENDIF
     IF(steadystate_pred == 1.) THEN
-        ss_pred = .true.
+        ss_pred = .true. 
+	else
+		ss_pred = .false.
     ENDIF
 
     !#########################################################################
@@ -797,7 +805,7 @@ IMPLICIT NONE
 	AWENH(2) = parsAWEN(2)*Lit
 	AWENH(3) = parsAWEN(3)*Lit
 	AWENH(4) = parsAWEN(4)*Lit
-	! AWENH(5) = 0.
+	AWENH(5) = 0.
     END SUBROUTINE compAWENH
 
 	
@@ -813,11 +821,12 @@ IMPLICIT NONE
 	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
 	REAL (kind=8),INTENT(IN) :: species(nSites, nLayers),litterSize(3,nSp)
 	REAL (kind=8),INTENT(IN) :: pAWEN(12, nSp), pYasso(35)
+	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5,3,nLayers)
 	integer,INTENT(IN) :: climIDs(nSites)
 	INTEGER :: year, site, layer, spec
 	real (kind=8) :: t=1.,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
 	real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
-	real (kind=8),DIMENSION(5) :: soilC(nSites,(nYears+1),5,3,nLayers)
+	
 
 fbAWENH = 0.
 folAWENH = 0.
@@ -874,3 +883,165 @@ subroutine calWf(pars,Wf,inputs,nData)
 	Wf(:,2) = par_ksi * Lc ** par_z 
 END SUBROUTINE calWf
 
+
+SUBROUTINE StstYasso(litter,litterSize, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso,weatherYasso,soilC)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION 
+    !********************************************* &
+    ! run yasso for some years with litterfal inputs from prebas.
+
+	integer, intent(in) ::  nLayers, nSites, nSp,nClimID
+	REAL (kind=8),INTENT(IN) :: litter(nSites, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
+	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, 3)
+	REAL (kind=8),INTENT(IN) :: species(nSites, nLayers),litterSize(3,nSp)
+	REAL (kind=8),INTENT(IN) :: pAWEN(12, nSp), pYasso(35)
+	real (kind=8),INTENT(inout) :: soilC(nSites,5,3,nLayers)
+	integer,INTENT(IN) :: climIDs(nSites)
+	INTEGER :: year, site, layer, spec
+	real (kind=8) :: t=1.,Lst=0.,Lb=0.,Lf=0.,leac=0.,stSt=1. !leaching parameter for Yasso
+	real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
+
+
+fbAWENH = 0.
+folAWENH = 0.
+stAWENH = 0.
+soilC = 0.
+
+!!!!run Yasso
+do site = 1, nSites
+ do layer = 1,nLayers
+	
+   Lst = litter(site,layer,3)
+   Lb = litter(site,layer,2)
+   Lf = litter(site,layer,1)
+   spec = int(species(site,layer))
+	if(Lst>0) then
+		call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+		call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,1,layer),stAWENH,litterSize(1,spec), &
+			leac,soilC(site,:,1,layer),stSt)
+	else
+		soilC(site,:,1,layer) = 0.
+   endif
+   if(Lf>0) then
+		call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+		call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,3,layer),folAWENH,litterSize(3,spec), &
+			leac,soilC(site,:,3,layer),stSt)
+	else
+		soilC(site,:,3,layer) = 0.
+   endif
+   if(Lb>0) then
+		call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+		call mod5c(pYasso,t,weatherYasso(climIDs(site),:),soilC(site,:,2,layer),fbAWENH,litterSize(2,spec), &
+			leac,soilC(site,:,2,layer),stSt)
+   else
+		soilC(site,:,2,layer) = 0.
+   endif
+ enddo
+enddo
+
+END SUBROUTINE StstYasso
+
+subroutine calW(pars,Wf,Wbr,Wstem,inputs,nData)
+ IMPLICIT NONE
+ integer, intent(in) :: nData
+ REAL (kind=8),INTENT(OUT) :: Wf(nData,2) !!!Wf(:,1) Wf as function of As; Wf(:,2) as function of Lc
+ REAL (kind=8),INTENT(OUT) :: Wbr(nData),Wstem(nData)
+ REAL (kind=8) W_c(nData),W_s(nData),Wsh(nData)
+ REAL (kind=8),INTENT(IN) :: pars(6),inputs(nData,3) !inputs col#1 = basal area;
+!col#2=height; col#3 = height of crown base
+ REAL (kind=8) ba(ndata), h(ndata), hc(ndata), Lc(ndata), As(ndata) !!variables
+ REAL (kind=8) par_rhow, par_z, par_betab, par_betas, par_rhof, par_ksi!!parameters
+
+ba = inputs(:,1)
+h = inputs(:,2)
+hc = inputs(:,3)
+Lc = h-hc
+As = ba * Lc/(H-1.3)
+
+par_rhow = pars(1)
+par_z = pars(2)
+par_betab = pars(3)
+par_betas = pars(4)
+par_rhof = pars(5)
+par_ksi = pars(6)
+
+Wf(:,1) = par_rhof * As
+Wf(:,2) = par_ksi * Lc ** par_z
+Wbr =  par_rhow * As *  par_betab * Lc !branches biomass
+
+W_c = par_rhow * As * hc !sapwood stem below Crown
+  W_s = par_rhow * As * par_betas * Lc !sapwood stem within crown
+Wsh = max((As+ba+sqrt(As*ba)) * hc * par_rhow /2.9 - W_c,0.0) !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
+Wstem = W_c + W_s + Wsh
+
+END SUBROUTINE calW
+
+!***************************************************************
+!  tapioThin
+!
+!  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
+!  and the BA after thinnings are applied (ba_thd)
+!***************************************************************
+subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
+
+	implicit none
+    real (kind=8),dimension(2) :: baThin
+    real (kind=8) :: forType !1 for conifers; 2 for deciduous
+	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
+    real (kind=8) :: BA_lim, BA_thd
+	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,2,15) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
+	real (kind=8) :: pX(2,15) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
+    real (kind=8) :: p1,p2,p3,p4,p5,p6
+
+ pX = tapioPars(int(siteType), int(ForType),:,:)
+ if(ETSmean > pX(1,1)) then
+	HthinStart =  pX(1,2)
+	HthinLim =  pX(1,3)
+	if(H< HthinLim) then
+ 	 p1 = pX(1,4)
+	 p2 = pX(1,5)
+	 p3 = pX(1,6)
+ 	 p4 = pX(1,7)
+	 p5 = pX(1,8)
+	 p6 = pX(1,9)
+	else
+	 p1 = pX(1,10)
+	 p2 = pX(1,11)
+	 p3 = pX(1,12)
+ 	 p4 = pX(1,13)
+	 p5 = pX(1,14)
+	 p6 = pX(1,15)
+	endif
+ else
+	HthinStart =  pX(2,2)
+	HthinLim =  pX(2,3)
+	if(H< HthinLim) then
+ 	 p1 = pX(2,4)
+	 p2 = pX(2,5)
+	 p3 = pX(2,6)
+ 	 p4 = pX(2,7)
+	 p5 = pX(2,8)
+	 p6 = pX(2,9)
+	else
+	 p1 = pX(2,10)
+	 p2 = pX(2,11)
+	 p3 = pX(2,12)
+ 	 p4 = pX(2,13)
+	 p5 = pX(2,14)
+	 p6 = pX(2,15)
+	endif
+ endif
+
+
+ if(H>HthinStart) then !!!first check if height is above 12 meters
+     BA_lim = p1*H**2. + p2*H + p3
+     BA_thd = p4*H**2. + p5*H + p6
+  baThin(1) = BA_lim
+  baThin(2) = BA_thd
+ else
+  baThin(1) = 9999999999.9
+  baThin(2) = 0.
+ endif
+end subroutine tapioThin
+!*************************************************************

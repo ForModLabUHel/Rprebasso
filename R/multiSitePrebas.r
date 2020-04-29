@@ -2,7 +2,6 @@ InitMultiSite <- function(nYearsMS,
                           pCROBAS = pCROB,
                           pHcMod = pHcM,
                           pPRELES = pPREL,
-                          PREBASversion = 0,
                           etmodel = 0,
                           pYASSO =pYAS,
                           pAWEN = parsAWEN,
@@ -22,17 +21,19 @@ InitMultiSite <- function(nYearsMS,
                           multiP0=NA,
                           soilC = NA,
                           weatherYasso = NA,
-                          litterSize = NA,
+                          litterSize = litterSizeDef,
                           soilCtot = NA,
                           defaultThin = 1.,
                           ClCut = 1.,
+                          energyCut = 0.,
                           inDclct = NA,
                           inAclct = NA,
                           yassoRun = 0,
                           smoothP0 = 1,
                           smoothETS = 1,
                           smoothYear=5,
-                          HcModV=2  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          HcModV=2,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          tapioPars=pTapio
 ){  
   
   nSites <- length(nYearsMS)
@@ -41,6 +42,10 @@ InitMultiSite <- function(nYearsMS,
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118),nSites,12,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
+  colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit", 
+                          "SOGinit", "Sinit", "nLayers", "nSpecies", "soildepth", 
+                          "effective field capacity", "permanent wilting point") 
+  
   nLayers <- siteInfo[,8]
   # nSp <- siteInfo[,9]
   climIDs <- siteInfo[,2]
@@ -66,14 +71,17 @@ InitMultiSite <- function(nYearsMS,
   maxNlayers <- max(nLayers)
   layerNam <- paste("layer",1:maxNlayers)
   multiOut <- array(0, dim=c(nSites,(maxYears),nVar,maxNlayers,2),
-                    dimnames = list(NULL,NULL,varNam,layerNam,
-                                    c("stand","thinned")))
+                    dimnames = list(site=NULL,year=NULL,variable=varNam,layer=layerNam,
+                                    status=c("stand","thinned")))
+  multiEnergyWood <- array(0, dim=c(nSites,(maxYears),maxNlayers,2),
+                           dimnames = list(site=NULL,year=NULL,layer=layerNam,
+                                           variable=c("volume","biomass")))
   initClearcut = c(1.5,0.5,0.0431969,0.,NA)
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
   # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
   ###process yasso inputs if missing
-  if(is.na(soilC)) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
-  if(is.na(soilCtot)) soilCtot <- matrix(0,nSites,maxYears)
+  if(all(is.na(soilC))) soilC <- array(0,dim=c(nSites,maxYears,5,3,maxNlayers))
+  if(all(is.na(soilCtot))) soilCtot <- matrix(0,nSites,maxYears)
   
   ##process weather inputs for YASSO
   if(all(is.na(weatherYasso))){
@@ -91,13 +99,14 @@ InitMultiSite <- function(nYearsMS,
   
   if (length(defaultThin) == 1) defaultThin=as.double(rep(defaultThin,nSites))
   if (length(ClCut) == 1) ClCut=as.double(rep(ClCut,nSites))
+  if (length(energyCut) == 1) energyCut=as.double(rep(energyCut,nSites))
   if (length(inDclct) == 1) inDclct=matrix(inDclct,nSites,allSp)
   if (length(inAclct) == 1) inAclct=matrix(inAclct,nSites,allSp)
   if (length(inDclct) == nSites) inDclct=matrix(inDclct,nSites,allSp)
   if (length(inAclct) == nSites) inAclct=matrix(inAclct,nSites,allSp)
   if (length(yassoRun) == 1) yassoRun=as.double(rep(yassoRun,nSites))
-  if (length(PREBASversion) == 1) PREBASversion=as.double(rep(PREBASversion,nSites))
-  
+  # if (length(PREBASversion) == 1) PREBASversion=as.double(rep(PREBASversion,nSites))
+  # 
   ###process ETS
   multiETS <- matrix(NA,nClimID,maxYears)
   for(climID in 1:nClimID){
@@ -125,11 +134,13 @@ InitMultiSite <- function(nYearsMS,
     if(ClCut[i]==1 & all(is.na(inDclct[i,]))) inDclct[i,] <-
         c(ClCutD_Pine(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutD_Spruce(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
-          ClCutD_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]))
+          ClCutD_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
+          NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops")
     if(ClCut[i]==1 & all(is.na(inAclct[i,]))) inAclct[i,] <-
         c(ClCutA_Pine(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutA_Spruce(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
-          ClCutA_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]))
+          ClCutA_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
+          80,50,13,30)  ###"fasy","pipi","eugl","rops"  )
     if(any(!is.na(inDclct[i,]))) inDclct[i,is.na(inDclct[i,])] <- max(inDclct[i,],na.rm=T)
     if(all(is.na(inDclct[i,]))) inDclct[i,] <- 9999999.99
     if(any(!is.na(inAclct[i,]))) inAclct[i,is.na(inAclct[i,])] <- max(inAclct[i,],na.rm=T)
@@ -202,9 +213,9 @@ InitMultiSite <- function(nYearsMS,
   }else{
     ####if Height of the crown base is not available use model
     if(maxNlayers==1){
-      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV),dim=c(nSites,7,1))
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod),dim=c(nSites,7,1))
     }else{
-      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,HcModV)
+      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
     }
     
     
@@ -258,12 +269,13 @@ InitMultiSite <- function(nYearsMS,
     }
   }
   
-  if(all(is.na(litterSize))){
-    litterSize <- matrix(0,3,allSp)
-    litterSize[2,] <- 2
-    litterSize[1,] <- c(30,30,10)
-    # siteInfo <- siteInfo[,-c(4,5)]
-  }
+  # if(all(is.na(litterSize))){
+  #   litterSize <- matrix(0,3,allSp)
+  #   litterSize[2,] <- 2
+  #   litterSize[1,] <- c(30,30,10)
+  #   # siteInfo <- siteInfo[,-c(4,5)]
+  # }
+
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
   biomasses <- array(apply(initVarX,1,initBiomasses,pCro=pCROBAS),dim=c(11,maxNlayers,nSites))
@@ -280,6 +292,7 @@ InitMultiSite <- function(nYearsMS,
   
   multiSiteInit <- list(
     multiOut = multiOut,
+    multiEnergyWood = multiEnergyWood,
     nSites = nSites,
     nClimID = nClimID,
     nLayers = nLayers,
@@ -312,13 +325,14 @@ InitMultiSite <- function(nYearsMS,
     soilCtot = soilCtot,
     defaultThin = defaultThin,
     ClCut = ClCut,
+    energyCut = energyCut,
     inDclct = inDclct,
     inAclct = inAclct,
     dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
     yassoRun = yassoRun,
-    PREBASversion = PREBASversion,
     smoothP0 = smoothP0,
-    smoothETS = smoothETS)
+    smoothETS = smoothETS,
+    tapioPars=tapioPars)
   return(multiSiteInit)
 }
 
@@ -356,11 +370,13 @@ multiPrebas <- function(multiSiteInit){
                      soilCtot = as.matrix(multiSiteInit$soilCtot),
                      defaultThin=as.double(multiSiteInit$defaultThin),
                      ClCut=as.double(multiSiteInit$ClCut),
+                     energyCut=as.double(multiSiteInit$energyCut),
                      inDclct=as.matrix(multiSiteInit$inDclct),
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     PREBASversion=as.double(multiSiteInit$PREBASversion))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
+                     tapioPars = as.array(multiSiteInit$tapioPars))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -368,17 +384,17 @@ multiPrebas <- function(multiSiteInit){
 
 regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
-                         minDharv = 15){
+                         minDharv = 999.){
   
-  if(length(HarvLim)==1) HarvLim <- rep(HarvLim,multiSiteInit$maxYears)
-  if(any(is.na(HarvLim))) HarvLim[which(is.na(HarvLim))] <- 0.
+  if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
+  if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   
   siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
   siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
   
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
-                     HarvLim = as.double(HarvLim),
+                     HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -413,11 +429,13 @@ regionPrebas <- function(multiSiteInit,
                      soilCtot = as.matrix(multiSiteInit$soilCtot),
                      defaultThin=as.double(multiSiteInit$defaultThin),
                      ClCut=as.double(multiSiteInit$ClCut),
+                     energyCut=as.double(multiSiteInit$energyCut),
                      inDclct=as.matrix(multiSiteInit$inDclct),
                      inAclct=as.matrix(multiSiteInit$inAclct),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
-                     PREBASversion=as.double(multiSiteInit$PREBASversion))
+                     multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
+                     tapioPars = as.array(multiSiteInit$tapioPars))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
