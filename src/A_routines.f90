@@ -990,53 +990,56 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
     real (kind=8) :: forType !1 for conifers; 2 for deciduous
 	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
     real (kind=8) :: BA_lim, BA_thd
-	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,2,15) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
-	real (kind=8) :: pX(2,15) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
-    real (kind=8) :: p1,p2,p3,p4,p5,p6
+	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,12) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
+	real (kind=8) :: pX(3,12) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
+    real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8
 
  pX = tapioPars(int(siteType), int(ForType),:,:)
- if(ETSmean > pX(1,1)) then
-	HthinStart =  pX(1,2)
-	HthinLim =  pX(1,3)
-	if(H< HthinLim) then
- 	 p1 = pX(1,4)
-	 p2 = pX(1,5)
-	 p3 = pX(1,6)
- 	 p4 = pX(1,7)
-	 p5 = pX(1,8)
-	 p6 = pX(1,9)
-	else
-	 p1 = pX(1,10)
-	 p2 = pX(1,11)
-	 p3 = pX(1,12)
- 	 p4 = pX(1,13)
-	 p5 = pX(1,14)
-	 p6 = pX(1,15)
-	endif
- else
-	HthinStart =  pX(2,2)
-	HthinLim =  pX(2,3)
-	if(H< HthinLim) then
- 	 p1 = pX(2,4)
-	 p2 = pX(2,5)
-	 p3 = pX(2,6)
- 	 p4 = pX(2,7)
-	 p5 = pX(2,8)
-	 p6 = pX(2,9)
-	else
-	 p1 = pX(2,10)
-	 p2 = pX(2,11)
-	 p3 = pX(2,12)
- 	 p4 = pX(2,13)
-	 p5 = pX(2,14)
-	 p6 = pX(2,15)
-	endif
+ if(ETSmean > pX(1,1)) then !if we are in South Finland
+	HthinStart =  pX(1,3)
+	HthinLim =  pX(1,4)
+ 	 p1 = pX(1,5)
+	 p2 = pX(1,6)
+	 p3 = pX(1,7)
+ 	 p4 = pX(1,8)
+	 p5 = pX(1,9)
+	 p6 = pX(1,10)
+	 p7 = pX(1,11)
+	 p8 = pX(1,12)
+ elseif(ETSmean <= pX(1,1) .and. ETSmean >= pX(1,2)) then !if we are in Central Finland
+	HthinStart =  pX(2,3)
+	HthinLim =  pX(2,4)
+ 	 p1 = pX(2,5)
+	 p2 = pX(2,6)
+	 p3 = pX(2,7)
+ 	 p4 = pX(2,8)
+	 p5 = pX(2,9)
+	 p6 = pX(2,10)
+	 p7 = pX(2,11)
+	 p8 = pX(2,12)
+ else !if we are in Northern Finland
+ 	HthinStart =  pX(3,3)
+	HthinLim =  pX(3,4)
+ 	 p1 = pX(3,5)
+	 p2 = pX(3,6)
+	 p3 = pX(3,7)
+ 	 p4 = pX(3,8)
+	 p5 = pX(3,9)
+	 p6 = pX(3,10)
+	 p7 = pX(3,11)
+	 p8 = pX(3,12)
  endif
 
 
- if(H>HthinStart) then !!!first check if height is above 12 meters
-     BA_lim = p1*H**2. + p2*H + p3
-     BA_thd = p4*H**2. + p5*H + p6
+ if(H>HthinStart .and. H<HthinLim) then !!!first check if height is above 12 meters
+     BA_lim = p1*H**3. + p2*H**2. + p3*H + p4
+     BA_thd = p5*H**3. + p6*H**2. + p7*H + p8
+    ! BA_limLow = p1*H**3. + p2*H**2. + p3*H + p4
+    ! BA_thdLow = p5*H**3. + p6*H**2. + p7*H + p8
+    ! BA_limUp = p1*H**3. + p2*H**2. + p3*H + p4
+    ! BA_thdUp = p5*H**3. + p6*H**2. + p7*H + p8
+	! BA_thd= BA_thdLow + (BA_thdUp - BA_thdLow) * BathPer !(0:1)
+	
   baThin(1) = BA_lim
   baThin(2) = BA_thd
  else
