@@ -116,46 +116,131 @@ ClCut_spruce <- matrix(NA,2,4)
 ClCut_spruce[1,] <- c(30,60,28.0,70)
 ClCut_spruce[2,] <- c(28,70,26.5,80)
 
-pTapio <- array(NA,dim = c(5,2,3,12),dimnames = list(
+pTapio <- array(NA,dim = c(5,2,3,20),dimnames = list(
   c("sType1","sType2","sType3","sType4","sType5"),
-  c("conifers","decidous"),
+  c("conifers","deciduous"),
   c("South","Centre","North"),
   c("ETSthrd1","ETSthrd2","HthinStart","HthinLim", ###ets threshold, Height at which thinning start, Height limit for young and mature stands
-    "p1BAlim","p2BAlim","p3BAlim","p4BAlim", ## "pars for BA limit of young stands
-    "p1BAthdY","p2BAthdY","p3BAthdY","p4BAthdY")
+    "p1BAlimL","p2BAlimL","p3BAlimL","p4BAlimL", ## "pars for BA lower limit 
+    "p1BAlimU","p2BAlimU","p3BAlimU","p4BAlimU", ## "pars for BA upper limit
+    "p1BAthdL","p2BAthdL","p3BAthdL","p4BAthdL",
+    "p1BAthdU","p2BAthdU","p3BAthdU","p4BAthdU")
 ))
-# siteType 1, Conifers, South, 
-pTapio[1,1,1,1:4] <- c(1200,1000, 12,20)
-pTapio[1,1,1,5:8] <- c(0.,-0.0893, 4.0071,-11.343)
-pTapio[1,1,1,9:12] <- c(0.,-0.0536, 2.7643,- 9.6857)
-# siteType 2, Conifers, South, 
-pTapio[2,1,1,1:4] <- c(1200,1000, 12,20)
-pTapio[2,1,1,5:8] <- c(0.,-0.0893, 4.0071,-11.343)
-pTapio[2,1,1,9:12] <- c(0.,-0.0536, 2.7643,- 9.6857)
-# siteType 3, Conifers, South, 
-pTapio[3,1,1,1:4] <- c(1200,1000, 12,20)
-pTapio[3,1,1,5:8] <- c(0.,-0.125, + 4.95, - 20.9)
-pTapio[3,1,1,9:12] <- c(0.,-0.1071,3.9286, - 15.771)
-# siteType 4, Conifers, South, 
-pTapio[4,1,1,1:4] <- c(1200,1000, 12,20)
-pTapio[4,1,1,5:8] <- c(0.,-0.1071,4.2286, -15.571)
-pTapio[4,1,1,9:12] <- c(0.,-0.0714,2.7857, -9.1143)
-# siteType 5, Conifers, South, 
-pTapio[5,1,1,1:4] <- c(1200,1000, 12,20)
-pTapio[5,1,1,5:8] <- c(0.,-0.0714, 2.9857,-7.9143)
-pTapio[5,1,1,9:12] <- c(0.,-0.0714,2.7857, -11.114)
-# siteType 1:5, Conifers, North = south 
-pTapio[,1,2,] <- pTapio[,1,3,] <- pTapio[,1,1,]
-# siteType 1, deciduous, South, 
-pTapio[1,2,1,1:4] <- c(1200,1000, 12,20)
-pTapio[1,2,1,5:8] <- c(0.,-0.0179, 1.2214, 3.7714)
-pTapio[1,2,1,9:12] <- c(0.,-0.0536,2.4643, -12.886)
-# siteType 1, deciduous, North=south
-pTapio[1,2,2,] <- pTapio[1,2,3,] <- pTapio[1,2,1,]
+# siteType 1, Conifers, South 
+pTapio[1,1,1,1:4] <- c(1200, 1000, 12, 22)
+pTapio[1,1,1,5:8] <- c(0.0065,-0.477,11.528,-58.573) # BA lower limit
+pTapio[1,1,1,9:12] <- c(0.0217,-1.3014, 26.1605,-139.9652) # BA upper limit
+pTapio[1,1,1,13:16] <- c(-0.0057,0.1962,-0.7216,3.676) # thinning result lower limit
+pTapio[1,1,1,17:20] <- c(-0.0017,-0.0149,2.8612,-12.016) # thinning result upper limit
+# siteType 2, Conifers, South 
+pTapio[2,1,1,1:4] <- pTapio[1,1,1,1:4]
+pTapio[2,1,1,5:8] <- pTapio[1,1,1,5:8]
+pTapio[2,1,1,9:12] <- pTapio[1,1,1,9:12]
+pTapio[2,1,1,13:16] <- pTapio[1,1,1,13:16]
+pTapio[2,1,1,17:20] <- pTapio[1,1,1,17:20]
+# siteType 3, Conifers, South 
+pTapio[3,1,1,1:4] <- c(1200, 1000, 12, 22)
+pTapio[3,1,1,5:8] <- c(0.0136,-0.8275,16.8331,-86.8898)
+pTapio[3,1,1,9:12] <- c(0.0055,-0.4037, 9.6217, -42.7914)
+pTapio[3,1,1,13:16] <- c(0.0035,-0.2522,5.8948,-27.1735)
+pTapio[3,1,1,17:20] <- c(0.004,-0.2739,6.2448,-25.0071)
+# siteType 4, Conifers, South 
+pTapio[4,1,1,1:4] <- c(1200, 1000, 12, 22)
+pTapio[4,1,1,5:8] <- c(0.0172,-1.0366,20.7971,-112.6921)
+pTapio[4,1,1,9:12] <- c(0.0205,-1.2298,24.4869,-131.893)
+pTapio[4,1,1,13:16] <- c(0.0039,-0.2531,5.5522,-24.8401)
+pTapio[4,1,1,17:20] <- c(0.0056,-0.3488,7.3062,-31.0563)
+# siteType 5, Conifers, South 
+pTapio[5,1,1,1:4] <- c(1200, 1000, 12, 20)
+pTapio[5,1,1,5:8] <- c(0.0361,-2.0295,38.1227,-215.8859)
+pTapio[5,1,1,9:12] <- c(0.024,-1.3352,24.8669,-129.3155)
+pTapio[5,1,1,13:16] <- c(0.0041,-0.2876,6.5443,-34.1293)
+pTapio[5,1,1,17:20] <- c(-0.0022,0.0162,1.7219,-5.2895)
+
+# siteType 1, Conifers, Centre
+pTapio[1,1,2,1:4] <- c(1200, 1000, 12, 22) 
+pTapio[1,1,2,5:8] <- c(0.0148,-0.917,18.9964,-102.7895)
+pTapio[1,1,2,9:12] <- c(0.0065,-0.417,9.2542,-37.964)
+pTapio[1,1,2,13:16] <- c(-0.0028,0.0648,1.1361,-5.1042)
+pTapio[1,1,2,17:20] <- c(-0.0037,0.1034,0.5924,1.3166)
+# siteType 2, Conifers, Centre
+pTapio[2,1,2,1:4] <- pTapio[1,1,2,1:4]
+pTapio[2,1,2,5:8] <- pTapio[1,1,2,5:8]
+pTapio[2,1,2,9:12] <- pTapio[1,1,2,9:12]
+pTapio[2,1,2,13:16] <- pTapio[1,1,2,13:16]
+pTapio[2,1,2,17:20] <- pTapio[1,1,2,17:20]
+# siteType 3, Conifers, Centre
+pTapio[3,1,2,1:4] <- c(1200, 1000, 12, 22)
+pTapio[3,1,2,5:8] <- c(-0.0039,0.1205,0.0526,9.4873)
+pTapio[3,1,2,9:12] <- c(0.0017,-0.1779,5.2159,-16.3943)
+pTapio[3,1,2,13:16] <- c(0.003,-0.2163,5.1283,-22.5895)
+pTapio[3,1,2,17:20] <- c(0.,-0.06,2.56,-5.93)
+# siteType 4, Conifers, Centre
+pTapio[4,1,2,1:4] <- c(1200, 1000, 12, 22)
+pTapio[4,1,2,5:8] <- c(0.0104,-0.6375,13.0333,-65.08)
+pTapio[4,1,2,9:12] <- c(0.013,-0.7691,15.2844,-75.0335)
+pTapio[4,1,2,13:16] <- c(-0.0033,0.1102,-0.3182,5.1917)
+pTapio[4,1,2,17:20] <- c(-0.0003,-0.0485,2.4,-6.322)
+# siteType 5, Conifers, Centre
+pTapio[5,1,2,1:4] <- c(1200, 1000, 12, 20)
+pTapio[5,1,2,5:8] <- c(0.0019,-0.2334,6.768,-36.3391)
+pTapio[5,1,2,9:12] <- c(0.0032,-0.2773,7.1288,-33.069)
+pTapio[5,1,2,13:16] <- c(0.0006,-0.0836,2.6292,-10.7439)
+pTapio[5,1,2,17:20] <- c(0.,-0.06,2.13,-4.1)
+
+# siteType 1, Conifers, North
+pTapio[1,1,3,1:4] <- c(1200,1000, 12,20)
+pTapio[1,1,3,5:8] <- c(0.0124,-0.7773,16.0731,-85.0627)
+pTapio[1,1,3,9:12] <- c(0.0008,-0.1382,4.6256,-14.9918)
+pTapio[1,1,3,13:16] <- c(-0.0012,-0.0215,2.1508,-7.3283)
+pTapio[1,1,3,17:20] <- c(-0.0009,-0.0581,3.1324,-11.6985)
+# siteType 2, Conifers, North
+pTapio[2,1,3,1:4] <- pTapio[1,1,3,1:4]
+pTapio[2,1,3,5:8] <- pTapio[1,1,3,5:8]
+pTapio[2,1,3,9:12] <- pTapio[1,1,3,9:12]
+pTapio[2,1,3,13:16] <- pTapio[1,1,3,13:16]
+pTapio[2,1,3,17:20] <- pTapio[1,1,3,17:20]
+# siteType 3, Conifers, North
+pTapio[3,1,3,1:4] <- c(1200,1000, 12,20)
+pTapio[3,1,3,5:8] <- c(0.0096,-0.6216,13.2572,-70.1743)
+pTapio[3,1,3,9:12] <- c(0.0108,-0.6459,12.9423,-60.9902)
+pTapio[3,1,3,13:16] <- c(0.0035,-0.222,4.7985,-19.2557)
+pTapio[3,1,3,17:20] <- c(-0.0018,0.0226,1.1971,0.74)
+# siteType 4, Conifers, North
+pTapio[4,1,3,1:4] <- c(1200,1000, 12,20)
+pTapio[4,1,3,5:8] <- c(0.007,-0.4997,11.3779,-62.2418)
+pTapio[4,1,3,9:12] <- c(0.0082,-0.5371,11.5501,-57.0208)
+pTapio[4,1,3,13:16] <- c(0.0024,-0.1809,4.3659,-19.5257)
+pTapio[4,1,3,17:20] <- c(0.0029,-0.2165,5.1838,-22.5281)
+# siteType 5, Conifers, North
+pTapio[5,1,3,1:4] <- c(1200,1000, 12,18)
+pTapio[5,1,3,5:8] <- c(0.0333,-1.7214,29.6032,-151.5683)
+pTapio[5,1,3,9:12] <- c(0.0017,-0.2492,6.9717,-33.7336)
+pTapio[5,1,3,13:16] <- c(-0.0036,0.1081,-0.3487,4.0072)
+pTapio[5,1,3,17:20] <- c(-0.0013,-0.0302,2.2698,-8.4412)
+
+
+# siteType 1, deciduous, South (Betula pendula, MT+)
+pTapio[1,2,1,1:4] <- c(1200, 1000, 12, 20)
+pTapio[1,2,1,5:8] <- c(0.0256,-1.3818,25.1827,-135.0807)
+pTapio[1,2,1,9:12] <- c(0.0228,-1.2193,22.1586,-113.7665)
+pTapio[1,2,1,13:16] <- c(0.0041,-0.2614,5.9211,-32.5066)
+pTapio[1,2,1,17:20] <- c(0.0058,-0.3344,6.9561,-35.7195)
+
+# siteType 1, deciduous, North (Betula pubescens, rich peatland)
+pTapio[1,2,3,1:4] <- c(1200, 1000, 12, 18)
+pTapio[1,2,3,5:8] <- c(-0.0021,0.0434,0.9886,-2.3733)
+pTapio[1,2,3,9:12] <- c(0.004,-0.2371,5.4213,-23.7473)
+pTapio[1,2,3,13:16] <- c(-0.0009,0.004,1.0047,-3.9108)
+pTapio[1,2,3,17:20] <- c(-0.0032,0.1153,-0.6963,7.0914)
+
+# siteType 1, deciduous, centre=south
+pTapio[1,2,2,] <- pTapio[1,2,1,]
 # siteType 2:5, deciduous, Northand northsouth
 pTapio[2,2,1,] <- pTapio[3,2,1,] <- pTapio[4,2,1,] <- 
   pTapio[5,2,1,] <- pTapio[1,2,1,]
 pTapio[2,2,2,] <- pTapio[3,2,2,] <- pTapio[4,2,2,] <- 
   pTapio[5,2,2,] <- pTapio[1,2,2,]
 pTapio[2,2,3,] <- pTapio[3,2,3,] <- pTapio[4,2,3,] <- 
-  pTapio[5,2,3,] <- pTapio[1,2,2,]
+  pTapio[5,2,3,] <- pTapio[1,2,3,]
+
