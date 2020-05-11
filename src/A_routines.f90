@@ -983,16 +983,17 @@ END SUBROUTINE calW
 !  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
 !  and the BA after thinnings are applied (ba_thd)
 !***************************************************************
-subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
+subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlimPer)
 
 	implicit none
     real (kind=8),dimension(2) :: baThin
     real (kind=8) :: forType !1 for conifers; 2 for deciduous
 	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
-    real (kind=8) :: BA_lim, BA_thd
-	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,12) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
-	real (kind=8) :: pX(3,12) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
-    real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8
+    real (kind=8) :: BA_lim, BA_thd, BA_limLow, BA_limUp, BA_thdLow, BA_thdUp
+	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,20) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
+	real (kind=8) :: pX(3,20) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:20) equation parameters
+    real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16
+      real (kind=8) :: BAthdPer, BAlimPer
 
  pX = tapioPars(int(siteType), int(ForType),:,:)
  if(ETSmean > pX(1,1)) then !if we are in South Finland
@@ -1006,6 +1007,14 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
 	 p6 = pX(1,10)
 	 p7 = pX(1,11)
 	 p8 = pX(1,12)
+	 p9 = pX(1,13)
+	 p10 = pX(1,14)
+	 p11 = pX(1,15)
+ 	 p12 = pX(1,16)
+	 p13 = pX(1,17)
+	 p14 = pX(1,18)
+	 p15 = pX(1,19)
+	 p16 = pX(1,20)
  elseif(ETSmean <= pX(1,1) .and. ETSmean >= pX(1,2)) then !if we are in Central Finland
 	HthinStart =  pX(2,3)
 	HthinLim =  pX(2,4)
@@ -1017,6 +1026,14 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
 	 p6 = pX(2,10)
 	 p7 = pX(2,11)
 	 p8 = pX(2,12)
+	 p9 = pX(2,13)
+	 p10 = pX(2,14)
+	 p11 = pX(2,15)
+ 	 p12 = pX(2,16)
+	 p13 = pX(2,17)
+	 p14 = pX(2,18)
+	 p15 = pX(2,19)
+	 p16 = pX(2,20)
  else !if we are in Northern Finland
  	HthinStart =  pX(3,3)
 	HthinLim =  pX(3,4)
@@ -1028,17 +1045,27 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin)
 	 p6 = pX(3,10)
 	 p7 = pX(3,11)
 	 p8 = pX(3,12)
+	 p9 = pX(3,13)
+	 p10 = pX(3,14)
+	 p11 = pX(3,15)
+ 	 p12 = pX(3,16)
+	 p13 = pX(3,17)
+	 p14 = pX(3,18)
+	 p15 = pX(3,19)
+	 p16 = pX(3,20)
  endif
 
 
  if(H>HthinStart .and. H<HthinLim) then !!!first check if height is above 12 meters
-     BA_lim = p1*H**3. + p2*H**2. + p3*H + p4
-     BA_thd = p5*H**3. + p6*H**2. + p7*H + p8
-    ! BA_limLow = p1*H**3. + p2*H**2. + p3*H + p4
-    ! BA_thdLow = p5*H**3. + p6*H**2. + p7*H + p8
-    ! BA_limUp = p1*H**3. + p2*H**2. + p3*H + p4
-    ! BA_thdUp = p5*H**3. + p6*H**2. + p7*H + p8
-	! BA_thd= BA_thdLow + (BA_thdUp - BA_thdLow) * BathPer !(0:1)
+    ! BA_lim = p1*H**3. + p2*H**2. + p3*H + p4
+    ! BA_thd = p5*H**3. + p6*H**2. + p7*H + p8
+    BA_limLow = p1*H**3. + p2*H**2. + p3*H + p4
+    BA_limUp = p5*H**3. + p6*H**2. + p7*H + p8
+    BA_lim = BA_limLow + (BA_limUp - BA_limLow) * BAlimPer !(0:1)
+    
+    BA_thdLow = p9*H**3. + p10*H**2. + p11*H + p12
+    BA_thdUp = p13*H**3. + p14*H**2. + p15*H + p16
+	  BA_thd = BA_thdLow + (BA_thdUp - BA_thdLow) * BAthdPer !(0:1)
 	
   baThin(1) = BA_lim
   baThin(2) = BA_thd
