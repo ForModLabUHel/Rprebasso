@@ -1146,7 +1146,7 @@ if(defaultThin == 1.) then
  H = stand_all(11,layer)
  species = int(stand_all(4,layer))
 
- call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio)
+ call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,0.5,0.5)
  BA_lim = BAtapio(1)
  BA_thd = BAtapio(2)
 

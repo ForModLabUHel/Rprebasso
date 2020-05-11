@@ -992,7 +992,7 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlim
     real (kind=8) :: BA_lim, BA_thd, BA_limLow, BA_limUp, BA_thdLow, BA_thdUp
 	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,20) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
 	real (kind=8) :: pX(3,20) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:20) equation parameters
-    real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18
+    real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16
       real (kind=8) :: BAthdPer, BAlimPer
 
  pX = tapioPars(int(siteType), int(ForType),:,:)
