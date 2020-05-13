@@ -5,7 +5,7 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
 		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
 		litterSize,soilCtotInOut,&
-		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars) !energyCut
+		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,BAthdPer,BAlimPer) !energyCut
 
 implicit none
 
@@ -17,7 +17,7 @@ implicit none
  integer, intent(in) :: nYears,nLayers,nSp
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,2,15)
+ real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,2,15),BAthdPer,BAlimPer
  real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
@@ -1146,7 +1146,7 @@ if(defaultThin == 1.) then
  H = stand_all(11,layer)
  species = int(stand_all(4,layer))
 
- call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,0.5,0.5)
+ call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,BAthdPer,BAlimPer)
  BA_lim = BAtapio(1)
  BA_thd = BAtapio(2)
 

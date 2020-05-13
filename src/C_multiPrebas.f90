@@ -7,7 +7,8 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
-		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood,tapioPars) !!energCut
+		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
+		tapioPars,BAthdPer,BAlimPer) !!energCut
 
 implicit none
 
@@ -19,7 +20,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,2,15)
- real (kind=8), intent(inout) :: siteInfo(nSites,10)
+ real (kind=8), intent(inout) :: siteInfo(nSites,10),BAthdPer(nSites),BAlimPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
@@ -73,7 +74,7 @@ do i = 1,nSites
 		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
 		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
-		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars) !energyCut)
+		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,BAthdPer(i),BAlimPer(i)) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
