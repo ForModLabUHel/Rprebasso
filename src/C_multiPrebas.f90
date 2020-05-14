@@ -19,7 +19,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,2,15)
+ real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,3,20)
  real (kind=8), intent(inout) :: siteInfo(nSites,10),BAthdPer(nSites),BAlimPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)

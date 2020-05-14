@@ -17,7 +17,7 @@ implicit none
  integer, intent(in) :: nYears,nLayers,nSp
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,2,15),BAthdPer,BAlimPer
+ real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,3,20),BAthdPer,BAlimPer
  real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
@@ -910,7 +910,7 @@ else
 endif
 endif
  
-  !Perform manual thinning or defoliation events for this time period
+  !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 	STAND_tot = STAND
