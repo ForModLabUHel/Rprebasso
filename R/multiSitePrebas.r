@@ -206,7 +206,6 @@ InitMultiSite <- function(nYearsMS,
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
       Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
-      if(any(Lc<0.)) return("check some Hc>H")
       A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
       multiInitVar[,7,ikj] <- A     
     } 
@@ -231,6 +230,8 @@ InitMultiSite <- function(nYearsMS,
       A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
       multiInitVar[not0,7,ikj] <- A     
     } 
+    LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
+    if(any(LcCheck<0.)) return("check, some Lc is negative")
     # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
     #  p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
     #  p_z <- matrix(pCROBAS[11,multiInitVar[,1,]],nSites,maxNlayers)
