@@ -206,6 +206,7 @@ InitMultiSite <- function(nYearsMS,
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
       Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
+      if(any(Lc<0.)) return("check some Hc>H")
       A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
       multiInitVar[,7,ikj] <- A     
     } 
