@@ -993,7 +993,7 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlim
 	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,20) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
 	real (kind=8) :: pX(3,20) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:20) equation parameters
     real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16
-      real (kind=8) :: BAthdPer, BAlimPer
+    real (kind=8) :: BAthdPer, BAlimPer ! 1 for the upper limit, 0 for the lower limit
 
  pX = tapioPars(int(siteType), int(ForType),:,:)
  if(ETSmean > pX(1,1)) then !if we are in South Finland
@@ -1074,4 +1074,45 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlim
   baThin(2) = 0.
  endif
 end subroutine tapioThin
+!*************************************************************
+
+!tapioClearcut
+
+!subroutine to check out if it's time for clearcut
+
+!*************************************************************
+
+subroutine tapioClearcut(species, siteType, ETSmean, dbh, age, ccTapio, ccPer, ccMature)
+	implicit none
+    LOGICAL :: ccMature 
+    real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
+	real (kind=8) :: siteType, ETSmean, dbh, age !siteType; average ETS of the site, average dbh of the stand 
+	real (kind=8) :: ccTapio(5,3,3,5) !!dimensions are: 1st=SiteType; 2nd = species; 3rd= ETS; 4th=nTapioCC
+	real (kind=8) :: pX(3,5) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
+    real (kind=8) :: dbhLim, dbhLimL, dbhLimU, ageLim
+    real (kind=8) :: ccPer ! 0 = clearcut is done as soon as the first dbh limit is reached, 1 = clearcut is done at the upper dbh limit
+	
+pX = ccTapio(int(siteType), int(species),:,:)
+ if(ETSmean > pX(1,1)) then !if we are in South Finland
+	dbhLimL = pX(1,3)
+	dbhLimU = pX(1,4)
+	ageLim =  pX(1,5)
+ elseif(ETSmean <= pX(1,1) .and. ETSmean >= pX(1,2)) then !if we are in Central Finland
+	dbhLimL = pX(2,3)
+	dbhLimU = pX(2,4)
+	ageLim =  pX(2,5)
+ else !if we are in Northern Finland
+	dbhLimL = pX(3,3)
+	dbhLimU = pX(3,4)
+	ageLim =  pX(3,5)
+ endif
+ 
+ dbhLim = dbhLimL + (dbhLimU - dbhLimL) * ccPer 
+
+ if(dbh>dbhLim .or. age>ageLim) then ! if the limits are met, the stand is ready for clearcut
+	ccMature = .TRUE.
+ else
+	ccMature = .FALSE.
+ endif
+end subroutine tapioClearcut
 !*************************************************************
