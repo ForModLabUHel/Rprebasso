@@ -638,7 +638,6 @@ IMPLICIT NONE
 
     !#########################################################################
     ! Solve the differential equation x'(t) = A(theta)*x(t) + b, x(0) = init
-
 	IF(ss_pred) THEN
 		! Solve DE directly in steady state conditions (time = infinity)
 		! using the formula 0 = x'(t) = A*x + b => x = -A**-1*b
@@ -977,3 +976,139 @@ Wstem = W_c + W_s + Wsh
 
 END SUBROUTINE calW
 
+!***************************************************************
+!  tapioThin
+!
+!  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
+!  and the BA after thinnings are applied (ba_thd)
+!***************************************************************
+subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlimPer)
+
+	implicit none
+    real (kind=8),dimension(2) :: baThin
+    real (kind=8) :: forType !1 for conifers; 2 for deciduous
+	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
+    real (kind=8) :: BA_lim, BA_thd, BA_limLow, BA_limUp, BA_thdLow, BA_thdUp
+	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,20) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
+	real (kind=8) :: pX(3,20) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:20) equation parameters
+    real (kind=8) :: p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16
+    real (kind=8) :: BAthdPer, BAlimPer ! 1 for the upper limit, 0 for the lower limit
+
+ pX = tapioPars(int(siteType), int(ForType),:,:)
+ if(ETSmean > pX(1,1)) then !if we are in South Finland
+	HthinStart =  pX(1,3)
+	HthinLim =  pX(1,4)
+ 	 p1 = pX(1,5)
+	 p2 = pX(1,6)
+	 p3 = pX(1,7)
+ 	 p4 = pX(1,8)
+	 p5 = pX(1,9)
+	 p6 = pX(1,10)
+	 p7 = pX(1,11)
+	 p8 = pX(1,12)
+	 p9 = pX(1,13)
+	 p10 = pX(1,14)
+	 p11 = pX(1,15)
+ 	 p12 = pX(1,16)
+	 p13 = pX(1,17)
+	 p14 = pX(1,18)
+	 p15 = pX(1,19)
+	 p16 = pX(1,20)
+ elseif(ETSmean <= pX(1,1) .and. ETSmean >= pX(1,2)) then !if we are in Central Finland
+	HthinStart =  pX(2,3)
+	HthinLim =  pX(2,4)
+ 	 p1 = pX(2,5)
+	 p2 = pX(2,6)
+	 p3 = pX(2,7)
+ 	 p4 = pX(2,8)
+	 p5 = pX(2,9)
+	 p6 = pX(2,10)
+	 p7 = pX(2,11)
+	 p8 = pX(2,12)
+	 p9 = pX(2,13)
+	 p10 = pX(2,14)
+	 p11 = pX(2,15)
+ 	 p12 = pX(2,16)
+	 p13 = pX(2,17)
+	 p14 = pX(2,18)
+	 p15 = pX(2,19)
+	 p16 = pX(2,20)
+ else !if we are in Northern Finland
+ 	HthinStart =  pX(3,3)
+	HthinLim =  pX(3,4)
+ 	 p1 = pX(3,5)
+	 p2 = pX(3,6)
+	 p3 = pX(3,7)
+ 	 p4 = pX(3,8)
+	 p5 = pX(3,9)
+	 p6 = pX(3,10)
+	 p7 = pX(3,11)
+	 p8 = pX(3,12)
+	 p9 = pX(3,13)
+	 p10 = pX(3,14)
+	 p11 = pX(3,15)
+ 	 p12 = pX(3,16)
+	 p13 = pX(3,17)
+	 p14 = pX(3,18)
+	 p15 = pX(3,19)
+	 p16 = pX(3,20)
+ endif
+
+
+ if(H>HthinStart .and. H<HthinLim) then !!!first check if height is above 12 meters
+    ! BA_lim = p1*H**3. + p2*H**2. + p3*H + p4
+    ! BA_thd = p5*H**3. + p6*H**2. + p7*H + p8
+    BA_limLow = p1*H**3. + p2*H**2. + p3*H + p4
+    BA_limUp = p5*H**3. + p6*H**2. + p7*H + p8
+    BA_lim = BA_limLow + (BA_limUp - BA_limLow) * BAlimPer !(0:1)
+    
+    BA_thdLow = p9*H**3. + p10*H**2. + p11*H + p12
+    BA_thdUp = p13*H**3. + p14*H**2. + p15*H + p16
+	  BA_thd = BA_thdLow + (BA_thdUp - BA_thdLow) * BAthdPer !(0:1)
+	
+  baThin(1) = BA_lim
+  baThin(2) = BA_thd
+ else
+  baThin(1) = 9999999999.9
+  baThin(2) = 0.
+ endif
+end subroutine tapioThin
+!*************************************************************
+
+!tapioClearcut
+
+!subroutine to check out if it's time for clearcut
+!*************************************************************
+subroutine tapioClearcut(species, siteType, ETSmean, dbh, age, ccTapio, ccPer, ccMature)
+	implicit none
+    LOGICAL :: ccMature 
+    real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
+	real (kind=8) :: siteType, ETSmean, dbh, age !siteType; average ETS of the site, average dbh of the stand 
+	real (kind=8) :: ccTapio(5,3,3,5) !!dimensions are: 1st=SiteType; 2nd = species; 3rd= ETS; 4th=nTapioCC
+	real (kind=8) :: pX(3,5) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:5) equation parameters
+    real (kind=8) :: dbhLim, dbhLimL, dbhLimU, ageLim
+    real (kind=8) :: ccPer ! 0 = clearcut is done as soon as the first dbh limit is reached, 1 = clearcut is done at the upper dbh limit
+	
+pX = ccTapio(int(siteType), int(species),:,:)
+ if(ETSmean > pX(1,1)) then !if we are in South Finland
+	dbhLimL = pX(1,3)
+	dbhLimU = pX(1,4)
+	ageLim =  pX(1,5)
+ elseif(ETSmean <= pX(1,1) .and. ETSmean >= pX(1,2)) then !if we are in Central Finland
+	dbhLimL = pX(2,3)
+	dbhLimU = pX(2,4)
+	ageLim =  pX(2,5)
+ else !if we are in Northern Finland
+	dbhLimL = pX(3,3)
+	dbhLimU = pX(3,4)
+	ageLim =  pX(3,5)
+ endif
+ 
+ dbhLim = dbhLimL + (dbhLimU - dbhLimL) * ccPer 
+ if(dbh>dbhLim .or. age>ageLim) then ! if the limits are met, the stand is ready for clearcut
+	ccMature = .TRUE.
+ else
+	ccMature = .FALSE.
+ endif
+end subroutine tapioClearcut
+!*************************************************************
