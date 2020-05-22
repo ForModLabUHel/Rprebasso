@@ -638,7 +638,6 @@ IMPLICIT NONE
 
     !#########################################################################
     ! Solve the differential equation x'(t) = A(theta)*x(t) + b, x(0) = init
-
 	IF(ss_pred) THEN
 		! Solve DE directly in steady state conditions (time = infinity)
 		! using the formula 0 = x'(t) = A*x + b => x = -A**-1*b
@@ -983,12 +982,12 @@ END SUBROUTINE calW
 !  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
 !  and the BA after thinnings are applied (ba_thd)
 !***************************************************************
-subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlimPer)
+subroutine tapioThin(forType,siteType,ETSmean,Hdom,tapioPars,baThin,BAthdPer, BAlimPer)
 
 	implicit none
     real (kind=8),dimension(2) :: baThin
     real (kind=8) :: forType !1 for conifers; 2 for deciduous
-	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
+	real (kind=8) :: siteType,ETSmean, Hdom !siteType; average ETS of the site, average height of the stand before thinning 
     real (kind=8) :: BA_lim, BA_thd, BA_limLow, BA_limUp, BA_thdLow, BA_thdUp
 	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,20) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
 	real (kind=8) :: pX(3,20) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:20) equation parameters
@@ -1056,15 +1055,15 @@ subroutine tapioThin(forType,siteType,ETSmean,H,tapioPars,baThin,BAthdPer, BAlim
  endif
 
 
- if(H>HthinStart .and. H<HthinLim) then !!!first check if height is above 12 meters
+ if(Hdom>HthinStart .and. Hdom<HthinLim) then !!!first check if height is above 12 meters
     ! BA_lim = p1*H**3. + p2*H**2. + p3*H + p4
     ! BA_thd = p5*H**3. + p6*H**2. + p7*H + p8
-    BA_limLow = p1*H**3. + p2*H**2. + p3*H + p4
-    BA_limUp = p5*H**3. + p6*H**2. + p7*H + p8
+    BA_limLow = p1*Hdom**3. + p2*Hdom**2. + p3*Hdom + p4
+    BA_limUp = p5*Hdom**3. + p6*Hdom**2. + p7*Hdom + p8
     BA_lim = BA_limLow + (BA_limUp - BA_limLow) * BAlimPer !(0:1)
     
-    BA_thdLow = p9*H**3. + p10*H**2. + p11*H + p12
-    BA_thdUp = p13*H**3. + p14*H**2. + p15*H + p16
+    BA_thdLow = p9*Hdom**3. + p10*Hdom**2. + p11*Hdom + p12
+    BA_thdUp = p13*Hdom**3. + p14*Hdom**2. + p15*Hdom + p16
 	  BA_thd = BA_thdLow + (BA_thdUp - BA_thdLow) * BAthdPer !(0:1)
 	
   baThin(1) = BA_lim
@@ -1079,9 +1078,7 @@ end subroutine tapioThin
 !tapioClearcut
 
 !subroutine to check out if it's time for clearcut
-
 !*************************************************************
-
 subroutine tapioClearcut(species, siteType, ETSmean, dbh, age, ccTapio, ccPer, ccMature)
 	implicit none
     LOGICAL :: ccMature 
@@ -1108,7 +1105,6 @@ pX = ccTapio(int(siteType), int(species),:,:)
  endif
  
  dbhLim = dbhLimL + (dbhLimU - dbhLimL) * ccPer 
-
  if(dbh>dbhLim .or. age>ageLim) then ! if the limits are met, the stand is ready for clearcut
 	ccMature = .TRUE.
  else
@@ -1116,3 +1112,54 @@ pX = ccTapio(int(siteType), int(species),:,:)
  endif
 end subroutine tapioClearcut
 !*************************************************************
+
+
+!*************************************************************
+!tapioFirstThin
+
+!subroutine to do the first commercial thinning according to the Tapio rules
+!selection thinning for pine or one thinning model for spruce has to be done manually!
+!right now function does not check if stand is too old for first thinning!
+!*******************************************
+
+subroutine tapioFirstThin(species, siteType, ETSmean, density, Hdom, ftTapio, hPer, densPer, early)
+	implicit none
+    LOGICAL :: early ! if first thinning is done early; matters only for northern finland 
+    real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
+	real (kind=8) :: siteType, ETSmean, dbh, density, Hdom !siteType; average ETS of the site, average dbh of the stand 
+	real (kind=8) :: ftTapio(5,3,3,6) !!dimensions are: 1st=SiteType; 2nd = species; 3rd = ETS; 4th = nftTapio
+	real (kind=8) :: pX(3,6) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning
+    real (kind=8) :: hLimL, hLimU, hLim, densityL, densityU, densityNew, densThd
+    real (kind=8) :: hPer, densPer ! hPer=0 first thinning is done as soon as the first height limit is reached, hPer=1 clearcut is done at the upper height limit
+! densPer for adjusting the thinning result the same way
+	
+pX = ftTapio(int(siteType), int(species),:,:)
+ if(ETSmean > pX(1,1)) then !if we are in South or Central Finland
+	densThd = pX(1,2)
+	hLimL = pX(1,3)
+	hLimU = pX(1,4)
+	densityL = pX(1,5)
+	densityU = pX(1,6)
+ else if(early) then !parameters for early first thinning North Finland
+		densThd = pX(2,2)
+		hLimL = pX(2,3)
+		hLimU = pX(2,4)
+		densityL = pX(2,5)
+		densityU = pX(2,6)
+ else !parameters for late first thinning North Finland 
+		densThd = pX(3,2)
+		hLimL = pX(3,3)
+		hLimU = pX(3,4)
+		densityL = pX(3,5)
+		densityU = pX(3,6)
+ endif
+ 
+ hLim = hLimL + (hLimU - hLimL) * hPer 
+ densityNew = densityL + (densityU+densityL)*densPer
+
+ ! if height is over the limit and density high enough, thinning is made to the new density
+ if(Hdom>hLim .and. density>(densityU*(1+densThd))) then 
+	density = densityNew
+
+ endif
+end subroutine tapioFirstThin
