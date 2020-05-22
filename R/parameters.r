@@ -245,6 +245,8 @@ pTapio[2,2,3,] <- pTapio[3,2,3,] <- pTapio[4,2,3,] <-
   pTapio[5,2,3,] <- pTapio[1,2,3,]
 
 
+
+#parameters for tapioClearcut subroutine
 ccTapio <- array(NA,dim = c(5,3,3,5),dimnames = list(
   c("sType1","sType2","sType3","sType4","sType5"),
   c("pine","spruce", "betula pendula"),
@@ -316,4 +318,81 @@ ccTapio[2,3,3,1:5] <- ccTapio[1,3,3,1:5]
 ccTapio[3,3,3,1:5] <- c(1200, 1000, 21, 23, 60)
 ccTapio[4,3,3,1:5] <- c(1200, 1000, 999, 999, 60)
 ccTapio[5,3,3,1:5] <- c(1200, 1000, 999, 999, 60)
+
+
+# parameters for tapioFirstThin subroutine
+# no thinning types included
+ftTapio <- array(NA,dim = c(5,3,3,6),dimnames = list(
+  c("sType1","sType2","sType3","sType4","sType5"),
+  c("pine","spruce", "betula pendula"),
+  c("SouthCentre","North early", "North late"), ### different parameters for early and late first thinning in Northern Finland
+#  c("selection", "low", "only one"), # thinning type
+  c("ETSthrd", ###ets threshold, 
+    "thinMin-%", ### how many % over the upper thinning result there needs to be wood to do the thinning (1 is 100 %)
+    "hLimL", "hLimU", ###height limits lower and upper
+    "densL", "densU") ### thinning result lower and upper
+))
+
+#siteType 1-5, pine, South & Centre Finland
+ftTapio[1,1,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[2,1,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[3,1,1,1:6] <- c(1000, 0.2, 13, 15, 900, 1100)
+ftTapio[4,1,1,1:6] <- c(1000, 0.2, 13, 15, 900, 1100)
+ftTapio[5,1,1,1:6] <- c(1000, 0.2, 11, 13, 800, 1000)
+
+#siteType 1-5, pine, North Finland early
+ftTapio[1,1,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[2,1,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[3,1,2,1:6] <- c(1000, 0.2, 10, 12, 1100, 1400)
+ftTapio[4,1,2,1:6] <- c(1000, 0.2, 10, 12, 900, 1100)
+ftTapio[5,1,2,1:6] <- c(1000, 0.2, 10, 12, 800, 1000)
+
+#siteType 1-5, pine, North Finland late
+ftTapio[1,1,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[2,1,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[3,1,3,1:6] <- c(1000, 0.2, 12, 14, 900, 1100)
+ftTapio[4,1,3,1:6] <- c(1000, 0.2, 12, 14, 700, 900)
+ftTapio[5,1,3,1:6] <- c(1000, 0.2, 12, 14, 600, 800)
+
+#siteType 1-5, spruce, South & Centre Finland
+ftTapio[1,2,1,1:6] <- c(1000, 0.2, 13, 16, 900, 1100)
+ftTapio[2,2,1,1:6] <- c(1000, 0.2, 13, 16, 900, 1100)
+ftTapio[3,2,1,1:6] <- c(1000, 0.2, 13, 16, 900, 1100)
+ftTapio[4,2,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[5,2,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, spruce, North Finland early
+ftTapio[1,2,2,1:6] <- c(1000, 0.2, 10, 12, 1100, 1400)
+ftTapio[2,2,2,1:6] <- c(1000, 0.2, 10, 12, 1100, 1400)
+ftTapio[3,2,2,1:6] <- c(1000, 0.2, 10, 12, 1100, 1400)
+ftTapio[4,2,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[5,2,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, spruce, North Finland late
+ftTapio[1,2,3,1:6] <- c(1000, 0.2, 12, 14, 900, 1100)
+ftTapio[2,2,3,1:6] <- c(1000, 0.2, 12, 14, 900, 1100)
+ftTapio[3,2,3,1:6] <- c(1000, 0.2, 12, 14, 900, 1100)
+ftTapio[4,2,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[5,2,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, Betula pendula, South & Centre Finland
+ftTapio[1,3,1,1:6] <- c(1000, 0.2, 13, 15, 700, 800)
+ftTapio[2,3,1,1:6] <- c(1000, 0.2, 13, 15, 700, 800)
+ftTapio[3,3,1,1:6] <- c(1000, 0.2, 13, 15, 700, 800)
+ftTapio[4,3,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[5,3,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, Betula pendula, North Finland early
+ftTapio[1,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[2,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[3,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[4,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[5,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, Betula pendula, North Finland late
+ftTapio[1,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[2,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[3,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[4,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+ftTapio[5,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
 
