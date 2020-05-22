@@ -983,12 +983,12 @@ END SUBROUTINE calW
 !  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
 !  and the BA after thinnings are applied (ba_thd)
 !***************************************************************
-subroutine tapioThin(forType, siteType, ETSmean, Hdom, tapioPars, baThin, BAthdPer, BAlimPer)
+subroutine tapioThin(forType, siteType, ETSmean, H, tapioPars, baThin, BAthdPer, BAlimPer)
 
 	implicit none
     real (kind=8),dimension(2) :: baThin
     real (kind=8) :: forType !1 for conifers; 2 for deciduous
-	real (kind=8) :: siteType,ETSmean, Hdom !siteType; average ETS of the site, average height of the stand before thinning 
+	real (kind=8) :: siteType,ETSmean, H !siteType; average ETS of the site, average height of the stand before thinning 
     real (kind=8) :: BA_lim, BA_thd, BA_limLow, BA_limUp, BA_thdLow, BA_thdUp
 	real (kind=8) :: HthinStart,HthinLim, ETSlim, tapioPars(5,2,3,20) !!dimensions are: 1st=SiteType; 2nd = ForType; 3rd= ETS; 4th=nTapioPars
 	real (kind=8) :: pX(3,20) !pX(1) = ETS threshold; pX(2)= Hlim;  pX(3:20) equation parameters
@@ -1056,15 +1056,15 @@ subroutine tapioThin(forType, siteType, ETSmean, Hdom, tapioPars, baThin, BAthdP
  endif
 
 
- if(Hdom>HthinStart .and. Hdom<HthinLim) then !!!first check if height is above 12 meters
+ if(H>HthinStart .and. H<HthinLim) then !!!first check if height is above 12 meters
     ! BA_lim = p1*H**3. + p2*H**2. + p3*H + p4
     ! BA_thd = p5*H**3. + p6*H**2. + p7*H + p8
-    BA_limLow = p1*Hdom**3. + p2*Hdom**2. + p3*Hdom + p4
-    BA_limUp = p5*Hdom**3. + p6*Hdom**2. + p7*Hdom + p8
+    BA_limLow = p1*H**3. + p2*H**2. + p3*H + p4
+    BA_limUp = p5*H**3. + p6*H**2. + p7*H + p8
     BA_lim = BA_limLow + (BA_limUp - BA_limLow) * BAlimPer !(0:1)
     
-    BA_thdLow = p9*Hdom**3. + p10*Hdom**2. + p11*Hdom + p12
-    BA_thdUp = p13*Hdom**3. + p14*Hdom**2. + p15*Hdom + p16
+    BA_thdLow = p9*H**3. + p10*H**2. + p11*H + p12
+    BA_thdUp = p13*H**3. + p14*H**2. + p15*H + p16
 	BA_thd = BA_thdLow + (BA_thdUp - BA_thdLow) * BAthdPer !(0:1)
 	
   baThin(1) = BA_lim
