@@ -396,3 +396,56 @@ ftTapio[3,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
 ftTapio[4,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
 ftTapio[5,3,3,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
 
+# parameters for tapioTend subroutine
+# exception: dense sown pine stands (VT) 3-4 m 2500-3000 - not included now
+tTapio <- array(NA,dim = c(5,3,2,6),dimnames = list(
+  c("sType1","sType2","sType3","sType4","sType5"),
+  c("pine","spruce", "betula pendula"),
+  c("SouthCentre","North"), 
+  c("ETSthrd", ###ets threshold, 
+    "thinMin-%", ### how many % over the upper thinning result there needs to be wood to do the thinning (1 is 100 %)
+    "hLimL", "hLimU", ###height limits lower and upper
+    "densL", "densU") ### thinning result lower and upper
+))
+
+#siteType 1-5, pine, South & Centre Finland
+tTapio[1,1,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[2,1,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[3,1,1,1:6] <- c(1000, 0.2, 5, 7, 2000, 2200)
+tTapio[4,1,1,1:6] <- c(1000, 0.2, 5, 7, 2000, 2200)
+tTapio[5,1,1,1:6] <- c(1000, 0.2, 3, 5, 2000, 2200)
+
+#siteType 1-5, pine, North Finland 
+tTapio[1,1,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[2,1,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[3,1,2,1:6] <- c(1000, 0.2, 3, 5, 2000, 2200)
+tTapio[4,1,2,1:6] <- c(1000, 0.2, 3, 5, 2000, 2200)
+tTapio[5,1,2,1:6] <- c(1000, 0.2, 3, 5, 2000, 2200)
+
+#siteType 1-5, spruce, South & Centre Finland
+tTapio[1,2,1,1:6] <- c(1000, 0.2, 3, 4, 1800, 2000)
+tTapio[2,2,1,1:6] <- c(1000, 0.2, 3, 4, 1800, 2000)
+tTapio[3,2,1,1:6] <- c(1000, 0.2, 3, 4, 1800, 2000)
+tTapio[4,2,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[5,2,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, spruce, North Finland 
+tTapio[1,2,2,1:6] <- c(1000, 0.2, 2, 4, 1800, 2000)
+tTapio[2,2,2,1:6] <- c(1000, 0.2, 2, 4, 1800, 2000)
+tTapio[3,2,2,1:6] <- c(1000, 0.2, 2, 4, 1800, 2000)
+tTapio[4,2,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[5,2,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, Betula pendula, South & Centre Finland
+tTapio[1,3,1,1:6] <- c(1000, 0.2, 4, 5, 1600, 1600)
+tTapio[2,3,1,1:6] <- c(1000, 0.2, 4, 5, 1600, 1600)
+tTapio[3,3,1,1:6] <- c(1000, 0.2, 4, 5, 1600, 1600)
+tTapio[4,3,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[5,3,1,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+
+#siteType 1-5, Betula pubescens, North Finland 
+tTapio[1,3,2,1:6] <- c(1000, 0.2, 4, 7, 2000, 2500)
+tTapio[2,3,2,1:6] <- c(1000, 0.2, 4, 7, 2000, 2500)
+tTapio[3,3,2,1:6] <- c(1000, 0.2, 4, 7, 2000, 2500)
+tTapio[4,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
+tTapio[5,3,2,1:6] <- c(1000, 0.2, 999, 999, 99999, 99999)
