@@ -234,6 +234,7 @@ InitMultiSite <- function(nYearsMS,
       A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
       multiInitVar[not0,7,ikj] <- A     
     } 
+    LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
     if(any(LcCheck<0.)) return("check, some Lc is negative")
     # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
     #  p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
