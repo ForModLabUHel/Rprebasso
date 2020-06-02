@@ -1163,3 +1163,47 @@ pX = ftTapio(int(siteType), int(species),:,:)
 
  endif
 end subroutine tapioFirstThin
+
+
+!*************************************************************
+!tapioTend
+
+!subroutine to do the non-commercial thinning (tending of seedling stand) according to the Tapio rules
+!tending for dense sown pine stands has to be done manually!
+!right now function does not check if stand is too old for tending!
+!*******************************************
+
+subroutine tapioTend(species, siteType, ETSmean, density, Hdom, tTapio, hPer, densPer)
+	implicit none
+    real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
+	real (kind=8) :: siteType, ETSmean, dbh, density, Hdom !siteType; average ETS of the site, average dbh of the stand 
+	real (kind=8) :: tTapio(5,3,2,6) !!dimensions are: 1st=SiteType; 2nd = species; 3rd = ETS; 4th = nftTapio
+	real (kind=8) :: pX(2,6) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning
+    real (kind=8) :: hLimL, hLimU, hLim, densityL, densityU, densityNew, densThd
+    real (kind=8) :: hPer, densPer ! hPer=0 first thinning is done as soon as the first height limit is reached, hPer=1 clearcut is done at the upper height limit
+! densPer for adjusting the thinning result the same way
+	
+pX = tTapio(int(siteType), int(species),:,:)
+ if(ETSmean > pX(1,1)) then !if we are in South or Central Finland
+	densThd = pX(1,2)
+	hLimL = pX(1,3)
+	hLimU = pX(1,4)
+	densityL = pX(1,5)
+	densityU = pX(1,6)
+ else !if we are in North Finland
+		densThd = pX(2,2)
+		hLimL = pX(2,3)
+		hLimU = pX(2,4)
+		densityL = pX(2,5)
+		densityU = pX(2,6)
+ endif
+ 
+ hLim = hLimL + (hLimU - hLimL) * hPer 
+ densityNew = densityL + (densityU+densityL)*densPer
+
+ ! if height is over the limit and density high enough, thinning is made to the new density
+ if(Hdom>hLim .and. density>(densityU*(1+densThd))) then 
+	density = densityNew
+
+ endif
+end subroutine tapioTend
