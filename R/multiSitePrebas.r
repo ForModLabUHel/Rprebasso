@@ -389,6 +389,7 @@ regionPrebas <- function(multiSiteInit,
                          minDharv = 999.){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
+  if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(any(is.na(HarvLim))) HarvLim[which(is.na(HarvLim))] <- matrix(0.,multiSiteInit$maxYears,2)
   
   siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
