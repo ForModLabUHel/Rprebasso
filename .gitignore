@@ -2,3 +2,13 @@
 .Rhistory
 .RData
 .Ruserdata
+src/Rprebasso.dll
+src/A_routines.o
+src/B_prebas.o
+src/C_multiPrebas.o
+src/C_regionPrebas.o
+src/call_preles.o
+src/gpp.o
+src/initruns.o
+src/preles.o
+src/water.o
