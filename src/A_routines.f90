@@ -1122,13 +1122,13 @@ end subroutine tapioClearcut
 !right now function does not check if stand is too old for first thinning!
 !*******************************************
 
-subroutine tapioFirstThin(species, siteType, ETSmean, density, Hdom, ftTapio, hPer, densPer, early)
+subroutine tapioFirstThin(species, siteType, ETSmean, density, Hdom, dbh, ftTapio, hPer, densPer, early)
 	implicit none
     LOGICAL :: early ! if first thinning is done early; matters only for northern finland 
     real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
 	real (kind=8) :: siteType, ETSmean, dbh, density, Hdom !siteType; average ETS of the site, average dbh of the stand 
-	real (kind=8) :: ftTapio(5,3,3,6) !!dimensions are: 1st=SiteType; 2nd = species; 3rd = ETS; 4th = nftTapio
-	real (kind=8) :: pX(3,6) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning
+	real (kind=8) :: ftTapio(5,3,3,7) !!dimensions are: 1st=SiteType; 2nd = species; 3rd = ETS; 4th = nftTapio
+	real (kind=8) :: pX(3,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning
     real (kind=8) :: hLimL, hLimU, hLim, densityL, densityU, densityNew, densThd
     real (kind=8) :: hPer, densPer ! hPer=0 first thinning is done as soon as the first height limit is reached, hPer=1 clearcut is done at the upper height limit
 ! densPer for adjusting the thinning result the same way
@@ -1177,8 +1177,8 @@ subroutine tapioTend(species, siteType, ETSmean, density, Hdom, tTapio, hPer, de
 	implicit none
     real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
 	real (kind=8) :: siteType, ETSmean, dbh, density, Hdom !siteType; average ETS of the site, average dbh of the stand 
-	real (kind=8) :: tTapio(5,3,2,6) !!dimensions are: 1st=SiteType; 2nd = species; 3rd = ETS; 4th = nftTapio
-	real (kind=8) :: pX(2,6) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning
+	real (kind=8) :: tTapio(5,3,2,7) !!dimensions are: 1st=SiteType; 2nd = species; 3rd = ETS; 4th = nftTapio
+	real (kind=8) :: pX(2,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning
     real (kind=8) :: hLimL, hLimU, hLim, densityL, densityU, densityNew, densThd
     real (kind=8) :: hPer, densPer ! hPer=0 first thinning is done as soon as the first height limit is reached, hPer=1 clearcut is done at the upper height limit
 ! densPer for adjusting the thinning result the same way
@@ -1191,11 +1191,11 @@ pX = tTapio(int(siteType), int(species),:,:)
 	densityL = pX(1,5)
 	densityU = pX(1,6)
  else !if we are in North Finland
-		densThd = pX(2,2)
-		hLimL = pX(2,3)
-		hLimU = pX(2,4)
-		densityL = pX(2,5)
-		densityU = pX(2,6)
+	densThd = pX(2,2)
+	hLimL = pX(2,3)
+	hLimU = pX(2,4)
+	densityL = pX(2,5)
+	densityU = pX(2,6)
  endif
  
  hLim = hLimL + (hLimU - hLimL) * hPer 
@@ -1207,3 +1207,59 @@ pX = tTapio(int(siteType), int(species),:,:)
 
  endif
 end subroutine tapioTend
+
+!*****************************************
+! chooseThin
+! subroutine to pick the right thinning function: returns thinning = 1 for tapioTend, 2 for tapioFirstThin and 3 for tapioThin
+!*****************************************
+
+subroutine chooseThin(species, siteType, ETSmean, density, Hdom, tTapio, ftTapio, thinning)
+	implicit none
+    real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
+	real (kind=8) :: thinning ! 1 for tapioTend, 2 for tapioFirstThin, 3 for tapioThin
+	real (kind=8) :: siteType, ETSmean, density, Hdom !siteType; average ETS of the site
+	real (kind=8) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) 
+	real (kind=8) :: pX1(3,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning; pX(7) height limit to move on to next thinning function
+	real (kind=8) :: pX2(2,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning; pX(7)	height limit to move on to next thinning function
+    real (kind=8) :: densityU1, hNext1, densityU2, hNext2
+
+! log for testing 
+!open(1, file = "chooseThinLog.txt")
+	
+! parameters for first thinning
+pX1 = ftTapio(int(siteType), int(species),:,:)
+ if(ETSmean > pX1(1,1)) then !if we are in South or Central Finland
+	densityU1 = pX1(1,6)
+	hNext1 = pX1(1,7)
+ else 
+	densityU1 = pX1(2,6)
+	hNext1 = pX1(2,7)
+ endif
+ 
+! parameters for tending
+pX2 = tTapio(int(siteType), int(species),:,:)
+ if(ETSmean > pX2(1,1)) then !if we are in South or Central Finland
+	densityU2 = pX2(1,6)
+	hNext2 = pX2(1,7)
+ else 
+	densityU2 = pX2(2,6)
+	hNext2 = pX2(2,7)
+ endif
+
+! writing test log 
+!write(1, *) "first thinning: density under", densityU1, "stems/ha or dheight over", hNext1, &
+!	"m; tending: density under", densityU2, "stems/ha or dheight over", hNext2, "m"
+
+! if the stand is already thinner than the thinning result or the dominant height is over the limit, we move on to tapioThin subroutine
+ if(density < densityU1 .or. Hdom > hNext1) then
+	thinning = 3 
+ else if(density < densityU2 .or. Hdom > hNext2) then
+	thinning = 2
+ else 
+	thinning = 1
+ endif
+
+ ! closing test log
+!close(1) 
+	
+end subroutine chooseThin
