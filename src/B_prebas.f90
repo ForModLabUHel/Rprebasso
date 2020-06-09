@@ -59,7 +59,7 @@ implicit none
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
  real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma,par_H0
- real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30)
+ real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30), thinningType = 0.
 
 !management routines
  real (kind=8) :: A_clearcut, D_clearcut, BAr(nLayers), BA_tot,BA_lim, BA_thd, ETSthres = 1000
@@ -1145,11 +1145,14 @@ if(defaultThin == 1.) then
  layer = int(domSp(1))
  H = stand_all(11,layer)
  species = int(stand_all(4,layer))
-
+ 
+ !Ntot = sum(STAND_all(17,:))    !!!###thin
+ !call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    !!!###thin
+ ! ifthinningType    !!!###thin
  call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,BAthdPer,BAlimPer)
  BA_lim = BAtapio(1)
  BA_thd = BAtapio(2)
-
+ ! thinningType == 1 .and. Hdom>Hlim .or. .....    !!!###thin
  if (BA_tot > BA_lim) then
   do ij = 1, nLayers
 !ij=1
