@@ -1146,14 +1146,33 @@ if(defaultThin == 1.) then
  H = stand_all(11,layer)
  species = int(stand_all(4,layer))
  
- !Ntot = sum(STAND_all(17,:))    !!!###thin
- !call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    !!!###thin
- ! ifthinningType    !!!###thin
- call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,BAthdPer,BAlimPer)
- BA_lim = BAtapio(1)
- BA_thd = BAtapio(2)
- ! thinningType == 1 .and. Hdom>Hlim .or. .....    !!!###thin
- if (BA_tot > BA_lim) then
+ !! ######## here begin my changes 
+ !! hPer, densPer, early etc. parameters need to be set !!
+ 
+ Ntot = sum(STAND_all(17,:))
+	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
+ call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    
+ if(thinningType == 3) then    
+	call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,BAthdPer,BAlimPer)
+	BA_lim = BAtapio(1) ! BA limit to start thinning
+	BA_thd = BAtapio(2) ! BA after thinning
+ else if(thinningType == 2) then
+	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,hPer,densPer,early,output)
+	Hdom_lim = output(1) ! Hdom limit to start thinning
+	dens_lim = output(2) ! density limit to start thinning; both need to be reached
+	dens_after = output(3) ! density after thinning
+ else if(thinningType == 1) then
+	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,hPer,densPer,output)
+	Hdom_lim = output(1)! Hdom limit to start thinning
+	dens_lim = output(2) ! density limit to start thinning; both need to be reached
+	dens_after = output(3) ! density after thinning
+ endif
+
+ if(thinningType == 3 .and. BA_tot > BA_lim .or. thinningType < 3 .and. H > Hdom_lim .and. density > dens_lim) then
+
+!! ######## Here end my changes !! there's now no conversion between density and BA, needs fixing !!
+
+! if (BA_tot > BA_lim) then
   do ij = 1, nLayers
 !ij=1
    if(stand_all(17,ij)>0.) then
