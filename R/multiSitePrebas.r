@@ -34,13 +34,13 @@ InitMultiSite <- function(nYearsMS,
                           smoothYear=5,
                           HcModV=2,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
                           tapioPars=pTapio,
-                          BAthdPer = NA,
-                          BAlimPer = NA
+                          thdPer = NA,
+                          limPer = NA
 ){  
   
   nSites <- length(nYearsMS)
-  if(all(is.na(BAthdPer))) BAthdPer <- rep(0.5,nSites)
-  if(all(is.na(BAlimPer))) BAlimPer <- rep(0.5,nSites)
+  if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
+  if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118),nSites,12,byrow = T) ###default values for nspecies and site type = 3
@@ -339,8 +339,8 @@ InitMultiSite <- function(nYearsMS,
     smoothP0 = smoothP0,
     smoothETS = smoothETS,
     tapioPars=tapioPars,
-    BAthdPer = BAthdPer,
-    BAlimPer = BAlimPer
+    thdPer = thdPer,
+    limPer = limPer
   )
   return(multiSiteInit)
 }
@@ -386,8 +386,8 @@ multiPrebas <- function(multiSiteInit){
                      yassoRun=as.double(multiSiteInit$yassoRun),
                      multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
                      tapioPars = as.array(multiSiteInit$tapioPars),
-                     BAthdPer=as.double(multiSiteInit$BAthdPer),
-                     BAlimPer=as.double(multiSiteInit$BAlimPer))
+                     thdPer=as.double(multiSiteInit$thdPer),
+                     limPer=as.double(multiSiteInit$limPer))
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -447,8 +447,8 @@ regionPrebas <- function(multiSiteInit,
                      yassoRun=as.double(multiSiteInit$yassoRun),
                      multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
                      tapioPars = as.array(multiSiteInit$tapioPars),
-                     BAthdPer=as.double(multiSiteInit$BAthdPer),
-                     BAlimPer=as.double(multiSiteInit$BAlimPer))
+                     thdPer=as.double(multiSiteInit$thdPer),
+                     limPer=as.double(multiSiteInit$limPer))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas

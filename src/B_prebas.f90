@@ -5,7 +5,7 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
 		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
 		litterSize,soilCtotInOut,&
-		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,BAthdPer,BAlimPer) !energyCut
+		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer) !energyCut
 
 implicit none
 
@@ -17,7 +17,7 @@ implicit none
  integer, intent(in) :: nYears,nLayers,nSp
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,3,20),BAthdPer,BAlimPer
+ real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,3,20),thdPer,limPer
  real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
@@ -86,8 +86,8 @@ implicit none
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
- logical :: doThin, early = 0
- real (kind=8) :: tTapio(5,3,2,7), ftTapio(5,3,3,7), thinningType, Hdom
+ logical :: doThin, early = .false.
+ real (kind=8) :: tTapio(5,3,2,7), ftTapio(5,3,3,7), Hdom
  
 
   ! open(1,file="test1.txt")
@@ -1156,39 +1156,39 @@ if(defaultThin == 1.) then
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    
  if(thinningType == 3) then    
-	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,BAthdPer,BAlimPer)  
+	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
 	BA_thd = BAtapio(2) ! BA after thinning
 	if(BA_tot > BA_lim) then 
-		doThin = 1
+		doThin = .true.
 	else
-		doThin = 0
+		doThin = .false.
 	endif
  else if(thinningType == 2) then
-	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,hPer,densPer,early,tapioOut)
+	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
 	Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
 	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
 	dens_thd = tapioOut(3) ! density after thinning
-	if(Hdom > Hdom_lim .and. density > dens_lim) then 
-		doThin = 1
+	if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
+		doThin = .true.
 	else
-		doThin = 0
+		doThin = .false.
 	endif
  else if(thinningType == 1) then
-	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,hPer,densPer,tapioOut)
+	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
 	Hdom_lim = tapioOut(1)! Hdom limit to start thinning
 	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
 	dens_thd = tapioOut(3) ! density after thinning
-	if(Hdom > Hdom_lim .and. density > dens_lim) then 
-		doThin = 1
+	if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
+		doThin = .true.
 	else
-		doThin = 0
+		doThin = .false.
 	endif
  endif
  
  
 
-if(doThin == 1) then
+if(doThin) then
 
   do ij = 1, nLayers
 
