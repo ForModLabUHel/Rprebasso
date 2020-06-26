@@ -5,11 +5,11 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
 		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
 		litterSize,soilCtotInOut,&
-		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,BAthdPer,BAlimPer) !energyCut
+		defaultThin,ClCut,energyCut,inDclct,inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer) !energyCut
 
 implicit none
 
- integer, parameter :: nVar=54,npar=41, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=54,npar=43, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  ! logical steadystate_pred= .false.
@@ -17,7 +17,7 @@ implicit none
  integer, intent(in) :: nYears,nLayers,nSp
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,3,20),BAthdPer,BAlimPer
+ real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,3,20),thdPer,limPer
  real (kind=8), intent(inout) :: thinning(nThinning,9)
  real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
  real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
@@ -63,6 +63,7 @@ implicit none
 
 !management routines
  real (kind=8) :: A_clearcut, D_clearcut, BAr(nLayers), BA_tot,BA_lim, BA_thd, ETSthres = 1000
+ real (kind=8) :: dens_thd, dens_lim, Hdom_lim
 
 !define varibles
  real (kind=8) :: LAT, LONG, sitetype, P0, age, meantemp, mintemp, maxtemp, rainfall, ETS
@@ -84,8 +85,9 @@ implicit none
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
- real (kind=8) :: ETSmean, BAtapio(2)
-
+ real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
+ logical :: doThin, early = .false.
+ real (kind=8) :: tTapio(5,3,2,7), ftTapio(5,3,3,7), Hdom
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -1135,27 +1137,10 @@ if (ClCut == 1.) then
  endif
 endif
 
-!!!!test for thinnings!!!!
- !!!!!!!for coniferous dominated stands!!!!!!
-if(defaultThin == 1.) then
-! sitetype = siteInfo(3)
- BA_tot = sum(stand_all(13,:))!+stand_all(13,2)+stand_all(13,3)
- BAr = stand_all(13,:)/BA_tot
- domSp = maxloc(STAND_all(13,:))
- layer = int(domSp(1))
- H = stand_all(11,layer)
- species = int(stand_all(4,layer))
- 
- !Ntot = sum(STAND_all(17,:))    !!!###thin
- !call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    !!!###thin
- ! ifthinningType    !!!###thin
- call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,BAthdPer,BAlimPer)
- BA_lim = BAtapio(1)
- BA_thd = BAtapio(2)
- ! thinningType == 1 .and. Hdom>Hlim .or. .....    !!!###thin
- if (BA_tot > BA_lim) then
+if(doThin) then
+
   do ij = 1, nLayers
-!ij=1
+
    if(stand_all(17,ij)>0.) then
     STAND_tot = stand_all(:,ij)
 	species = int(stand_all(4,ij))
@@ -1196,18 +1181,29 @@ if(defaultThin == 1.) then
     par_rhof1 = 0.!param(20)
     par_Cr2 = 0.!param(24)
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
-    BA_tot = BA_thd
-    BA = BAr(ij) * BA_thd
-    if(par_sarShp==1.) then
-     H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
-     D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
-    else
-     H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
-     D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
-    endif
-    stand_all(13,ij) = BA
-    Nold = stand_all(17,ij)
-    N = BA/(pi*((D/2./100.)**2.))
+	Nold = stand_all(17,ij)
+	
+	if(thinningType == 1 .or. thinningType == 2) then
+		! N = number of trees in the current layer after thinning
+		N = (stand_all(17,ij)/Ntot) * dens_thd
+		H = stand_all(11,ij)
+		D = stand_all(12,ij)
+		BA = N*pi*(D/2./100.)**2.
+	else if(thinningType == 3) then 
+		BA_tot = BA_thd
+		BA = BAr(ij) * BA_thd
+
+		if(par_sarShp==1.) then
+			H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
+			D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
+		else
+			H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
+			D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
+		endif
+		N = BA/(pi*((D/2./100.)**2.))
+	endif
+
+	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
     Hc = stand_all(14,ij)
     Lc = H - Hc !Lc
@@ -1327,8 +1323,7 @@ if(defaultThin == 1.) then
 
    endif
   enddo
- endif
-endif !default thin
+ endif !default thin
  ! write(2,*) "after thinnings"
 outt(:,:,1) = STAND_all
 
