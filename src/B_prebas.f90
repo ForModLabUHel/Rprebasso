@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nT
 
 implicit none
 
- integer, parameter :: nVar=54,npar=41, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=54,npar=43, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  ! logical steadystate_pred= .false.
@@ -63,6 +63,7 @@ implicit none
 
 !management routines
  real (kind=8) :: A_clearcut, D_clearcut, BAr(nLayers), BA_tot,BA_lim, BA_thd, ETSthres = 1000
+ real (kind=8) :: dens_thd, dens_lim, Hdom_lim
 
 !define varibles
  real (kind=8) :: LAT, LONG, sitetype, P0, age, meantemp, mintemp, maxtemp, rainfall, ETS
@@ -84,7 +85,10 @@ implicit none
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
- real (kind=8) :: ETSmean, BAtapio(2)
+ real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
+ logical :: doThin, early = 0
+ real (kind=8) :: tTapio(5,3,2,7), ftTapio(5,3,3,7), thinningType, Hdom
+ 
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -1146,35 +1150,48 @@ if(defaultThin == 1.) then
  H = stand_all(11,layer)
  species = int(stand_all(4,layer))
  
- !! ######## here begin my changes 
- !! hPer, densPer, early etc. parameters need to be set !!
- 
+ ! counting the dominant height of the dominant species
+ Hdom = pCrobas(42,species)+pCrobas(43,species)*H 
  Ntot = sum(STAND_all(17,:))
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    
  if(thinningType == 3) then    
-	call tapioThin(pCrobas(28,species),siteType,ETSmean,H,tapioPars,BAtapio,BAthdPer,BAlimPer)
+	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,BAthdPer,BAlimPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
 	BA_thd = BAtapio(2) ! BA after thinning
+	if(BA_tot > BA_lim) then 
+		doThin = 1
+	else
+		doThin = 0
+	endif
  else if(thinningType == 2) then
-	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,hPer,densPer,early,output)
-	Hdom_lim = output(1) ! Hdom limit to start thinning
-	dens_lim = output(2) ! density limit to start thinning; both need to be reached
-	dens_after = output(3) ! density after thinning
+	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,hPer,densPer,early,tapioOut)
+	Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
+	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	dens_thd = tapioOut(3) ! density after thinning
+	if(Hdom > Hdom_lim .and. density > dens_lim) then 
+		doThin = 1
+	else
+		doThin = 0
+	endif
  else if(thinningType == 1) then
-	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,hPer,densPer,output)
-	Hdom_lim = output(1)! Hdom limit to start thinning
-	dens_lim = output(2) ! density limit to start thinning; both need to be reached
-	dens_after = output(3) ! density after thinning
+	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,hPer,densPer,tapioOut)
+	Hdom_lim = tapioOut(1)! Hdom limit to start thinning
+	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	dens_thd = tapioOut(3) ! density after thinning
+	if(Hdom > Hdom_lim .and. density > dens_lim) then 
+		doThin = 1
+	else
+		doThin = 0
+	endif
  endif
+ 
+ 
 
- if(thinningType == 3 .and. BA_tot > BA_lim .or. thinningType < 3 .and. H > Hdom_lim .and. density > dens_lim) then
+if(doThin == 1) then
 
-!! ######## Here end my changes !! there's now no conversion between density and BA, needs fixing !!
-
-! if (BA_tot > BA_lim) then
   do ij = 1, nLayers
-!ij=1
+
    if(stand_all(17,ij)>0.) then
     STAND_tot = stand_all(:,ij)
 	species = int(stand_all(4,ij))
@@ -1215,18 +1232,29 @@ if(defaultThin == 1.) then
     par_rhof1 = 0.!param(20)
     par_Cr2 = 0.!param(24)
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
-    BA_tot = BA_thd
-    BA = BAr(ij) * BA_thd
-    if(par_sarShp==1.) then
-     H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
-     D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
-    else
-     H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
-     D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
-    endif
-    stand_all(13,ij) = BA
-    Nold = stand_all(17,ij)
-    N = BA/(pi*((D/2./100.)**2.))
+	Nold = stand_all(17,ij)
+	
+	if(thinningType == 1 .or. thinningType == 2) then
+		! N = number of trees in the current layer after thinning
+		N = (stand_all(17,ij)/Ntot) * dens_thd
+		H = stand_all(11,ij)
+		D = stand_all(12,ij)
+		BA = N*pi*(D/2./100.)**2.
+	else if(thinningType == 3) then 
+		BA_tot = BA_thd
+		BA = BAr(ij) * BA_thd
+
+		if(par_sarShp==1.) then
+			H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
+			D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
+		else
+			H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
+			D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
+		endif
+		N = BA/(pi*((D/2./100.)**2.))
+	endif
+
+	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
     Hc = stand_all(14,ij)
     Lc = H - Hc !Lc

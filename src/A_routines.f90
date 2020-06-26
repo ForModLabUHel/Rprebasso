@@ -1,6 +1,6 @@
 subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
 	implicit none
-    integer, parameter :: nVar=54, npar=40
+    integer, parameter :: nVar=54, npar=43
 	real (kind=8), parameter :: pi = 3.1415927
 	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
 	real (kind=8), intent(inout) :: biomasses(nvar)
