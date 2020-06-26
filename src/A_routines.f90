@@ -549,7 +549,7 @@ IMPLICIT NONE
 
     REAL (kind=8),DIMENSION(35),INTENT(IN) :: theta ! parameters
     REAL (kind=8),INTENT(IN) :: time,d,leac ! time,size,leaching
-    REAL (kind=8),DIMENSION(3),INTENT(IN) :: climate ! climatic conditions
+    REAL (kind=8),DIMENSION(3),INTENT(IN) :: climate ! climatic conditions Tmean, Precip,Tampl
     REAL (kind=8),DIMENSION(5),INTENT(IN) :: init ! initial state
     REAL (kind=8),DIMENSION(5),INTENT(IN) :: b ! infall
     REAL (kind=8),DIMENSION(5),INTENT(OUT) :: xt ! the result i.e. x(t)
