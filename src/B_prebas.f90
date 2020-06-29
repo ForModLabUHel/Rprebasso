@@ -1186,6 +1186,9 @@ if(defaultThin == 1.) then
 	endif
  endif
  
+ open(1, file="debugLog.txt")
+ write(1, *) "doThin:", doThin
+ close(1)
  
 
 if(doThin) then
