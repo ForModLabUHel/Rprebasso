@@ -1137,7 +1137,56 @@ if (ClCut == 1.) then
  endif
 endif
 
-if(doThin) then
+!!!!test for thinnings!!!!
+ !!!!!!!for coniferous dominated stands!!!!!!
+if(defaultThin == 1.) then
+ sitetype = siteInfo(3)
+ BA_tot = sum(stand_all(13,:))!+stand_all(13,2)+stand_all(13,3)
+ BAr = stand_all(13,:)/BA_tot
+ domSp = maxloc(STAND_all(13,:))
+ layer = int(domSp(1))
+ H = stand_all(11,layer)
+ species = int(stand_all(4,layer))
+
+ ! counting the dominant height of the dominant species
+ Hdom = pCrobas(42,species)+pCrobas(43,species)*H 
+ Ntot = sum(STAND_all(17,:))
+	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
+ call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)    
+ if(thinningType == 3) then    
+	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
+	BA_lim = BAtapio(1) ! BA limit to start thinning
+	BA_thd = BAtapio(2) ! BA after thinning
+	if(BA_tot > BA_lim) then 
+		doThin = .true.
+	else
+		doThin = .false.
+	endif
+ else if(thinningType == 2) then
+	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
+	Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
+	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	dens_thd = tapioOut(3) ! density after thinning
+	if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
+		doThin = .true.
+	else
+		doThin = .false.
+	endif
+ else if(thinningType == 1) then
+	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
+	Hdom_lim = tapioOut(1)! Hdom limit to start thinning
+	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	dens_thd = tapioOut(3) ! density after thinning
+	if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
+		doThin = .true.
+	else
+		doThin = .false.
+	endif
+ endif
+ 
+
+
+ if(doThin) then
 
   do ij = 1, nLayers
 
@@ -1324,6 +1373,7 @@ if(doThin) then
    endif
   enddo
  endif !default thin
+endif
  ! write(2,*) "after thinnings"
 outt(:,:,1) = STAND_all
 
