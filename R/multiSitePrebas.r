@@ -35,7 +35,9 @@ InitMultiSite <- function(nYearsMS,
                           HcModV=2,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
                           tapioPars=pTapio,
                           thdPer = NA,
-                          limPer = NA
+                          limPer = NA,
+                          ftTapioPar = ftTapio,
+                          tTapioPar = tTapio
 ){  
   
   nSites <- length(nYearsMS)
@@ -340,7 +342,9 @@ InitMultiSite <- function(nYearsMS,
     smoothETS = smoothETS,
     tapioPars=tapioPars,
     thdPer = thdPer,
-    limPer = limPer
+    limPer = limPer,
+    ftTapioPar = ftTapioPar,
+    tTapioPar = tTapioPar
   )
   return(multiSiteInit)
 }
@@ -387,7 +391,10 @@ multiPrebas <- function(multiSiteInit){
                      multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
                      tapioPars = as.array(multiSiteInit$tapioPars),
                      thdPer=as.double(multiSiteInit$thdPer),
-                     limPer=as.double(multiSiteInit$limPer))
+                     limPer=as.double(multiSiteInit$limPer),
+                     ftTapioPar = as.array(multiSiteInit$ftTapioPar),
+                     tTapioPar = as.array(multiSiteInit$tTapioPar)
+                     )
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -448,7 +455,9 @@ regionPrebas <- function(multiSiteInit,
                      multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
                      tapioPars = as.array(multiSiteInit$tapioPars),
                      thdPer=as.double(multiSiteInit$thdPer),
-                     limPer=as.double(multiSiteInit$limPer))
+                     limPer=as.double(multiSiteInit$limPer),
+                     ftTapioPar = as.array(multiSiteInit$ftTapioPar),
+                     tTapioPar = as.array(multiSiteInit$tTapioPar))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas

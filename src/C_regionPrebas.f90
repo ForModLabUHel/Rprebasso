@@ -8,7 +8,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer)		!!energCuts
+		tapioPars,thdPer,limPer,ftTapio,tTapio)		!!energCuts
 
 
 implicit none
@@ -22,6 +22,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
+ real (kind=8), intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
@@ -53,7 +54,12 @@ multiWood = 0.
    ! open(1,file="test1.txt")
    ! open(2,file="test2.txt")
    ! open(3,file="test3.txt")
-
+ open(1,file="ftTapioREg.txt")
+ open(2,file="tTapioReg.txt")
+ write(1,*) ftTapio
+ write(1,*) tTapio
+ close(1)
+ close(2)
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
@@ -148,7 +154,7 @@ do ij = 1,maxYears
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
-		tapioPars,thdPer(i),limPer(i)) !!energCuts
+		tapioPars,thdPer(i),limPer(i),ftTapio,tTapio) !!energCuts
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
