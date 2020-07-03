@@ -1,4 +1,3 @@
- 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
 !subroutine bridging  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -8,7 +7,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
-		tapioPars,thdPer,limPer) !!energCut
+		tapioPars,thdPer,limPer,ftTapio,tTapio) !!energCut
 
 implicit none
 
@@ -20,6 +19,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,3,20)
+ real (kind=8), intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
  real (kind=8), intent(inout) :: siteInfo(nSites,10),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
@@ -43,6 +43,13 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
 !!!!initialize run
 ! multiOut = 0.
 ! open(1,file="test1.txt")
+ open(1,file="ftTapioMsite.txt")
+ open(2,file="tTapioMsite.txt")
+ write(1,*) ftTapio
+ write(1,*) tTapio
+ close(1)
+ close(2)
+
 output = 0.
 yearX = 0.
 multiEnergyWood = 0.
@@ -74,7 +81,7 @@ do i = 1,nSites
 		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
 		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
-		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i)) !energyCut)
+		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
