@@ -1152,45 +1152,38 @@ if(defaultThin == 1.) then
  ! counting the dominant height of the dominant species
  Hdom = pCrobas(42,species)+pCrobas(43,species)*H 
  Ntot = sum(STAND_all(17,:))
- open(1,file="ftTapio.txt")
- open(2,file="tTapio.txt")
- write(1,*) ftTapio
- write(1,*) tTapio
- close(1)
- close(2)
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
- ! call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
- call chooseThin(1., 3., 1400., 1000., 20., tTapio, ftTapio, 3.)    
- ! if(thinningType == 3.) then    
-	! call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
-	! BA_lim = BAtapio(1) ! BA limit to start thinning
-	! BA_thd = BAtapio(2) ! BA after thinning
-	! if(BA_tot > BA_lim) then 
-		! doThin = .true.
-	! else
-		! doThin = .false.
-	! endif
- ! else if(thinningType == 2.) then
-	! call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
-	! Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
-	! dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
-	! dens_thd = tapioOut(3) ! density after thinning
-	! if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
-		! doThin = .true.
-	! else
-		! doThin = .false.
-	! endif
- ! else if(thinningType == 1.) then
-	! call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
-	! Hdom_lim = tapioOut(1)! Hdom limit to start thinning
-	! dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
-	! dens_thd = tapioOut(3) ! density after thinning
-	! if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
-		! doThin = .true.
-	! else
-		! doThin = .false.
-	! endif
- ! endif
+ call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
+ if(thinningType == 3.) then    
+	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
+	BA_lim = BAtapio(1) ! BA limit to start thinning
+	BA_thd = BAtapio(2) ! BA after thinning
+	if(BA_tot > BA_lim) then 
+		doThin = .true.
+	else
+		doThin = .false.
+	endif
+ else if(thinningType == 2.) then
+	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
+	Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
+	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	dens_thd = tapioOut(3) ! density after thinning
+	if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
+		doThin = .true.
+	else
+		doThin = .false.
+	endif
+ else if(thinningType == 1.) then
+	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
+	Hdom_lim = tapioOut(1)! Hdom limit to start thinning
+	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	dens_thd = tapioOut(3) ! density after thinning
+	if(Hdom > Hdom_lim .and. Ntot > dens_lim) then 
+		doThin = .true.
+	else
+		doThin = .false.
+	endif
+ endif
  
 
 
