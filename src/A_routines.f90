@@ -1236,19 +1236,19 @@ end subroutine tapioTend
 
 subroutine chooseThin(species, siteType, ETSmean, density, Hdom, tTapio, ftTapio, thinning)
 	implicit none
-    real (kind=8) :: species !1 for pine; 2 for spruce; 3 for betula pendula
-	real (kind=8) :: thinning ! 1 for tapioTend, 2 for tapioFirstThin, 3 for tapioThin
-	real (kind=8) :: siteType, ETSmean, density, Hdom !siteType; average ETS of the site
-	real (kind=8) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) 
+    integer,intent(in) :: species !1 for pine; 2 for spruce; 3 for betula pendula
+	real (kind=8),intent(out) :: thinning ! 1 for tapioTend, 2 for tapioFirstThin, 3 for tapioThin
+	real (kind=8),intent(in) :: siteType, ETSmean, density, Hdom !siteType; average ETS of the site
+	real (kind=8),intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) 
 	real (kind=8) :: pX1(3,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning; pX(7) height limit to move on to next thinning function
 	real (kind=8) :: pX2(2,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning; pX(7)	height limit to move on to next thinning function
     real (kind=8) :: densityU1, hNext1, densityU2, hNext2
 
 ! log for testing 
 !open(1, file = "chooseThinLog.txt")
-	
+
 ! parameters for first thinning
-pX1 = ftTapio(int(siteType), int(species),:,:)
+pX1 = ftTapio(int(siteType), species,:,:)
  if(ETSmean > pX1(1,1)) then !if we are in South or Central Finland
 	densityU1 = pX1(1,6)
 	hNext1 = pX1(1,7)
@@ -1258,7 +1258,7 @@ pX1 = ftTapio(int(siteType), int(species),:,:)
  endif
  
 ! parameters for tending
-pX2 = tTapio(int(siteType), int(species),:,:)
+pX2 = tTapio(int(siteType), species,:,:)
  if(ETSmean > pX2(1,1)) then !if we are in South or Central Finland
 	densityU2 = pX2(1,6)
 	hNext2 = pX2(1,7)
