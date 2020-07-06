@@ -394,7 +394,7 @@ multiPrebas <- function(multiSiteInit){
                      limPer=as.double(multiSiteInit$limPer),
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
                      tTapioPar = as.array(multiSiteInit$tTapioPar)
-  )
+                     )
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -467,5 +467,6 @@ regionPrebas <- function(multiSiteInit,
   }
   return(prebas)
 }
+
 
 

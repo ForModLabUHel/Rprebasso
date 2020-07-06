@@ -1,3 +1,4 @@
+
 prebas <- function(nYears,
                    pCROBAS = pCROB,
                    pHcMod = pHcM,
@@ -60,7 +61,7 @@ prebas <- function(nYears,
     }
   nSp = ncol(pCROBAS)
   if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118) ###default values for nspecies and site type = 3
-  
+                                  
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
   }
@@ -175,7 +176,7 @@ prebas <- function(nYears,
   # print(biomasses)
   initVar <- initVar[1:7,]
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
-  
+
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -219,3 +220,4 @@ prebas <- function(nYears,
   class(prebas) <- "prebas"
   return(prebas)
 }
+

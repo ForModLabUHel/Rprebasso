@@ -326,7 +326,7 @@ ftTapio <- array(NA,dim = c(5,3,3,7),dimnames = list(
   c("sType1","sType2","sType3","sType4","sType5"),
   c("pine","spruce", "betula pendula"),
   c("SouthCentre","North early", "North late"), ### different parameters for early and late first thinning in Northern Finland
-#  c("selection", "low", "only one"), # thinning type
+  #  c("selection", "low", "only one"), # thinning type
   c("ETSthrd", ###ets threshold, 
     "thinMin-%", ### how many % over the upper thinning result there needs to be wood to do the thinning (1 is 100 %)
     "hLimL", "hLimU", ###height limits lower and upper
@@ -453,4 +453,3 @@ tTapio[2,3,2,1:7] <- c(1000, 0.2, 4, 7, 2000, 2500, 7)
 tTapio[3,3,2,1:7] <- c(1000, 0.2, 4, 7, 2000, 2500, 7)
 tTapio[4,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
 tTapio[5,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
-
