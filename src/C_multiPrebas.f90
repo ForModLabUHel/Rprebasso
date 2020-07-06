@@ -1,3 +1,4 @@
+ 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
 !subroutine bridging  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -43,12 +44,12 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
 !!!!initialize run
 ! multiOut = 0.
 ! open(1,file="test1.txt")
- open(1,file="ftTapioMsite.txt")
- open(2,file="tTapioMsite.txt")
- write(1,*) ftTapio
- write(1,*) tTapio
- close(1)
- close(2)
+ ! open(1,file="ftTapioMsite.txt")
+ ! open(2,file="tTapioMsite.txt")
+ ! write(1,*) ftTapio
+ ! write(2,*) tTapio
+ ! close(1)
+ ! close(2)
 
 output = 0.
 yearX = 0.
