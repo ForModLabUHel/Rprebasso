@@ -59,8 +59,7 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   endif
   W_stem = W_c + W_s + Wsh
 
-  ! W_croot = max(0.,(par_rhow *Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) !#coarse root biomass
-  W_croot = max(0.,W_stem * beta0) !#coarse root biomass
+  W_croot = max(0.,(par_rhow *Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) !#coarse root biomass
 
   V = W_stem / par_rhow
   
