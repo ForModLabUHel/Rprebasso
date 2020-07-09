@@ -57,9 +57,12 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
     Wdb = Tbd * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*d**2)+0.00467)
   endif
   W_stem = W_c + W_s + Wsh
-  V = W_stem / par_rhow
-  W_croot = max(0.,(par_rhow * Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) !#coarse root biomass
+  W_crs = par_rhow * beta0 * A * H * N
+  W_crh = Wsh * beta0
+  W_croot = W_crh + W_crs! max(0.,(par_rhow *Lc * beta0 * A * N + (W_c + Wsh) * beta0)) !#coarse root biomass
 
+  V = W_stem / par_rhow
+  
   biomasses(33) = wf_STKG
   biomasses(25) = W_froot
   biomasses(47) = W_wsap
@@ -71,6 +74,7 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   biomasses(51) = Wdb
   biomasses(31) = W_stem
   biomasses(30) = V
+  biomasses(54) = W_crh
 	
 end subroutine
 
