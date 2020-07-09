@@ -283,7 +283,7 @@ InitMultiSite <- function(nYearsMS,
   biomasses <- aperm(biomasses,c(3,1,2))
   biomasses[which(is.na(biomasses))] <- 0
   
-  multiOut[,1,c(33,25,47:49,24,32,50,51,31,30),,1] <- biomasses
+  multiOut[,1,c(33,25,47:49,24,32,50,51,31,30,54),,1] <- biomasses
   # multiInitVar <- multiInitVar[,1:7,1:maxNlayers]
   
   for(i in 1:maxNlayers){
