@@ -9,7 +9,7 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
 	real (kind=8) :: par_S_branchMod, gammaC, Tbd
 	real (kind=8) :: A, ba, d, N, h, hc, B, Lc, betab, beta0, beta1, beta2, betaC, V
 	real (kind=8) :: wf_STKG, W_froot, W_wsap, W_c, W_s, W_branch, W_croot, Wdb, W_stem, Wsh
-  
+	real (kind=8) :: W_crh, W_crs
  	
   !initBiomasses = function(pCrobas,initVarX){
   ! initVarX<-as.matrix(initVarX) change vector to matrix when maxlayer=1
