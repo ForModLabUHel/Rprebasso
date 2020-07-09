@@ -43,7 +43,7 @@ initBiomasses <- function(pCro,initVarX){
   Wdb = pmax(0,ifelse(par_S_branchMod == 1.,Tbd * W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*d^2)+0.00723),
                       Tbd * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*d^2)+0.00467)))
   W_stem = pmax(0.,W_c + W_s + Wsh)
-  W_crs = par_rhow * beta0 * A * H * N
+  W_crs = par_rhow * beta0 * A * h * N
   W_crh = Wsh * beta0
   W_croot = W_crh + W_crs
   #W_croot = pmax(0.,(par_rhow * Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) #coarse root biomass
