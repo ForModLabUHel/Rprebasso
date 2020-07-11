@@ -123,7 +123,7 @@ HcModDef[[4]] <-function(inputs){
   BA_tot=inputs[12]
   N_tot = inputs[13]
   Hc_sim <-  H/(1+exp(pValues[1]-pValues[1]*N_tot/1000-
-                        pValues[1]*log(BA_tot)+pValues[1]*D/H-pValues[1]*log(H)))
+                pValues[1]*log(BA_tot)+pValues[1]*D/H-pValues[1]*log(H)))
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 
@@ -153,20 +153,3 @@ HcModDef[[7]] <-function(inputs){
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 
-
-
-# ##Height of the crown base model
-# model.Hc <- function(inputs){ 
-#   pValues=inputs[1:6]
-#   H=inputs[7]
-#   D=inputs[8]
-#   age=inputs[9]
-#   BA_sp=inputs[10]
-#   BA_tot=inputs[11]
-#   N = 
-#   lnHc_sim <- pValues[1]+pValues[2]*log(H)+pValues[3]*D/H+
-#     pValues[4]*log(age)+ pValues[5]*log(BA_sp)+
-#     pValues[6]*(BA_sp/BA_tot)
-#   Hc_sim <- exp(lnHc_sim)
-#   return(pmax(Hc_sim,0.,na.rm = T)) 
-# } 
