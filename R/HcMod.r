@@ -19,11 +19,11 @@ findHcNAs <- function(initVar,pHcMod,hcFactor=1.){
         age=initVar[2]
         BA_sp=initVar[5]
         BA_tot=initVar[5]
-        N.tot=initVar[5]/(pi*((initVar[4]/2/100)**2))
+        N_tot=initVar[5]/(pi*((initVar[4]/2/100)**2))
         D.aver=inputs[4]
         H.aver=inputs[3]
         
-        inModHc <- c(pHcMod[,initVar[1]],H,D,age,BA_sp,BA_tot,N.tot,initVar[1])
+        inModHc <- c(pHcMod[,initVar[1]],H,D,age,BA_sp,BA_tot,N_tot,initVar[1])
         initVar[6] <- model.Hc(inModHc) * hcFactor
     }
   } else if(any(is.na(initVar[6,]))){
@@ -34,16 +34,16 @@ findHcNAs <- function(initVar,pHcMod,hcFactor=1.){
     age=initVar[2,HcNAs]
     BA_sp=initVar[5,HcNAs]
     BA_tot=sum(initVar[5,],na.rm = T)
-    N.tot=sum(initVar[5,]/(pi*((initVar[4,]/2/100)**2)),na.rm = T)
+    N_tot=sum(initVar[5,]/(pi*((initVar[4,]/2/100)**2)),na.rm = T)
     D.aver=sum(initVar[4,]*initVar[5,]/sum(initVar[5,],na.rm = T),na.rm = T)
     H.aver=sum(initVar[3,]*initVar[5,]/sum(initVar[5,],na.rm = T),na.rm = T)
     if(length(HcNAs)==1){
         inModHc <- c(pHcMod[,initVar[1,HcNAs]],H,D,age,BA_sp,BA_tot,
-                     N.tot,D.aver,H.aver,initVar[1,HcNAs])
+                     N_tot,D.aver,H.aver,initVar[1,HcNAs])
         initVar[6,HcNAs] <- model.Hc(inModHc) * hcFactor
     }else{
         inModHc <- rbind(pHcMod[,initVar[1,HcNAs]],H,D,age,BA_sp,BA_tot,
-                         N.tot,D.aver,H.aver,initVar[1,HcNAs])
+                         N_tot,D.aver,H.aver,initVar[1,HcNAs])
         initVar[6,HcNAs] <- apply(inModHc,2,model.Hc) * hcFactor
     }
   }
@@ -66,7 +66,7 @@ HcModDef[[1]] <- HcModDef[[5]]<- function(inputs){
   age=inputs[10]
   BA_sp=inputs[11]
   BA_tot=inputs[12]
-  N.tot=inputs[13]
+  N_tot=inputs[13]
   D.aver=inputs[14]
   H.aver=inputs[15]
   BA.other <- BA_tot - BA_sp
@@ -85,7 +85,7 @@ HcModDef[[2]] <- function(inputs){
   age=inputs[10]
   BA_sp=inputs[11]
   BA_tot=inputs[12]
-  N.tot=inputs[13]
+  N_tot=inputs[13]
   D.aver=inputs[14]
   H.aver=inputs[15]
   BA.other <- BA_tot - BA_sp
@@ -103,7 +103,7 @@ HcModDef[[3]] <- function(inputs){
   age=inputs[10]
   BA_sp=inputs[11]
   BA_tot=inputs[12]
-  N.tot=inputs[13]
+  N_tot=inputs[13]
   D.aver=inputs[14]
   H.aver=inputs[15]
   BA.other <- BA_tot - BA_sp
