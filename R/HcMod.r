@@ -20,10 +20,12 @@ findHcNAs <- function(initVar,pHcMod,hcFactor=1.){
         BA_sp=initVar[5]
         BA_tot=initVar[5]
         N_tot=initVar[5]/(pi*((initVar[4]/2/100)**2))
-        D.aver=inputs[4]
-        H.aver=inputs[3]
+        D.aver=initVar[4]
+        H.aver=initVar[3]
         
-        inModHc <- c(pHcMod[,initVar[1]],H,D,age,BA_sp,BA_tot,N_tot,initVar[1])
+        inModHc <- c(pHcMod[,initVar[1]],H,D,age,BA_sp,BA_tot,
+                     N_tot,D.aver,H.aver,initVar[1])
+        
         initVar[6] <- model.Hc(inModHc) * hcFactor
     }
   } else if(any(is.na(initVar[6,]))){
