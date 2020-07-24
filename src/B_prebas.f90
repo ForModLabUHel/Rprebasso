@@ -388,7 +388,10 @@ if (N>0.) then
       else
            dN = 0.
       endif
-	  if(mort == 888.) dN = min(dN,-(0.1*N))
+	  if(mort == 888.) then
+		dN = min(dN,-(0.1*N))
+		mort=0.
+	  endif
       Vold = V
       Nold = N
       if(N < 5.) N = 0.0
