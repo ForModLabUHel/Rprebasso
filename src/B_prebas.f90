@@ -389,8 +389,9 @@ if (N>0.) then
            dN = 0.
       endif
 	  if(mort == 888.) then
-		dN = min(dN,-(0.1*N))
+		dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
 		mort=0.
+		stand(40) = 0.
 	  endif
       Vold = V
       Nold = N
