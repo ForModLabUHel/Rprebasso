@@ -139,7 +139,6 @@ ETSmean = sum(ETSy)/nYears
 	modOut(1,17,i,1) = 0. 
 	modOut(1,35,i,1) = 0.
   endif
-			! wf_treeKG = par_rhof * A  !!newX
 			! wf_STKG = N * wf_treeKG  !!newX
 			! W_froot = par_rhor * A * N  !!to check  !!newX
 			! W_wsap = par_rhow * A * N * (beta1 * H + beta2 * Hc) !!newX

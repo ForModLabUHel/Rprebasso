@@ -54,12 +54,12 @@ multiWood = 0.
    ! open(1,file="test1.txt")
    ! open(2,file="test2.txt")
    ! open(3,file="test3.txt")
- open(1,file="ftTapioREg.txt")
- open(2,file="tTapioReg.txt")
- write(1,*) ftTapio
- write(1,*) tTapio
- close(1)
- close(2)
+ ! open(1,file="ftTapioREg.txt")
+ ! open(2,file="tTapioReg.txt")
+ ! write(1,*) ftTapio
+ ! write(1,*) tTapio
+ ! close(1)
+ ! close(2)
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
