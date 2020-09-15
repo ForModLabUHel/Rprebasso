@@ -163,7 +163,7 @@ prebas <- function(nYears,
   }
   
   ###init biomasses
-  initVarX <- rbind(initVar,siteInfo[3])
+  initVarX <- rbind(initVar,rep(unlist(siteInfo[3]),nLayers))
   biomasses <- initBiomasses(pCROBAS,initVarX)
   biomasses[which(is.na(biomasses))] <- 0.
   output[1,c(33,25,47:49,24,32,50,51,31,30,54),,1] <- biomasses

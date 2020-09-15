@@ -331,7 +331,7 @@ yassoStSt <- function(SimulationTime,Steadystate_pred,
                    Lit.W,lit.fW,litt.F,InitialCPool,
                    pYasso){
 
-  apply(ciao,stem.AWEN,1)
+  # apply(ciao,stem.AWEN,1)
   LitterWp <- c(stem.AWEN(input[9],1),0)
   LitterfWp <- c(branches.AWEN(input[10]),0)
   LitterFp <- c(foliage.AWEN(input[11],1),0)
@@ -383,7 +383,6 @@ yassoStSt <- function(SimulationTime,Steadystate_pred,
 
 
 ####below are the functions to compute soil steady state carbon from prebas output
-
 StStYasso <- function(litter,parsAWEN,spec,Tmean,Tamp,Precip,litterSize,litType,pYasso,
                       t=1, stst=1,soilCin=rep(0,5)){
   AWEN <- compAWENH(litter,parsAWEN,spec,litType)
