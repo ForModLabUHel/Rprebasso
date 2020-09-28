@@ -92,7 +92,7 @@ HcModDef[[2]] <- function(inputs){
   H.aver=inputs[15]
   BA.other <- BA_tot - BA_sp
   Hc_sim=H/(1+exp(pValues[1]+pValues[2]*D/H+pValues[3]*D+pValues[4]*H.aver+
-                    pValues[5]*BA_sp/BA_tot+pValues[6]*(log(BA_sp)+1)))
+                    pValues[5]*BA_sp/BA_tot+pValues[6]*log(BA_sp+1)))
   
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
