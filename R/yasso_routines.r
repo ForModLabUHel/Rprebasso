@@ -537,3 +537,69 @@ yassoPREBASin <- function(litter,species,initSoilC,weatherYasso,climIDs,pYASSO =
   )
   return(xx)
 }
+
+
+
+stXX <- function(PrebOut){
+  Tmean <- apply(PrebOut$weatherYasso[,,1],1,mean)
+  Pre <- apply(PrebOut$weatherYasso[,,2],1,mean)
+  Tamp <- apply(PrebOut$weatherYasso[,,3],1,mean)
+  
+  nLayers <- dim(PrebOut$multiOut)[4]
+  nSites <- dim(PrebOut$multiOut)[1]
+  species <- PrebOut$multiOut[,1,4,,1]
+  if(nLayers==1){
+    litFol <- apply(PrebOut$multiOut[,,26,1,1],1,mean) +
+      apply(PrebOut$multiOut[,,27,1,1],1,mean)
+    litBra <- apply(PrebOut$multiOut[,,28,1,1],1,mean)
+    litSte <- apply(PrebOut$multiOut[,,29,1,1],1,mean)
+    AWENf <- AWENb <- AWENs <- matrix(NA,nSites,5)
+    soilC <- array(NA,dim=c(nSites,5,3))
+    for(sitx in 1:nSites){
+      AWENf[sitx,] <- compAWENH(litFol[sitx],parsAWEN = parsAWEN,spec = species[sitx],litType = 1)
+      AWENb[sitx,] <- compAWENH(litBra[sitx],parsAWEN = parsAWEN,spec = species[sitx],litType = 2)
+      AWENs[sitx,] <- compAWENH(litSte[sitx],parsAWEN = parsAWEN,spec = species[sitx],litType = 3)
+      
+      soilC[sitx,,1] <- Yasso15_R_version(pYAS, SimulationTime=1, Tmean[sitx],
+                                          Tamp[sitx], Pre[sitx],rep(0,5),
+                                          AWENf[sitx,], litterSizeDef[3,species[sitx]],
+                                          Steadystate_pred=1)
+      soilC[sitx,,2] <- Yasso15_R_version(pYAS, SimulationTime=1, Tmean[sitx],
+                                          Tamp[sitx], Pre[sitx],rep(0,5),
+                                          AWENb[sitx,], litterSizeDef[2,species[sitx]],
+                                          Steadystate_pred=1)
+      soilC[sitx,,3] <- Yasso15_R_version(pYAS, SimulationTime=1, Tmean[sitx],
+                                          Tamp[sitx], Pre[sitx],rep(0,5),
+                                          AWENs[sitx,],litterSizeDef[1,species[sitx]],
+                                          Steadystate_pred=1)
+    }
+  }else{
+    litFol <- apply(PrebOut$multiOut[,,26,,1],c(1,3),mean) +
+      apply(PrebOut$multiOut[,,27,,1],c(1,3),mean)
+    litBra <- apply(PrebOut$multiOut[,,28,,1],c(1,3),mean)
+    litSte <- apply(PrebOut$multiOut[,,29,,1],c(1,3),mean)
+    AWENf <- AWENb <- AWENs <- array(NA,dim=c(nSites,5,nLayers))
+    soilC <- array(NA,dim=c(nSites,5,3,nLayers))
+    for(layx in 1:nLayers){
+      for(sitx in 1:nSites){
+        AWENf[sitx,,layx] <- compAWENH(litFol[sitx,layx],parsAWEN = parsAWEN,spec = species[sitx,layx],litType = 1)
+        AWENb[sitx,,layx] <- compAWENH(litBra[sitx,layx],parsAWEN = parsAWEN,spec = species[sitx,layx],litType = 2)
+        AWENs[sitx,,layx] <- compAWENH(litSte[sitx,layx],parsAWEN = parsAWEN,spec = species[sitx,layx],litType = 3)
+        
+        soilC[sitx,,1,layx] <- Yasso15_R_version(pYAS, SimulationTime=1, Tmean[sitx],
+                                                 Tamp[sitx], Pre[sitx],rep(0,5),
+                                                 AWENf[sitx,,layx], litterSizeDef[3,species[sitx,layx]],
+                                                 Steadystate_pred=1)
+        soilC[sitx,,2,layx] <- Yasso15_R_version(pYAS, SimulationTime=1, Tmean[sitx],
+                                                 Tamp[sitx], Pre[sitx],rep(0,5),
+                                                 AWENb[sitx,,layx], litterSizeDef[2,species[sitx,layx]],
+                                                 Steadystate_pred=1)
+        soilC[sitx,,3,layx] <- Yasso15_R_version(pYAS, SimulationTime=1, Tmean[sitx],
+                                                 Tamp[sitx], Pre[sitx],rep(0,5),
+                                                 AWENs[sitx,,layx],litterSizeDef[1,species[sitx,layx]],
+                                                 Steadystate_pred=1)
+      }
+    }
+  }
+  return(soilC)
+}
