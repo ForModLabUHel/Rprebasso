@@ -122,14 +122,20 @@ InitMultiSite <- function(nYearsMS,
     ETS <- matrix(ETS,365,nYearsX); ETS <- colSums(ETS)
     multiETS[climID,(1:nYearsX)] <- ETS
     
-    xx <- min(10,nYearsX)
-    Ainit = 6 - 0.005*mean(ETS[1:xx]) + 2.25 ## need to add 2*sitetype
-    sitesClimID <- which(climIDs==climID)
-    multiInitClearCut[sitesClimID,5] <- replace(multiInitClearCut[sitesClimID,5],
-                                                which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
+    # xx <- min(10,nYearsX)
+    # Ainit = 6 - 0.005*mean(ETS[1:xx]) + 2.25 ## need to add 2*sitetype
+    # sitesClimID <- which(climIDs==climID)
+    # multiInitClearCut[sitesClimID,5] <- replace(multiInitClearCut[sitesClimID,5],
+    #                                             which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
-  for(xd in 1:nSites) multiInitClearCut[xd,5] = 
-    multiInitClearCut[xd,5] + 2* siteInfo[xd,3] ## here we add 2*sitetype to make Ainit sitetype dependent
+  xx <- min(10,nYearsX)
+  Ainits <- multiInitClearCut[,5]
+  for(xd in 1:nSites){
+    if(is.na(Ainits[xd])) {
+      Ainits[xd] = round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],1:xx]) + 2.25)
+      multiInitClearCut[xd,5] = 999.
+    }
+  } 
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
@@ -206,7 +212,7 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,1,] <- rep(1:maxNlayers,each=nSites)
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
     multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
-    multiInitVar[,2,] <- matrix(multiInitClearCut[,5],nSites,maxNlayers)
+    multiInitVar[,2,] <- matrix(Ainits,nSites,maxNlayers)
     for(ikj in 1:maxNlayers){
       p_ksi <- pCROBAS[38,multiInitVar[,1,ikj]]
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]

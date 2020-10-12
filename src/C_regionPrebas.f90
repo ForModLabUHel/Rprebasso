@@ -158,10 +158,18 @@ do ij = 1,maxYears
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
-	 if((maxYears-ij)<15) then
-	  Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
+	 if((maxYears-ij)<10) then
+ 		if(initClearcut(i,5)<998.) then
+			Ainit = initClearcut(i,5)
+		else
+			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
+		endif
 	 else
-	  Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
+ 		if(initClearcut(i,5)<998.) then
+			Ainit = initClearcut(i,5)
+		else
+			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
+		endif
 	 endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit

@@ -534,9 +534,17 @@ if (year <= maxYearSite) then
 ! fAPARsite=0.7
    if(fAPARsite == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
-	 Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
+		if(initClearcut(5)<998.) then
+			Ainit = initClearcut(5)
+		else
+			Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
+		endif
 	else
-	 Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
+		if(initClearcut(5)<998.) then
+			Ainit = initClearcut(5)
+		else
+			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
+		endif
 	endif
 	yearX = Ainit + year
 !	initClearcut(5) = Ainit
