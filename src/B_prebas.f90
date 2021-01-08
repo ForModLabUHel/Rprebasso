@@ -941,16 +941,16 @@ endif
   !energyCut
 	 S_fol = wf_STKG + S_fol
      S_fr = W_froot + S_fr
-	if(energyCut==1.) then
-	 energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-     S_branch = W_branch * (1-energyRatio) + W_croot*0.7 + S_branch
-     S_wood = S_wood + W_stem* (1-harvRatio)* (1-energyRatio) + &
+	 if(energyCut==1.) then
+	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
+	  energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+      S_branch = W_branch * (1-energyRatio) + W_croot*0.7 + S_branch
+      S_wood = S_wood + W_stem* (1-harvRatio)* (1-energyRatio) + &
 			W_croot*0.3 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
-	else
-     S_branch = W_branch + W_croot*0.7 + S_branch
-     S_wood = S_wood + W_stem* (1-harvRatio) + W_croot*0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
-	endif
+	 else
+      S_branch = W_branch + W_croot*0.7 + S_branch
+      S_wood = S_wood + W_stem* (1-harvRatio) + W_croot*0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
+	 endif
   !energyCut
      STAND(26) = S_fol
      STAND(27) = S_fr
