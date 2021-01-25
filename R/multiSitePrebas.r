@@ -405,7 +405,9 @@ multiPrebas <- function(multiSiteInit){
                      thdPer=as.double(multiSiteInit$thdPer),
                      limPer=as.double(multiSiteInit$limPer),
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
-                     tTapioPar = as.array(multiSiteInit$tTapioPar)
+                     tTapioPar = as.array(multiSiteInit$tTapioPar),
+                     GVout = as.array(multiSiteInit$GVout),
+                     GVrun = as.integer(multiSiteInit$GVrun)
                      )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -473,7 +475,9 @@ regionPrebas <- function(multiSiteInit,
                      thdPer=as.double(multiSiteInit$thdPer),
                      limPer=as.double(multiSiteInit$limPer),
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
-                     tTapioPar = as.array(multiSiteInit$tTapioPar))
+                     tTapioPar = as.array(multiSiteInit$tTapioPar),
+                     GVout = as.array(multiSiteInit$GVout),
+                     GVrun = as.integer(multiSiteInit$GVrun))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
