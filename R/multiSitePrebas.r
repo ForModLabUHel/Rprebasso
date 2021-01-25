@@ -37,7 +37,8 @@ InitMultiSite <- function(nYearsMS,
                           thdPer = NA,
                           limPer = NA,
                           ftTapioPar = ftTapio,
-                          tTapioPar = tTapio
+                          tTapioPar = tTapio,
+                          GVrun = 1
 ){  
   
   nSites <- length(nYearsMS)
@@ -353,7 +354,9 @@ InitMultiSite <- function(nYearsMS,
     thdPer = thdPer,
     limPer = limPer,
     ftTapioPar = ftTapioPar,
-    tTapioPar = tTapioPar
+    tTapioPar = tTapioPar,
+    GVrun=as.integer(GVrun),
+    GVout=array(0.,dim = c(nSites,maxYears,3))
   )
   return(multiSiteInit)
 }
