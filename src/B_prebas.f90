@@ -5,7 +5,8 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
 		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
 		litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
-		inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,ftTapio,tTapio) !energyCut
+		inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun) !energyCut
+
 
 implicit none
 
@@ -28,7 +29,10 @@ implicit none
  real (kind=8), intent(in) :: inDclct(nSp),inAclct(nSp)
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning
- real (kind=8), intent(out) :: fAPAR(nYears)
+ !!!ground vegetation variables
+ real (kind=8) :: AWENgv(4)  !!!ground vegetation
+ integer, intent(in) :: gvRun			!!!ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears),GVout(nYears,3) !fAPAR_gv,litGV,photoGV			!!!ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
  real (kind=8), intent(inout) :: initVar(7,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
  real (kind=8), intent(inout) :: siteInfo(10)
@@ -552,6 +556,7 @@ if (year <= maxYearSite) then
 
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARsite
+      
    
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
@@ -569,6 +574,29 @@ if (year <= maxYearSite) then
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
    STAND_all(10,:) = prelesOut(1)/1000. ! Photosynthesis in g C m-2 (converted to kg C m-2)
+
+
+   !!!ground vegetation
+   !!!fapar_gv compute fapar, biomasses and litter of gv with routine
+   if(gvRun==1) then
+	if(fAPARsite>0.) then
+     call fAPARgv(fAPARsite,ETSmean,siteType,GVout(year,1),GVout(year,2),sum(P0yX(:,1))/nYears,AWENgv) !reduced input output
+     GVout(year,3) = prelesOut(1) * GVout(year,1)/fAPARsite! Photosynthesis in g C m-2 
+     ! GVout(year,4) = GVout(year,3)*0.5 !where to put those two variables
+   	 ! STAND_all(26,1) = STAND_all(26,1) + GVout(year,2)	!add !!!ground vegetation to the 1st layer
+    elseif(fAPARsite==0.) then
+	 call fAPARgv(fAPARsite,ETSmean,siteType,GVout(year,1),GVout(year,2),sum(P0yX(:,1))/nYears,AWENgv) !reduced input output
+     fAPARprel(:) = GVout(year,1)
+    !!!fapar_gv run preles for ground vegetation
+     call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
+		etmodel)		!type of ET model
+      GVout(year,3) = prelesOut(1) ! Photosynthesis in g C m-2 
+      ! GVout(year,4) =  GVout(year,3)*0.5 
+	endif
+   endif
 
 endif
 !enddo !! end site loop
@@ -1402,6 +1430,9 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
    species = int(initVar(1,ijj))
    call compAWENH(Lf(ijj),folAWENH(ijj,:),pAWEN(1:4,species))   !!!awen partitioning foliage
+   if(GVrun==1 .and. ijj==1) then 
+    folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
+   endif
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 
@@ -1452,9 +1483,13 @@ enddo
 	modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
 	modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
 	modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
-
+    if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
+	
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp is not smoothed
 !modOut(:,46,:,1) = modOut(:,18,:,1) - modOut(:,45,:,1) !!!everything smoothed
+
+!!!!ground vegetation Add Npp ground vegetation to the NEE first layer
+if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:,3)*0.5 
 
  output = modOut(2:(nYears+1),:,:,:)
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
