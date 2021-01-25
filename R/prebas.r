@@ -32,7 +32,8 @@ prebas <- function(nYears,
                    thdPer=0.5,
                    limPer=0.5,
                    ftTapioPar = ftTapio,
-                   tTapioPar = tTapio){
+                   tTapioPar = tTapio,
+                   GVrun = 1){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -217,7 +218,9 @@ prebas <- function(nYears,
                      thdPer = as.double(thdPer),
                      limPer = as.double(limPer),
                      ftTapioPar = as.array(ftTapioPar),
-                     tTapioPar = as.array(tTapioPar))
+                     tTapioPar = as.array(tTapioPar),
+                     GVout = matrix(0,nYears,3),
+                     GVrun = as.integer(GVrun))
   class(prebas) <- "prebas"
   return(prebas)
 }
