@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Mikko Peltoniemi and Francesco Minunno
 Maintainer: Francesco Minunno <checcomi@gmail.com> and Mikko Peltoniemi <mikko.peltoniemi@metla.fi>
 Description: Implements PRELES,YASSO and PREBAS models to be called from R
-Depends: sm, plyr, data.table, Matrix, zoo, abind
+Depends: plyr, data.table, Matrix, zoo, abind
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
