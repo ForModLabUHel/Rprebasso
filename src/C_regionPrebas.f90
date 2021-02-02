@@ -260,13 +260,13 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	 species = int(multiOut(siteX,ij,4,ijj,1))
 	 multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
 	 energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
-	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) * (1-energyRatio) + &
-		multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.7
+	 multiOut(siteX,ij,28,ijj,1) = (multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
+		(1-energyRatio) + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.7
      multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)+ &
 	  multiOut(siteX,ij,32,ijj,1)*0.3  * (1-energyRatio)+ multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	else
 	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
-	  multiOut(siteX,ij,32,ijj,1)*0.7
+		multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.7
      multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* 0.1 + &
 	  multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	endif

@@ -414,7 +414,7 @@ if (N>0.) then
 			W_bh = stand(53)
 			W_crh = stand(54)
 			W_stem = stand(31)
-	S_branch = (W_branch + W_croot*0.7) * min(1.,-dN*step/Nold)
+	S_branch = (W_branch + W_croot*0.7 + Wdb) * min(1.,-dN*step/Nold) 
 	S_wood = (W_croot*0.3 + W_stem) * min(1.,-dN*step/Nold)
     S_fol = wf_STKG * min(1.,-dN*step/Nold) !foliage litterfall
     S_fr  = W_froot * min(1.,-dN*step/Nold)  !fine root litter
@@ -972,11 +972,11 @@ endif
 	 if(energyCut==1.) then
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
 	  energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-      S_branch = W_branch * (1-energyRatio) + W_croot*0.7 + S_branch
+      S_branch = (W_branch + Wdb) * (1-energyRatio) + W_croot*0.7 + S_branch
       S_wood = S_wood + W_stem* (1-harvRatio)* (1-energyRatio) + &
 			W_croot*0.3 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
 	 else
-      S_branch = W_branch + W_croot*0.7 + S_branch
+      S_branch = W_branch + Wdb + W_croot*0.7 + S_branch
       S_wood = S_wood + W_stem* (1-harvRatio) + W_croot*0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
 	 endif
   !energyCut
@@ -1044,6 +1044,7 @@ endif
 		V = W_stem / par_rhow
 		W_croot = W_crs + W_crh
 		W_branch = W_bs + W_bh
+		Wdb = Wdb * N/Nold
 !! calculate litter including residuals from thinned trees
   !energyCut
 	S_fol = stand(26) + stand(33) - wf_STKG
@@ -1052,12 +1053,12 @@ endif
 	 energyWood(year,ij,2) = (stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-     S_branch = stand(28) + (stand(24) - W_branch) * (1-energyRatio) + &
+     S_branch = stand(28) + (stand(24) - W_branch + stand(51) - Wdb) * (1-energyRatio) + &
 				(stand(32) - W_croot)*0.7
      S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio) +&
 			(stand(32) - W_croot)*0.3* (1-energyRatio)
 	else
-    S_branch = stand(28) + stand(24) - W_branch + (stand(32) - W_croot)*0.7
+    S_branch = stand(28)+stand(24)-W_branch+stand(51)-Wdb+(stand(32)-W_croot)*0.7
     S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) + (stand(32) - W_croot)*0.3
 	endif
   !energyCut	
@@ -1150,11 +1151,12 @@ if (ClCut == 1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-	 S_branch = stand_all(28,ij) + stand_all(24,ij) * (1-energyRatio) + stand_all(32,ij) * 0.7
+	 S_branch = stand_all(28,ij) + (stand_all(24,ij) + stand_all(51,ij)) * &
+		(1-energyRatio) + stand_all(32,ij) * 0.7
 	 S_wood = stand_all(31,ij)* (1-harvRatio) * (1-energyRatio) + &
 		stand_all(32,ij) *0.3 * (1-energyRatio) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	else
-	 S_branch = stand_all(24,ij) + stand_all(28,ij) + stand_all(32,ij) * 0.7
+	 S_branch = stand_all(51,ij)+stand_all(24,ij)+stand_all(28,ij)+stand_all(32,ij)* 0.7
 	 S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) *0.3 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	endif
   !energyCut
@@ -1295,6 +1297,7 @@ if(defaultThin == 1.) then
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
     Hc = stand_all(14,ij)
+	Wdb = stand_all(51,ij)
     Lc = H - Hc !Lc
     rc = Lc / (H-1.3) !crown ratio
     wf_STKG_old = stand_all(33,ij)
@@ -1346,6 +1349,7 @@ if(defaultThin == 1.) then
 		V = W_stem / par_rhow
 		W_croot = W_crs + W_crh
 		W_branch = W_bs + W_bh
+		Wdb = stand_all(51,ij) * N/Nold
 
 !! calculate litter including residuals from thinned trees
   !energyCut
@@ -1357,12 +1361,13 @@ if(defaultThin == 1.) then
 	    (stand_all(31,ij) - W_stem) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 
-     S_branch = stand_all(28,ij) + (stand_all(24,ij) - W_branch) * (1-energyRatio) + &
-		(stand_all(32,ij) - W_croot) * 0.7
+     S_branch = stand_all(28,ij) + (stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb) * &
+		(1-energyRatio) + &(stand_all(32,ij) - W_croot) * 0.7
 	 S_wood = stand_all(29,ij)+(stand_all(31,ij)-W_stem)*(1-harvRatio)*(1-energyRatio)+ &
 	 (stand_all(32,ij) - W_croot) * 0.3 * (1-energyRatio)
 	else
-     S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch + (stand_all(32,ij) - W_croot) * 0.7
+     S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb + &
+		(stand_all(32,ij) - W_croot) * 0.7
      S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + (stand_all(32,ij) - W_croot) * 0.3
 	endif
   !energyCut
