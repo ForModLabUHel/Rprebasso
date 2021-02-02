@@ -1362,7 +1362,7 @@ if(defaultThin == 1.) then
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 
      S_branch = stand_all(28,ij) + (stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb) * &
-		(1-energyRatio) + &(stand_all(32,ij) - W_croot) * 0.7
+		(1-energyRatio) + (stand_all(32,ij) - W_croot) * 0.7
 	 S_wood = stand_all(29,ij)+(stand_all(31,ij)-W_stem)*(1-harvRatio)*(1-energyRatio)+ &
 	 (stand_all(32,ij) - W_croot) * 0.3 * (1-energyRatio)
 	else
