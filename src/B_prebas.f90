@@ -165,7 +165,7 @@ do year = 1, (nYears)
 
 
   if(year==int(min(yearX,nYears))) then
-   Ainit = 7!int(min(Ainit, Ainit + nYears - yearX))
+   Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
    do ijj = 1,nLayers
      species = int(modOut(year,4,ijj,1))  ! read species
