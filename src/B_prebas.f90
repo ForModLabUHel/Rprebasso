@@ -165,7 +165,7 @@ do year = 1, (nYears)
 
 
   if(year==int(min(yearX,nYears))) then
-   Ainit = int(min(Ainit, Ainit + nYears - yearX))
+   Ainit = 7!int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
    do ijj = 1,nLayers
      species = int(modOut(year,4,ijj,1))  ! read species
@@ -541,13 +541,13 @@ if (year <= maxYearSite) then
 		if(initClearcut(5)<998.) then
 			Ainit = initClearcut(5)
 		else
-			Ainit = 7!nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
+			Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
 		endif
 	else
 		if(initClearcut(5)<998.) then
 			Ainit = initClearcut(5)
 		else
-			Ainit = 7!nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
+			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
 		endif
 	endif
 	yearX = Ainit + year
