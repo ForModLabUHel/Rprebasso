@@ -537,7 +537,7 @@ if (year <= maxYearSite) then
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
 ! fAPARsite=0.7
-   if(fAPARsite == 0. .and. yearX == 0) then
+   if(sum(modOut(year,11,,1)) == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
 		! if(initClearcut(5)>0.) then
 			! Ainit = initClearcut(5)
