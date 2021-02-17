@@ -1370,3 +1370,57 @@ subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs) !reduc
  totlitGV = sum(litAG) + sum(litBG)
  
 end subroutine fAPARgv
+
+
+
+
+SUBROUTINE runYassoAWENin(AWENin,nYears, nSites, litSize,nClimID,climIDs,pYasso,weatherYasso,soilC)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION 
+    !********************************************* &
+    ! run yasso for some years with litterfal inputs from prebas.
+
+	integer, intent(in) :: nYears, nSites, nClimID
+	REAL (kind=8),INTENT(IN) :: AWENin(nSites, nYears, 5) 
+	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
+	! REAL (kind=8),INTENT(IN) :: species(nSites, nLayers)
+	REAL (kind=8),INTENT(IN) :: pYasso(35)
+	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5)
+	integer,INTENT(IN) :: climIDs(nSites),litSize
+	INTEGER :: year, site, layer, spec
+	real (kind=8) :: t=1.,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
+	! real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
+	
+
+! fbAWENH = 0.
+! folAWENH = 0.
+! stAWENH = 0.
+
+!!!!run Yasso
+do site = 1, nSites
+  do year = 1,nYears
+
+   ! Lst = litter(site,year,layer,3)
+   ! Lb = litter(site,year,layer,2)
+   folAWENH = AWENin(site,year,:)
+
+   ! spec = int(species(site,layer))
+   ! call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+   ! call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+   ! call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+
+   ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
+	! leac,soilC(site,(year+1),:,1,layer),stSt)
+   ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
+	! leac,soilC(site,(year+1),:,2,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),folAWENH,litSize, &
+	leac,soilC(site,(year+1),:),stSt)
+
+!   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
+
+  enddo
+ enddo
+enddo
+
+END SUBROUTINE runYassoAWENin  
