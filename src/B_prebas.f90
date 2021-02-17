@@ -163,7 +163,7 @@ ETSmean = sum(ETSy)/nYears
 
 do year = 1, (nYears)
 
-write(1,*) year,yearX
+write(1,*) year,yearX,Ainit,initClearcut(5)
   if(year==int(min(yearX,nYears))) then
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
@@ -255,6 +255,8 @@ write(1,*) year,yearX
     enddo
    enddo	
 	yearX = 0
+	
+	
   endif
 
   stand_all = modOut(year,:,:,1)
@@ -548,7 +550,7 @@ if (year <= maxYearSite) then
 			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
 		endif
 	endif
-	yearX = Ainit + year + 1
+	yearX = Ainit + year
 !	initClearcut(5) = Ainit
    endif
 
