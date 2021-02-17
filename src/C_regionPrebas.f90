@@ -165,13 +165,13 @@ do ij = 1,maxYears
  		! if(initClearcut(i,5)<998.) then
 			! Ainit = initClearcut(i,5)
 		! else
-			Ainit = 3!nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
+			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
 		! endif
 	 else
  		! if(initClearcut(i,5)<998.) then
 			! Ainit = initClearcut(i,5)
 		! else
-			Ainit = 5!nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
+			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
 		! endif
 	 endif
 	 yearX(i) = Ainit + ij + 1
