@@ -144,7 +144,7 @@ prebas <- function(nYears,
   # print(initVar)
   xx <- min(10,nYears)
   Ainit = 6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25
-  if(is.na(initClearcut[5])) initClearcut(5) <- Ainit
+  if(is.na(initClearcut[5])) initClearcut[5] <- Ainit
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
      initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))
     }
