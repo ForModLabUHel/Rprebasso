@@ -166,6 +166,8 @@ do year = 1, (nYears)
 write(1,*) year,yearX
   if(year==int(min(yearX,nYears))) then
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
+   initClearcut(5) = Ainit
+   yearX = 0
       totBA = sum(modOut((year-Ainit-1),13,:,1))
    do ijj = 1,nLayers
      species = int(modOut(year,4,ijj,1))  ! read species
@@ -253,10 +255,7 @@ write(1,*) year,yearX
      modOut((year-Ainit+ki),7,ijj,1) = ki !#!#
      modOut((year-Ainit+ki),4,ijj,1) = initVar(1,ijj) !#!#
     enddo
-   enddo	
-	yearX = 0
-	
-	
+   enddo		
   endif
 
   stand_all = modOut(year,:,:,1)
@@ -536,7 +535,7 @@ if (year <= maxYearSite) then
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
 ! fAPARsite=0.7
-   if(fAPARsite == 0. .and. yearX == 0) then
+   if(sum(modOut(year,11,:,1)) == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
 		if(initClearcut(5)<998.) then
 			Ainit = initClearcut(5)
@@ -551,7 +550,7 @@ if (year <= maxYearSite) then
 		endif
 	endif
 	yearX = Ainit + year + 1
-!	initClearcut(5) = Ainit
+	initClearcut(5) = Ainit
    endif
 
    fAPARprel(:) = fAPARsite
