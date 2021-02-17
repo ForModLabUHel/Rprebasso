@@ -550,7 +550,7 @@ if (year <= maxYearSite) then
 			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
 		endif
 	endif
-	yearX = Ainit + year
+	yearX = Ainit + year + 1
 !	initClearcut(5) = Ainit
    endif
 
