@@ -9,7 +9,7 @@ prebas <- function(nYears,
                    etmodel = 0,
                    siteInfo = NA,
                    thinning=NA,
-                   initClearcut = c(1.5,0.5,0.0431969,0.,0.),
+                   initClearcut = c(1.5,0.5,0.0431969,0.,NA),
                    fixBAinitClarcut = 1.,
                    initCLcutRatio = NA,
                    PAR,TAir,VPD,Precip,CO2,
@@ -144,6 +144,7 @@ prebas <- function(nYears,
   # print(initVar)
   xx <- min(10,nYears)
   Ainit = 6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25
+  if(is.na(initClearcut(5))) initClearcut(5) <- Ainit
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
      initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))
     }
