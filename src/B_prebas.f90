@@ -93,7 +93,7 @@ implicit none
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
  real (kind=8) :: Hdom
-  open(1,file="test1.txt")
+  ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
@@ -113,6 +113,7 @@ pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
+Ainit = initClearcut(5)
 P0yX = P0y
 Reineke(:) = 0.
 ETSmean = sum(ETSy)/nYears
@@ -163,7 +164,7 @@ ETSmean = sum(ETSy)/nYears
 
 do year = 1, (nYears)
 
-write(1,*) year,yearX,Ainit,initClearcut(5)
+! write(1,*) year,yearX,Ainit,initClearcut(5)
   if(year==int(min(yearX,nYears))) then
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
@@ -538,17 +539,17 @@ if (year <= maxYearSite) then
 ! fAPARsite=0.7
    if(fAPARsite == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
-		if(initClearcut(5)<998.) then
-			Ainit = initClearcut(5)
-		else
+		! if(initClearcut(5)>0.) then
+			! Ainit = initClearcut(5)
+		! else
 			Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
-		endif
+		! endif
 	else
-		if(initClearcut(5)<998.) then
-			Ainit = 11!initClearcut(5)
-		else
+		! if(initClearcut(5)>0.) then
+			! Ainit = 11!initClearcut(5)
+		! else
 			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
-		endif
+		! endif
 	endif
 	yearX = Ainit + year 
 !	initClearcut(5) = Ainit
@@ -1502,7 +1503,7 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- close(1)
+ ! close(1)
  ! close(2)
  ! close(3)
 
