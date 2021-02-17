@@ -93,7 +93,7 @@ implicit none
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
  real (kind=8) :: Hdom
-  ! open(1,file="test1.txt")
+  open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
@@ -163,7 +163,7 @@ ETSmean = sum(ETSy)/nYears
 
 do year = 1, (nYears)
 
-
+write(1,*) year,yearX
   if(year==int(min(yearX,nYears))) then
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
@@ -1502,7 +1502,7 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- ! close(1)
+ close(1)
  ! close(2)
  ! close(3)
 
