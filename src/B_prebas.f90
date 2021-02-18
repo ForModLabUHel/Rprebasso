@@ -974,7 +974,7 @@ endif
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
 	  energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
       S_branch = (W_branch + Wdb) * (1-energyRatio) + W_croot*0.83 + S_branch + &
-				+ W_stem* (1-harvRatio)* (1-energyRatio) 
+				W_stem* (1-harvRatio)* (1-energyRatio) 
       S_wood = S_wood + W_croot*0.17 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
 	 else
       S_branch = W_branch + Wdb + W_croot*0.83 + S_branch + W_stem* (1-harvRatio) 
