@@ -1385,12 +1385,12 @@ IMPLICIT NONE
 	REAL (kind=8),INTENT(IN) :: AWENin(nSites, nYears, 5) 
 	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
 	! REAL (kind=8),INTENT(IN) :: species(nSites, nLayers)
-	REAL (kind=8),INTENT(IN) :: pYasso(35)
+	REAL (kind=8),INTENT(IN) :: pYasso(35),litSize
 	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5)
-	integer,INTENT(IN) :: climIDs(nSites),litSize
+	integer,INTENT(IN) :: climIDs(nSites)
 	INTEGER :: year, site, layer, spec
 	real (kind=8) :: t=1.,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
-	! real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
+	real (kind=8),DIMENSION(5) :: AWENH
 	
 
 ! fbAWENH = 0.
@@ -1403,7 +1403,7 @@ do site = 1, nSites
 
    ! Lst = litter(site,year,layer,3)
    ! Lb = litter(site,year,layer,2)
-   folAWENH = AWENin(site,year,:)
+   AWENH = AWENin(site,year,:)
 
    ! spec = int(species(site,layer))
    ! call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
@@ -1414,12 +1414,12 @@ do site = 1, nSites
 	! leac,soilC(site,(year+1),:,1,layer),stSt)
    ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
 	! leac,soilC(site,(year+1),:,2,layer),stSt)
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),folAWENH,litSize, &
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),AWENH,litSize, &
 	leac,soilC(site,(year+1),:),stSt)
 
 !   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
 
-  enddo
+  
  enddo
 enddo
 
