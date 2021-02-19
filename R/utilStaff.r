@@ -117,9 +117,11 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
   monthlyFluxes <- function(modOut){
-    cueGV <- 0.5
+    cueGV <- ###0.5 carbon use efficiency (NPP/GPP) of ground vegetation
     # if(is.matrix(mGPP)){
-    mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum"))
+    ##aggregating total GPP (tree layers + GV) at monthly time step
+    mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum")) 
+
     cueTrees <- modOut$multiOut[,,18,,1]/modOut$multiOut[,,44,,1]
     cueTrees[which(is.na(cueTrees))] <- 0.
     totGPP <- apply(modOut$multiOut[,,44,,1],1:2,sum) + modOut$GVout[,,3]
@@ -139,6 +141,8 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       }
     }
     
+    
+    ###litterfall calculations lit is splitted to August and September
     Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit),c(2,1,3))
     Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit),c(2,1,3))
     Lnw <- Lf + Lfr
@@ -179,7 +183,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                            climate=as.matrix(weatherYasso),
                            soilC=as.array(soilC)) 
     
-    ###calculate steady state C for gv
+    ###calculate soil C for gv
     fAPAR <- modOut$fAPAR
     fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.
     AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))
