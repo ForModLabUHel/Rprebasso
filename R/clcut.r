@@ -1,4 +1,4 @@
-ClCutD_Pine <- function(ETSmean,ETSthres,siteType){
+ClCutD_Pine <- function(ETSmean,ETSthres,siteType){   #TEST DELETE THIS COMMENT LAuri
     if(siteType<=3 & ETSmean>=ETSthres) inDclct <- ClCut_pine[1,1]
     if(siteType==4 & ETSmean>=ETSthres) inDclct <- ClCut_pine[2,1]
     if(siteType>=5 & ETSmean>=ETSthres) inDclct <- ClCut_pine[3,1]
