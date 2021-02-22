@@ -8,7 +8,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer,ftTapio,tTapio)		!!energCuts
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun)		!!energCuts
 
 
 implicit none
@@ -31,6 +31,9 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
  real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
+ !!!ground vegetation
+ integer, intent(in) :: gvRun			!!!ground vegetation
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,3) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
@@ -154,22 +157,22 @@ do ij = 1,maxYears
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
-		tapioPars,thdPer(i),limPer(i),ftTapio,tTapio) !!energCuts
+		tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,GVout(i,ij,:),GVrun) !!energCuts
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
 	 if((maxYears-ij)<10) then
- 		if(initClearcut(i,5)<998.) then
-			Ainit = initClearcut(i,5)
-		else
+ 		! if(initClearcut(i,5)<998.) then
+			! Ainit = initClearcut(i,5)
+		! else
 			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
-		endif
+		! endif
 	 else
- 		if(initClearcut(i,5)<998.) then
-			Ainit = initClearcut(i,5)
-		else
+ 		! if(initClearcut(i,5)<998.) then
+			! Ainit = initClearcut(i,5)
+		! else
 			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
-		endif
+		! endif
 	 endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
@@ -257,15 +260,16 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	 species = int(multiOut(siteX,ij,4,ijj,1))
 	 multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
 	 energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
-	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) * (1-energyRatio) + &
-		multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.7
-     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)+ &
-	  multiOut(siteX,ij,32,ijj,1)*0.3  * (1-energyRatio)+ multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	 multiOut(siteX,ij,28,ijj,1) = (multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
+		(1-energyRatio) + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 +&
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)
+     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)+ &
+			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	else
 	 multiOut(siteX,ij,28,ijj,1) = multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
-	  multiOut(siteX,ij,32,ijj,1)*0.7
-     multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,31,ijj,1)* 0.1 + &
-	  multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+		multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 + &
+		multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)
+     multiOut(siteX,ij,29,ijj,1)=multiOut(siteX,ij,32,ijj,1)*0.17+multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	endif
 !!energCuts
 	multiOut(siteX,ij,8:21,ijj,1) = 0.

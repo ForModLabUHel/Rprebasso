@@ -8,7 +8,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
-		tapioPars,thdPer,limPer,ftTapio,tTapio) !!energCut
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun) !!energCut
 
 implicit none
 
@@ -28,6 +28,9 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
  real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP),energyCuts(nSites)	!!energCuts
+ !!!ground vegetation
+ integer, intent(in) :: gvRun			!!!ground vegetation
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,3) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
@@ -82,7 +85,8 @@ do i = 1,nSites
 		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
 		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
-		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio) !energyCut)
+		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
+		GVout(i,1:nYears(i),:),GVrun) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do

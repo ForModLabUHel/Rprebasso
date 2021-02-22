@@ -37,7 +37,8 @@ InitMultiSite <- function(nYearsMS,
                           thdPer = NA,
                           limPer = NA,
                           ftTapioPar = ftTapio,
-                          tTapioPar = tTapio
+                          tTapioPar = tTapio,
+                          GVrun = 1
 ){  
   
   nSites <- length(nYearsMS)
@@ -147,12 +148,12 @@ InitMultiSite <- function(nYearsMS,
         c(ClCutD_Pine(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutD_Spruce(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutD_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
-          NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops")
+          NA,NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops","popu")
     if(ClCut[i]==1 & all(is.na(inAclct[i,]))) inAclct[i,] <-
         c(ClCutA_Pine(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutA_Spruce(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutA_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
-          80,50,13,30)  ###"fasy","pipi","eugl","rops"  )
+          80,50,13,30,50)  ###"fasy","pipi","eugl","rops","popu"  )
     if(any(!is.na(inDclct[i,]))) inDclct[i,is.na(inDclct[i,])] <- max(inDclct[i,],na.rm=T)
     if(all(is.na(inDclct[i,]))) inDclct[i,] <- 9999999.99
     if(any(!is.na(inAclct[i,]))) inAclct[i,is.na(inAclct[i,])] <- max(inAclct[i,],na.rm=T)
@@ -304,6 +305,9 @@ InitMultiSite <- function(nYearsMS,
     multiOut[sitxx,,,i,] <- 0.
   }
   
+  dimnames(multiInitVar) <-  list(site=NULL,
+                                  variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
+  
   multiSiteInit <- list(
     multiOut = multiOut,
     multiEnergyWood = multiEnergyWood,
@@ -350,7 +354,9 @@ InitMultiSite <- function(nYearsMS,
     thdPer = thdPer,
     limPer = limPer,
     ftTapioPar = ftTapioPar,
-    tTapioPar = tTapioPar
+    tTapioPar = tTapioPar,
+    GVrun=as.integer(GVrun),
+    GVout=array(0.,dim = c(nSites,maxYears,3))
   )
   return(multiSiteInit)
 }
@@ -399,8 +405,14 @@ multiPrebas <- function(multiSiteInit){
                      thdPer=as.double(multiSiteInit$thdPer),
                      limPer=as.double(multiSiteInit$limPer),
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
-                     tTapioPar = as.array(multiSiteInit$tTapioPar)
+                     tTapioPar = as.array(multiSiteInit$tTapioPar),
+                     GVout = as.array(multiSiteInit$GVout),
+                     GVrun = as.integer(multiSiteInit$GVrun)
                      )
+  dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
+  dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
+  names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -463,7 +475,9 @@ regionPrebas <- function(multiSiteInit,
                      thdPer=as.double(multiSiteInit$thdPer),
                      limPer=as.double(multiSiteInit$limPer),
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
-                     tTapioPar = as.array(multiSiteInit$tTapioPar))
+                     tTapioPar = as.array(multiSiteInit$tTapioPar),
+                     GVout = as.array(multiSiteInit$GVout),
+                     GVrun = as.integer(multiSiteInit$GVrun))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
@@ -471,6 +485,10 @@ regionPrebas <- function(multiSiteInit,
   }else{
     prebas$totHarv <- colSums(prebas$multiOut[,,37,1,1]*prebas$areas)
   }
+  
+  dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
+  dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
+  names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   return(prebas)
 }
 

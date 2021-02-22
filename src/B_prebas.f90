@@ -5,7 +5,8 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
 		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
 		litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
-		inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,ftTapio,tTapio) !energyCut
+		inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun) !energyCut
+
 
 implicit none
 
@@ -28,7 +29,10 @@ implicit none
  real (kind=8), intent(in) :: inDclct(nSp),inAclct(nSp)
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning
- real (kind=8), intent(out) :: fAPAR(nYears)
+ !!!ground vegetation variables
+ real (kind=8) :: AWENgv(4)  !!!ground vegetation
+ integer, intent(in) :: gvRun			!!!ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears),GVout(nYears,3) !fAPAR_gv,litGV,photoGV			!!!ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
  real (kind=8), intent(inout) :: initVar(7,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
  real (kind=8), intent(inout) :: siteInfo(10)
@@ -109,6 +113,7 @@ pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
+Ainit = initClearcut(5)
 P0yX = P0y
 Reineke(:) = 0.
 ETSmean = sum(ETSy)/nYears
@@ -159,7 +164,7 @@ ETSmean = sum(ETSy)/nYears
 
 do year = 1, (nYears)
 
-
+! write(1,*) year,yearX,Ainit,initClearcut(5)
   if(year==int(min(yearX,nYears))) then
    Ainit = int(min(Ainit, Ainit + nYears - yearX))
       totBA = sum(modOut((year-Ainit-1),13,:,1))
@@ -410,8 +415,8 @@ if (N>0.) then
 			W_bh = stand(53)
 			W_crh = stand(54)
 			W_stem = stand(31)
-	S_branch = (W_branch + W_croot*0.7) * min(1.,-dN*step/Nold)
-	S_wood = (W_croot*0.3 + W_stem) * min(1.,-dN*step/Nold)
+	S_branch = (W_branch + W_croot*0.83 + Wdb) * min(1.,-dN*step/Nold) 
+	S_wood = (W_croot*0.17 + W_stem) * min(1.,-dN*step/Nold)
     S_fol = wf_STKG * min(1.,-dN*step/Nold) !foliage litterfall
     S_fr  = W_froot * min(1.,-dN*step/Nold)  !fine root litter
 			W_wsap = W_wsap * N/Nold
@@ -532,26 +537,27 @@ if (year <= maxYearSite) then
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
 ! fAPARsite=0.7
-   if(fAPARsite == 0. .and. yearX == 0) then
+   if(sum(modOut(year,11,:,1)) == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
-		if(initClearcut(5)<998.) then
-			Ainit = initClearcut(5)
-		else
+		! if(initClearcut(5)>0.) then
+			! Ainit = initClearcut(5)
+		! else
 			Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
-		endif
+		! endif
 	else
-		if(initClearcut(5)<998.) then
-			Ainit = initClearcut(5)
-		else
+		! if(initClearcut(5)>0.) then
+			! Ainit = 11!initClearcut(5)
+		! else
 			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
-		endif
+		! endif
 	endif
-	yearX = Ainit + year
+	yearX = Ainit + year 
 !	initClearcut(5) = Ainit
    endif
 
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARsite
+      
    
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
@@ -569,6 +575,29 @@ if (year <= maxYearSite) then
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
    STAND_all(10,:) = prelesOut(1)/1000. ! Photosynthesis in g C m-2 (converted to kg C m-2)
+
+
+   !!!ground vegetation
+   !!!fapar_gv compute fapar, biomasses and litter of gv with routine
+   if(gvRun==1) then
+	if(fAPARsite>0.) then
+     call fAPARgv(fAPARsite,ETSmean,siteType,GVout(year,1),GVout(year,2),sum(P0yX(:,1))/nYears,AWENgv) !reduced input output
+     GVout(year,3) = prelesOut(1) * GVout(year,1)/fAPARsite! Photosynthesis in g C m-2 
+     ! GVout(year,4) = GVout(year,3)*0.5 !where to put those two variables
+   	 ! STAND_all(26,1) = STAND_all(26,1) + GVout(year,2)	!add !!!ground vegetation to the 1st layer
+    elseif(fAPARsite==0.) then
+	 call fAPARgv(fAPARsite,ETSmean,siteType,GVout(year,1),GVout(year,2),sum(P0yX(:,1))/nYears,AWENgv) !reduced input output
+     fAPARprel(:) = GVout(year,1)
+    !!!fapar_gv run preles for ground vegetation
+     call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
+		etmodel)		!type of ET model
+      GVout(year,3) = prelesOut(1) ! Photosynthesis in g C m-2 
+      ! GVout(year,4) =  GVout(year,3)*0.5 
+	endif
+   endif
 
 endif
 !enddo !! end site loop
@@ -941,16 +970,16 @@ endif
   !energyCut
 	 S_fol = wf_STKG + S_fol
      S_fr = W_froot + S_fr
-	if(energyCut==1.) then
-	 energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-     S_branch = W_branch * (1-energyRatio) + W_croot*0.7 + S_branch
-     S_wood = S_wood + W_stem* (1-harvRatio)* (1-energyRatio) + &
-			W_croot*0.3 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
-	else
-     S_branch = W_branch + W_croot*0.7 + S_branch
-     S_wood = S_wood + W_stem* (1-harvRatio) + W_croot*0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
-	endif
+	 if(energyCut==1.) then
+	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
+	  energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+      S_branch = (W_branch + Wdb) * (1-energyRatio) + W_croot*0.83 + S_branch + &
+				W_stem* (1-harvRatio)* (1-energyRatio) 
+      S_wood = S_wood + W_croot*0.17 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
+	 else
+      S_branch = W_branch + Wdb + W_croot*0.83 + S_branch + W_stem* (1-harvRatio) 
+      S_wood = S_wood + W_croot*0.17!(1-harvRatio) takes into account of the stem residuals after thinnings
+	 endif
   !energyCut
      STAND(26) = S_fol
      STAND(27) = S_fr
@@ -1016,6 +1045,7 @@ endif
 		V = W_stem / par_rhow
 		W_croot = W_crs + W_crh
 		W_branch = W_bs + W_bh
+		Wdb = Wdb * N/Nold
 !! calculate litter including residuals from thinned trees
   !energyCut
 	S_fol = stand(26) + stand(33) - wf_STKG
@@ -1024,13 +1054,14 @@ endif
 	 energyWood(year,ij,2) = (stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-     S_branch = stand(28) + (stand(24) - W_branch) * (1-energyRatio) + &
-				(stand(32) - W_croot)*0.7
-     S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio) +&
-			(stand(32) - W_croot)*0.3* (1-energyRatio)
+     S_branch = stand(28) + (stand(24) - W_branch + stand(51) - Wdb) * (1-energyRatio) + &
+				(stand(32) - W_croot)*0.83 + &
+				(stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio)
+     S_wood = stand(29) +(stand(32) - W_croot)*0.17* (1-energyRatio)
 	else
-    S_branch = stand(28) + stand(24) - W_branch + (stand(32) - W_croot)*0.7
-    S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) + (stand(32) - W_croot)*0.3
+    S_branch = stand(28)+stand(24)-W_branch+stand(51)-Wdb+(stand(32)-W_croot)*0.83 + &
+		(stand(31) - W_stem) * (1-harvRatio)
+    S_wood = stand(29)  + (stand(32) - W_croot)*0.17
 	endif
   !energyCut	
 ! !! calculate litter including residuals from thinned trees
@@ -1122,12 +1153,14 @@ if (ClCut == 1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-	 S_branch = stand_all(28,ij) + stand_all(24,ij) * (1-energyRatio) + stand_all(32,ij) * 0.7
-	 S_wood = stand_all(31,ij)* (1-harvRatio) * (1-energyRatio) + &
-		stand_all(32,ij) *0.3 * (1-energyRatio) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+	 S_branch = stand_all(28,ij) + (stand_all(24,ij) + stand_all(51,ij)) * &
+		(1-energyRatio) + stand_all(32,ij) * 0.83 +&
+		stand_all(31,ij)* (1-harvRatio) * (1-energyRatio)
+	 S_wood = stand_all(32,ij) *0.17 * (1-energyRatio) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	else
-	 S_branch = stand_all(24,ij) + stand_all(28,ij) + stand_all(32,ij) * 0.7
-	 S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) *0.3 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+	 S_branch = stand_all(51,ij)+stand_all(24,ij)+stand_all(28,ij)+stand_all(32,ij)* 0.83 +&
+			stand_all(31,ij)* (1-harvRatio)
+	 S_wood = stand_all(32,ij) *0.17 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	endif
   !energyCut
    stand_all(2,ij) = 0. !!newX
@@ -1267,6 +1300,7 @@ if(defaultThin == 1.) then
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
     Hc = stand_all(14,ij)
+	Wdb = stand_all(51,ij)
     Lc = H - Hc !Lc
     rc = Lc / (H-1.3) !crown ratio
     wf_STKG_old = stand_all(33,ij)
@@ -1318,6 +1352,7 @@ if(defaultThin == 1.) then
 		V = W_stem / par_rhow
 		W_croot = W_crs + W_crh
 		W_branch = W_bs + W_bh
+		Wdb = stand_all(51,ij) * N/Nold
 
 !! calculate litter including residuals from thinned trees
   !energyCut
@@ -1329,13 +1364,14 @@ if(defaultThin == 1.) then
 	    (stand_all(31,ij) - W_stem) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 
-     S_branch = stand_all(28,ij) + (stand_all(24,ij) - W_branch) * (1-energyRatio) + &
-		(stand_all(32,ij) - W_croot) * 0.7
-	 S_wood = stand_all(29,ij)+(stand_all(31,ij)-W_stem)*(1-harvRatio)*(1-energyRatio)+ &
-	 (stand_all(32,ij) - W_croot) * 0.3 * (1-energyRatio)
+     S_branch = stand_all(28,ij) + (stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb) * &
+		(1-energyRatio) + (stand_all(32,ij) - W_croot) * 0.83 +&
+		(stand_all(31,ij)-W_stem)*(1-harvRatio)*(1-energyRatio)
+	 S_wood = stand_all(29,ij)+(stand_all(32,ij) - W_croot) * 0.17 * (1-energyRatio)
 	else
-     S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch + (stand_all(32,ij) - W_croot) * 0.7
-     S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + (stand_all(32,ij) - W_croot) * 0.3
+     S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb + &
+		(stand_all(32,ij) - W_croot) * 0.83+ (stand_all(31,ij) - W_stem) * (1-harvRatio)
+     S_wood = stand_all(29,ij)  + (stand_all(32,ij) - W_croot) * 0.17
 	endif
   !energyCut
 	
@@ -1402,6 +1438,9 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
    species = int(initVar(1,ijj))
    call compAWENH(Lf(ijj),folAWENH(ijj,:),pAWEN(1:4,species))   !!!awen partitioning foliage
+   if(GVrun==1 .and. ijj==1) then 
+    folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
+   endif
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 
@@ -1452,9 +1491,13 @@ enddo
 	modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
 	modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
 	modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
-
+    if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
+	
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp is not smoothed
 !modOut(:,46,:,1) = modOut(:,18,:,1) - modOut(:,45,:,1) !!!everything smoothed
+
+!!!!ground vegetation Add Npp ground vegetation to the NEE first layer
+if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:,3)*0.5 
 
  output = modOut(2:(nYears+1),:,:,:)
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
