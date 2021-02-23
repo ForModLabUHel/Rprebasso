@@ -1424,3 +1424,25 @@ do site = 1, nSites
 enddo
 
 END SUBROUTINE runYassoAWENin  
+
+
+
+
+! subroutine multiGV(fAPARstand,ets,siteType,agW,bgW,fAPAR_gv,litAG,litBG)
+subroutine multiGV(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,nYears,nSites) !reduced input output	
+	implicit none
+	integer,INTENT(IN) :: nYears,nSites
+    real (kind=8) :: fAPARstand(nSites,nYears),ets(nSites,nYears),siteType(nSites),p0(nSites,nYears)
+	real (kind=8) :: totfAPAR_gv(nSites,nYears),totlitGV(nSites,nYears)
+	real (kind=8) :: AWENs(nSites,nYears,4)
+	integer :: site,year
+	
+ do site = 1, nSites
+  do year = 1,nYears
+	call fAPARgv(fAPARstand(site,year),ets(site,year),siteType(site),totfAPAR_gv(site,year), &
+			totlitGV(site,year),p0(site,year),AWENs(site,year,:))
+  enddo !year
+ enddo !site
+ 
+ 
+end subroutine multiGV

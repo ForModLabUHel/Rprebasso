@@ -188,9 +188,10 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.
     AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))
     p0 = modOut$multiOut[,,6,1,1]
+    ETSy = modOut$multiOut[,,5,1,1]
     for(ij in 1:nYears){
       AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
-                                                                   modOut$ETSy[i,ij],modOut$siteInfo[i,2],
+                                                                   ETSy[i,ij],modOut$siteInfo[i,2],
                                                                    0,0,p0[i,ij],rep(0,4))[[7]]))
     }
     
