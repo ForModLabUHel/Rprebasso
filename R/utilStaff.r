@@ -95,18 +95,18 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
 
   
   
-  
+  ### Function for the calculation of monthly mean values from a daily model output variable GPP 
   monthlyGPP <- function(GPPx,func="sum"){
-    monthsDays <- c(rep(1,31),rep(2,28),rep(3,31),rep(4,30),rep(5,31),rep(6,30),
+    monthsDays <- c(rep(1,31),rep(2,28),rep(3,31),rep(4,30),rep(5,31),rep(6,30),             # Number of days in each month
                     rep(7,31),rep(8,31),rep(9,30),rep(10,31),rep(11,30),rep(12,31))
-    GPPbyYear <- matrix(GPPx,365,length(GPPx)/365)
-    GPPm = unlist(apply(GPPbyYear, 2, function(x) 
-      aggregate(x,by=list(monthsDays),FUN=func)$x))
+    GPPbyYear <- matrix(GPPx,365,length(GPPx)/365)                                           # Divide GPP data into a matrix so that rows are days and columns are years
+    GPPm = unlist(apply(GPPbyYear, 2, function(x)                                            # Applies aggregation on the columns of input matrix of GPPbyYear. 
+      aggregate(x,by=list(monthsDays),FUN=func)$x))                                          # Aggregation is done by groups in the variable monthsDays, as there is no timestamp on datapoints of GPP
     GPPm <- as.vector(GPPm)
     return(GPPm)
   }
   
-  monthlyWeather <- function(varx,func){
+  monthlyWeather <- function(varx,func){                                                     # This function works similarly as the monthlyGPP above but with different data set
     monthsDays <- c(rep(1,31),rep(2,28),rep(3,31),rep(4,30),rep(5,31),rep(6,30),
                     rep(7,31),rep(8,31),rep(9,30),rep(10,31),rep(11,30),rep(12,31))
     # varByYear <- matrix(varx,365,length(varx)/365)
@@ -116,48 +116,56 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(varM)
   }
   
-  monthlyFluxes <- function(modOut){
+  ### A post-process function for modifying prebas model output for meeting the Digital Twin Earth project requirements
+  monthlyFluxes <- function(modOut){                                                          # This function conducts a post-process modification on output of prebas
     cueGV <- ###0.5 carbon use efficiency (NPP/GPP) of ground vegetation
     # if(is.matrix(mGPP)){
     ##aggregating total GPP (tree layers + GV) at monthly time step
-    mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum")) 
+    mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum"))                           # Daily GPP is converted into daily GPP using the function monthlyGPP, which is defined above
+                                                                                              # $dailyPRELES is a output matrix from the prebas model
+    ### Calculate CUE for different layers
+    cueTrees <- modOut$multiOut[,,18,,1]/modOut$multiOut[,,44,,1]                             # CUE = calculate npp / GPPspecies, but include data only from the standing trees
+    cueTrees[which(is.na(cueTrees))] <- 0.                                                    # Replace NAs with a value
+    cueAll <- pGPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears,(modOut$maxNlayers+1)))    # Create a pair of 3D arrays: x=1:7, y=1:150, z=1:4
+    cueAll[,,1] <- cueGV                                                                      # When layer is 1, then CUE is cueGV?
+    cueAll[,,2:(modOut$maxNlayers+1)] <- cueTrees                                             # ... and otherwise its cueTrees?
 
-    cueTrees <- modOut$multiOut[,,18,,1]/modOut$multiOut[,,44,,1]
-    cueTrees[which(is.na(cueTrees))] <- 0.
-    totGPP <- apply(modOut$multiOut[,,44,,1],1:2,sum) + modOut$GVout[,,3]
-    cueAll <- pGPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears,(modOut$maxNlayers+1)))
-    cueAll[,,1] <- cueGV
-    cueAll[,,2:(modOut$maxNlayers+1)] <- cueTrees
-    pGPP[,,1] <- modOut$GVout[,,3]/totGPP
+    ### Calculate total GPP (totGPP) and ratio of GPP at a layer/total GPP (pGPP)    
+    totGPP <- apply(modOut$multiOut[,,44,,1],1:2,sum) + modOut$GVout[,,3]                     # Sum of GPP for each year and site in a 2d array    
+    pGPP[,,1] <- modOut$GVout[,,3]/totGPP                                                     # Ratio between CUE of vegetation and CUE total?
     
-    for(i in 1:modOut$maxNlayers){
+    for(i in 1:modOut$maxNlayers){                                                            # Ratio between CUE of vegetation and pine or spruce or mixed
       pGPP[,,(i+1)] <- modOut$multiOut[,,44,i,1] / totGPP
     }
-    mGPP <- mNPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears*12,(modOut$maxNlayers+1)))
-    for(i in 1:dim(pGPP)[3]){
-      for(ij in 1:modOut$nSites){
-        mGPP[ij,,i] <- rep(pGPP[ij,,i],each=12) * mGPPtot[ij,]
-        mNPP[ij,,i] <- mGPP[ij,,i] * rep(cueAll[ij,,i],each=12)
+    ### Create arrays for monthly GPP and NPP values
+    mGPP <- mNPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears*12,(modOut$maxNlayers+1)))   # Create another 3D array, similar as before.
+    for(i in 1:dim(pGPP)[3]){                                                                 # Loop goes through forest layers 1-4 with i
+      for(ij in 1:modOut$nSites){                                                             # ... and for every layers it goes through different sites ij
+        mGPP[ij,,i] <- rep(pGPP[ij,,i],each=12) * mGPPtot[ij,]                                # Calculate monthly GPP for different layers by multiplying layer's share of GPP with monthly total GPP
+        mNPP[ij,,i] <- mGPP[ij,,i] * rep(cueAll[ij,,i],each=12)                               # Calculate monthly NPP for different layers by multiplying monthly total GPP with layers yearly CUE
       }
     }
     
     
     ###litterfall calculations lit is splitted to August and September
-    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit),c(2,1,3))
-    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit),c(2,1,3))
-    Lnw <- Lf + Lfr
-    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit),c(2,1,3))
-    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit),c(2,1,3))
+                                                                                              # These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
+    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit),c(2,1,3))                         # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit),c(2,1,3))                        # The mLit function moves litter fall to the August and September time period in the model output
+    Lnw <- Lf + Lfr                                                                           # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit),c(2,1,3))                        # Branch litter
+    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit),c(2,1,3))                         # Woody litter
     
+    ### Create a input array for the Yasso model with the litter fall information
     nYears <- dim(modOut$multiOut)[2]
     nMonths <- nYears * 12
     nSites <- modOut$nSites
     nLayers <- dim(modOut$multiOut)[4]
     litter <- array(0.,dim=c(nSites,nMonths,nLayers,3))
-    litter[,,,1] <- Lnw
-    litter[,,,2] <- Lfw
-    litter[,,,3] <- Lw
+    litter[,,,1] <- Lnw   # Non-woody litter
+    litter[,,,2] <- Lfw   # Branch litter
+    litter[,,,3] <- Lw    # Woody litter
     
+    ### Prepare also other initialization information for Yasso
     species <- modOut$multiOut[,1,4,,1]
     nSp <- max(species)
     litterSize <- modOut$litterSize[,1:nSp]
@@ -169,6 +177,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
     weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
     
+    ### Run the Yasso model, which is a function in the src/A_routines.90 file
     soilCtrees <- .Fortran("runYasso",litter=as.array(litter),
                            litterSize=as.array(litterSize),
                            nMonths=as.integer(nMonths), 
@@ -184,10 +193,10 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                            soilC=as.array(soilC)) 
     
     ###calculate soil C for gv
-    fAPAR <- modOut$fAPAR
-    fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.
-    AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))
-    p0 = modOut$multiOut[,,6,1,1]
+    fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
+    fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.                                                    # Convert NAs to values
+    AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))                                                         # Add the layer dimension on the fAPAR array
+    p0 = modOut$multiOut[,,6,1,1]                                                                          # Annual potential photosynthesis, 3d array: site,year,value
     for(ij in 1:nYears){
       AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
                                                                    modOut$ETSy[i,ij],modOut$siteInfo[i,2],
@@ -227,12 +236,12 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   
   
-  
+  ### This function is used for adding yearling litter fall to the fall period on a timeseries data set, used in the monthlyFluxes function
   mLit <- function(aLit){
-    nYears <- length(aLit)
-    lit <- matrix(0,12,nYears)
-    lit[8:9,] <- matrix(aLit/2,2,nYears,byrow = T)
-    lit <- as.vector(lit)
-    return(lit)
+    nYears <- length(aLit)                                                        # Gets the length of the array
+    lit <- matrix(0,12,nYears)                                                    # Creates a matrix by 12 rows, nYears columns and fills it with zeros
+    lit[8:9,] <- matrix(aLit/2,2,nYears,byrow = T)                                # This appears to create a new matrix within a matrix, on rows 8-9. Is this just used to fill these rows with data?
+    lit <- as.vector(lit)                                                         # Matrix is converted intoa vector, which removes the table structure and appears to create a timeseries data set
+    return(lit)                                                                   
   }
   
