@@ -675,7 +675,40 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
       soilC[,,1,1] <- soilC[,,1,1] + ststGV
     }  
   }else{
-    print("stXX_GV function needs to be coded for one layer prebas outut")
+    # print("stXX_GV function needs to be coded for one layer prebas outut")
+    litter <- array(NA,dim=c(nSites, 3))
+    litter[,1] <- apply(prebOut$multiOut[,,26,1,1],1,mean) + 
+      apply(prebOut$multiOut[,,27,1,1],1,mean)
+    litter[,2] <- apply(prebOut$multiOut[,,28,1,1],1,mean)
+    litter[,3] <- apply(prebOut$multiOut[,,29,1,1],1,mean)
+    species <- prebOut$multiOut[,1,4,1,1]
+    climIDs <- prebOut$siteInfo[,2]
+    litterSize <- prebOut$litterSize
+    nSp <- ncol(parsAWEN)
+    weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
+    nClimID <- prebOut$nClimID
+    soilC <- array(0.,dim=c(nSites,5,3,nLayers))
+    
+    soilC <- .Fortran("StstYasso",
+                      litter = as.array(litter),
+                      litterSize = as.matrix(litterSize),
+                      nLayers = as.integer(nLayers), 
+                      nSites = as.integer(nSites), 
+                      nSp = as.integer(nSp),
+                      species = as.matrix(species),
+                      nClimID = as.integer(nClimID),
+                      climIDs = as.integer(climIDs),
+                      pAWEN = as.matrix(pAWEN),
+                      pYASSO=as.double(pYASSO),
+                      weatherYasso = as.matrix(weatherYasso),
+                      soilC = as.array(soilC)
+    )$soilC
+    
+    ####add gvsoilc to first layer foliage soilC
+    # check in normal runs where ground vegetation soilC is calculated
+    if(GVrun==1){
+      soilC[,,1,1] <- soilC[,,1,1] + ststGV
+    }  
   }
   return(soilC)
 }
@@ -736,13 +769,13 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWE
   AWENgv <- .Fortran("multiGV",
                      fAPAR=as.matrix(fAPAR),
                      ETS=as.matrix(ETSy),
-                     siteInfo = as.double(prebOut$siteInfo[,2]),
+                     siteType = as.double(prebOut$siteInfo[,3]),
                      fAPARgv=as.matrix(fAPARgv),
                      litGV=as.matrix(litGV),
                      p0=as.matrix(p0),
                      AWENgv=as.array(AWENgv[,,1:4]),
-                     nSites = as.integer(nSites),
-                     nYears = as.integer(nYears))$AWENgv
+                     nYears = as.integer(nYears),
+                     nSites = as.integer(nSites))$AWENgv
   
   soilCgv <- .Fortran("runYassoAWENin",
                       mAWEN=as.array(AWENgv),
@@ -763,11 +796,22 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWE
   
   prebOut$soilC <- soilC[,2:(nYears+1),,,]
   prebOut$soilCtot <- apply(soilC[,2:(nYears+1),,,],1:2,sum)
-  prebOut$multiOut[,,39,,1] <- apply(prebOut$soilC,c(1:2,5),sum)
   
+  if(nLayers == 1){
+    margins <- c(1:2)
+  }else{
+    margins <- c(1:2,5)
+  }
+  prebOut$multiOut[,,39,,1] <- apply(prebOut$soilC,margins,sum)
+  
+  if(nLayers == 1){
+    margins <- c(1:2)
+  }else{
+    margins <- c(1:2,4)
+  }
   #Rh calculations
   prebOut$multiOut[,,45,,1] <- (soilByLay[,1:nYears,] - soilByLay[,2:(nYears+1),] +
-                                  apply(prebOut$multiOut[,1:nYears,26:29,,1],c(1,2,4),sum))/10 ###/10 converts kgC/ha to gC/m2
+                                  apply(prebOut$multiOut[,1:nYears,26:29,,1],margins,sum))/10 ###/10 converts kgC/ha to gC/m2
   ###add GVlitter to first layer of multiout of Rh
   prebOut$multiOut[,,45,1,1] <- apply(AWENgv,1:2,sum)/10 + prebOut$multiOut[,,45,1,1] 
   ##NEP calculations
