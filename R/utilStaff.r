@@ -117,7 +117,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
   monthlyFluxes <- function(modOut){
-    cueGV <- ###0.5 carbon use efficiency (NPP/GPP) of ground vegetation
+    cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
     # if(is.matrix(mGPP)){
     ##aggregating total GPP (tree layers + GV) at monthly time step
     mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum")) 
