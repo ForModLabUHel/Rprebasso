@@ -1450,7 +1450,6 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 	leac,soilC((year+1),:,2,ijj),0.)
    call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,3,ijj),folAWENH(ijj,:),litterSize(3,species), &
 	leac,soilC((year+1),:,3,ijj),0.)
-	write(1,*)soilC((year),:,3,ijj)
   enddo
  ! write(2,*) "after yasso"
 
@@ -1506,7 +1505,7 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- close(1)
+ ! close(1)
  ! close(2)
  ! close(3)
 
