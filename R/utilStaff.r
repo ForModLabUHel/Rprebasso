@@ -117,8 +117,9 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
   ### A post-process function for modifying prebas model output for meeting the Digital Twin Earth project requirements
-  monthlyFluxes <- function(modOut){                                                          # This function conducts a post-process modification on output of prebas
-    cueGV <- ###0.5 carbon use efficiency (NPP/GPP) of ground vegetation
+  monthlyFluxes <- function(modOut){
+    cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
+
     # if(is.matrix(mGPP)){
     ##aggregating total GPP (tree layers + GV) at monthly time step
     mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum"))                           # Daily GPP is converted into daily GPP using the function monthlyGPP, which is defined above
@@ -148,12 +149,19 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     
     ###litterfall calculations lit is splitted to August and September
-                                                                                              # These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
-    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit),c(2,1,3))                         # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
-    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit),c(2,1,3))                        # The mLit function moves litter fall to the August and September time period in the model output
-    Lnw <- Lf + Lfr                                                                           # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
-    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit),c(2,1,3))                        # Branch litter
-    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit),c(2,1,3))                         # Woody litter
+
+    
+    
+    
+    
+    
+    # Woody litter
+# These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
+    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
+    Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # fine woody litter
+    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Coarse woody litter
     
     ### Create a input array for the Yasso model with the litter fall information
     nYears <- dim(modOut$multiOut)[2]
@@ -190,21 +198,24 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                            pAWEN=as.matrix(parsAWEN),
                            pYasso=as.double(pYAS),
                            climate=as.matrix(weatherYasso),
-                           soilC=as.array(soilC)) 
+                           soilC=as.array(soilC),
+                           monthlyRun=as.integer(1)) 
     
     ###calculate soil C for gv
     fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
     fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.                                                    # Convert NAs to values
     AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))                                                         # Add the layer dimension on the fAPAR array
     p0 = modOut$multiOut[,,6,1,1]                                                                          # Annual potential photosynthesis, 3d array: site,year,value
+    ETSy = modOut$multiOut[,,5,1,1]
+
     for(ij in 1:nYears){
       AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
-                                                                   modOut$ETSy[i,ij],modOut$siteInfo[i,2],
+                                                                   ETSy[i,ij],modOut$siteInfo[i,2],
                                                                    0,0,p0[i,ij],rep(0,4))[[7]]))
     }
     
     mAWEN <- array(0,dim=c(nSites,nMonths,5))
-    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit),c(2,1,3))
+    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))
     mGVit <- t(apply(modOut$GVout[,,2],1,mLit))
     ###calculate steady state soil C per GV
     # ststGV <- matrix(NA,nSites,5)
@@ -220,7 +231,8 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                         climIDs=as.integer(climIDs),
                         pYasso=as.double(pYAS),
                         climate=as.matrix(weatherYasso),
-                        soilCgv=as.array(soilGV))
+                        soilCgv=as.array(soilGV),
+                        monthlyRun=as.integer(1))
     ####add gvsoilc to first layer foliage soilC
     # check in normal runs where ground vegetation soilC is calculated
     soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
@@ -234,13 +246,13 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   } 
   
   
-  
-  
+   
   ### This function is used for adding yearling litter fall to the fall period on a timeseries data set, used in the monthlyFluxes function
-  mLit <- function(aLit){
+  mLit <- function(aLit,months=8:9){
     nYears <- length(aLit)                                                        # Gets the length of the array
+    nMonths <- length(months)
     lit <- matrix(0,12,nYears)                                                    # Creates a matrix by 12 rows, nYears columns and fills it with zeros
-    lit[8:9,] <- matrix(aLit/2,2,nYears,byrow = T)                                # This appears to create a new matrix within a matrix, on rows 8-9. Is this just used to fill these rows with data?
+    lit[months,] <- matrix(aLit/nMonths,nMonths,nYears,byrow = T)                                # This appears to create a new matrix within a matrix, on rows 8-9. Is this just used to fill these rows with data?
     lit <- as.vector(lit)                                                         # Matrix is converted intoa vector, which removes the table structure and appears to create a timeseries data set
     return(lit)                                                                   
   }

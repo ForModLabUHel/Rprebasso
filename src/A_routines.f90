@@ -813,7 +813,8 @@ IMPLICIT NONE
     END SUBROUTINE compAWENH
 
 	
-SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso,weatherYasso,soilC)
+SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso, &
+			weatherYasso,soilC,monthlyRun)
 IMPLICIT NONE
     !********************************************* &
     ! GENERAL DESCRIPTION 
@@ -825,6 +826,7 @@ IMPLICIT NONE
 	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
 	REAL (kind=8),INTENT(IN) :: species(nSites, nLayers),litterSize(3,nSp)
 	REAL (kind=8),INTENT(IN) :: pAWEN(12, nSp), pYasso(35)
+	integer, intent(in) :: monthlyRun
 	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5,3,nLayers)
 	integer,INTENT(IN) :: climIDs(nSites)
 	INTEGER :: year, site, layer, spec
@@ -856,6 +858,14 @@ do site = 1, nSites
 	leac,soilC(site,(year+1),:,2,layer),stSt)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
 	leac,soilC(site,(year+1),:,3,layer),stSt)
+	
+   ! if(present(monthlyRun)) then
+	! write(1,*) monthlyRun
+   if(monthlyRun==1) then
+	soilC(site,(year+1),:,1,layer) = soilC(site,year,:,1,layer) + (soilC(site,(year+1),:,1,layer) - soilC(site,year,:,1,layer))/12
+	soilC(site,(year+1),:,2,layer) = soilC(site,year,:,2,layer) + (soilC(site,(year+1),:,2,layer) - soilC(site,year,:,2,layer))/12
+	soilC(site,(year+1),:,3,layer) = soilC(site,year,:,3,layer) + (soilC(site,(year+1),:,3,layer) - soilC(site,year,:,3,layer))/12
+   endif
 
 !   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
 
@@ -1374,14 +1384,14 @@ end subroutine fAPARgv
 
 
 
-SUBROUTINE runYassoAWENin(AWENin,nYears, nSites, litSize,nClimID,climIDs,pYasso,weatherYasso,soilC)
+SUBROUTINE runYassoAWENin(AWENin,nYears, nSites, litSize,nClimID,climIDs,pYasso,weatherYasso,soilC,monthlyRun)
 IMPLICIT NONE
     !********************************************* &
     ! GENERAL DESCRIPTION 
     !********************************************* &
     ! run yasso for some years with litterfal inputs from prebas.
 
-	integer, intent(in) :: nYears, nSites, nClimID
+	integer, intent(in) :: nYears, nSites, nClimID, monthlyRun
 	REAL (kind=8),INTENT(IN) :: AWENin(nSites, nYears, 5) 
 	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
 	! REAL (kind=8),INTENT(IN) :: species(nSites, nLayers)
@@ -1417,6 +1427,9 @@ do site = 1, nSites
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),AWENH,litSize, &
 	leac,soilC(site,(year+1),:),stSt)
 
+   if(monthlyRun==1) then
+	soilC(site,(year+1),:) = soilC(site,year,:) + (soilC(site,(year+1),:) - soilC(site,year,:))/12
+   endif
 !   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
 
   
@@ -1424,3 +1437,25 @@ do site = 1, nSites
 enddo
 
 END SUBROUTINE runYassoAWENin  
+
+
+
+
+! subroutine multiGV(fAPARstand,ets,siteType,agW,bgW,fAPAR_gv,litAG,litBG)
+subroutine multiGV(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,nYears,nSites) !reduced input output	
+	implicit none
+	integer,INTENT(IN) :: nYears,nSites
+    real (kind=8) :: fAPARstand(nSites,nYears),ets(nSites,nYears),siteType(nSites),p0(nSites,nYears)
+	real (kind=8) :: totfAPAR_gv(nSites,nYears),totlitGV(nSites,nYears)
+	real (kind=8) :: AWENs(nSites,nYears,4)
+	integer :: site,year
+	
+ do site = 1, nSites
+  do year = 1,nYears
+	call fAPARgv(fAPARstand(site,year),ets(site,year),siteType(site),totfAPAR_gv(site,year), &
+			totlitGV(site,year),p0(site,year),AWENs(site,year,:))
+  enddo !year
+ enddo !site
+ 
+ 
+end subroutine multiGV
