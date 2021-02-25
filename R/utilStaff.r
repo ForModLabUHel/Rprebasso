@@ -157,11 +157,11 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     # Woody litter
 # These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
-    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
-    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
+    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=1:2),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=1:2),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
     Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
-    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # fine woody litter
-    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Coarse woody litter
+    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=1:2),c(2,1,3))   # fine woody litter
+    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=1:2),c(2,1,3))    # Coarse woody litter
     
     ### Create a input array for the Yasso model with the litter fall information
     nYears <- dim(modOut$multiOut)[2]
@@ -172,7 +172,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     litter[,,,1] <- Lnw   # Non-woody litter
     litter[,,,2] <- Lfw   # Branch litter
     litter[,,,3] <- Lw    # Woody litter
-    
+    litter <- litter*12
     ### Prepare also other initialization information for Yasso
     species <- modOut$multiOut[,1,4,,1]
     nSp <- max(species)
@@ -186,7 +186,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
     
     ### Run the Yasso model, which is a function in the src/A_routines.90 file
-    soilCtrees <- .Fortran("runYasso",litter=as.array(litter),
+    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter),
                            litterSize=as.array(litterSize),
                            nMonths=as.integer(nMonths), 
                            nLayers=as.integer(nLayers), 
@@ -214,14 +214,14 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     }
     
     mAWEN <- array(0,dim=c(nSites,nMonths,5))
-    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))
+    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=1:2),c(2,1,3))*12
     mGVit <- t(apply(modOut$GVout[,,2],1,mLit))
     ###calculate steady state soil C per GV
     # ststGV <- matrix(NA,nSites,5)
     soilGV <- array(0,dim=c(nSites,(nMonths+1),5))
     
     
-    soilCgv <- .Fortran("runYassoAWENin",
+    soilCgv <- .Fortran("runYassoAWENinMonthly",
                         mAWEN=as.array(mAWEN),
                         nMonths=as.integer(nMonths),  
                         nSites=as.integer(nSites), 
