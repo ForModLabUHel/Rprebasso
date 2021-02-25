@@ -143,11 +143,11 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     
     ###litterfall calculations lit is splitted to August and September
-    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit),c(2,1,3))
-    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit),c(2,1,3))
+    Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))
+    Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))
     Lnw <- Lf + Lfr
-    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit),c(2,1,3))
-    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit),c(2,1,3))
+    Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))
+    Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))
     
     nYears <- dim(modOut$multiOut)[2]
     nMonths <- nYears * 12
@@ -181,7 +181,8 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                            pAWEN=as.matrix(parsAWEN),
                            pYasso=as.double(pYAS),
                            climate=as.matrix(weatherYasso),
-                           soilC=as.array(soilC)) 
+                           soilC=as.array(soilC),
+                           monthlyRun=as.integer(1)) 
     
     ###calculate soil C for gv
     fAPAR <- modOut$fAPAR
@@ -196,7 +197,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     }
     
     mAWEN <- array(0,dim=c(nSites,nMonths,5))
-    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit),c(2,1,3))
+    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))
     mGVit <- t(apply(modOut$GVout[,,2],1,mLit))
     ###calculate steady state soil C per GV
     # ststGV <- matrix(NA,nSites,5)
@@ -212,7 +213,8 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                         climIDs=as.integer(climIDs),
                         pYasso=as.double(pYAS),
                         climate=as.matrix(weatherYasso),
-                        soilCgv=as.array(soilGV))
+                        soilCgv=as.array(soilGV),
+                        monthlyRun=as.integer(1))
     ####add gvsoilc to first layer foliage soilC
     # check in normal runs where ground vegetation soilC is calculated
     soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
@@ -229,10 +231,11 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   
   
-  mLit <- function(aLit){
+  mLit <- function(aLit,months=8:9){
     nYears <- length(aLit)
+    nMonths <- length(months)
     lit <- matrix(0,12,nYears)
-    lit[8:9,] <- matrix(aLit/2,2,nYears,byrow = T)
+    lit[months,] <- matrix(aLit/nMonths,nMonths,nYears,byrow = T)
     lit <- as.vector(lit)
     return(lit)
   }
