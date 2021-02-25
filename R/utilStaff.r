@@ -198,8 +198,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                            pAWEN=as.matrix(parsAWEN),
                            pYasso=as.double(pYAS),
                            climate=as.matrix(weatherYasso),
-                           soilC=as.array(soilC),
-                           monthlyRun=as.integer(1)) 
+                           soilC=as.array(soilC)) 
     
     ###calculate soil C for gv
     fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
@@ -231,8 +230,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                         climIDs=as.integer(climIDs),
                         pYasso=as.double(pYAS),
                         climate=as.matrix(weatherYasso),
-                        soilCgv=as.array(soilGV),
-                        monthlyRun=as.integer(1))
+                        soilCgv=as.array(soilGV))
     ####add gvsoilc to first layer foliage soilC
     # check in normal runs where ground vegetation soilC is calculated
     soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
