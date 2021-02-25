@@ -1542,6 +1542,8 @@ do site = 1, nSites
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
 	leac,soilC(site,(year+1),:,3,layer),stSt)
 	
+	! soilC(site,(year+1),:,:,layer) = soilC(site,year,:,:,layer) + (soilC(site,(year+1),:,:,layer) -soilC(site,year,:,:,layer))/12
+
   enddo
  enddo
 enddo
