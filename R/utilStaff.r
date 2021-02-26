@@ -117,7 +117,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
   ### A post-process function for modifying prebas model output for meeting the Digital Twin Earth project requirements
-  monthlyFluxes <- function(modOut){
+  monthlyFluxes <- function(modOut,weatherOption=1){
     cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
 
     # if(is.matrix(mGPP)){
@@ -149,12 +149,6 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     
     ###litterfall calculations lit is splitted to August and September
-
-    
-    
-    
-    
-    
     # Woody litter
 # These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
     Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
@@ -172,7 +166,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     litter[,,,1] <- Lnw   # Non-woody litter
     litter[,,,2] <- Lfw   # Branch litter
     litter[,,,3] <- Lw    # Woody litter
-    
+    litter <- litter*12
     ### Prepare also other initialization information for Yasso
     species <- modOut$multiOut[,1,4,,1]
     nSp <- max(species)
@@ -182,11 +176,25 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     nClimID <- modOut$nClimID
     climIDs <- modOut$siteInfo[,2]
     weatherYasso <- array(0,dim=c(nClimID,nMonths,3))
-    weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
-    weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
-    
+    if(weatherOption==1){
+      weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
+      weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
+    }else if(weatherOption==2){
+      weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
+      weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
+      weatherYasso[,,3] <- (t(apply(modOut$weather[,,,2],1,monthlyWeather,"max")) - 
+          t(apply(modOut$weather[,,,2],1,monthlyWeather,"min"))) /2
+    }else if(weatherOption==3){
+      for(i in 1:nSites){
+        for(j in 1:nYears){
+          weatherYasso[i,(((j-1)*12)+1):(j*12),1] <- modOut$weatherYasso[i,j,1]
+          weatherYasso[i,(((j-1)*12)+1):(j*12),2] <- modOut$weatherYasso[i,j,2]
+          weatherYasso[i,(((j-1)*12)+1):(j*12),3] <- modOut$weatherYasso[i,j,3]
+        }
+      }
+    }
     ### Run the Yasso model, which is a function in the src/A_routines.90 file
-    soilCtrees <- .Fortran("runYasso",litter=as.array(litter),
+    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter),
                            litterSize=as.array(litterSize),
                            nMonths=as.integer(nMonths), 
                            nLayers=as.integer(nLayers), 
@@ -198,8 +206,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                            pAWEN=as.matrix(parsAWEN),
                            pYasso=as.double(pYAS),
                            climate=as.matrix(weatherYasso),
-                           soilC=as.array(soilC),
-                           monthlyRun=as.integer(1)) 
+                           soilC=as.array(soilC)) 
     
     ###calculate soil C for gv
     fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
@@ -215,14 +222,14 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     }
     
     mAWEN <- array(0,dim=c(nSites,nMonths,5))
-    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))
+    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))*12
     mGVit <- t(apply(modOut$GVout[,,2],1,mLit))
     ###calculate steady state soil C per GV
     # ststGV <- matrix(NA,nSites,5)
     soilGV <- array(0,dim=c(nSites,(nMonths+1),5))
     
     
-    soilCgv <- .Fortran("runYassoAWENin",
+    soilCgv <- .Fortran("runYassoAWENinMonthly",
                         mAWEN=as.array(mAWEN),
                         nMonths=as.integer(nMonths),  
                         nSites=as.integer(nSites), 
@@ -231,8 +238,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                         climIDs=as.integer(climIDs),
                         pYasso=as.double(pYAS),
                         climate=as.matrix(weatherYasso),
-                        soilCgv=as.array(soilGV),
-                        monthlyRun=as.integer(1))
+                        soilCgv=as.array(soilGV))
     ####add gvsoilc to first layer foliage soilC
     # check in normal runs where ground vegetation soilC is calculated
     soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
