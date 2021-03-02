@@ -231,7 +231,8 @@ InitMultiSite <- function(nYearsMS,
       multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
     }
     
-    
+    ###age cannot be lower than 1 year
+    multiInitVar[,2,][which(multiInitVar[,2,]<1)] <- 1
     
     ####compute A
     for(ikj in 1:maxNlayers){
