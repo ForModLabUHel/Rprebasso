@@ -263,3 +263,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(lit)                                                                   
   }
   
+  
+  ###Function to calculate basal weighted mean of a PREBAS output
+  ### modOut = multisite PREBAS output
+  ### varX = index of the variable for which the basal area weighted mean needs to be calculated
+  baWmean <- function(modOut,varX){
+    weightXs <- apply(modOut$multiOut[,,13,,1],1:2,FUN=function(vec)vec/sum(vec))
+    weightXs <- aperm(weightXs,c(2:3,1))
+    weightXs[which(is.na(weightXs))] <- 0.
+    weigthedMean <- apply(modOut$multiOut[,,varX,,1]*weightXs,1:2,sum)
+    return(weigthedMean)
+  }
+  
