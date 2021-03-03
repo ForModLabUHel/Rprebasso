@@ -1549,3 +1549,227 @@ do site = 1, nSites
 enddo
 
 END SUBROUTINE runYassoMonthly  
+
+
+
+
+
+!*****************************************************************************************
+!    SUBROUTINE FMortality
+!
+!    This subroutine updates the number of trees in size !lasses
+!    according to alternative mortality assumptions
+!
+!
+!    Mortality has been removed from the FGrowth2 subroutine (December 2010 AM)
+!    W: biomass matrix, components Wf, Wfr, Wb, Wcr,Wsapw, Whw,
+!    rf: relative growth rate of foliage ,
+!    rf: in Prebas we can look at the length of the crown
+!****************************************************************************************
+SUBROUTINE FMortality(D13, BA, N, W, h, dN, dBA, rf, time_since_tr &
+                , rN, rNs0, rNs1, kokoluokka, step, species, NUse, &
+	          LAIe,GRO,Reineke,mort_type,V_mort, ind)
+
+  implicit none
+		
+	integer Maxhakkuu, maxkokoluokka, Maxvuodet, MaxOksat, VolWithbark
+	Parameter (Maxhakkuu = 5, maxkokoluokka = 451, Maxvuodet = 451)
+	Parameter (MaxOksat = 50, VolWithBark = 1)
+	real (kind=8) :: D13(MaxKokoluokka), N(MaxKokoluokka)
+	real (kind=8) :: BA(MaxKokoluokka), rf(MAxKokoluokka)
+	real (kind=8) :: dN(Maxkokoluokka), dBA(Maxkokoluokka)
+	real (kind=8) :: h(5,MaxKokoluokka), W(8,Maxkokoluokka)
+    real (kind=8) :: V_mort
+	real (kind=8) :: rN, rNs0, rNs1, step, time_since_tr, NUse
+    real (kind=8) :: LAIe(Maxkokoluokka), GRO(Maxkokoluokka)
+	integer kokoluokka, species, mort_type, ind
+!**********************************************************
+    real (kind=8) :: delta1, delta2, Diam, dDiam, rNs, rN0
+	real (kind=8) :: phi, xij, dbhT, alpha, beta1, beta2
+	real (kind=8) :: a1, a2, CI, a0, mprob, sigmau
+    real (kind=8) :: alpha_d, D13_d,k_mort1,k_mort2,greff,coeff
+    real (kind=8) :: m_intr, m_greff, BAtot, Ntot, Reineke, cr, deltaN, dev
+	integer j
+! *********************************************************************************
+! these data commands relate to mortality in the model by Peltoniemi and Mäkipää
+! choose first line for model 8 (no dbh effect) and second line for model 9
+! third line is common for both. these are individual tree model, different layers
+! *********************************************************************************
+!	data a0,a1,a2, sigmau /-5.9,0.00606,0, 0.207/
+ 	data a0,a1,a2, sigmau /-6.9,0.00854,3.55, 0.204/
+	data alpha,beta1,beta2/ 800., 0.035, 0.04/
+      data alpha_d,D13_d,k_mort1,k_mort2/2.3,210.,0.005,0.3/
+      data delta1,delta2/30000.,2000./
+      Diam = sqrt(1.2732 * BA(ind))
+      if(Diam>0.) then
+	    dDiam = 0.6366 * dBA(ind) / Diam
+      else
+	    dDiam = sqrt(1.2732 * dBA(ind))
+      endif
+!**********************************************************************
+!
+!   no mortality option
+!
+!**********************************************************************
+      if(mort_type == 0) then
+          dN(ind) = 0.
+      endif
+!**********************************************************************
+!
+!   this is the old mortality model. based on DBH and DBH growth
+!
+!**********************************************************************
+      if(mort_type == 1) then
+      if(h(5,ind)>2.)then
+	  if ((1.+ delta1*dDiam + delta2*Diam*Diam)>0 &
+       .and.(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam)>0)) then
+        rNs = -log(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam) )
+	  rN0 = 0.
+	  endif
+      else
+	   rNs = 0.
+      endif
+      if(rf(ind)<0.0.and.time_since_tr.gt.rns1) then
+  	      dN(ind) = -amax1(rns,0.3)*N(ind) - rN*N(ind)
+	else
+          if(time_since_tr.gt.rns1) then
+              dN(ind)  =  - rN*N(ind) &
+     		- rns*N(ind) * amin1((time_since_tr-rns1)/10.,1.)
+     	      else
+     	        dN(ind) = - rN*N(ind)
+     	      endif
+      endif
+      endif
+!**********************************************************************
+!
+! now apply Mikko's mortality model. result in mortality in each layer, we need to take account all the layers
+!
+!**********************************************************************
+	if(mort_type == 2) then
+	CI = 0.
+      Ntot = 0
+	dbhT = beta1 + beta2 * D13(ind) / 100.
+      do j = 1, kokoluokka
+          Ntot = Ntot + N(j)
+      enddo
+      do j = 1, kokoluokka
+          if(N(j) > 0.) then
+	  if(j.ne.ind) then
+! *** Mortality due to other size classes
+	  	 
+	    xij = (D13(j) - D13(ind)) / 100.
+          if((alpha*(xij-dbhT)) < 10.) then
+	     phi = exp(alpha*(xij-dbhT))
+	     phi = phi / (1. + phi)
+          else
+	     phi = 1.
+	    endif
+		CI = CI + N(j)*phi * sqrt(D13(j)/100.)  
+	  else
+! ***  account for the same size class assuming 5% deviation
+!      (has hardly any impact)
+          dev = 0.05
+!          dev = N(ind) / Ntot
+          xij = dev * D13(ind)/100.
+	    if((alpha*(xij-dbhT)) < 10.) then
+	     phi = exp(alpha*(xij-dbhT))
+	     phi = phi / (1. + phi)
+          else
+	     phi = 1.
+	    endif
+		CI = CI + dev * N(j)*phi * sqrt(D13(j)/100.)
+	   
+		if((alpha*(-xij-dbhT)) < 10.) then
+	     phi = exp(alpha*(-xij-dbhT))
+	     phi = phi / (1. + phi)
+          else
+	     phi = 1.
+	    endif
+		CI = CI + dev * N(j)*phi * sqrt(D13(j)/100.)
+	  
+	  endif	  
+          endif
+      if(h(5,ind)>2.)then
+	  if ((1.+ delta1*dDiam + delta2*Diam*Diam)>0 &
+       .and.(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam)>0)) then
+        rNs = -log(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam) )
+	  endif
+      else
+	   rNs = 0.
+      endif
+!       write(6,*) ind, j, phi, D13(j), CI
+	end do
+	mprob = a1 * CI + a2 * D13(ind) / 100. + a0
+!	write(6,*) ind, CI, D13(ind), mprob
+	mprob = exp(mprob + sigmau/2.)
+      if(D13(ind)>0.) then
+	dN(ind) = - mprob * N(ind) - rNs*N(ind)
+      if(rf(ind)< 0.0) then
+ 	   dN(ind) = dN(ind) + rf(ind) * N(ind)
+      endif
+      else
+          dN(ind) = 0.
+      endif
+      endif
+!**********************************************************************
+!
+!   mortality based on LPJ_GUESS Smith et al. 2001
+!   mprob = m_intr + m_greff − m_intr × m_greff
+!   mortality is activated by increasing Reineke's index
+!
+!**********************************************************************
+      if(mort_type == 3) then
+           if(Reineke >1.) then
+             coeff = Reineke ** 3
+          else
+               coeff = 0.
+          endif
+         if(LAIe(ind) > 0.) then
+             greff = GRO(ind) * N(ind) / LAIe(ind) /10000.
+         else
+             greff = 0.
+         endif
+! use old mortality model to compute growth-related mortality
+      if(h(5,ind)>2.)then
+	  if ((1.+ delta1*dDiam + delta2*Diam*Diam)>0 &
+       .and.(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam)>0)) then
+        rNs = -log(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam) )
+	  rN0 = 0.
+	  endif
+      else
+	   rNs = 0.
+      endif
+! use crown ratio to compute growth-related mortality
+      if(h(5,ind)>0.) then
+          cr = h(1,ind) / h(5,ind)
+      endif
+      if(cr<0.45) then
+          if(cr > 0.) rNs = 0.1*(0.45 / cr)**3
+      else
+          rNs = greff
+      endif
+         m_intr = (D13(ind) / D13_d) ** alpha_d
+!         m_greff = k_mort1 / (1.+k_mort2*greff)
+         m_greff = rNs
+         mprob = coeff * (m_intr + m_greff - m_intr * m_greff)
+         dN(ind) = -rN * N(ind) - mprob * N(ind)
+!         if(time_since_tr.gt.rns1) then
+!              dN(ind)  =  - rN*N(ind) &
+!     		- mprob*N(ind) * amin1((time_since_tr-rns1)/10.,1.)
+!         else
+!     	        dN(ind) = - rN*N(ind)
+!         endif
+          if(rf(ind)< 0.0) then
+ 	       dN(ind) = dN(ind) + rf(ind) * N(ind)
+          endif
+      endif
+! TRANSFER OF STATE
+        deltaN = step * max(-N(ind), dN(ind))
+        N(ind)  = N(ind) + deltaN
+	  if(W(1,ind)<=0.)N(ind) = 0.
+	  if(h(1,ind)<=0.)N(ind)=0.
+	  if(N(ind)<1.) N(ind)=0.
+	  if(N(ind)==0.)W(1,ind)=0.
+! compute the biomass of dead trees by adding each size class at a time
+        V_mort = V_mort - deltaN * (W(3,ind) + W(6,ind))
+end subroutine Fmortality
