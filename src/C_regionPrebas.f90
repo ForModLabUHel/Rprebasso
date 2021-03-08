@@ -272,7 +272,8 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
      multiOut(siteX,ij,29,ijj,1)=multiOut(siteX,ij,32,ijj,1)*0.17+multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	endif
 !!energCuts
-	multiOut(siteX,ij,8:17,ijj,1) = 0.
+	multiOut(siteX,ij,8,ijj,1) = 0.
+	multiOut(siteX,ij,10:17,ijj,1) = 0.
 	multiOut(siteX,ij,19:21,ijj,1) = 0.
 	multiOut(siteX,ij,2,ijj,1) = 0. !!newX
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
