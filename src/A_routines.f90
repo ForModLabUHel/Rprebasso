@@ -1497,7 +1497,7 @@ END SUBROUTINE runYassoAWENinMonthly
 
 
 
-SUBROUTINE runYassoMonthly(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso, &
+SUBROUTINE runYassoMonthly(litter,litterSize,nMonths, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso, &
 			weatherYasso,soilC)
 IMPLICIT NONE
     !********************************************* &
@@ -1505,14 +1505,14 @@ IMPLICIT NONE
     !********************************************* &
     ! run yasso for some years with litterfal inputs from prebas.
 
-	integer, intent(in) :: nYears, nLayers, nSites, nSp,nClimID
-	REAL (kind=8),INTENT(IN) :: litter(nSites, nYears, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
-	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
-	REAL (kind=8),INTENT(IN) :: species(nSites, nLayers),litterSize(3,nSp)
-	REAL (kind=8),INTENT(IN) :: pAWEN(12, nSp), pYasso(35)
-	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5,3,nLayers)
-	integer,INTENT(IN) :: climIDs(nSites)
-	INTEGER :: year, site, layer, spec
+	integer, intent(inout) :: nMonths, nLayers, nSites, nSp,nClimID
+	REAL (kind=8),INTENT(inout) :: litter(nSites, nMonths, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
+	REAL (kind=8),INTENT(inout) :: weatherYasso(nClimID, nMonths, 3)
+	REAL (kind=8),INTENT(inout) :: species(nSites, nLayers),litterSize(3,nSp)
+	REAL (kind=8),INTENT(inout) :: pAWEN(12, nSp), pYasso(35)
+	real (kind=8),INTENT(inout) :: soilC(nSites,(nMonths+1),5,3,nLayers)
+	integer,INTENT(inout) :: climIDs(nSites)
+	INTEGER :: month, site, layer, spec
 	real (kind=8) :: t=1./12,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
 	real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
 	
@@ -1524,25 +1524,25 @@ stAWENH = 0.
 !!!!run Yasso
 do site = 1, nSites
  do layer = 1,nLayers
-  do year = 1,nYears
+  do month = 1,nMonths
 
-   Lst = litter(site,year,layer,3)
-   Lb = litter(site,year,layer,2)
-   Lf = litter(site,year,layer,1)
+   Lst = litter(site,month,layer,3)
+   Lb = litter(site,month,layer,2)
+   Lf = litter(site,month,layer,1)
 
    spec = int(species(site,layer))
    call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
    call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
    call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
 
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
-	leac,soilC(site,(year+1),:,1,layer),stSt)
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
-	leac,soilC(site,(year+1),:,2,layer),stSt)
-   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
-	leac,soilC(site,(year+1),:,3,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),month,:),soilC(site,month,:,1,layer),stAWENH,litterSize(1,spec), &
+	leac,soilC(site,(month+1),:,1,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),month,:),soilC(site,month,:,2,layer),fbAWENH,litterSize(2,spec), &
+	leac,soilC(site,(month+1),:,2,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),month,:),soilC(site,month,:,3,layer),folAWENH,litterSize(3,spec), &
+	leac,soilC(site,(month+1),:,3,layer),stSt)
 	
-	! soilC(site,(year+1),:,:,layer) = soilC(site,year,:,:,layer) + (soilC(site,(year+1),:,:,layer) -soilC(site,year,:,:,layer))/12
+	! soilC(site,(month+1),:,:,layer) = soilC(site,month,:,:,layer) + (soilC(site,(month+1),:,:,layer) -soilC(site,month,:,:,layer))/12
 
   enddo
  enddo

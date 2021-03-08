@@ -194,7 +194,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       }
     }
     ### Run the Yasso model, which is a function in the src/A_routines.90 file
-    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter*12),
+    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter*12), ###*12 rescale monthly litter to annual units
                            litterSize=as.array(litterSize),
                            nMonths=as.integer(nMonths), 
                            nLayers=as.integer(nLayers), 
@@ -222,7 +222,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     }
     
     mAWEN <- array(0,dim=c(nSites,nMonths,5))
-    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))*12
+    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))*12 ###*12 rescale monthly litter to annual units
     mGVit <- t(apply(modOut$GVout[,,2],1,mLit,months=6:9))
     ###calculate steady state soil C per GV
     # ststGV <- matrix(NA,nSites,5)
