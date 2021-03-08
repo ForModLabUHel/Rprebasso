@@ -1164,7 +1164,8 @@ if (ClCut == 1.) then
 	endif
   !energyCut
    stand_all(2,ij) = 0. !!newX
-   stand_all(8:21,ij) = 0.
+   stand_all(8:17,ij) = 0.
+   stand_all(19:21,ij) = 0.
    stand_all(23:38,ij) = 0.
    stand_all(41,ij) = 0.
    stand_all(43,ij) = 0.
