@@ -275,7 +275,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	multiOut(siteX,ij,8:21,ijj,1) = 0.
 	multiOut(siteX,ij,2,ijj,1) = 0. !!newX
     multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
-    multiOut(siteX,ij,43:44,ijj,1) = 0.
+    multiOut(siteX,ij,43,ijj,1) = 0.
 	multiOut(siteX,ij,47:nVar,ijj,1) = 0.
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)

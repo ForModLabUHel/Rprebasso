@@ -1167,7 +1167,7 @@ if (ClCut == 1.) then
    stand_all(8:21,ij) = 0.
    stand_all(23:38,ij) = 0.
    stand_all(41,ij) = 0.
-   stand_all(43:44,ij) = 0.
+   stand_all(43,ij) = 0.
    stand_all(47:nVar,ij) = 0.
    stand_all(26,ij) = S_fol
    stand_all(27,ij) = S_fr
