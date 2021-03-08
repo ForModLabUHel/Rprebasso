@@ -166,7 +166,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     litter[,,,1] <- Lnw   # Non-woody litter
     litter[,,,2] <- Lfw   # Branch litter
     litter[,,,3] <- Lw    # Woody litter
-    litter <- litter*12
+    # litter <- litter*12
     ### Prepare also other initialization information for Yasso
     species <- modOut$multiOut[,1,4,,1]
     nSp <- max(species)
@@ -194,7 +194,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       }
     }
     ### Run the Yasso model, which is a function in the src/A_routines.90 file
-    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter),
+    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter*12),
                            litterSize=as.array(litterSize),
                            nMonths=as.integer(nMonths), 
                            nLayers=as.integer(nLayers), 
@@ -223,7 +223,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     mAWEN <- array(0,dim=c(nSites,nMonths,5))
     mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))*12
-    mGVit <- t(apply(modOut$GVout[,,2],1,mLit))
+    mGVit <- t(apply(modOut$GVout[,,2],1,mLit,months=6:9))
     ###calculate steady state soil C per GV
     # ststGV <- matrix(NA,nSites,5)
     soilGV <- array(0,dim=c(nSites,(nMonths+1),5))
