@@ -641,11 +641,11 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
                                                        stSt=1.)[[8]]))
   }
   if(nLayers>1){
-    litter <- array(NA,dim=c(nSites, nLayers, 3))
-    litter[,,1] <- apply(prebOut$multiOut[,,26,,1],c(1,3),mean) + 
-      apply(prebOut$multiOut[,,27,,1],c(1,3),mean)
-    litter[,,2] <- apply(prebOut$multiOut[,,28,,1],c(1,3),mean)
-    litter[,,3] <- apply(prebOut$multiOut[,,29,,1],c(1,3),mean)
+    litter <- array(0.,dim=c(nSites, nLayers, 3))
+    litter[,,1] <- apply(prebOut$multiOut[,,26,,1],c(1,3),mean,na.rm=T) + 
+      apply(prebOut$multiOut[,,27,,1],c(1,3),mean,na.rm=T)
+    litter[,,2] <- apply(prebOut$multiOut[,,28,,1],c(1,3),mean,na.rm=T)
+    litter[,,3] <- apply(prebOut$multiOut[,,29,,1],c(1,3),mean,na.rm=T)
     species <- prebOut$multiOut[,1,4,,1]
     climIDs <- prebOut$siteInfo[,2]
     litterSize <- prebOut$litterSize
@@ -677,10 +677,10 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
   }else{
     # print("stXX_GV function needs to be coded for one layer prebas outut")
     litter <- array(NA,dim=c(nSites, 3))
-    litter[,1] <- apply(prebOut$multiOut[,,26,1,1],1,mean) + 
-      apply(prebOut$multiOut[,,27,1,1],1,mean)
-    litter[,2] <- apply(prebOut$multiOut[,,28,1,1],1,mean)
-    litter[,3] <- apply(prebOut$multiOut[,,29,1,1],1,mean)
+    litter[,1] <- apply(prebOut$multiOut[,,26,1,1],1,mean,na.rm=T) + 
+      apply(prebOut$multiOut[,,27,1,1],1,mean,na.rm=T)
+    litter[,2] <- apply(prebOut$multiOut[,,28,1,1],1,mean,na.rm=T)
+    litter[,3] <- apply(prebOut$multiOut[,,29,1,1],1,mean,na.rm=T)
     species <- prebOut$multiOut[,1,4,1,1]
     climIDs <- prebOut$siteInfo[,2]
     litterSize <- prebOut$litterSize
