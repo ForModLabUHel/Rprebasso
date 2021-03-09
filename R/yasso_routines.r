@@ -732,6 +732,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWE
   litter[,,,1] <- prebOut$multiOut[,,26,,1] + prebOut$multiOut[,,27,,1]
   litter[,,,2] <- prebOut$multiOut[,,28,,1]
   litter[,,,3] <- prebOut$multiOut[,,29,,1]
+  litter[which(is.na(litter))] <- 0.
   species <- prebOut$multiOut[,1,4,,1]
   climIDs <- prebOut$siteInfo[,2]
   if(all(is.na(litterSize))) litterSize <- prebOut$litterSize
