@@ -762,6 +762,8 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWE
   fAPAR <- prebOut$fAPAR
   fAPARgv <- litGV <- matrix(0,nSites,nYears)
   fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
+  fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
+  fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
   AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),5))
   soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
   p0 = prebOut$multiOut[,,6,1,1]
