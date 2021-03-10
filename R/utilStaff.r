@@ -269,7 +269,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   ### varX = index of the variable for which the basal area weighted mean needs to be calculated
   baWmean <- function(modOut,varX){
     ###calculates basal area weighted mean for single site runs
-    if(class(modOut)=="preles"){
+    if(class(modOut)=="prebas"){
       weightXs <- as.matrix(apply(modOut$output[,13,,1],1,FUN=function(vec)vec/sum(vec)))
       weightXs <- t(weightXs)
       weightXs[which(is.na(weightXs))] <- 0.
