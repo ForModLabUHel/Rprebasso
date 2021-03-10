@@ -140,7 +140,7 @@ If initVar is not provided the model is initialized from plantation using defaul
   If yassoRun=1 the YASSO model is run to compute the carbon balance of the soil. Default value = 0.
 %%     ~~Describe \code{yassoRun} here~~
 }
-}
+
 
 \item{smoothP0}{?? Default = 1}
 
@@ -162,7 +162,7 @@ Hc. 1: use the version of based on ksi parameter, 2: use the empirical model. (R
 \item{tTapioPar}{Default tTapioPar = tTapio}
                         
 \item{GVrun}{1 if ground vegetation model is run, otherwise 0. Default GVrun = 1}
-
+}
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
@@ -255,7 +255,7 @@ Virpi Junttila
 ##--	or do  help(data=index)  for the standard data sets.
 
   }
-}
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
