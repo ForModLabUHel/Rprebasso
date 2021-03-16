@@ -252,6 +252,8 @@ end do
      endif
      
      qcTOT = min(qcTOT0,qctot1)
+	 qcTOT = min(qcTOT,1.)
+	 qcTOT = max(qcTOT,0.)
 !    qctot = qctot1
      
 !     if(stand_P(7) > 150) then
