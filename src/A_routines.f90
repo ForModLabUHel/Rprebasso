@@ -1684,20 +1684,14 @@ END SUBROUTINE runYassoMonthly
       else
 	   rNs = 0.
       endif
-
-
-
-!       write(6,*) ind, j, phi, D13(j), CI
 	end do
 
 	mprob = a1 * CI + a2 * D13(ind) / 100. + a0
 !	write(6,*) ind, CI, D13(ind), mprob
 
-
 	mprob = exp(mprob + sigmau/2.)
       
       if(D13(ind)>0.) then
-
 
 	dN(ind) = - mprob * N(ind) - rNs*N(ind)
 
@@ -1709,8 +1703,6 @@ END SUBROUTINE runYassoMonthly
           
           dN(ind) = 0.
       endif
-      
-
       endif
       
 end subroutine Fmortality
