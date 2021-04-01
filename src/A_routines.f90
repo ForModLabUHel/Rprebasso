@@ -1566,7 +1566,7 @@ END SUBROUTINE runYassoMonthly
 !    rf: relative growth rate of foliage ,
 !    rf: in Prebas we can look at the length of the crown
 !****************************************************************************************
-      SUBROUTINE FMortality(D13, BA, N, h, dN, dBA,rf, kokoluokka, species,&
+      SUBROUTINE FMortality(D13, BA, N, h, dN, dBA,rf, kokoluokka, &
 	          mort_type,ind)
 
 	implicit none
