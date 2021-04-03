@@ -623,12 +623,37 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
     ###calculate steady state C for gv
     fAPAR <- prebOut$fAPAR
     fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
-    AWENgv <- array(NA,dim=c(dim(prebOut$fAPAR),4))
-    for(ij in 1:nYears){
-      AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
-                                                                   prebOut$multiOut[i,ij,5,1,1],prebOut$siteInfo[i,3],
-                                                                   0,0,prebOut$multiOut[i,ij,6,1,1],rep(0,4))[[7]]))
-    }
+    ###calculate soil C for gv
+    fAPAR <- prebOut$fAPAR
+    fAPARgv <- litGV <- matrix(0,nSites,nYears)
+    fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
+    fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
+    fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
+    AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),4))
+    soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
+    p0 = prebOut$multiOut[,,6,1,1]
+    ETSy = prebOut$multiOut[,,5,1,1]
+
+    AWENgv <- .Fortran("multiGV",
+                       fAPAR=as.matrix(fAPAR),
+                       ETS=as.matrix(ETSy),
+                       siteType = as.double(prebOut$siteInfo[,3]),
+                       fAPARgv=as.matrix(fAPARgv),
+                       litGV=as.matrix(litGV),
+                       p0=as.matrix(p0),
+                       AWENgv=as.array(AWENgv[,,1:4]),
+                       nYears = as.integer(nYears),
+                       nSites = as.integer(nSites))$AWENgv
+    
+    # for(ij in 1:nYears){
+    #   AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
+    #                                               prebOut$multiOut[i,ij,5,1,1],
+    #                                               prebOut$siteInfo[i,3],
+    #                                               0,
+    #                                               0,
+    #                                               prebOut$multiOut[i,ij,6,1,1],
+    #                                               rep(0,4))[[7]]))
+    # }
     AWENgv2 <- apply(AWENgv,c(1,3),mean,na.rm=T)
     
     

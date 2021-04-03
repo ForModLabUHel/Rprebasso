@@ -1566,8 +1566,7 @@ END SUBROUTINE runYassoMonthly
 !    rf: relative growth rate of foliage ,
 !    rf: in Prebas we can look at the length of the crown
 !****************************************************************************************
-      SUBROUTINE FMortality(D13, BA, N, h, dN, dBA,rf, kokoluokka, &
-	          mort_type,ind)
+      SUBROUTINE FMortality(D13, BA, N, h, dN, dBA,rf, kokoluokka, ind)
 
 	implicit none
 		
@@ -1579,7 +1578,7 @@ END SUBROUTINE runYassoMonthly
 	real BA(MaxKokoluokka), rf(MAxKokoluokka) 
 	real dN(Maxkokoluokka), dBA(Maxkokoluokka)
 	real h(5,MaxKokoluokka)
-    integer kokoluokka, species, mort_type, ind
+    integer kokoluokka, ind
 !**********************************************************
       real delta1, delta2, Diam, dDiam, rNs, rN0
 	real phi, xij, dbhT, alpha, beta1, beta2
@@ -1607,14 +1606,13 @@ END SUBROUTINE runYassoMonthly
 	    dDiam = sqrt(1.2732 * dBA(ind))
       endif
       
-!**********************************************************************
-!
-! now apply Mikko's mortality model. result in mortality in each layer, we need to take account all the layers
-!
-!**********************************************************************
+! !**********************************************************************
+! !
+! ! now apply Mikko's mortality model. result in mortality in each layer, we need to take account all the layers
+! !
+! !**********************************************************************
 
-	if(mort_type == 2) then
-
+	
 	CI = 0.
       Ntot = 0
 	dbhT = beta1 + beta2 * D13(ind) / 100.
@@ -1702,7 +1700,6 @@ END SUBROUTINE runYassoMonthly
       else
           
           dN(ind) = 0.
-      endif
       endif
       
 end subroutine Fmortality
