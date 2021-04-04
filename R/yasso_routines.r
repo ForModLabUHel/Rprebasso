@@ -743,7 +743,8 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
 
 
 ####Wrapper function for YASSO runs (fortran version) with PREBAS inputs
-yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWEN){
+yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, 
+                    litterSize = NA, pAWEN=parsAWEN,runGV=1){
   ###litter is array with dimensions:(nSites, nYears, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
   ####species is a matrix dims= nSites,nLayers
   #### initSoilC is array dim=nSites,5,3,nLayers;;!!! third dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
@@ -782,42 +783,43 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWE
                     soilC = as.array(soilC)
   )$soilC
   
-  
-  ###calculate soil C for gv
-  fAPAR <- prebOut$fAPAR
-  fAPARgv <- litGV <- matrix(0,nSites,nYears)
-  fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
-  fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
-  fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
-  AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),5))
-  soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
-  p0 = prebOut$multiOut[,,6,1,1]
-  ETSy = prebOut$multiOut[,,5,1,1]
-  
-  AWENgv <- .Fortran("multiGV",
-                     fAPAR=as.matrix(fAPAR),
-                     ETS=as.matrix(ETSy),
-                     siteType = as.double(prebOut$siteInfo[,3]),
-                     fAPARgv=as.matrix(fAPARgv),
-                     litGV=as.matrix(litGV),
-                     p0=as.matrix(p0),
-                     AWENgv=as.array(AWENgv[,,1:4]),
-                     nYears = as.integer(nYears),
-                     nSites = as.integer(nSites))$AWENgv
-  
-  soilCgv <- .Fortran("runYassoAWENin",
-                      mAWEN=as.array(AWENgv),
-                      nYears=as.integer(nYears),  
-                      nSites=as.integer(nSites), 
-                      litSize=as.double(0.),
-                      nClimID=as.integer(nClimID),
-                      climIDs=as.integer(climIDs),
-                      pYasso=as.double(pYASSO),
-                      climate=as.matrix(prebOut$weatherYasso),
-                      soilCgv=as.array(soilCgv))$soilCgv
-  
-  
-  soilC[,,,1,1] = soilC[,,,1,1] + soilCgv
+  if(runGV==1){
+    ###calculate soil C for gv
+    fAPAR <- prebOut$fAPAR
+    fAPARgv <- litGV <- matrix(0,nSites,nYears)
+    fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
+    fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
+    fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
+    AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),5))
+    soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
+    p0 = prebOut$multiOut[,,6,1,1]
+    ETSy = prebOut$multiOut[,,5,1,1]
+    
+    AWENgv[,,1:4] <- .Fortran("multiGV",
+                       fAPAR=as.matrix(fAPAR),
+                       ETS=as.matrix(ETSy),
+                       siteType = as.double(prebOut$siteInfo[,3]),
+                       fAPARgv=as.matrix(fAPARgv),
+                       litGV=as.matrix(litGV),
+                       p0=as.matrix(p0),
+                       AWENgv=as.array(AWENgv[,,1:4]),
+                       nYears = as.integer(nYears),
+                       nSites = as.integer(nSites))$AWENgv
+    
+    soilCgv <- .Fortran("runYassoAWENin",
+                        AWENin=as.array(AWENgv),
+                        nYears=as.integer(nYears),  
+                        nSites=as.integer(nSites), 
+                        litSize=as.double(0.),
+                        nClimID=as.integer(nClimID),
+                        climIDs=as.integer(climIDs),
+                        pYasso=as.double(pYASSO),
+                        climate=as.matrix(prebOut$weatherYasso),
+                        soilCgv=as.array(soilCgv))$soilCgv
+    
+    
+    soilC[,,,1,1] = soilC[,,,1,1] + soilCgv
+  }
   
   ###update model output fluxes
   soilByLay <- apply(soilC,c(1:2,5),sum)
