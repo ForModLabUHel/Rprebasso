@@ -1570,22 +1570,23 @@ END SUBROUTINE runYassoMonthly
 
 	implicit none
 		
-	integer Maxhakkuu, maxkokoluokka, Maxvuodet, MaxOksat, VolWithbark
-	Parameter (Maxhakkuu = 5, maxkokoluokka = 451, Maxvuodet = 451)
-	Parameter (MaxOksat = 50, VolWithBark = 1)
+	! integer Maxhakkuu, maxkokoluokka, Maxvuodet, MaxOksat, VolWithbark
+	! Parameter (Maxhakkuu = 5, maxkokoluokka = 451, Maxvuodet = 451)
+	! Parameter (MaxOksat = 50, VolWithBark = 1)
 
-	real D13(MaxKokoluokka), N(MaxKokoluokka)
-	real BA(MaxKokoluokka), rf(MAxKokoluokka) 
-	real dN(Maxkokoluokka), dBA(Maxkokoluokka)
-	real h(5,MaxKokoluokka)
-    integer kokoluokka, ind
+	integer,INTENT(inout) :: kokoluokka, ind
+	REAL (kind=8),INTENT(in) :: D13(kokoluokka), N(kokoluokka)
+	REAL (kind=8),INTENT(in) :: BA(kokoluokka), rf(kokoluokka) 
+	REAL (kind=8),INTENT(out) :: dN(kokoluokka)
+	REAL (kind=8),INTENT(in) :: h(5,kokoluokka),dBA(kokoluokka)
+    
 !**********************************************************
-      real delta1, delta2, Diam, dDiam, rNs, rN0
-	real phi, xij, dbhT, alpha, beta1, beta2
-	real a1, a2, CI, a0, mprob, sigmau
-      real alpha_d, D13_d,k_mort1,k_mort2,greff,coeff
-      real m_intr, m_greff, BAtot, Ntot, Reineke, cr, deltaN, dev
-	integer j
+    REAL (kind=8) :: delta1, delta2, Diam, dDiam, rNs, rN0
+	REAL (kind=8) :: phi, xij, dbhT, alpha, beta1, beta2
+	REAL (kind=8) :: a1, a2, CI, a0, mprob, sigmau
+    REAL (kind=8) :: alpha_d, D13_d,k_mort1,k_mort2,greff,coeff
+    REAL (kind=8) :: m_intr, m_greff, BAtot, Ntot, Reineke, cr, deltaN, dev
+	integer :: j
 ! ********************************************************************************* 
 ! these data commands relate to mortality in the model by Peltoniemi and Mäkipää
 ! choose first line for model 8 (no dbh effect) and second line for model 9
@@ -1631,7 +1632,6 @@ END SUBROUTINE runYassoMonthly
 ! *** Mortality due to other size classes
 	  	  
 	    xij = (D13(j) - D13(ind)) / 100.
-
           if((alpha*(xij-dbhT)) < 10.) then
 	     phi = exp(alpha*(xij-dbhT))
 	     phi = phi / (1. + phi)
@@ -1692,11 +1692,9 @@ END SUBROUTINE runYassoMonthly
       if(D13(ind)>0.) then
 
 	dN(ind) = - mprob * N(ind) - rNs*N(ind)
-
       if(rf(ind)< 0.0) then
  	   dN(ind) = dN(ind) + rf(ind) * N(ind)
       endif
-      
       else
           
           dN(ind) = 0.
