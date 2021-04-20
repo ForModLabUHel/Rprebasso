@@ -252,6 +252,8 @@ end do
      endif
      
      qcTOT = min(qcTOT0,qctot1)
+	 qcTOT = min(qcTOT,1.)
+	 qcTOT = max(qcTOT,0.)
 !    qctot = qctot1
      
 !     if(stand_P(7) > 150) then
@@ -813,7 +815,8 @@ IMPLICIT NONE
     END SUBROUTINE compAWENH
 
 	
-SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso,weatherYasso,soilC)
+SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso, &
+			weatherYasso,soilC)
 IMPLICIT NONE
     !********************************************* &
     ! GENERAL DESCRIPTION 
@@ -856,9 +859,7 @@ do site = 1, nSites
 	leac,soilC(site,(year+1),:,2,layer),stSt)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,3,layer),folAWENH,litterSize(3,spec), &
 	leac,soilC(site,(year+1),:,3,layer),stSt)
-
-!   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
-
+	
   enddo
  enddo
 enddo
@@ -1370,3 +1371,333 @@ subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs) !reduc
  totlitGV = sum(litAG) + sum(litBG)
  
 end subroutine fAPARgv
+
+
+
+
+SUBROUTINE runYassoAWENin(AWENin,nYears, nSites, litSize,nClimID,climIDs,pYasso,weatherYasso,soilC)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION 
+    !********************************************* &
+    ! run yasso for some years with litterfal inputs from prebas.
+
+	integer, intent(in) :: nYears, nSites, nClimID
+	REAL (kind=8),INTENT(IN) :: AWENin(nSites, nYears, 5) 
+	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
+	! REAL (kind=8),INTENT(IN) :: species(nSites, nLayers)
+	REAL (kind=8),INTENT(IN) :: pYasso(35),litSize
+	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5)
+	integer,INTENT(IN) :: climIDs(nSites)
+	INTEGER :: year, site, layer, spec
+	real (kind=8) :: t=1.,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
+	real (kind=8),DIMENSION(5) :: AWENH
+	
+
+! fbAWENH = 0.
+! folAWENH = 0.
+! stAWENH = 0.
+
+!!!!run Yasso
+do site = 1, nSites
+  do year = 1,nYears
+
+   ! Lst = litter(site,year,layer,3)
+   ! Lb = litter(site,year,layer,2)
+   AWENH = AWENin(site,year,:)
+
+   ! spec = int(species(site,layer))
+   ! call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+   ! call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+   ! call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+
+   ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
+	! leac,soilC(site,(year+1),:,1,layer),stSt)
+   ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
+	! leac,soilC(site,(year+1),:,2,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),AWENH,litSize, &
+	leac,soilC(site,(year+1),:),stSt)
+
+  
+ enddo
+enddo
+
+END SUBROUTINE runYassoAWENin  
+
+
+
+
+! subroutine multiGV(fAPARstand,ets,siteType,agW,bgW,fAPAR_gv,litAG,litBG)
+subroutine multiGV(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,nYears,nSites) !reduced input output	
+	implicit none
+	integer,INTENT(IN) :: nYears,nSites
+    real (kind=8) :: fAPARstand(nSites,nYears),ets(nSites,nYears),siteType(nSites),p0(nSites,nYears)
+	real (kind=8) :: totfAPAR_gv(nSites,nYears),totlitGV(nSites,nYears)
+	real (kind=8) :: AWENs(nSites,nYears,4)
+	integer :: site,year
+	
+ do site = 1, nSites
+  do year = 1,nYears
+	call fAPARgv(fAPARstand(site,year),ets(site,year),siteType(site),totfAPAR_gv(site,year), &
+			totlitGV(site,year),p0(site,year),AWENs(site,year,:))
+  enddo !year
+ enddo !site
+ 
+ 
+end subroutine multiGV
+
+
+
+SUBROUTINE runYassoAWENinMonthly(AWENin,nYears, nSites, litSize,nClimID,climIDs,pYasso,weatherYasso,soilC)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION 
+    !********************************************* &
+    ! run yasso for some years with litterfal inputs from prebas.
+
+	integer, intent(in) :: nYears, nSites, nClimID
+	REAL (kind=8),INTENT(IN) :: AWENin(nSites, nYears, 5) 
+	REAL (kind=8),INTENT(IN) :: weatherYasso(nClimID, nYears, 3)
+	! REAL (kind=8),INTENT(IN) :: species(nSites, nLayers)
+	REAL (kind=8),INTENT(IN) :: pYasso(35),litSize
+	real (kind=8),INTENT(inout) :: soilC(nSites,(nYears+1),5)
+	integer,INTENT(IN) :: climIDs(nSites)
+	INTEGER :: year, site, layer, spec
+	real (kind=8) :: t=1./12,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
+	real (kind=8),DIMENSION(5) :: AWENH
+	
+
+! fbAWENH = 0.
+! folAWENH = 0.
+! stAWENH = 0.
+
+!!!!run Yasso
+do site = 1, nSites
+  do year = 1,nYears
+
+   ! Lst = litter(site,year,layer,3)
+   ! Lb = litter(site,year,layer,2)
+   AWENH = AWENin(site,year,:)
+
+   ! spec = int(species(site,layer))
+   ! call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+   ! call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+   ! call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+
+   ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,1,layer),stAWENH,litterSize(1,spec), &
+	! leac,soilC(site,(year+1),:,1,layer),stSt)
+   ! call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:,2,layer),fbAWENH,litterSize(2,spec), &
+	! leac,soilC(site,(year+1),:,2,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),AWENH,litSize, &
+	leac,soilC(site,(year+1),:),stSt)
+
+  
+ enddo
+enddo
+
+END SUBROUTINE runYassoAWENinMonthly  
+
+
+
+SUBROUTINE runYassoMonthly(litter,litterSize,nMonths, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso, &
+			weatherYasso,soilC)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION 
+    !********************************************* &
+    ! run yasso for some years with litterfal inputs from prebas.
+
+	integer, intent(inout) :: nMonths, nLayers, nSites, nSp,nClimID
+	REAL (kind=8),INTENT(inout) :: litter(nSites, nMonths, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
+	REAL (kind=8),INTENT(inout) :: weatherYasso(nClimID, nMonths, 3)
+	REAL (kind=8),INTENT(inout) :: species(nSites, nLayers),litterSize(3,nSp)
+	REAL (kind=8),INTENT(inout) :: pAWEN(12, nSp), pYasso(35)
+	real (kind=8),INTENT(inout) :: soilC(nSites,(nMonths+1),5,3,nLayers)
+	integer,INTENT(inout) :: climIDs(nSites)
+	INTEGER :: month, site, layer, spec
+	real (kind=8) :: t=1./12,Lst,Lb,Lf,leac=0.,stSt=0. !leaching parameter for Yasso
+	real (kind=8),DIMENSION(5) :: fbAWENH,folAWENH,stAWENH
+	
+
+fbAWENH = 0.
+folAWENH = 0.
+stAWENH = 0.
+
+!!!!run Yasso
+do site = 1, nSites
+ do layer = 1,nLayers
+  do month = 1,nMonths
+
+   Lst = litter(site,month,layer,3)
+   Lb = litter(site,month,layer,2)
+   Lf = litter(site,month,layer,1)
+
+   spec = int(species(site,layer))
+   call compAWENH(Lf,folAWENH,pAWEN(1:4,spec))   !!!awen partitioning foliage
+   call compAWENH(Lb,fbAWENH,pAWEN(5:8,spec))   !!!awen partitioning branches
+   call compAWENH(Lst,stAWENH,pAWEN(9:12,spec))         !!!awen partitioning stems
+
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),month,:),soilC(site,month,:,1,layer),stAWENH,litterSize(1,spec), &
+	leac,soilC(site,(month+1),:,1,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),month,:),soilC(site,month,:,2,layer),fbAWENH,litterSize(2,spec), &
+	leac,soilC(site,(month+1),:,2,layer),stSt)
+   call mod5c(pYasso,t,weatherYasso(climIDs(site),month,:),soilC(site,month,:,3,layer),folAWENH,litterSize(3,spec), &
+	leac,soilC(site,(month+1),:,3,layer),stSt)
+	
+	! soilC(site,(month+1),:,:,layer) = soilC(site,month,:,:,layer) + (soilC(site,(month+1),:,:,layer) -soilC(site,month,:,:,layer))/12
+
+  enddo
+ enddo
+enddo
+
+END SUBROUTINE runYassoMonthly  
+
+
+
+!*****************************************************************************************
+!    SUBROUTINE FMortality
+!
+!    This subroutine updates the number of trees in size !lasses
+!    according to alternative mortality assumptions
+!     
+!
+!    Mortality has been removed from the FGrowth2 subroutine (December 2010 AM)
+!    W: biomass matrix, components Wf, Wfr, Wb, Wcr,Wsapw, Whw,
+!    rf: relative growth rate of foliage ,
+!    rf: in Prebas we can look at the length of the crown
+!****************************************************************************************
+      SUBROUTINE FMortality(D13, BA, N, h, dN, dBA,rf, kokoluokka, ind)
+
+	implicit none
+		
+	! integer Maxhakkuu, maxkokoluokka, Maxvuodet, MaxOksat, VolWithbark
+	! Parameter (Maxhakkuu = 5, maxkokoluokka = 451, Maxvuodet = 451)
+	! Parameter (MaxOksat = 50, VolWithBark = 1)
+
+	integer,INTENT(inout) :: kokoluokka, ind
+	REAL (kind=8),INTENT(in) :: D13(kokoluokka), N(kokoluokka)
+	REAL (kind=8),INTENT(in) :: BA(kokoluokka), rf(kokoluokka) 
+	REAL (kind=8),INTENT(out) :: dN(kokoluokka)
+	REAL (kind=8),INTENT(in) :: h(5,kokoluokka),dBA(kokoluokka)
+    
+!**********************************************************
+    REAL (kind=8) :: delta1, delta2, Diam, dDiam, rNs, rN0
+	REAL (kind=8) :: phi, xij, dbhT, alpha, beta1, beta2
+	REAL (kind=8) :: a1, a2, CI, a0, mprob, sigmau
+    REAL (kind=8) :: alpha_d, D13_d,k_mort1,k_mort2,greff,coeff
+    REAL (kind=8) :: m_intr, m_greff, BAtot, Ntot, Reineke, cr, deltaN, dev
+	integer :: j
+! ********************************************************************************* 
+! these data commands relate to mortality in the model by Peltoniemi and Mäkipää
+! choose first line for model 8 (no dbh effect) and second line for model 9
+! third line is common for both. these are individual tree model, different layers
+! *********************************************************************************
+!	data a0,a1,a2, sigmau /-5.9,0.00606,0, 0.207/
+ 	data a0,a1,a2, sigmau /-6.9,0.00854,3.55, 0.204/
+	data alpha,beta1,beta2/ 800., 0.035, 0.04/
+      data alpha_d,D13_d,k_mort1,k_mort2/2.3,210.,0.005,0.3/
+      data delta1,delta2/30000.,2000./
+
+
+      Diam = sqrt(1.2732 * BA(ind)) 
+
+      if(Diam>0.) then
+	    dDiam = 0.6366 * dBA(ind) / Diam
+      else
+	    dDiam = sqrt(1.2732 * dBA(ind))
+      endif
+      
+! !**********************************************************************
+! !
+! ! now apply Mikko's mortality model. result in mortality in each layer, we need to take account all the layers
+! !
+! !**********************************************************************
+
+	
+	CI = 0.
+      Ntot = 0
+	dbhT = beta1 + beta2 * D13(ind) / 100.
+      
+      do j = 1, kokoluokka
+          Ntot = Ntot + N(j)
+      enddo
+      
+
+      do j = 1, kokoluokka
+
+          if(N(j) > 0.) then
+
+	  if(j.ne.ind) then 
+
+! *** Mortality due to other size classes
+	  	  
+	    xij = (D13(j) - D13(ind)) / 100.
+          if((alpha*(xij-dbhT)) < 10.) then
+	     phi = exp(alpha*(xij-dbhT))
+	     phi = phi / (1. + phi)
+          else
+	     phi = 1.
+	    endif
+
+
+		CI = CI + N(j)*phi * sqrt(D13(j)/100.)  
+
+	  else
+
+! ***  account for the same size class assuming 5% deviation
+!      (has hardly any impact)
+
+          dev = 0.05 
+!          dev = N(ind) / Ntot
+
+          xij = dev * D13(ind)/100.
+
+	    if((alpha*(xij-dbhT)) < 10.) then
+	     phi = exp(alpha*(xij-dbhT))
+	     phi = phi / (1. + phi)
+          else
+	     phi = 1.
+	    endif
+
+		CI = CI + dev * N(j)*phi * sqrt(D13(j)/100.)
+	    
+		if((alpha*(-xij-dbhT)) < 10.) then
+	     phi = exp(alpha*(-xij-dbhT))
+	     phi = phi / (1. + phi)
+          else
+	     phi = 1.
+	    endif
+
+		CI = CI + dev * N(j)*phi * sqrt(D13(j)/100.)
+
+	   
+	  endif	   
+          endif
+          
+      if(h(5,ind)>2.)then
+	  if ((1.+ delta1*dDiam + delta2*Diam*Diam)>0 &
+       .and.(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam)>0)) then
+        rNs = -log(1.-1./(1.+ delta1*dDiam + delta2*Diam*Diam) )
+	  endif
+      else
+	   rNs = 0.
+      endif
+	end do
+
+	mprob = a1 * CI + a2 * D13(ind) / 100. + a0
+!	write(6,*) ind, CI, D13(ind), mprob
+
+	mprob = exp(mprob + sigmau/2.)
+      
+      if(D13(ind)>0.) then
+
+	dN(ind) = - mprob * N(ind) - rNs*N(ind)
+      if(rf(ind)< 0.0) then
+ 	   dN(ind) = dN(ind) + rf(ind) * N(ind)
+      endif
+      else
+          
+          dN(ind) = 0.
+      endif
+      
+end subroutine Fmortality

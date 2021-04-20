@@ -415,8 +415,8 @@ if (N>0.) then
 			W_bh = stand(53)
 			W_crh = stand(54)
 			W_stem = stand(31)
-	S_branch = (W_branch + W_croot*0.7 + Wdb) * min(1.,-dN*step/Nold) 
-	S_wood = (W_croot*0.3 + W_stem) * min(1.,-dN*step/Nold)
+	S_branch = max(0.,(W_branch + W_croot*0.83 + Wdb) * min(1.,-dN*step/Nold) )
+	S_wood = (W_croot*0.17 + W_stem) * min(1.,-dN*step/Nold)
     S_fol = wf_STKG * min(1.,-dN*step/Nold) !foliage litterfall
     S_fr  = W_froot * min(1.,-dN*step/Nold)  !fine root litter
 			W_wsap = W_wsap * N/Nold
@@ -780,7 +780,7 @@ if (N>0.) then
 				 ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
       S_fr  = S_fr + W_froot / par_vr	!fine root litter
-	  S_branch = S_branch + Wdb/Tdb
+	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
 			
@@ -973,12 +973,12 @@ endif
 	 if(energyCut==1.) then
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
 	  energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-      S_branch = (W_branch + Wdb) * (1-energyRatio) + W_croot*0.7 + S_branch
-      S_wood = S_wood + W_stem* (1-harvRatio)* (1-energyRatio) + &
-			W_croot*0.3 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
+      S_branch = max(0.,((W_branch + Wdb) * (1-energyRatio) + W_croot*0.83 + S_branch + &
+				W_stem* (1-harvRatio)* (1-energyRatio)))
+      S_wood = S_wood + W_croot*0.17 * (1-energyRatio)!(1-harvRatio) takes into account of the stem residuals after thinnings
 	 else
-      S_branch = W_branch + Wdb + W_croot*0.7 + S_branch
-      S_wood = S_wood + W_stem* (1-harvRatio) + W_croot*0.3 !(1-harvRatio) takes into account of the stem residuals after thinnings
+      S_branch = max(0.,(W_branch + Wdb + W_croot*0.83 + S_branch + W_stem* (1-harvRatio)))
+      S_wood = S_wood + W_croot*0.17!(1-harvRatio) takes into account of the stem residuals after thinnings
 	 endif
   !energyCut
      STAND(26) = S_fol
@@ -1054,13 +1054,14 @@ endif
 	 energyWood(year,ij,2) = (stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-     S_branch = stand(28) + (stand(24) - W_branch + stand(51) - Wdb) * (1-energyRatio) + &
-				(stand(32) - W_croot)*0.7
-     S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio) +&
-			(stand(32) - W_croot)*0.3* (1-energyRatio)
+     S_branch = max(0.,stand(28) + (stand(24) - W_branch + stand(51) - Wdb) * (1-energyRatio) + &
+				(stand(32) - W_croot)*0.83 + &
+				(stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio))
+     S_wood = max(0.,stand(29) +(stand(32) - W_croot)*0.17* (1-energyRatio))
 	else
-    S_branch = stand(28)+stand(24)-W_branch+stand(51)-Wdb+(stand(32)-W_croot)*0.7
-    S_wood = stand(29) + (stand(31) - W_stem) * (1-harvRatio) + (stand(32) - W_croot)*0.3
+    S_branch = max(0.,stand(28)+stand(24)-W_branch+stand(51)-Wdb+(stand(32)-W_croot)*0.83 + &
+		(stand(31) - W_stem) * (1-harvRatio))
+    S_wood = max(0.,stand(29)  + (stand(32) - W_croot)*0.17)
 	endif
   !energyCut	
 ! !! calculate litter including residuals from thinned trees
@@ -1152,20 +1153,23 @@ if (ClCut == 1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
-	 S_branch = stand_all(28,ij) + (stand_all(24,ij) + stand_all(51,ij)) * &
-		(1-energyRatio) + stand_all(32,ij) * 0.7
-	 S_wood = stand_all(31,ij)* (1-harvRatio) * (1-energyRatio) + &
-		stand_all(32,ij) *0.3 * (1-energyRatio) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij) + stand_all(51,ij)) * &
+		(1-energyRatio) + stand_all(32,ij) * 0.83 +&
+		stand_all(31,ij)* (1-harvRatio) * (1-energyRatio)))
+	 S_wood = stand_all(32,ij) *0.17 * (1-energyRatio) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	else
-	 S_branch = stand_all(51,ij)+stand_all(24,ij)+stand_all(28,ij)+stand_all(32,ij)* 0.7
-	 S_wood = stand_all(31,ij)* (1-harvRatio) + stand_all(32,ij) *0.3 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+	 S_branch = max(0.,(stand_all(51,ij)+stand_all(24,ij)+stand_all(28,ij)+stand_all(32,ij)* 0.83 +&
+			stand_all(31,ij)* (1-harvRatio)))
+	 S_wood = stand_all(32,ij) *0.17 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	endif
   !energyCut
    stand_all(2,ij) = 0. !!newX
-   stand_all(8:21,ij) = 0.
+   stand_all(8,ij) = 0.
+   stand_all(10:17,ij) = 0.
+   stand_all(19:21,ij) = 0.
    stand_all(23:38,ij) = 0.
    stand_all(41,ij) = 0.
-   stand_all(43:44,ij) = 0.
+   stand_all(43,ij) = 0.
    stand_all(47:nVar,ij) = 0.
    stand_all(26,ij) = S_fol
    stand_all(27,ij) = S_fr
@@ -1362,14 +1366,14 @@ if(defaultThin == 1.) then
 	    (stand_all(31,ij) - W_stem) * (1-harvRatio)) * energyRatio
 	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 
-     S_branch = stand_all(28,ij) + (stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb) * &
-		(1-energyRatio) + (stand_all(32,ij) - W_croot) * 0.7
-	 S_wood = stand_all(29,ij)+(stand_all(31,ij)-W_stem)*(1-harvRatio)*(1-energyRatio)+ &
-	 (stand_all(32,ij) - W_croot) * 0.3 * (1-energyRatio)
+     S_branch = max(0.,stand_all(28,ij) + (stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb) * &
+		(1-energyRatio) + (stand_all(32,ij) - W_croot) * 0.83 +&
+		(stand_all(31,ij)-W_stem)*(1-harvRatio)*(1-energyRatio))
+	 S_wood = max(0.,stand_all(29,ij)+(stand_all(32,ij) - W_croot) * 0.17 * (1-energyRatio))
 	else
-     S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb + &
-		(stand_all(32,ij) - W_croot) * 0.7
-     S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + (stand_all(32,ij) - W_croot) * 0.3
+     S_branch = max(0.,stand_all(28,ij) + stand_all(24,ij) - W_branch + stand_all(51,ij) - Wdb + &
+		(stand_all(32,ij) - W_croot) * 0.83+ (stand_all(31,ij) - W_stem) * (1-harvRatio))
+     S_wood = max(0.,stand_all(29,ij)  + (stand_all(32,ij) - W_croot) * 0.17)
 	endif
   !energyCut
 	
@@ -1487,12 +1491,11 @@ enddo
  modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
 
 	modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
-	modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
-	modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
-    if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
+		modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
+		modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
+	if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
 	
-modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) !!Gpp is not smoothed
-!modOut(:,46,:,1) = modOut(:,18,:,1) - modOut(:,45,:,1) !!!everything smoothed
+modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:,3)*0.5 
