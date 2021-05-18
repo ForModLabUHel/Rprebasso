@@ -29,7 +29,7 @@ You can install the the development version from
 devtools::install_github("ForModLabUHel/Rprebasso")
 ```
 
-## Citation
+## References
 
 Mäkelä, Annikki. 1997. “A Carbon Balance Model of Growth and
 Self-Pruning in Trees Based on Structural Relationships.” Forest Science
