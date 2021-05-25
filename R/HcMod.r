@@ -128,8 +128,8 @@ HcModDef[[4]] <-function(inputs){
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 
-###default HCmodel for eugl
-HcModDef[[6]] <-function(inputs){ 
+###default HCmodel for eugl and eugrur
+HcModDef[[6]] <- HcModDef[[9]] <-function(inputs){ 
   pValues=inputs[1:7]
   H=inputs[8]
   D=inputs[9]
@@ -142,8 +142,8 @@ HcModDef[[6]] <-function(inputs){
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 
-###default HCmodel for robs
-HcModDef[[7]] <-function(inputs){ 
+###default HCmodel for robs and popu
+HcModDef[[7]] <- HcModDef[[8]] <-function(inputs){ 
   pValues=inputs[1:7]
   H=inputs[8]
   D=inputs[9]
@@ -153,4 +153,3 @@ HcModDef[[7]] <-function(inputs){
   Hc_sim <- H/(1+exp(pValues[1]-pValues[2]*log(BA_tot)+pValues[3]*D/H))
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
-

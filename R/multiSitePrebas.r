@@ -148,12 +148,12 @@ InitMultiSite <- function(nYearsMS,
         c(ClCutD_Pine(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutD_Spruce(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutD_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
-          NA,NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops","popu")
+          NA,NA,NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops","popu",'eugrur')
     if(ClCut[i]==1 & all(is.na(inAclct[i,]))) inAclct[i,] <-
         c(ClCutA_Pine(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutA_Spruce(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
           ClCutA_Birch(ETSmean[climIDs[i]],ETSthres,siteInfo[i,3]),
-          80,50,13,30,50)  ###"fasy","pipi","eugl","rops","popu"  )
+          80,50,13,30,50,13)  ###"fasy","pipi","eugl","rops","popu",'eugrur'  )
     if(any(!is.na(inDclct[i,]))) inDclct[i,is.na(inDclct[i,])] <- max(inDclct[i,],na.rm=T)
     if(all(is.na(inDclct[i,]))) inDclct[i,] <- 9999999.99
     if(any(!is.na(inAclct[i,]))) inAclct[i,is.na(inAclct[i,])] <- max(inAclct[i,],na.rm=T)
