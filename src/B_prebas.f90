@@ -10,7 +10,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nT
 
 implicit none
 
- integer, parameter :: nVar=54,npar=43, inttimes = 1!, nSp=3
+ integer, parameter :: nVar=54,npar=44, inttimes = 1!, nSp=3
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  ! logical steadystate_pred= .false.
@@ -463,7 +463,7 @@ if (N>0.) then
 	  modOut((year+1),8,ij,1) = modOut((year+1),8,ij,1) + V* min(1.,-dN*step/N)
 	    do ijj = 1,(nyears-year)
 			modOut((year+ijj+1),8,ij,1) = modOut((year+ijj+1),8,ij,1) + (V/N) * (-dN*step) * &
-				exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + 0.))
+				exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + pCrobas(44,species)))
 		enddo
 	  end if
 	 endif
