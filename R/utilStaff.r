@@ -110,7 +110,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     monthsDays <- c(rep(1,31),rep(2,28),rep(3,31),rep(4,30),rep(5,31),rep(6,30),
                     rep(7,31),rep(8,31),rep(9,30),rep(10,31),rep(11,30),rep(12,31))
     # varByYear <- matrix(varx,365,length(varx)/365)
-    if(is.null(dim(varX))){
+    if(is.null(dim(varx))){
       varM <- aggregate(varX,by=list(monthsDays),FUN=func)$x
     }else{
       varM = unlist(apply(varx, 1, function(x) 
@@ -170,11 +170,19 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       Lfw <- t(matrix(mLit(modOut$multiOut[,,28,,1],months=8:9),nMonths,nSites))
       Lw <- t(matrix(mLit(modOut$multiOut[,,29,,1],months=8:9),nMonths,nSites))
     }else{
-      Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
-      Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
-      Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
-      Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # fine woody litter
-      Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Coarse woody litter
+      if(nLayers>1){
+        Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+        Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
+        Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+        Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # fine woody litter
+        Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Coarse woody litter
+      }else{
+        Lf <- t(apply(modOut$multiOut[,,26,,1],1,mLit,months=8:9))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+        Lfr <- t(apply(modOut$multiOut[,,27,,1],1,mLit,months=8:9))   # The mLit function moves litter fall to the August and September time period in the model output
+        Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+        Lfw <- t(apply(modOut$multiOut[,,28,,1],1,mLit,months=8:9))   # fine woody litter
+        Lw <- t(apply(modOut$multiOut[,,29,,1],1,mLit,months=8:9))    # Coarse woody litter
+      }
     }
     
     ### Create a input array for the Yasso model with the litter fall information
