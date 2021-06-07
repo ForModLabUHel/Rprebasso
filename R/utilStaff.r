@@ -274,7 +274,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   
    
-  soi### This function is used for adding yearling litter fall to the fall period on a timeseries data set, used in the monthlyFluxes function
+  ### This function is used for adding yearling litter fall to the fall period on a timeseries data set, used in the monthlyFluxes function
   mLit <- function(aLit,months=8:9){
     nYears <- length(aLit)                                                        # Gets the length of the array
     nMonths <- length(months)
