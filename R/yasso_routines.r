@@ -624,7 +624,6 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
     fAPAR <- prebOut$fAPAR
     fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
     ###calculate soil C for gv
-    fAPAR <- prebOut$fAPAR
     fAPARgv <- litGV <- matrix(0,nSites,nYears)
     fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
     fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.

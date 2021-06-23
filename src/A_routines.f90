@@ -815,8 +815,8 @@ IMPLICIT NONE
     END SUBROUTINE compAWENH
 
 	
-SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,species,nClimID,climIDs,pAWEN,pYasso, &
-			weatherYasso,soilC)
+SUBROUTINE runYasso(litter,litterSize,nYears, nLayers, nSites, nSp,&
+				species, nClimID,climIDs,pAWEN,pYasso, weatherYasso,soilC)
 IMPLICIT NONE
     !********************************************* &
     ! GENERAL DESCRIPTION 
@@ -866,25 +866,26 @@ enddo
 
 END SUBROUTINE runYasso  
 
-subroutine calWf(pars,Wf,inputs,nData)
+subroutine calWf(pars,Wf,inputs,nData,As)
  IMPLICIT NONE
  integer, intent(in) :: nData
- REAL (kind=8),INTENT(OUT) :: Wf(nData,2) !!!Wf(:,1) Wf as function of As; 
+ REAL (kind=8),INTENT(inOUT) :: Wf(nData,2),As(ndata,2) !!!Wf(:,1) Wf as function of As; 
 									!Wf(:,2) as function of Lc
- REAL (kind=8),INTENT(IN) :: pars(3),inputs(nData,3) !inputs col#1 = basal area; 
+ REAL (kind=8),INTENT(INout) :: pars(3),inputs(nData,3) !inputs col#1 = basal area; 
 								!col#2=height; col#3 = height of crown base 
- REAL (kind=8) ba(ndata), h(ndata), hc(ndata), Lc(ndata), As(ndata) !!variables
+ REAL (kind=8) ba(ndata), h(ndata), hc(ndata), Lc(ndata) !!variables
  REAL (kind=8) par_rhof, par_ksi, par_z !!parameters
  
 	ba = inputs(:,1)
 	h = inputs(:,2)
 	hc = inputs(:,3)
 	Lc = h-hc
-	As = ba * Lc/H
+	As(:,1) = ba * Lc/(H-1.3)
 	par_z = pars(1)
 	par_rhof = pars(2)
 	par_ksi = pars(3)
-	Wf(:,1) = par_rhof * As
+	As(:,2) = par_ksi/par_rhof * Lc ** par_z 
+	Wf(:,1) = par_rhof * As(:,1)
 	Wf(:,2) = par_ksi * Lc ** par_z 
 END SUBROUTINE calWf
 
