@@ -1712,9 +1712,9 @@ subroutine calWf_fA(par_rhof,Wf,nData,As)
  REAL (kind=8),INTENT(inOUT) :: Wf(nData),As(ndata) 				
  REAL (kind=8),INTENT(INout) :: par_rhof !!parameters
  
- 	Wf = par_rhof * As(:,1)
+ 	Wf = par_rhof * As
 
-END SUBROUTINE calWf
+END SUBROUTINE calWf_fA
 
 subroutine calWf_fLc(pars,Wf,nData,Lc)
  IMPLICIT NONE
@@ -1725,21 +1725,20 @@ subroutine calWf_fLc(pars,Wf,nData,Lc)
     
 	ksi = pars(1)
 	z = pars(2)
- 	! As(:,2) = par_ksi/par_rhof * Lc ** par_z 
-	Wf = ksi * Lc ** z 
+ 	Wf = ksi * Lc ** z 
 	
-END SUBROUTINE calWf
+END SUBROUTINE calWf_fLc
 
 subroutine calAs_fLc(pars,As,nData,Lc)
  IMPLICIT NONE
  integer, intent(in) :: nData
  REAL (kind=8),INTENT(inOUT) :: As(nData),Lc(ndata) 				
  REAL (kind=8),INTENT(INout) :: pars(3) !!parameters
- REAL (kind=8) ksi, z
+ REAL (kind=8) ksi, z, rhof
  
 	ksi = pars(1)
 	z = pars(2)
 	rhof = pars(3)
  	As = ksi/rhof * Lc ** z 
 	
-END SUBROUTINE calWf
+END SUBROUTINE calAs_fLc
