@@ -1702,3 +1702,44 @@ END SUBROUTINE runYassoMonthly
       endif
       
 end subroutine Fmortality
+
+
+
+
+subroutine calWf_fA(par_rhof,Wf,nData,As)
+ IMPLICIT NONE
+ integer, intent(in) :: nData
+ REAL (kind=8),INTENT(inOUT) :: Wf(nData),As(ndata) 				
+ REAL (kind=8),INTENT(INout) :: par_rhof !!parameters
+ 
+ 	Wf = par_rhof * As(:,1)
+
+END SUBROUTINE calWf
+
+subroutine calWf_fLc(pars,Wf,nData,Lc)
+ IMPLICIT NONE
+ integer, intent(in) :: nData
+ REAL (kind=8),INTENT(inOUT) :: Wf(nData),Lc(ndata) 				
+ REAL (kind=8),INTENT(INout) :: pars(2) !!parameters
+ REAL (kind=8) ksi, z
+    
+	ksi = pars(1)
+	z = pars(2)
+ 	! As(:,2) = par_ksi/par_rhof * Lc ** par_z 
+	Wf = ksi * Lc ** z 
+	
+END SUBROUTINE calWf
+
+subroutine calAs_fLc(pars,As,nData,Lc)
+ IMPLICIT NONE
+ integer, intent(in) :: nData
+ REAL (kind=8),INTENT(inOUT) :: As(nData),Lc(ndata) 				
+ REAL (kind=8),INTENT(INout) :: pars(3) !!parameters
+ REAL (kind=8) ksi, z
+ 
+	ksi = pars(1)
+	z = pars(2)
+	rhof = pars(3)
+ 	As = ksi/rhof * Lc ** z 
+	
+END SUBROUTINE calWf
