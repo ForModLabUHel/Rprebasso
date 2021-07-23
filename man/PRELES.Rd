@@ -28,49 +28,47 @@
   
   
   \item{p}{parameter vector of length 30. If parameter has value NA it is replaced with a default corresponding to Hyytiälä calibration. Vector p has following defaults:
+    \itemize{
+    \item SITE AND SOIL RELATED
+    \item 1 soildepth = 413.0, soildepth
+    \item 2 Effective field capacity = 0.450, ThetaFC
+    \item 3 Permanent wilting point = 0.118, ThetaPWP
+    \item 4 Drainage delay = 3 days, tauDrainage
     
-    ## SITE AND SOIL RELATED
-    soildepth = 413.0, ## 1 soildepth
-    Effective field capacity = 0.450, ## 2 ThetaFC
-    Permanent wilting point = 0.118, ## 3 ThetaPWP
-    Drainage delay = 3 days, ## 4 tauDrainage
+    \item GPP_MODEL_PARAMETERS
+    \item 5 LUE = 0.748018, betaGPP
+    \item 6 tauGPP = 13.23383,  tauGPP
+    \item 7 S0GPP = -3.9657867,   S0GPP
+    \item 8 SmaxGPP = 18.76696,  SmaxGPP
+    \item 9 kappaGPP = -0.130473,   kappaGPP
+    \item 10 gammaGPP = 0.034459,   gammaGPP
+    \item 11 soilthresGPP = 0.450828,  soilthresGPP
+    \item 12 bCO2 = 0.5, CO2 modifier in GPP model
+    \item 13 xCO2 = -0.364, CO2 modifier in ET model
     
-    ## GPP_MODEL_PARAMETERS
-    LUE = 0.748018, ## 5 betaGPP
-    tauGPP = 13.23383, ## 6 tauGPP
-    S0GPP = -3.9657867, ## 7 S0GPP
-    SmaxGPP = 18.76696, ## 8 SmaxGPP
-    kappaGPP = -0.130473, ## 9 kappaGPP
-    gammaGPP = 0.034459, ## 10 gammaGPP
-    soilthresGPP = 0.450828, ## 11 soilthresGPP
-    cmCO2 = 2000, ## 12 cmCO2
-    ckappa = 0.4, ## 13 ckappaCO2
-    ## EVAPOTRANSPIRATION_PARAMETERS
-    transpiration efficiency = 0.324463, ## 14 betaET
-    kappaET = 0.874151, ## 15 kappaET
-    chiET = 0.075601, ## 16 chiET
-    soilthresET = 0.541605, ## 17 soilthresET
-    nuET = 0.273584, ## 18 nu ET
-    ## SNOW_RAIN_PARAMETERS
-    Metlcoeff = 1.2, ## 19 Meltcoef
-    I_0 = 0.33, ## 20 I_0
-    CWmax = 4.970496, ## 21 CWmax, i.e. max canopy water
-    SnowThreshold = 0, ## 22 SnowThreshold, 
-    T_0 = 0, ## 23 T_0, 
-    ## Initialisation
-    SWinit = 200, ## 24 SWinit, ## START INITIALISATION PARAMETERS 
-    CWinit = 0, ## 25 CWinit, ## Canopy water
-    SOGinit = 0, ## 26 SOGinit, ## Snow on Ground 
-    Sinit = 20, ## 27 Sinit ##CWmax
-    t0 = -999, ## t0 fPheno_start_date_Tsum_accumulation; conif -999, for birch 57
-    tcrit =  -999, ## tcrit, fPheno_start_date_Tsum_Tthreshold, 1.5 birch
-    tsumcrit = -999 ##tsumcrit, fPheno_budburst_Tsum, 134 birch
+    \item EVAPOTRANSPIRATION_PARAMETERS
+    \item 14 transpiration efficiency = 0.324463, betaET
+    \item 15 kappaET = 0.874151, kappaET
+    \item 16 chiET = 0.075601, chiET
+    \item 17 soilthresET = 0.541605, soilthresET
+    \item 18 nuET = 0.273584, nu ET
     
+    \item ## SNOW_RAIN_PARAMETERS
+    \item 19 Metlcoeff = 1.2, Meltcoef
+    \item 20 I_0 = 0.33, I_0
+    \item 21 CWmax = 4.970496, CWmax, i.e. max canopy water
+    \item 22 SnowThreshold = 0, SnowThreshold, 
+    \item 23 T_0 = 0, T_0,
     
-    
-  }
-  
-  
+    \item ## START INITIALISATION PARAMETERS 
+    \item 24 SWinit = 200, SWinit, Initial soil water
+    \item 25 CWinit = 0, CWinit, Initial Canopy water
+    \item 26 SOGinit = 0, SOGinit, Initial Snow on Ground 
+    \item 27 Sinit = 20, Sinit, Initial temperature acclimation state
+    \item 28 t0 = -999, t0 fPheno_start_date_Tsum_accumulation; conif -999, for birch 57
+    \item 29 tcrit =  -999, tcrit, fPheno_start_date_Tsum_Tthreshold, 1.5 birch
+    \item 30 tsumcrit = -999, tsumcrit, fPheno_budburst_Tsum, 134 birch}
+    }
   
   \item{DOY}{Day of year integer vector. Needed for the prediction of deciduous species phenology. If DOY is not provided and deciduous species phenology parameters are not set to -999, it is assumed that the first values of all input vectors are from 1st Jan, and year has 365 day.}
 
