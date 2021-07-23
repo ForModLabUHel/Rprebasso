@@ -8,7 +8,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun)		!!energCuts
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,clearcuttingArea)		!!energCuts
 
 
 implicit none
@@ -33,7 +33,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  !!!ground vegetation
  integer, intent(in) :: gvRun			!!!ground vegetation
- real (kind=8), intent(inout) :: GVout(nSites,maxYears,3) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,3),clearcuttingArea(2) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
@@ -53,6 +53,7 @@ yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 multiWood = 0.
+clearcuttingArea(2) = 0.
 
    ! open(1,file="test1.txt")
    ! open(2,file="test2.txt")
@@ -95,8 +96,10 @@ do ij = 1,maxYears
 	endif
 
 !!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
+	if (clearcuttingArea(1) > 0. .and. clearcuttingArea(2) > clearcuttingArea(1)) then !!!swithch off clear cuts if threshold area (clearcuttingArea(1)), has been reached
+	 ClCutX = 0.
+	endif
 	if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
-
 	 ClCutX = 0.
 	 defaultThinX = 0.
 	endif
@@ -174,6 +177,7 @@ do ij = 1,maxYears
 			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
 		! endif
 	 endif
+	 clearcuttingArea = clearcuttingArea + areas(i)
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
@@ -221,7 +225,7 @@ do ij = 1,maxYears
 		roundWood = roundWood + sum(output(1,37,1:nLayers(i),1))* areas(i)
 		energyWood = energyWood + sum(wood(1,1:nLayers(i),1))* areas(i)   !!energCuts !!!we are looking at volumes	
 	endif
- end do !iz i
+ end do !iz i site loop
 
 
 ! write(10,*) "here3"
