@@ -491,7 +491,6 @@ regionPrebas <- function(multiSiteInit,
   }else{
     prebas$totHarv <- colSums(prebas$multiOut[,,37,1,1]*prebas$areas)
   }
-  prebas$clearcutAreas <- prebas$clearcutAreas
   
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
