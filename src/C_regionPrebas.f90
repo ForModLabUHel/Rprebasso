@@ -55,7 +55,7 @@ soilCtot = soilCtotInOut
 multiWood = 0.
 clearcuttingArea(:,2) = 0.
 
-    open(1,file="test1.txt")
+   ! open(1,file="test1.txt")
    ! open(2,file="test2.txt")
    ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -96,7 +96,7 @@ do ij = 1,maxYears
 	endif
 
 !!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
-    write(1,*) clearcuttingArea(ij,:)
+    ! write(1,*) clearcuttingArea(ij,:)
 	if (clearcuttingArea(ij,1) > 0. .and. clearcuttingArea(ij,2) > clearcuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (clearcuttingArea(1)), has been reached
 	 ClCutX = 0.
 	endif
