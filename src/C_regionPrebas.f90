@@ -33,7 +33,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  !!!ground vegetation
  integer, intent(in) :: gvRun			!!!ground vegetation
- real (kind=8), intent(inout) :: GVout(nSites,maxYears,3),clearcuttingArea(2) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,3),clearcuttingArea(maxYears,2) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
@@ -53,7 +53,7 @@ yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 multiWood = 0.
-clearcuttingArea(2) = 0.
+clearcuttingArea(:,2) = 0.
 
    ! open(1,file="test1.txt")
    ! open(2,file="test2.txt")
@@ -96,7 +96,7 @@ do ij = 1,maxYears
 	endif
 
 !!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
-	if (clearcuttingArea(1) > 0. .and. clearcuttingArea(2) > clearcuttingArea(1)) then !!!swithch off clear cuts if threshold area (clearcuttingArea(1)), has been reached
+	if (clearcuttingArea(ij,1) > 0. .and. clearcuttingArea(ij,2) > clearcuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (clearcuttingArea(1)), has been reached
 	 ClCutX = 0.
 	endif
 	if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
@@ -177,7 +177,8 @@ do ij = 1,maxYears
 			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
 		! endif
 	 endif
-	 clearcuttingArea = clearcuttingArea + areas(i)
+	 
+	 clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(i) !calculate the clearcut area
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
@@ -185,8 +186,7 @@ do ij = 1,maxYears
 	 endif
 	endif
 	
-	! write(10,*) "here1"
-	  !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
+	!!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
 	do ijj = 1,nLayers(i)
 	  if(output(1,8,ijj,1)>0.) then
 	  multiOut(i,ij,8,ijj,1) = multiOut(i,ij,8,ijj,1) + output(1,8,ijj,1)
@@ -211,7 +211,6 @@ do ij = 1,maxYears
 	  ! endif
 
 	! enddo !ijj
-! write(10,*) "here2"
 
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
@@ -227,9 +226,7 @@ do ij = 1,maxYears
 	endif
  end do !iz i site loop
 
-
 ! write(10,*) "here3"
-
 
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by basal area
  if (roundWood < HarvLim(ij,1)) then		!!energCuts

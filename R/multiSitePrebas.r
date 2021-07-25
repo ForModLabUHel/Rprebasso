@@ -422,11 +422,12 @@ multiPrebas <- function(multiSiteInit){
 regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
-                         clearcutAreas = c(-999,0)  ###area of clearCut dim1 is the threshold to not exceed, dimension2 is the tot clearcut area from the simulations
+                         clearcutAreas = NA  ###area of clearCut dim1 is the threshold to not exceed, dimension2 is the tot clearcut area from the simulations
                          ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
+  if(all(is.na(clearcutAreas))) clearcutAreas <- matrix(-999.,multiSiteInit$maxYears,2)
   
   siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
   siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
@@ -481,7 +482,7 @@ regionPrebas <- function(multiSiteInit,
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
                      GVrun = as.integer(multiSiteInit$GVrun),
-                     clearcutAreas=as.double(clearcutAreas))
+                     clearcutAreas=as.matrix(clearcutAreas))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
