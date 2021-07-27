@@ -231,7 +231,7 @@ do ij = 1,maxYears
 write(2,*) roundWood,HarvLim(ij,1)
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by basal area
  if (roundWood < HarvLim(ij,1)) then		!!energCuts
- write(1,*) "noLimit Harv"
+ write(1,*) "noLimit Harv",ij
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
    n = n + 1
