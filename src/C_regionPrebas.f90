@@ -234,6 +234,7 @@ write(2,*) roundWood,HarvLim(ij,1), ij
  write(1,*) "noLimit Harv",ij,roundWood,HarvLim(ij,1)
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
+   write(3,*) "noLimit Harv",ij,roundWood,HarvLim(ij,1),n,"of",nSites
    n = n + 1
    do i = 1, nSites
 	maxState(i) = maxval(multiOut(i,ij,12,1:nLayers(i),1))!!!search for site with highest DBH
@@ -251,7 +252,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 write(1,*) "clearcutting", ij,maxState(siteX),minDharv
  clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
    roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
-write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n
+write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 		multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
    multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
