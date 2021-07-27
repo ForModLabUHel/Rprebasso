@@ -251,7 +251,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 write(1,*) "clearcutting", ij,maxState(siteX),minDharv
  clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
    roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
-write(1,*) roundWood, ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n
+write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 		multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
    multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
@@ -312,8 +312,8 @@ endif !(maxState(i)>minDharv)
  endif !roundWood < HarvLim .and. HarvLim /= 0.
 
 ! write(10,*) "here4"
-  HarvLim(ij,1) = roundWood
-  HarvLim(ij,2) = energyWood
+  !HarvLim(ij,1) = roundWood
+  !HarvLim(ij,2) = energyWood
 end do !end Year loop 
 do i = 1,nSites
   do ij = 1, maxYears 
