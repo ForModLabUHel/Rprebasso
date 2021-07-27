@@ -228,10 +228,10 @@ do ij = 1,maxYears
  end do !iz i site loop
 
 ! write(10,*) "here3"
-write(2,*) roundWood,HarvLim(ij,1), ij
+! write(2,*) roundWood,HarvLim(ij,1), ij
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by basal area
  if (roundWood < HarvLim(ij,1)) then		!!energCuts
- write(1,*) "noLimit Harv",ij,roundWood,HarvLim(ij,1)
+ ! write(1,*) "noLimit Harv",ij,roundWood,HarvLim(ij,1)
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
    n = n + 1
@@ -245,7 +245,7 @@ write(2,*) roundWood,HarvLim(ij,1), ij
    ops = maxloc(maxState)
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
-write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
+! write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
    energyCutX = energyCuts(siteX)
 	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
@@ -253,10 +253,10 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	endif
   ! close(10)
 !!   !!clearcut!!
-write(1,*) "clearcutting", ij,maxState(siteX),minDharv
+! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
  clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
    roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
-write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
+! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 		multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
    multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
