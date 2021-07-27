@@ -55,7 +55,7 @@ soilCtot = soilCtotInOut
 multiWood = 0.
 clearcuttingArea(:,2) = 0.
 
-   ! open(1,file="test1.txt")
+    open(1,file="test1.txt")
    ! open(2,file="test2.txt")
    ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -231,6 +231,7 @@ do ij = 1,maxYears
 
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by basal area
  if (roundWood < HarvLim(ij,1)) then		!!energCuts
+ write(1,*) "noLimit Harv"
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
    n = n + 1
@@ -241,13 +242,16 @@ do ij = 1,maxYears
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
+   energyCutX = energyCuts(siteX)
 	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
-	 energyCuts(siteX) = 0.
+	 energyCutX = 0.
 	endif
   ! close(10)
 !!   !!clearcut!!
+write(1,*) "clearcutting", ij
  clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
    roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
+write(1,*) roundWood, ij
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 		multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
    multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
@@ -257,7 +261,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
     multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
     multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
 !!energCuts
-	if(energyCuts(siteX) == 1.) then
+	if(energyCutX == 1.) then
 	 multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
 	   multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)) * energyRatio
 	 species = int(multiOut(siteX,ij,4,ijj,1))
@@ -326,7 +330,7 @@ do i = 1,nSites
 	enddo !ijj
   enddo
 enddo	
- ! close(1)
+ close(1)
  ! close(2)
  ! close(3)
 ! write(10,*) "here5"
