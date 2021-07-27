@@ -56,7 +56,7 @@ multiWood = 0.
 clearcuttingArea(:,2) = 0.
 
     open(1,file="test1.txt")
-   ! open(2,file="test2.txt")
+    open(2,file="test2.txt")
    ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
@@ -228,7 +228,7 @@ do ij = 1,maxYears
  end do !iz i site loop
 
 ! write(10,*) "here3"
-
+write(2,*) roundWood,HarvLim(ij,1)
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by basal area
  if (roundWood < HarvLim(ij,1)) then		!!energCuts
  write(1,*) "noLimit Harv"
@@ -331,7 +331,7 @@ do i = 1,nSites
   enddo
 enddo	
  close(1)
- ! close(2)
+  close(2)
  ! close(3)
 ! write(10,*) "here5"
 ! close(10)
