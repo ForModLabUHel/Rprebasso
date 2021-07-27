@@ -248,7 +248,7 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	endif
   ! close(10)
 !!   !!clearcut!!
-write(1,*) "clearcutting", ij,maxState(siteX)
+write(1,*) "clearcutting", ij,maxState(siteX),minDharv
  clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
    roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
 write(1,*) roundWood, ij
