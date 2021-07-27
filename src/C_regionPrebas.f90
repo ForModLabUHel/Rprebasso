@@ -234,7 +234,6 @@ write(2,*) roundWood,HarvLim(ij,1), ij
  write(1,*) "noLimit Harv",ij,roundWood,HarvLim(ij,1)
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
-   write(3,*) "noLimit Harv",ij,roundWood,HarvLim(ij,1),n,"of",nSites
    n = n + 1
    do i = 1, nSites
 	maxState(i) = maxval(multiOut(i,ij,12,1:nLayers(i),1))!!!search for site with highest DBH
@@ -242,6 +241,7 @@ write(2,*) roundWood,HarvLim(ij,1), ij
    ops = maxloc(maxState)
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
+write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
    energyCutX = energyCuts(siteX)
 	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
