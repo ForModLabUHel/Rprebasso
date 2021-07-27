@@ -57,7 +57,7 @@ clearcuttingArea(:,2) = 0.
 
     open(1,file="test1.txt")
     open(2,file="test2.txt")
-   ! open(3,file="test3.txt")
+    open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
@@ -333,7 +333,7 @@ do i = 1,nSites
 enddo	
  close(1)
   close(2)
- ! close(3)
+  close(3)
 ! write(10,*) "here5"
 ! close(10)
 soilCinOut = soilC
