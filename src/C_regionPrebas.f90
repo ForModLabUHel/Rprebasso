@@ -58,6 +58,7 @@ clearcuttingArea(:,2) = 0.
     open(1,file="test1.txt")
     open(2,file="test2.txt")
     open(3,file="test3.txt")
+	write(3,*) any(ClCut)!ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
@@ -241,7 +242,7 @@ write(2,*) roundWood,HarvLim(ij,1), ij
    ops = maxloc(maxState)
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
-write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
+!write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
 if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
    energyCutX = energyCuts(siteX)
 	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
