@@ -56,8 +56,8 @@ multiWood = 0.
 clearcuttingArea(:,2) = 0.
 
     open(1,file="test1.txt")
-    open(2,file="test2.txt")
-    open(3,file="test3.txt")
+    ! open(2,file="test2.txt")
+    ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
@@ -253,10 +253,10 @@ if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
 	endif
   ! close(10)
 !!   !!clearcut!!
-! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
+write(1,*) "clearcutting", ij,maxState(siteX),minDharv
  clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
    roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
-! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
+write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
    multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 		multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
    multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
@@ -336,8 +336,8 @@ do i = 1,nSites
   enddo
 enddo	
  close(1)
-  close(2)
-  close(3)
+  ! close(2)
+  ! close(3)
 ! write(10,*) "here5"
 ! close(10)
 soilCinOut = soilC
