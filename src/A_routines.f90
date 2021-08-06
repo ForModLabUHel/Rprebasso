@@ -1773,9 +1773,9 @@ subroutine calRein(outputs,nLayers,pRein,nVar,nSp,reinX)
  real (kind=8), intent(in) :: outputs(nVar,nLayers) !!takes multiOut(maxYears,nVar,maxNlayers,2)
 														!!dim1 nVar, dim2 maxNlayers 1 year and 1standing trees
  real (kind=8), intent(in) :: pRein(nSp)
- real (kind=8), intent(out) ::reinX
- real (kind=8) :: valX(nLayers), domSp(1), layerX(nLayers), Ntot, B, Reineke(nLayers)
- integer :: i, ijx
+ real (kind=8), intent(inout) ::reinX
+ real (kind=8) :: valX(nLayers), domSp(1),  Ntot, B, Reineke(nLayers)
+ integer :: i, ijx,layerX(nLayers)
  
  ! nLayers = integer(size(outputs,3))
   
@@ -1784,13 +1784,13 @@ subroutine calRein(outputs,nLayers,pRein,nVar,nSp,reinX)
   domSp = maxloc(valX)
   layerX(ijx) = int(domSp(1))
   valX(layerX(ijx)) = -999.
-	
+  
   Ntot = sum(outputs(17,layerX(1:ijx)))
   B = sum(outputs(35,layerX(1:ijx))*outputs(17,layerX(1:ijx)))/Ntot   !!!!!!!!!#####changed
-	 
-   if(Ntot>0.) then
+
+   if(Ntot>0. .and. (outputs(17,layerX(ijx))>0.)) then
      Reineke(layerX(ijx)) = Ntot*(sqrt(B*4/pi)*100./25.)**(1.66) &
-		/pRein(outputs(4,ijx))*(outputs(13,ijx)/sum(outputs(13,:)))
+		/pRein(int(outputs(4,ijx)))*(outputs(13,ijx)/sum(outputs(13,:)))
    else
      Reineke(layerX(ijx)) = 0.
    endif
