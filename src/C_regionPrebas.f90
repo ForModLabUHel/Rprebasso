@@ -56,7 +56,7 @@ multiWood = 0.
 clearcuttingArea(:,2) = 0.
 thinFact = compHarv(2)
 
-    ! open(1,file="test1.txt")
+     open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -318,8 +318,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
     endif !(maxState(i)>minDharv)
    enddo !end do while
  else!!!thin to compansate harvest limits
- 
-  !Perform thinning to compensate harvest levels
+   !Perform thinning to compensate harvest levels
    !calculate SDI
   do i = 1, nSites
    if(ClCut(i) > 0.) then
@@ -341,7 +340,8 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 endif
 	 !!!harvest thinFact 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
-     multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
+     write(1,*) ij,siteX,roundWood, HarvLim(ij,1)
+	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 			multiOut(siteX,ij,30,1:nLayers(siteX),1)*thinFact
 	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
 			multiOut(siteX,ij,31,1:nLayers(siteX),1)*thinFact
@@ -408,7 +408,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
- ! close(1)
+  close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
