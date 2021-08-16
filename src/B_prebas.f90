@@ -1198,12 +1198,13 @@ if(defaultThin == 1.) then
  ! counting the dominant height of the dominant species
  Hdom = pCrobas(42,species)+pCrobas(43,species)*H 
  Ntot = sum(STAND_all(17,:))
+ thinningType=0.
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
- modOut(year+1,1,1,2) = thinningType
- if (thinningType>0.) then
-  write(1,*) thinningType,stand_all(1,1),year
- endif
+ ! modOut(year+1,1,1,2) = thinningType
+ ! if (thinningType>0.) then
+  ! write(1,*) thinningType,stand_all(1,1),year
+ ! endif
  if(thinningType == 3.) then    
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
