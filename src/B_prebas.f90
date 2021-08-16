@@ -93,7 +93,7 @@ implicit none
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
  real (kind=8) :: Hdom
-  ! open(1,file="test1.txt")
+   open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
@@ -1201,6 +1201,9 @@ if(defaultThin == 1.) then
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
  modOut(year,1,1,2) = thinningType
+ if (thinningType>0.) then
+  write(1,*) thinningType
+ endif
  if(thinningType == 3.) then    
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
@@ -1507,7 +1510,7 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
- ! close(1)
+  close(1)
  ! close(2)
  ! close(3)
 
