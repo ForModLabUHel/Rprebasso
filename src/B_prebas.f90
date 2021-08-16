@@ -1200,6 +1200,7 @@ if(defaultThin == 1.) then
  Ntot = sum(STAND_all(17,:))
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
+ outt(1,ij,2) = thinningType
  if(thinningType == 3.) then    
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
