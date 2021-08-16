@@ -321,11 +321,22 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
    !Perform thinning to compensate harvest levels
    !calculate SDI
   do i = 1, nSites
-   if(ClCut(i) > 0.) then
-	call calRein(multiOut(i,ij,:,:,1),nLayers(i),pCrobas(17,:),nVar,allSP,maxState(i))
-   else
-	maxState(i) = 0.
-   endif
+! !!start!! use stand density index to order the forests
+   ! if(ClCut(i) > 0.) then
+	! call calRein(multiOut(i,ij,:,:,1),nLayers(i),pCrobas(17,:),nVar,allSP,maxState(i))
+   ! else
+	! maxState(i) = 0.
+   ! endif
+! !!end!! use stand density index to order the forests
+
+!!start!! use stand volume to order the forests
+	if(ClCut(i) > 0. ) then
+	 maxState(i) = sum(multiOut(i,ij,30,1:nLayers(i),1))!!!search for site with highest DBH
+	else
+	 maxState(i) = 0.
+	endif
+!!end!! use stand volume to order the forests
+
   enddo
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
