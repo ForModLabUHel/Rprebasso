@@ -1202,7 +1202,7 @@ if(defaultThin == 1.) then
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
  modOut(year+1,1,1,2) = thinningType
  if (thinningType>0.) then
-  write(1,*) thinningType
+  write(1,*) thinningType,stand_all(1,1),year
  endif
  if(thinningType == 3.) then    
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
