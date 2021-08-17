@@ -56,7 +56,7 @@ multiWood = 0.
 clearcuttingArea(:,2) = 0.
 thinFact = compHarv(2)
 
-    open(1,file="test1.txt")
+    ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -181,9 +181,9 @@ do ij = 1,maxYears
 	 endif
 	 
 	 clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(i) !calculate the clearcut area
- 	if(ij==35) then
-	 write(1,*) clearcuttingArea(ij,2),i,iz,roundWood
-	endif
+ 	! if(ij==35) then
+	 ! write(1,*) clearcuttingArea(ij,2),i,iz,roundWood
+	! endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
@@ -267,7 +267,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
 	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
 			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
-	 multiOut(siteX,ij,2,1,2) = 2. !!!flag as clearcut compensation
+	 multiOut(siteX,ij,1,2,2) = 2. !!!flag as clearcut compensation
      do ijj = 1, nLayers(siteX)
       multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
       multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
@@ -355,7 +355,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 endif
 	 !!!harvest thinFact 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
-     multiOut(siteX,ij,1,1,2) = 4
+     multiOut(siteX,ij,1,1,2) = 4 !!!flag for tthinning compensation
 	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 			multiOut(siteX,ij,30,1:nLayers(siteX),1)*thinFact
 	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
@@ -423,7 +423,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
