@@ -1280,11 +1280,11 @@ pX2 = tTapio(int(siteType), species,:,:)
 
 ! if the stand is already thinner than the thinning result or the dominant height is over the limit, we move on to tapioThin subroutine
  if(density < densityU1 .or. Hdom > hNext1) then
-	thinning = 3 
+	thinning = 3. 
  else if(density < densityU2 .or. Hdom > hNext2) then
-	thinning = 2
+	thinning = 2.
  else 
-	thinning = 1
+	thinning = 1.
  endif
 
  ! closing test log

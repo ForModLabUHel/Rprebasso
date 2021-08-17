@@ -56,7 +56,7 @@ multiWood = 0.
 clearcuttingArea(:,2) = 0.
 thinFact = compHarv(2)
 
-    open(1,file="test1.txt")
+    ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -423,7 +423,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"

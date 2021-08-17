@@ -1239,9 +1239,9 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  thinx = thinningType
-  write(1,*) thinx
-  modOut(year+1,1,1,2) = thinx !flag for thinning
+  ! thinx = thinningType
+  ! write(1,*) thinx
+  modOut(year+1,1,1,2) = thinningType !flag for thinning
   do ij = 1, nLayers
 
    if(stand_all(17,ij)>0.) then
