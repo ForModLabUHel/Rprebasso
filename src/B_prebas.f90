@@ -1239,7 +1239,7 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  ! modOut(year+1,1,1,2) = thinningType!flag for thinning
+  modOut(year+1,1,1,2) = thinningType !flag for thinning
   do ij = 1, nLayers
 
    if(stand_all(17,ij)>0.) then
@@ -1284,13 +1284,13 @@ if(defaultThin == 1.) then
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
 	Nold = stand_all(17,ij)
 	
-	if(thinningType == 1 .or. thinningType == 2) then
+	if(thinningType == 1. .or. thinningType == 2.) then
 		! N = number of trees in the current layer after thinning
 		N = (stand_all(17,ij)/Ntot) * dens_thd
 		H = stand_all(11,ij)
 		D = stand_all(12,ij)
 		BA = N*pi*(D/2./100.)**2.
-	else if(thinningType == 3) then 
+	else if(thinningType == 3.) then 
 		BA_tot = BA_thd
 		BA = BAr(ij) * BA_thd
 
