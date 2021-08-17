@@ -1239,7 +1239,7 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  modOut(year+1,1,1,2) = thinningType!flag for thinning
+  ! modOut(year+1,1,1,2) = thinningType!flag for thinning
   do ij = 1, nLayers
 
    if(stand_all(17,ij)>0.) then
