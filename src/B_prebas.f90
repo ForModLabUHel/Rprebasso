@@ -1140,6 +1140,7 @@ if (ClCut == 1.) then
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .and. (age > A_clearcut)) then
+  modOut(year+1,2,1,2) = 1. !flag for clearcut
   do ij = 1, nLayers
   ! if(stand_all(1,1)==6944. .and. ij==1) then
 	! write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
