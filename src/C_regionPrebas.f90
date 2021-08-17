@@ -355,7 +355,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 endif
 	 !!!harvest thinFact 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
-     multiOut(siteX,ij,1,1,2) = 4 !!!flag for tthinning compensation
+     multiOut(siteX,ij,1,1,2) = 4. !!!flag for tthinning compensation
 	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
 			multiOut(siteX,ij,30,1:nLayers(siteX),1)*thinFact
 	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
