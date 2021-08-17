@@ -1201,7 +1201,7 @@ if(defaultThin == 1.) then
  thinningType=0.
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
- ! modOut(year+1,1,1,2) = thinningType
+ modOut(year+1,1,1,2) = thinningType
  ! if (thinningType>0.) then
   ! write(1,*) thinningType,stand_all(1,1),year
  ! endif
