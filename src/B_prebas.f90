@@ -92,7 +92,7 @@ implicit none
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
- real (kind=8) :: Hdom
+ real (kind=8) :: Hdom,thinx
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -1239,7 +1239,9 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  modOut(year+1,1,1,2) = real(thinningType,8) !flag for thinning
+  thinx = thinningType
+  write(1,*) thinx
+  modOut(year+1,1,1,2) = thinx !flag for thinning
   do ij = 1, nLayers
 
    if(stand_all(17,ij)>0.) then
