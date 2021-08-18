@@ -1140,7 +1140,7 @@ if (ClCut == 1.) then
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .and. (age > A_clearcut)) then
-  modOut(year+1,1,2,2) = 1. !flag for clearcut
+  ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   ! outt(1,2,2) = 1
   
   do ij = 1, nLayers
@@ -1241,7 +1241,7 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  modOut(year+1,1,1,2) = thinx !flag for thinning
+  ! modOut(year+1,1,1,2) = thinx !flag for thinning
   ! outt(1,1,2) = thinX
   do ij = 1, nLayers
 
@@ -1514,7 +1514,7 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
  soilCtotInOut = soilCtot(2:(nYears+1))
 
  ! write(2,*) "end"
-  ! close(1)
+ ! close(1)
  ! close(2)
  ! close(3)
 
