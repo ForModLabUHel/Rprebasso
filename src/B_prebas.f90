@@ -1140,7 +1140,7 @@ if (ClCut == 1.) then
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .and. (age > A_clearcut)) then
-  modOut(year+1,1,2,2) = 1. !flag for clearcut
+  ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   do ij = 1, nLayers
   ! if(stand_all(1,1)==6944. .and. ij==1) then
 	! write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
@@ -1201,7 +1201,7 @@ if(defaultThin == 1.) then
  Ntot = sum(STAND_all(17,:))
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
- 
+ thinx = thinningType
  ! if (thinningType>0.) then
   ! write(1,*) thinningType,stand_all(1,1),year
  ! endif
@@ -1239,9 +1239,9 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  thinx = thinningType
+  
   ! write(1,*) thinx
-  modOut(year+1,1,1,2) = thinx !flag for thinning
+  ! modOut(year+1,1,1,2) = thinx !flag for thinning
   do ij = 1, nLayers
 
    if(stand_all(17,ij)>0.) then
