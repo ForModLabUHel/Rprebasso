@@ -1140,8 +1140,8 @@ if (ClCut == 1.) then
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .and. (age > A_clearcut)) then
-  ! modOut(year+1,1,2,2) = 1. !flag for clearcut
-  outt(1,2,2) = 1
+  modOut(year+1,1,2,2) = 1. !flag for clearcut
+  ! outt(1,2,2) = 1
   
   do ij = 1, nLayers
   ! if(stand_all(1,1)==6944. .and. ij==1) then
@@ -1241,8 +1241,8 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
-  ! modOut(year+1,1,1,2) = thinx !flag for thinning
-  outt(1,1,2) = thinX
+  modOut(year+1,1,1,2) = thinx !flag for thinning
+  ! outt(1,1,2) = thinX
   do ij = 1, nLayers
 
    if(stand_all(17,ij)>0.) then
