@@ -152,7 +152,7 @@ do ij = 1,maxYears
 		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,ij-1,9:nVar,1:nLayers(i),:)
 	else
 		output(1,:,:,1) = multiOut(i,1,:,:,1)
-		output(1,3:nVar,:,2) = multiOut(i,1,9:nVar,:,2)
+		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
 	endif
 
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
