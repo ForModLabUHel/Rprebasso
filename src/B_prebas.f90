@@ -92,11 +92,12 @@ implicit none
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
- real (kind=8) :: Hdom,thinx
+ real (kind=8) :: Hdom,thinClx(nYears,2)
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+thinClx = 0.
 energyWood = 0.
 fbAWENH = 0.
 folAWENH = 0.
@@ -1141,7 +1142,7 @@ if (ClCut == 1.) then
 	age = stand_all(7,layer)
  if ((D > D_clearcut) .and. (age > A_clearcut)) then
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
-  ! outt(1,2,2) = 1
+  thinClx(year,2) = 1
   
   do ij = 1, nLayers
   ! if(stand_all(1,1)==6944. .and. ij==1) then
@@ -1203,7 +1204,7 @@ if(defaultThin == 1.) then
  Ntot = sum(STAND_all(17,:))
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
- thinx = thinningType
+ ! thinx = thinningType
  ! if (thinningType>0.) then
   ! write(1,*) thinningType,stand_all(1,1),year
  ! endif
@@ -1242,6 +1243,7 @@ if(defaultThin == 1.) then
 
  if(doThin) then
   ! modOut(year+1,1,1,2) = thinx !flag for thinning
+  thinClx(year,1) = thinningType
   ! outt(1,1,2) = thinX
   do ij = 1, nLayers
 
@@ -1512,7 +1514,7 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
  soilCinOut = soilC(2:(nYears+1),:,:,:)
  soilCtotInOut = soilCtot(2:(nYears+1))
-
+ output(:,1:2,1,2) = thinClx
  ! write(2,*) "end"
  ! close(1)
  ! close(2)

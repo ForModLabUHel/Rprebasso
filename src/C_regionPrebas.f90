@@ -151,7 +151,8 @@ do ij = 1,maxYears
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,ij-1,1:7,1:nLayers(i),:)
 		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,ij-1,9:nVar,1:nLayers(i),:)
 	else
-		output(1,:,:,:) = multiOut(i,1,:,:,:)
+		output(1,:,:,1) = multiOut(i,1,:,:,1)
+		output(1,3:nVar,:,2) = multiOut(i,1,9:nVar,:,2)
 	endif
 
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
@@ -267,7 +268,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
 	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
 			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
-	 multiOut(siteX,ij,1,2,2) = 2. !!!flag for clearcut compensation
+	 multiOut(siteX,ij,2,1,2) = 2. !!!flag for clearcut compensation
      do ijj = 1, nLayers(siteX)
       multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
       multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
