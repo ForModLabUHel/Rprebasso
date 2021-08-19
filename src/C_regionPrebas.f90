@@ -322,7 +322,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
      initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
     endif !(maxState(i)>minDharv)
    enddo !end do while
- else!!!thin to compansate harvest limits
+ elseif(compHarv(1)==2.) then  !!!thin to compansate harvest limits
    !Perform thinning to compensate harvest levels
    !calculate SDI
   do i = 1, nSites
@@ -402,6 +402,171 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
      enddo
     endif !(maxState(i)>minDharv)
    enddo !end do while
+ elseif(compHarv(1)==3.) then  !!!thin to compansate harvest limits
+   n = 0
+  do while((n < nSites .and. roundWood < HarvLim(ij,1)) .or. &
+(n < nSites .and. clearcuttingArea(ij,2) < clearcuttingArea(ij,1)))		!!energCuts
+   n = n + 1
+   do i = 1, nSites
+	if(ClCut(i) > 0. ) then
+	 maxState(i) = maxval(multiOut(i,ij,12,1:nLayers(i),1))!!!search for site with highest DBH
+	else
+	 maxState(i) = 0.
+	endif
+   enddo ! i
+   ops = maxloc(maxState)
+   siteX = int(ops(1))
+   climID = int(siteInfo(siteX,2))
+! write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
+	if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
+     energyCutX = energyCuts(siteX)
+	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
+	  energyCutX = 0.
+	 endif
+  ! close(10)
+!!   !!clearcut!!
+! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
+	 clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
+	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
+	! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
+	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
+			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
+	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
+			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
+	 multiOut(siteX,ij,2,1,2) = 2. !!!flag for clearcut compensation
+     do ijj = 1, nLayers(siteX)
+      multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
+      multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
+      multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
+!!energCuts
+      if(energyCutX == 1.) then
+	   multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
+	    multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)) * energyRatio
+	   species = int(multiOut(siteX,ij,4,ijj,1))
+	   multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
+	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
+	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
+		(1-energyRatio) + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 +&
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)))
+       multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)+ &
+			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	  else
+	   multiOut(siteX,ij,28,ijj,1) = max(0.,(multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
+		multiOut(siteX,ij,51,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 + &
+		multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)))
+       multiOut(siteX,ij,29,ijj,1)=multiOut(siteX,ij,32,ijj,1)*0.17+multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	  endif
+!!energCuts
+	  ! multiOut(siteX,ij,8,ijj,1) = 0.
+	  multiOut(siteX,ij,10:17,ijj,1) = 0.
+	  multiOut(siteX,ij,19:21,ijj,1) = 0.
+	  multiOut(siteX,ij,2,ijj,1) = 0. !!newX
+      multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
+      multiOut(siteX,ij,43,ijj,1) = 0.
+	  multiOut(siteX,ij,47:nVar,ijj,1) = 0.
+    ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
+		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
+     enddo
+	 if((maxYears-ij)<10) then
+	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25)
+	 else
+	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
+	 endif
+	 yearX(siteX) = Ainit + ij + 1
+	 initClearcut(siteX,5) = Ainit
+	 if(ij==1) then
+	  relBA(siteX,1:nLayers(siteX)) = initVar(siteX,5,1:nLayers(siteX))/ &
+		sum(initVar(siteX,5,1:nLayers(siteX)))
+	 else
+	  relBA(siteX,1:nLayers(siteX)) = multiOut(siteX,(ij-1),13,1:nLayers(siteX),1)/ &
+		sum(multiOut(siteX,(ij-1),13,1:nLayers(siteX),1))
+	 endif
+
+    !initVar(siteX,1,1:nLayers(siteX)) = 0. !output(1,4,:,1)
+     initVar(siteX,2,1:nLayers(siteX)) = 0.!output(1,7,:,1)
+     initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
+    endif !(maxState(i)>minDharv)
+   enddo !end do while
+
+  do i = 1, nSites
+! !!start!! use stand density index to order the forests
+   ! if(ClCut(i) > 0.) then
+	! call calRein(multiOut(i,ij,:,:,1),nLayers(i),pCrobas(17,:),nVar,allSP,maxState(i))
+   ! else
+	! maxState(i) = 0.
+   ! endif
+! !!end!! use stand density index to order the forests
+
+!!start!! use stand volume to order the forests
+	if(ClCut(i) > 0. ) then
+	 maxState(i) = sum(multiOut(i,ij,30,1:nLayers(i),1))!!!search for site with highest DBH
+	else
+	 maxState(i) = 0.
+	endif
+!!end!! use stand volume to order the forests
+
+  enddo
+  n = 0
+  do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
+   n = n + 1
+   ops = maxloc(maxState)
+   siteX = int(ops(1))
+   maxState(siteX)=0.
+	if(ClCut(siteX) > 0.) then
+     energyCutX = energyCuts(siteX)
+	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
+	  energyCutX = 0.
+	 endif
+	 !!!harvest thinFact 
+	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
+     multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
+	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
+			multiOut(siteX,ij,30,1:nLayers(siteX),1)*thinFact
+	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
+			multiOut(siteX,ij,31,1:nLayers(siteX),1)*thinFact
+     !update state of the forests
+	 do ijj = 1, nLayers(siteX)
+      multiOut(siteX,ij,9:10,ijj,2) = multiOut(siteX,ij,9:10,ijj,1) * thinFact
+	  multiOut(siteX,ij,11:12,ijj,2) = multiOut(siteX,ij,11:12,ijj,1)
+	  multiOut(siteX,ij,13,ijj,2) = multiOut(siteX,ij,13,ijj,1) * thinFact
+	  multiOut(siteX,ij,14:16,ijj,2) = multiOut(siteX,ij,14:16,ijj,1)
+	  multiOut(siteX,ij,17:34,ijj,2) = multiOut(siteX,ij,17:34,ijj,1) * thinFact
+	  multiOut(siteX,ij,35,ijj,2) = multiOut(siteX,ij,35,ijj,1)
+	  multiOut(siteX,ij,44,ijj,2) = multiOut(siteX,ij,44,ijj,1) * thinFact
+	  
+	  ! Litter foliage and branches
+	  multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) * thinFact + multiOut(siteX,ij,26,ijj,1)
+      multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) * thinFact + multiOut(siteX,ij,27,ijj,1)
+!!energCuts
+      if(energyCutX == 1.) then
+	   multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
+	    multiOut(siteX,ij,32,ijj,1)*0.3 + multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)) * energyRatio * thinFact
+	   species = int(multiOut(siteX,ij,4,ijj,1))
+	   multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
+	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
+	   	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
+		(1-energyRatio)* thinFact + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact +&
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)** thinFact))
+       multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)* thinFact+ &
+			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	  else
+	   multiOut(siteX,ij,28,ijj,1) = max(0.,(multiOut(siteX,ij,24,ijj,1)* thinFact + multiOut(siteX,ij,28,ijj,1) + &
+		multiOut(siteX,ij,51,ijj,1)* thinFact + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact + &
+		multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)* thinFact))
+       multiOut(siteX,ij,29,ijj,1)=multiOut(siteX,ij,32,ijj,1)*0.17* thinFact+multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	  endif
+!!energCuts
+	  multiOut(siteX,ij,9:10,ijj,1) = multiOut(siteX,ij,9:10,ijj,1)*(1-thinFact)
+	  multiOut(siteX,ij,13,ijj,1) = multiOut(siteX,ij,13,ijj,1)*(1-thinFact)
+	  multiOut(siteX,ij,17:25,ijj,1) = multiOut(siteX,ij,17:25,ijj,1)*(1-thinFact)
+	  multiOut(siteX,ij,30:33,ijj,1) = multiOut(siteX,ij,30:33,ijj,1)*(1-thinFact)
+	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
+	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
+     enddo
+    endif !(maxState(i)>minDharv)
+   enddo !end do while
+ 
+ 
  endif 
 endif !roundWood < HarvLim .and. HarvLim /= 0.
 
