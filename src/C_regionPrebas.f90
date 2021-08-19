@@ -404,8 +404,8 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
    enddo !end do while
  elseif(compHarv(1)==3.) then  !!!thin to compansate harvest limits
    n = 0
-  do while((n < nSites .and. roundWood < HarvLim(ij,1)) .or. &
-(n < nSites .and. clearcuttingArea(ij,2) < clearcuttingArea(ij,1)))		!!energCuts
+  do while((n < nSites .and. roundWood < HarvLim(ij,1)) .and. &
+	clearcuttingArea(ij,2) < clearcuttingArea(ij,1))		!!energCuts
    n = n + 1
    do i = 1, nSites
 	if(ClCut(i) > 0. ) then
