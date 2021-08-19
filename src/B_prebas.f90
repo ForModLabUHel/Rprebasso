@@ -1217,7 +1217,7 @@ if(defaultThin == 1.) then
 	else
 		doThin = .false.
 	endif
- else if(thinningType == 2.) then
+ else if(thinningType == 1.) then
 	call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
 	Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
 	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
@@ -1227,7 +1227,7 @@ if(defaultThin == 1.) then
 	else
 		doThin = .false.
 	endif
- else if(thinningType == 1.) then
+ else if(thinningType == 2.) then
 	call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
 	Hdom_lim = tapioOut(1)! Hdom limit to start thinning
 	dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
