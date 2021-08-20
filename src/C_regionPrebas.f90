@@ -57,7 +57,7 @@ clearcuttingArea(:,2) = 0.
 thinFact = compHarv(2)
 
     open(1,file="test1.txt")
-    ! open(2,file="test2.txt")
+    open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
@@ -567,7 +567,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo
 	 	if(multiOut(siteX,ij,1,1,1)==274.) then 
- 		 write(1,*) i,ij, multiOut(i,(ij),13,1:nLayers(i),1)
+ 		 write(2,*) i,ij, multiOut(i,(ij),13,1:nLayers(i),1)
 		endif
 
     endif !(maxState(i)>minDharv)
@@ -597,7 +597,7 @@ end do !end Year loop
   enddo
  enddo	
   close(1)
-  ! close(2)
+  close(2)
   ! close(3)
 ! write(10,*) "here5"
 ! close(10)
