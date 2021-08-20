@@ -325,6 +325,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
      initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
     endif !(maxState(i)>minDharv)
    enddo !end do while
+   
  elseif(compHarv(1)==2.) then  !!!thin to compansate harvest limits
    !Perform thinning to compensate harvest levels
    !calculate SDI
@@ -344,7 +345,6 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 maxState(i) = 0.
 	endif
 !!end!! use stand volume to order the forests
-
   enddo
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
@@ -566,6 +566,10 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo
+	 	if(multiOut(siteX,ij,1,1,1)==274.) then 
+ 		 write(1,*) i,ij, multiOut(i,(ij),13,1:nLayers(i),1)
+		endif
+
     endif !(maxState(i)>minDharv)
    enddo !end do while
  
