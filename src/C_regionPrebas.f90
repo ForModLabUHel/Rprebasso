@@ -56,8 +56,8 @@ multiWood = 0.
 clearcuttingArea(:,2) = 0.
 thinFact = compHarv(2)
 
-    open(1,file="test1.txt")
-    open(2,file="test2.txt")
+    ! open(1,file="test1.txt")
+    ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
@@ -112,9 +112,9 @@ do ij = 1,maxYears
 !!!
 	climID = siteInfo(i,2)
 	if(ij>2) then
-		if(i==930) then 
- 		 write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
-		endif
+		! if(i==930) then 
+ 		 ! write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
+		! endif
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
 		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
 		initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
@@ -407,10 +407,6 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo !ijj layers loop
-   	 initVar(siteX,1,1:nLayers(i)) = multiOut(siteX,1,4,1:nLayers(i),1)
-	 initVar(i,2,1:nLayers(i)) = multiOut(siteX,1,7,1:nLayers(i),1)
-	 initVar(i,3:6,1:nLayers(i)) = multiOut(siteX,1,11:14,1:nLayers(i),1)
-	 initVar(i,7,1:nLayers(i)) = multiOut(siteX,1,16,1:nLayers(i),1)
     endif !(maxState(i)>minDharv)
    enddo !end do while
  elseif(compHarv(1)==3.) then  !!!thin to compansate harvest limits
@@ -499,14 +495,8 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
     endif !(maxState(i)>minDharv)
    enddo !end do while
 
+!!!compensate remaining with thinnings
   do i = 1, nSites
-! !!start!! use stand density index to order the forests
-   ! if(ClCut(i) > 0.) then
-	! call calRein(multiOut(i,ij,:,:,1),nLayers(i),pCrobas(17,:),nVar,allSP,maxState(i))
-   ! else
-	! maxState(i) = 0.
-   ! endif
-! !!end!! use stand density index to order the forests
 
 !!start!! use stand volume to order the forests
 	if(ClCut(i) > 0. ) then
@@ -574,13 +564,6 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo !ijj layers loop
-   	 initVar(siteX,1,1:nLayers(i)) = multiOut(siteX,1,4,1:nLayers(i),1)
-	 initVar(i,2,1:nLayers(i)) = multiOut(siteX,1,7,1:nLayers(i),1)
-	 initVar(i,3:6,1:nLayers(i)) = multiOut(siteX,1,11:14,1:nLayers(i),1)
-	 initVar(i,7,1:nLayers(i)) = multiOut(siteX,1,16,1:nLayers(i),1)
-	 	if(multiOut(siteX,ij,1,1,1)==930.) then 
- 		 write(2,*) i,ij, multiOut(i,(ij),13,1:nLayers(i),1)
-		endif
     endif !(maxState(i)>minDharv)
    enddo !end do while
  
@@ -607,8 +590,8 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
-  close(2)
+  ! close(1)
+  ! close(2)
   ! close(3)
 ! write(10,*) "here5"
 ! close(10)
