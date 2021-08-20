@@ -566,7 +566,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo
-	 	if(multiOut(siteX,ij,1,1,1)==274.) then 
+	 	if(multiOut(siteX,ij,1,1,1)==930.) then 
  		 write(2,*) i,ij, multiOut(i,(ij),13,1:nLayers(i),1)
 		endif
 
