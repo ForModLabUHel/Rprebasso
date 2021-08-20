@@ -402,7 +402,11 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,30:33,ijj,1) = multiOut(siteX,ij,30:33,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
-     enddo
+     enddo !ijj layers loop
+   	 initVar(siteX,1,1:nLayers(i)) = multiOut(siteX,1,4,1:nLayers(i),1)
+	 initVar(i,2,1:nLayers(i)) = multiOut(siteX,1,7,1:nLayers(i),1)
+	 initVar(i,3:6,1:nLayers(i)) = multiOut(siteX,1,11:14,1:nLayers(i),1)
+	 initVar(i,7,1:nLayers(i)) = multiOut(siteX,1,16,1:nLayers(i),1)
     endif !(maxState(i)>minDharv)
    enddo !end do while
  elseif(compHarv(1)==3.) then  !!!thin to compansate harvest limits
@@ -565,11 +569,14 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,30:33,ijj,1) = multiOut(siteX,ij,30:33,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
-     enddo
+     enddo !ijj layers loop
+   	 initVar(siteX,1,1:nLayers(i)) = multiOut(siteX,1,4,1:nLayers(i),1)
+	 initVar(i,2,1:nLayers(i)) = multiOut(siteX,1,7,1:nLayers(i),1)
+	 initVar(i,3:6,1:nLayers(i)) = multiOut(siteX,1,11:14,1:nLayers(i),1)
+	 initVar(i,7,1:nLayers(i)) = multiOut(siteX,1,16,1:nLayers(i),1)
 	 	if(multiOut(siteX,ij,1,1,1)==930.) then 
  		 write(2,*) i,ij, multiOut(i,(ij),13,1:nLayers(i),1)
 		endif
-
     endif !(maxState(i)>minDharv)
    enddo !end do while
  
