@@ -111,6 +111,20 @@ do ij = 1,maxYears
 
 !!!
 	climID = siteInfo(i,2)
+	if(ij>2) then
+		if(i==930) then 
+ 		 write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
+		endif
+		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
+		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
+		initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
+		initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
+		initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
+		initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
+	else
+		output(1,:,:,1) = multiOut(i,1,:,:,1)
+		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
+	endif
 	if(ij==int(min(yearX(i),maxYears)))then
 	 initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearX(i)))
 	 yearX(i) = 0
@@ -147,16 +161,6 @@ do ij = 1,maxYears
   ! if(ij==1) then
    ! write(*,*) sum(soilCinOut(i,ij,:,:,1:nLayers(i)))
   ! endif
-	if(ij>2) then
-		if(i==930) then 
- 		 write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
-		endif
-		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
-		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
-	else
-		output(1,:,:,1) = multiOut(i,1,:,:,1)
-		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
-	endif
 
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
