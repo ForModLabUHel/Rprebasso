@@ -148,7 +148,7 @@ do ij = 1,maxYears
    ! write(*,*) sum(soilCinOut(i,ij,:,:,1:nLayers(i)))
   ! endif
 	if(ij>2) then
-		if(i==274) then 
+		if(i==930) then 
  		 write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
 		endif
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
