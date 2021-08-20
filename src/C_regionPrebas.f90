@@ -149,9 +149,8 @@ do ij = 1,maxYears
   ! endif
 	if(ij>2) then
 		if(i==274) then 
- 		 write(*,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
+ 		 write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
 		endif
-		 write(1,*) i,ij-1, multiOut(i,(ij-1),13,1:nLayers(i),1)
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
 		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
 	else
