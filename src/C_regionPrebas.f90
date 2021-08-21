@@ -8,7 +8,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,clearcuttingArea,compHarv)		!!energCuts
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv)		!!energCuts
 
 
 implicit none
@@ -21,6 +21,8 @@ integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,siteOrder(nS
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),compHarv(2)
+ real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,2) !cuttingArea columns are clcutA target(1) simuation(2);
+																		!tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
@@ -33,7 +35,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  !!!ground vegetation
  integer, intent(in) :: gvRun			!!!ground vegetation
- real (kind=8), intent(inout) :: GVout(nSites,maxYears,3),clearcuttingArea(maxYears,2) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,3) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
@@ -46,15 +48,20 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact	!!energCuts
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
-
+ real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7)
+ 
 !!!!initialize run
 ! multiOut = 0.
 yearX = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 multiWood = 0.
-clearcuttingArea(:,2) = 0.
+cuttingArea(:,2) = 0.
+cuttingArea(:,4) = 0.
+cuttingArea(:,6) = 0.
 thinFact = compHarv(2)
+tTapioX = tTapio
+ftTapioX = ftTapio
 
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
@@ -97,8 +104,8 @@ do ij = 1,maxYears
 	endif
 
 !!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
-    ! write(1,*) clearcuttingArea(ij,:)
-	if (clearcuttingArea(ij,1) > 0. .and. clearcuttingArea(ij,2) > clearcuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (clearcuttingArea(1)), has been reached
+    ! write(1,*) cuttingArea(ij,:)
+	if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
 	 ClCutX = 0.
 	endif
 	if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
@@ -108,6 +115,20 @@ do ij = 1,maxYears
 	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	 energyCutX = 0.
 	endif
+
+!!!check if the limit area for tendings has been exceeded if yes no tending havest 
+	if (cuttingArea(ij,3) > 0. .and. cuttingArea(ij,4) > cuttingArea(ij,3)) then !!!swithch off tendings if threshold area (cuttingArea(3)), has been reached
+	 tTapioX = tTapio * 1e5.
+	else
+	 tTapioX = tTapio
+	endif
+!!!check if the limit area for firstThin has been exceeded if yes no firstThin havest 
+	if (cuttingArea(ij,5) > 0. .and. cuttingArea(ij,6) > cuttingArea(ij,5)) then !!!swithch off firstThin if threshold area (cuttingArea(5)), has been reached
+	 ftTapioX = ftTapio * 1e5.
+	else
+	 ftTapioX = ftTapio
+	endif
+
 
 !!!
 	climID = siteInfo(i,2)
@@ -181,9 +202,13 @@ do ij = 1,maxYears
 		! endif
 	 endif
 	 
-	 clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(i) !calculate the clearcut area
+	 !!!!update area of cuttings
+	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
+	 if(output(1,1,1,2) == 1.) cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
+	 if(output(1,1,1,2) == 2.) cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
+	 
  	! if(ij==35) then
-	 ! write(1,*) clearcuttingArea(ij,2),i,iz,roundWood
+	 ! write(1,*) cuttingArea(ij,2),i,iz,roundWood
 	! endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
@@ -261,7 +286,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
   ! close(10)
 !!   !!clearcut!!
 ! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
-	 clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
+	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
 	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
 	! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
 	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
@@ -409,7 +434,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
  elseif(compHarv(1)==3.) then  !!!thin to compansate harvest limits
    n = 0
   do while((n < nSites .and. roundWood < HarvLim(ij,1)) .and. &
-	clearcuttingArea(ij,2) < clearcuttingArea(ij,1))		!!energCuts
+	cuttingArea(ij,2) < cuttingArea(ij,1))		!!energCuts
    n = n + 1
    do i = 1, nSites
 	if(ClCut(i) > 0. ) then
@@ -430,7 +455,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
   ! close(10)
 !!   !!clearcut!!
 ! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
-	 clearcuttingArea(ij,2) = clearcuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
+	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
 	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
 	! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
 	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &

@@ -422,7 +422,9 @@ multiPrebas <- function(multiSiteInit){
 regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
-                         clearcutAreas = NA,  ###area of clearCut dim1 is the threshold to not exceed
+                         cutAreas = NA,  ###area of cuttings rows are years of simulations
+                                        ###columns: clcutArea target(1), simulations(2);
+                                          ####tendA target(3), sim(4); firstThin targ(5), sim(6)
                          compHarv = 2.,###flag for compensating harvest if harvest do not reach the desired levels
                          ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
                          ### compHarv=2 compensate harvest with thinnings
@@ -432,8 +434,7 @@ regionPrebas <- function(multiSiteInit,
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
-  if(all(is.na(clearcutAreas))) clearcutAreas <- rep(-999.,multiSiteInit$maxYears)
-  clearcutAreas <- cbind(clearcutAreas,0)
+  if(all(is.na(cutAreas))) cutAreas <- array(-999.,(multiSiteInit$maxYears),6)
   compHarv <- c(compHarv,thinFact)
   siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
   siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
@@ -488,7 +489,7 @@ regionPrebas <- function(multiSiteInit,
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
                      GVrun = as.integer(multiSiteInit$GVrun),
-                     clearcutAreas=as.matrix(clearcutAreas),
+                     cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv))
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
