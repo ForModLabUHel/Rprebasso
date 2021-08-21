@@ -118,13 +118,13 @@ do ij = 1,maxYears
 
 !!!check if the limit area for tendings has been exceeded if yes no tending havest 
 	if (cuttingArea(ij,3) > 0. .and. cuttingArea(ij,4) > cuttingArea(ij,3)) then !!!swithch off tendings if threshold area (cuttingArea(3)), has been reached
-	 tTapioX = tTapio * 1e5.
+	 tTapioX = tTapio * 1.e5
 	else
 	 tTapioX = tTapio
 	endif
 !!!check if the limit area for firstThin has been exceeded if yes no firstThin havest 
 	if (cuttingArea(ij,5) > 0. .and. cuttingArea(ij,6) > cuttingArea(ij,5)) then !!!swithch off firstThin if threshold area (cuttingArea(5)), has been reached
-	 ftTapioX = ftTapio * 1e5.
+	 ftTapioX = ftTapio * 1.e5
 	else
 	 ftTapioX = ftTapio
 	endif
