@@ -64,7 +64,7 @@ tTapioX = tTapio
 ftTapioX = ftTapio
 
     open(1,file="test1.txt")
-    open(2,file="test2.txt")
+    ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
@@ -202,21 +202,6 @@ do ij = 1,maxYears
 		! endif
 	 endif
 	 
-	 !!!!update area of cuttings
-	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
-	 write(1,*) output(1,1:2,1,2)
-	 
-	 if(output(1,1,1,2) == 1.) then
-	  cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
-	  write(2,*) output(1,1,1,2)
-	 endif
-	 if(output(1,1,1,2) == 2.) then
-	  cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
-	  write(2,*) output(1,1,1,2)
-	 endif
- 	! if(ij==35) then
-	 ! write(1,*) cuttingArea(ij,2),i,iz,roundWood
-	! endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
@@ -239,16 +224,17 @@ do ij = 1,maxYears
 	multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
 	multiOut(i,ij,1:7,1:nLayers(i),:) = output(1,1:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
-	! do ijj = 1,nLayers(i)
-	  ! multiOut(i,ij,38,ijj,1) = sum(multiOut(i,1:ij,30,ijj,2)) + &
-		! sum(multiOut(i,1:ij,42,ijj,1)) + multiOut(i,ij,30,ijj,1)
-		
-	  ! if(ij > 1.5) then
-	! !compute gross growth
-	   ! multiOut(i,ij,43,ijj,1) = multiOut(i,ij,38,ijj,1) - multiOut(i,(ij-1),38,ijj,1)
-	  ! endif
+	 !!!!update area of cuttings
+    cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
+	if(multiOut(i,ij,1,1,2)>0.) write(1,*) multiOut(i,ij,1,1,2)
+	 
+	 if(multiOut(i,ij,1,1,2) == 1.) then
+	  cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
+	 endif
+	 if(multiOut(i,ij,1,1,2) == 2.) then
+	  cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
+	 endif
 
-	! enddo !ijj
 
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
@@ -630,7 +616,7 @@ end do !end Year loop
   enddo
  enddo	
   close(1)
-  close(2)
+  ! close(2)
   ! close(3)
 ! write(10,*) "here5"
 ! close(10)
