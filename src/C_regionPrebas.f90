@@ -63,8 +63,8 @@ thinFact = compHarv(2)
 tTapioX = tTapio
 ftTapioX = ftTapio
 
-    ! open(1,file="test1.txt")
-    ! open(2,file="test2.txt")
+    open(1,file="test1.txt")
+    open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
  ! open(2,file="tTapioReg.txt")
@@ -204,9 +204,16 @@ do ij = 1,maxYears
 	 
 	 !!!!update area of cuttings
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
-	 if(output(1,1,1,2) == 1.) cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
-	 if(output(1,1,1,2) == 2.) cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
+	 write(1,*) output(1,1:2,1,2)
 	 
+	 if(output(1,1,1,2) == 1.) then
+	  cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
+	  write(2,*) output(1,1,1,2)
+	 endif
+	 if(output(1,1,1,2) == 2.) then
+	  cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
+	  write(2,*) output(1,1,1,2)
+	 endif
  	! if(ij==35) then
 	 ! write(1,*) cuttingArea(ij,2),i,iz,roundWood
 	! endif
@@ -622,8 +629,8 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  ! close(1)
-  ! close(2)
+  close(1)
+  close(2)
   ! close(3)
 ! write(10,*) "here5"
 ! close(10)
