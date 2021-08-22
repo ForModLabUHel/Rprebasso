@@ -63,7 +63,7 @@ thinFact = compHarv(2)
 tTapioX = tTapio
 ftTapioX = ftTapio
 
-    open(1,file="test1.txt")
+    ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -202,6 +202,11 @@ do ij = 1,maxYears
 		! endif
 	 endif
 	 
+	 !!!!update area of cuttings
+	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
+ 	! if(ij==35) then
+	 ! write(1,*) cuttingArea(ij,2),i,iz,roundWood
+	! endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
@@ -224,16 +229,16 @@ do ij = 1,maxYears
 	multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
 	multiOut(i,ij,1:7,1:nLayers(i),:) = output(1,1:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
-	 !!!!update area of cuttings
-    cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
-	if(multiOut(i,ij,1,1,2)>0.) write(1,*) multiOut(i,ij,1,1,2)
+
+	! if(multiOut(i,ij,1,1,2)>0.) write(1,*) multiOut(i,ij,1,1,2)
 	 
-	 if(multiOut(i,ij,1,1,2) == 1.) then
+	if(multiOut(i,ij,1,1,2) == 1.) then
 	  cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
-	 endif
-	 if(multiOut(i,ij,1,1,2) == 2.) then
+	endif
+	if(multiOut(i,ij,1,1,2) == 2.) then
 	  cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
-	 endif
+	endif
+
 
 
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
@@ -615,7 +620,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
