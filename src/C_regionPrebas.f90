@@ -63,7 +63,7 @@ thinFact = compHarv(2)
 tTapioX = tTapio
 ftTapioX = ftTapio
 
-     open(1,file="test1.txt")
+    open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -175,7 +175,7 @@ do ij = 1,maxYears
 		output(1,:,:,1) = multiOut(i,1,:,:,1)
 		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
 	endif
-
+write(1,*) "year", ij
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
