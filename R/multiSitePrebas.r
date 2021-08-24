@@ -425,7 +425,7 @@ regionPrebas <- function(multiSiteInit,
                          cutAreas = NA,  ###area of cuttings rows are years of simulations
                                         ###columns: clcutArea target(1), simulations(2);
                                           ####tendA target(3), sim(4); firstThin targ(5), sim(6)
-                         compHarv = 2.,###flag for compensating harvest if harvest do not reach the desired levels
+                         compHarv = 3.,###flag for compensating harvest if harvest do not reach the desired levels
                          ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
                          ### compHarv=2 compensate harvest with thinnings
                          thinFact = 0.2 ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
