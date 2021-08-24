@@ -63,7 +63,7 @@ thinFact = compHarv(2)
 tTapioX = tTapio
 ftTapioX = ftTapio
 
-    open(1,file="test1.txt")
+    ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
  ! open(1,file="ftTapioREg.txt")
@@ -88,7 +88,7 @@ enddo
 do ij = 1,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
- write(1,*) "year", ij
+ ! write(1,*) "year", ij
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
 ! open(10,file="multiSite.txt")
@@ -621,7 +621,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
