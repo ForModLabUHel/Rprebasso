@@ -1140,7 +1140,7 @@ if (ClCut == 1.) then
 	A_clearcut = inAclct(species)
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
-	write(1,*) siteInfo(1),D, D_clearcut,age > A_clearcut
+	write(1,*) siteInfo(1),D, D_clearcut,D > D_clearcut,age, A_clearcut , age > A_clearcut
  if ((D > D_clearcut) .and. (age > A_clearcut)) then
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   thinClx(year,2) = 1 !flag for clearcut
