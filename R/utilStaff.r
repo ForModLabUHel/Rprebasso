@@ -342,5 +342,3 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(reinX)
   }
   
-  reineke(c(12,17,20),c(200,800,500),pCROB,c(1,2,1))
-  
