@@ -313,3 +313,34 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(weigthedMean)
   }
   
+####function to calculate quadratic mean diameter
+  ####D -> average diameter 
+  ####N stand density
+  DqFun <- function(D,N) sqrt(sum(D^2*N)/sum(N))
+  
+####Calculate quadratic mean diameter using a multisite PREBAS run
+  ###modOut PREBAS output of a multisite run
+  DqFunMS <- function(modOut){
+    D <-modOut$multiOut[,,12,,1]
+    N <-modOut$multiOut[,,17,,1]
+    Dq <- sqrt(sum(D^2*N)/sum(N))
+    return(Dq)
+  }
+  
+####Calculate Reineke Stand density index
+  reineke1 <- function(Dq,k,spID){
+    Nmax <- k/Dq^1.605
+    return(Nmax)
+  }
+  
+  ####Calculate Reineke Stand density index (PREBAS version) using PREBAS parameters
+  reineke <- function(D,N,pCrobas,spID){
+    Ntot <- sum(N)
+    par_kRein <- pCrobas[17,spID]
+    reinekeLayer = Ntot*(D/25.)**(1.66)
+    reinX = reinekeLayer / par_kRein
+    return(reinX)
+  }
+  
+  reineke(c(12,17,20),c(200,800,500),pCROB,c(1,2,1))
+  
