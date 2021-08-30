@@ -335,10 +335,71 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   ####Calculate Reineke Stand density index (PREBAS version) using PREBAS parameters
   reineke <- function(D,N,pCrobas,spID){
-    Ntot <- sum(N)
+    Ntot <- sum(N,na.rm=T)
     par_kRein <- pCrobas[17,spID]
     reinekeLayer = Ntot*(D/25.)**(1.66)
     reinX = reinekeLayer / par_kRein
     return(reinX)
   }
+  
+  ####MUltisite version for Reineke Stand density index (PREBAS version) using PREBAS parameters
+  reinekeMS <- function(modOut,pCrobas){
+    D <- modOut[,,12,,1]
+    N <- Ntot <- par_kRein <- modOut[,,17,,1]
+    spID <- modOut[,,4,,1]
+    nLayers <- dim(N)[3]
+    nYears <- dim(N)[2]
+    Ntot[,,1] <- apply(N,1:2,sum,na.rm=T)
+    if(dim(N)[3]>1){
+      for(i in 2:nLayers) Ntot[,,i] <- Ntot[,,1]
+    }
+    zeros <- which(spID==0.,arr.ind=T)
+    spID[zeros] <- 7
+    for(j in 1:nYears){
+      for(i in 1:nLayers){
+        par_kRein[,j,i] <-  pCrobas[17,spID[,j,i]]
+      }
+    }
+    par_kRein <- array(pCrobas[17,spID],dim=dim(N))
+    par_kRein[zeros] <- 0.
+    spID[zeros] <- 0
+    reinekeLayer = Ntot*(D/25.)**(1.66)
+    reinX = reinekeLayer / par_kRein
+    return(reinX)
+  }
+  
+  # 
+  # D <- data.all$dbh
+  # Ntot <- data.all$ba/(pi * (data.all$dbh/200)^2)
+  # reinekeLayer = Ntot*(D/25.)**(1.66)
+  # reinX1 = reinekeLayer / pCrobas[17,1]
+  # reinX2 = reinekeLayer / pCrobas[17,2]
+  # reinX3 = reinekeLayer / pCrobas[17,3]
+  ####MUltisite version for Reineke Stand density index (PREBAS version) using PREBAS parameters
+  reinekeMSinit <- function(initPrebas){
+    pCrobas <- initPrebas$pCROBAS
+    D <- initPrebas$multiInitVar[,4,]
+    N <- Ntot <- par_kRein <- initPrebas$multiInitVar[,5,]/(pi*(initPrebas$multiInitVar[,4,]/200)^2)
+    spID <- initPrebas$multiInitVar[,1,]
+    nLayers <- dim(N)[2]
+    if(!is.null(nLayers)){
+      Ntot[,1] <- apply(N,1,sum,na.rm=T)
+      for(i in 2:nLayers) Ntot[,i] <- Ntot[,1]
+    }
+    zeros <- which(spID==0.,arr.ind=T)
+    spID[zeros] <- 7
+    if(!is.null(nLayers)){
+      for(i in 1:nLayers){
+        par_kRein[,i] <-  pCrobas[17,spID[,i]]
+      }
+    }else{
+      par_kRein <-  pCrobas[17,spID]
+    }
+    par_kRein[zeros] <- 0.
+    spID[zeros] <- 0
+    reinekeLayer = Ntot*(D/25.)**(1.66)
+    reinX = reinekeLayer / par_kRein
+    return(reinX)
+  }
+  
   
