@@ -376,11 +376,10 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   # reinX2 = reinekeLayer / pCrobas[17,2]
   # reinX3 = reinekeLayer / pCrobas[17,3]
   ####MUltisite version for Reineke Stand density index (PREBAS version) using PREBAS parameters
-  reinekeMSinit <- function(initPrebas){
-    pCrobas <- initPrebas$pCROBAS
-    D <- initPrebas$multiInitVar[,4,]
-    N <- Ntot <- par_kRein <- initPrebas$multiInitVar[,5,]/(pi*(initPrebas$multiInitVar[,4,]/200)^2)
-    spID <- initPrebas$multiInitVar[,1,]
+  reinekeMSinit <- function(multiInitVar,pCrobas=pCROB){
+    D <- multiInitVar[,4,]
+    N <- Ntot <- par_kRein <- multiInitVar[,5,]/(pi*(multiInitVar[,4,]/200)^2)
+    spID <- multiInitVar[,1,]
     nLayers <- dim(N)[2]
     if(!is.null(nLayers)){
       Ntot[,1] <- apply(N,1,sum,na.rm=T)
