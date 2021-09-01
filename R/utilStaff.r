@@ -321,9 +321,9 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
 ####Calculate quadratic mean diameter using a multisite PREBAS run
   ###modOut PREBAS output of a multisite run
   DqFunMS <- function(modOut){
-    D <-modOut$multiOut[,,12,,1]
-    N <-modOut$multiOut[,,17,,1]
-    Dq <- sqrt(sum(D^2*N)/sum(N))
+    D <-modOut[,,12,,1]
+    N <-modOut[,,17,,1]
+    Dq <- sqrt(apply(D^2*N,1:2,sum)/apply(N,1:2,sum))
     return(Dq)
   }
   
