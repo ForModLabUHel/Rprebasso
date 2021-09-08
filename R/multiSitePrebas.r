@@ -284,7 +284,7 @@ InitMultiSite <- function(nYearsMS,
       initCLcutRatio <- multiInitVar[,5,]/rowSums(multiInitVar[,5,]) 
     }
   }
-  initCLcutRatio[which(is.ns(initCLcutRatio))] <- 0.
+  initCLcutRatio[which(is.na(initCLcutRatio))] <- 0.
   
   # if(all(is.na(litterSize))){
   #   litterSize <- matrix(0,3,allSp)
