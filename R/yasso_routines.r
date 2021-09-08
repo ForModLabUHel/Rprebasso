@@ -609,6 +609,14 @@ stXX <- function(PrebOut){
 #### calculate steady state C using prebas output.
 ####included option for ground vegetation 
 stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWEN){
+  ### prebOut is a PREBAS output from a multiSite/region run
+  ### GVrun, flag for including or not ground vegetation in the simulation (0=no, 1=yes)
+  ### pYASSO -> yasso parameters
+  ### parsAWEN -> litterfall partition parameters
+  ### litterSize dimensions of litterfall matrix (nrow=3(stem,branch,fineLit), ncol=nSp) 
+  
+  if(all(is.na(litterSize))) litterSize=prebOut$litterSize
+  
   Tmean <- apply(prebOut$weatherYasso[,,1],1,mean)
   Pre <- apply(prebOut$weatherYasso[,,2],1,mean)
   Tamp <- apply(prebOut$weatherYasso[,,3],1,mean)
@@ -672,7 +680,7 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
     litter[,,3] <- apply(prebOut$multiOut[,,29,,1],c(1,3),mean,na.rm=T)
     species <- prebOut$multiOut[,1,4,,1]
     climIDs <- prebOut$siteInfo[,2]
-    litterSize <- prebOut$litterSize
+    # litterSize <- prebOut$litterSize
     nSp <- ncol(parsAWEN)
     weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
     nClimID <- dim(prebOut$weatherYasso)[1]
@@ -707,7 +715,7 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
     litter[,3] <- apply(prebOut$multiOut[,,29,1,1],1,mean,na.rm=T)
     species <- prebOut$multiOut[,1,4,1,1]
     climIDs <- prebOut$siteInfo[,2]
-    litterSize <- prebOut$litterSize
+    # litterSize <- prebOut$litterSize
     nSp <- ncol(parsAWEN)
     weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
     nClimID <- prebOut$nClimID

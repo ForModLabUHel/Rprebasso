@@ -430,7 +430,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
     endif !(maxState(i)>minDharv)
    enddo !end do while
- elseif(compHarv(1)==3.) then  !!!thin to compansate harvest limits
+ elseif(compHarv(1)==3.) then  !!!thin to compensate harvest limits
    n = 0
   do while((n < nSites .and. roundWood < HarvLim(ij,1)) .and. &
 	cuttingArea(ij,2) < cuttingArea(ij,1))		!!energCuts
