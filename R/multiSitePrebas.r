@@ -274,7 +274,7 @@ InitMultiSite <- function(nYearsMS,
     # }
   }
   
-  
+  multiInitVar[,6:7,][which(is.na(multiInitVar[,6:7,]))] <- 0
   if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
   
   if(all(is.na(initCLcutRatio))){
