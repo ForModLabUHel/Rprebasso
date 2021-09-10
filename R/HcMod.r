@@ -123,8 +123,8 @@ HcModDef[[4]] <-function(inputs){
   BA_sp=inputs[11]
   BA_tot=inputs[12]
   N_tot = inputs[13]
-  Hc_sim <-  H/(1+exp(pValues[1]-pValues[1]*N_tot/1000-
-                        pValues[1]*log(BA_tot)+pValues[1]*D/H-pValues[1]*log(H)))
+  Hc_sim <-  H/(1+exp(pValues[1]+pValues[2]*N_tot/1000+
+                        pValues[3]*log(BA_tot)+pValues[4]*D/H+pValues[5]*log(H)))
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 
