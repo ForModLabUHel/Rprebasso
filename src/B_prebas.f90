@@ -1519,8 +1519,8 @@ if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:
    if(Vmort>0.)then
     species = int(modOut(year,4,ij,1))
     modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
-	do i=1,(nYears-year)
-     modOut((year+i+1),8,ij,1) = modOut((year+1+i),8,ij,1) + Vmort * &
+	do i=1,(nYears+1-year)
+     modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * &
        exp(-exp(pCrobas(35,species) + pCrobas(36,species)*i +  &
                  pCrobas(37,species)*D + pCrobas(44,species))) 
 	enddo
