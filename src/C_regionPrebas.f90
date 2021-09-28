@@ -613,18 +613,18 @@ end do !end Year loop
 		! sum(multiOut(i,1:ij,42,ijj,1)) + multiOut(i,ij,30,ijj,1)
 
 ! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
-	   if (ij==1) D = multiOut(i,ij,12,ijj,1)
-	   if (ij>1) D = multiOut(i,(ij-1),12,ijj,1)
-	   Vmort = multiOut(i,ij,42,ijj,1)
-	   if(Vmort>0. .and. ij < maxYears)then
-		species = int(multiOut(i,ij,4,ijj,1))
-		multiOut(i,ij,8,ijj,1) = Vmort + multiOut(i,ij,8,ijj,1)
-		do ki=1,(maxYears-ij)
-		 multiOut(i,(ij+ki),8,ij,1) = multiOut(i,(ij+ki),8,ij,1) + Vmort * & 
-		   exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ki + &
-					 pCrobas(37,species)*D + pCrobas(44,species)))
-		enddo
-	   endif
+	   ! if (ij==1) D = multiOut(i,ij,12,ijj,1)
+	   ! if (ij>1) D = multiOut(i,(ij-1),12,ijj,1)
+	   ! Vmort = multiOut(i,ij,42,ijj,1)
+	   ! if(Vmort>0. .and. ij < maxYears)then
+		! species = int(multiOut(i,ij,4,ijj,1))
+		! multiOut(i,ij,8,ijj,1) = Vmort + multiOut(i,ij,8,ijj,1)
+		! do ki=1,(maxYears-ij)
+		 ! multiOut(i,(ij+ki),8,ij,1) = multiOut(i,(ij+ki),8,ij,1) + Vmort * & 
+		   ! exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ki + &
+					 ! pCrobas(37,species)*D + pCrobas(44,species)))
+		! enddo
+	   ! endif
 		
 	  if(ij > 1.5) then
 	!compute gross growth
