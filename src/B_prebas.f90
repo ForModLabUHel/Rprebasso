@@ -83,7 +83,7 @@ implicit none
  real (kind=8) :: weight, dNp,dNb,dNs
  real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V,Vold
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
- real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch
+ real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
 
 !fix parameters
@@ -460,13 +460,13 @@ if (N>0.) then
       endif
 
 	  !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
-	  if(dN<0.) then
-	  modOut((year+1),8,ij,1) = modOut((year+1),8,ij,1) + V* min(1.,-dN*step/N)
-	    do ijj = 1,(nyears-year)
-			modOut((year+ijj+1),8,ij,1) = modOut((year+ijj+1),8,ij,1) + (V/N) * (-dN*step) * &
-				exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + pCrobas(44,species)))
-		enddo
-	  end if
+	  ! if(dN<0.) then
+	  ! modOut((year+1),8,ij,1) = modOut((year+1),8,ij,1) + V* min(1.,-dN*step/N)
+	    ! do ijj = 1,(nyears-year)
+			! modOut((year+ijj+1),8,ij,1) = modOut((year+ijj+1),8,ij,1) + (V/N) * (-dN*step) * &
+				! exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + pCrobas(44,species)))
+		! enddo
+	  ! end if
 	 endif
 !!keff calculations
   if(par_sarShp==0.) then
@@ -1510,6 +1510,24 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:,3)*0.5 
+
+!!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
+ do year = 2,(nYears +1)
+  do ij = 1,nLayers
+   D = modOut((year-1),12,ij,1)
+   Vmort = modOut(year,42,ij,1)
+   if(Vmort>0.)then
+    species = int(modOut(year,4,ij,1))
+    modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
+	do i=1,(nYears-year)
+     modOut((year+i+1),8,ij,1) = modOut((year+1+i),8,ij,1) + Vmort * &
+       exp(-exp(pCrobas(35,species) + pCrobas(36,species)*i +  &
+                 pCrobas(37,species)*D + pCrobas(44,species))) 
+	enddo
+   endif
+  enddo
+ enddo
+
 
  output = modOut(2:(nYears+1),:,:,:)
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
