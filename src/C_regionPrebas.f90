@@ -215,18 +215,6 @@ do ij = 1,maxYears
 	 endif
 	endif
 	
-	! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
-	! do ijj = 1,nLayers(i)
-	  ! if(output(1,8,ijj,1)>0.) then
-	  ! multiOut(i,ij,8,ijj,1) = multiOut(i,ij,8,ijj,1) + output(1,8,ijj,1)
-	  ! jj = int(output(1,4,ijj,1))
-	    ! do ki = 1,(maxYears-ij)
-			! multiOut(i,(ki+ij),8,ijj,1) = multiOut(i,(ki+ij),8,ijj,1) + output(1,8,ijj,1) * &
-				! exp(-exp(pCrobas(34,jj) + pCrobas(35,jj)*ki + pCrobas(36,jj)*output(1,12,ijj,1) + pCrobas(44,jj)))
-		! enddo
-	  ! end if
-	! enddo
-
 	multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
 	multiOut(i,ij,1:7,1:nLayers(i),:) = output(1,1:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
@@ -612,20 +600,32 @@ end do !end Year loop
 	  ! multiOut(i,ij,38,ijj,1) = sum(multiOut(i,1:ij,30,ijj,2)) + &
 		! sum(multiOut(i,1:ij,42,ijj,1)) + multiOut(i,ij,30,ijj,1)
 
-! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
-	   ! if (ij==1) D = multiOut(i,ij,12,ijj,1)
-	   ! if (ij>1) D = multiOut(i,(ij-1),12,ijj,1)
-	   ! Vmort = multiOut(i,ij,42,ijj,1)
-	   ! if(Vmort>0. .and. ij < maxYears)then
-		! species = int(multiOut(i,ij,4,ijj,1))
-		! multiOut(i,ij,8,ijj,1) = Vmort + multiOut(i,ij,8,ijj,1)
-		! do ki=1,(maxYears-ij)
-		 ! multiOut(i,(ij+ki),8,ij,1) = multiOut(i,(ij+ki),8,ij,1) + Vmort * & 
-		   ! exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ki + &
-					 ! pCrobas(37,species)*D + pCrobas(44,species)))
-		! enddo
-	   ! endif
+!!!!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
+	   if (ij==1) D = multiOut(i,ij,12,ijj,1)
+	   if (ij>1) D = multiOut(i,(ij-1),12,ijj,1)
+	   Vmort = multiOut(i,ij,42,ijj,1)
+	   if(Vmort>0. .and. ij < maxYears)then
+		species = int(multiOut(i,ij,4,ijj,1))
+		multiOut(i,ij,8,ijj,1) = Vmort + multiOut(i,ij,8,ijj,1)
+		do ki=1,(maxYears-ij)
+		 multiOut(i,(ij+ki),8,ijj,1) = multiOut(i,(ij+ki),8,ijj,1) + Vmort * & 
+		   exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ki + &
+					 pCrobas(37,species)*D + pCrobas(44,species)))
+		enddo
+	   endif
 		
+	! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
+	! do ijj = 1,nLayers(i)
+	  ! if(output(1,8,ijj,1)>0.) then
+	  ! multiOut(i,ij,8,ijj,1) = multiOut(i,ij,8,ijj,1) + output(1,8,ijj,1)
+	  ! jj = int(output(1,4,ijj,1))
+	    ! do ki = 1,(maxYears-ij)
+			! multiOut(i,(ki+ij),8,ijj,1) = multiOut(i,(ki+ij),8,ijj,1) + output(1,8,ijj,1) * &
+				! exp(-exp(pCrobas(34,jj) + pCrobas(35,jj)*ki + pCrobas(36,jj)*output(1,12,ijj,1) + pCrobas(44,jj)))
+		! enddo
+	  ! end if
+	! enddo
+
 	  if(ij > 1.5) then
 	!compute gross growth
 	   multiOut(i,ij,43,ijj,1) = multiOut(i,ij,30,ijj,1) - multiOut(i,(ij-1),30,ijj,1) + & 
