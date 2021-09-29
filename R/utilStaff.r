@@ -402,3 +402,64 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
   
+  
+####steady state solution for Dead wood volume calculations
+  ### arguments: 
+  ## modRun -> multiRun from PREBAS
+  ## siteSel -> selection of sites to include in the steady state calculation
+  ## yearX -> selection of years to include in the steady state calculation
+  ## yMix -> if T randomize the years
+  
+  
+  initDeadW <- function(modRun,siteSel=NA,yearX=NA, yMix=F){
+    nSim <- dim(modRun$multiOut)[2]
+    if(all(is.na(selX))) siteSel <- 1:dim(modRun$multiOut)[1]
+    if(all(is.na(yearX))) yearX <- 1:nSim
+    if(yMix) yearX <- sample(yearX)
+    modOut <- modRun$multiOut[siteSel,yearX,,,]
+    pCrobas <- modRun$pCROBAS
+    nSites <- dim(modOut)[1]
+    nLayers <- dim(modOut)[4]
+    nYears <- dim(modOut)[2]
+    # year=2
+    # ij=1 #species
+    nX <- ceiling((max(150,nYears*3))/nYears)
+    modOutX <- selX <- modOut[,,c(12,42,4),,1]
+    for(i in 1:(nX-1)){
+      modOutX <- abind(modOutX,selX,along=2)
+    }
+    sims <- modRun$multiOut[siteSel,,c(12,42,4),,1]
+    sims[,,2,] <- 0.
+    modOutX <- abind(modOutX,sims,along=2)
+    nYearsX <- dim(modOutX)[2]
+    # modOutX[,(nYears*+1):(nYears*3),2,] <- 0
+    deadWV <- array(0,dim=c(nSites,(nYearsX+2),nLayers))
+    #if(dN<0.) then
+    for(siteX in 1:nSites){
+      for(year in 1:nYearsX){
+        for(ij in 1:nLayers){
+          if(year == 1){
+            D <- modOutX[siteX,year,1,ij]
+          }else{
+            D <- modOutX[siteX,(year-1),1,ij]
+          }
+          # V <- modOutX[siteX,year,30,ij]
+          Vmort <- modOutX[siteX,year,2,ij]
+          if(Vmort>0){
+            # D <- modOutX[siteX,year,12,ij,1]
+            species <- modOutX[siteX,year,3,ij]
+            deadWV[siteX,year,ij] = Vmort + deadWV[siteX,year,ij]
+            deadWV[siteX,(year+1):nYearsX,ij] = deadWV[siteX,(year+1):  nYearsX,ij] + Vmort *
+              exp(-exp(pCrobas[35,species] + pCrobas[36,species]*(1:(nYearsX-year)) + 
+                         pCrobas[37,species]*D + pCrobas[44,species])) 
+          }
+        }
+      }
+    }
+    # deadWVx <- apply(deadWV,1:2,sum)
+    deadWVss <- apply(deadWV,2:3,mean)[(nYearsX-nSim+1):(nYearsX),]
+    # modRun$multiOut[selX,,8,,1] <- modRun$multiOut[selX,,8,,1] + deadWVss
+    return(list(ssDeadW=deadWVss,deadWV=deadWV))
+  }
+  
+  
