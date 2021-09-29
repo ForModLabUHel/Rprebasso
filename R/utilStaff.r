@@ -413,7 +413,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   initDeadW <- function(modRun,siteSel=NA,yearX=NA, yMix=F){
     nSim <- dim(modRun$multiOut)[2]
-    if(all(is.na(selX))) siteSel <- 1:dim(modRun$multiOut)[1]
+    if(all(is.na(siteSel))) siteSel <- 1:dim(modRun$multiOut)[1]
     if(all(is.na(yearX))) yearX <- 1:nSim
     if(yMix) yearX <- sample(yearX)
     modOut <- modRun$multiOut[siteSel,yearX,,,]
