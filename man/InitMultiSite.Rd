@@ -18,12 +18,12 @@ InitMultiSite(nYearsMS, pCROBAS = pCROB, pHcMod = pHcM, pPRELES = pPREL, etmodel
 %%     ~~Describe \code{nYears} here~~
 }
   \item{pCROBAS}{
-  (43 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (pisy), Norway spruce (piab), Silver birch (beal) and ??? (rops). print(pCROB) to see the parameter values and names. (ADD EFERENCE!!)
+  (43 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). print(pCROB) to see the parameter values and names. 
 %%     ~~Describe \code{pCROBAS} here~~
 }
 
 \item{pHcMod}{
-(nSites x nSpecies matrix) Default values pHcMod = pHcM with columns 1: Scots pine (pisy), 2: Norway Spruce (piab), 3: Silver birch (beal), 4: ?? (fasy), 5: ?? (pipi), 6: ?? (eugl) and 7: ?? (rops). (ADD REFERENCE!!)
+(nSites x nSpecies matrix) Default values pHcMod = pHcM with columns 1: Scots pine (pisy), 2: Norway Spruce (piab), 3: Silver birch (beal), 4: European beech (fasy), 5: Maritime pine (pipi), 6: Blue gum (eugl), 7: Black locust (rops), 8: Poplar(popu), 9: Eucalyptus grandis x Eucalyptus urophylla (eugrur), 10:Norway spruce in Germany(piab(DE)). 
 }
   
 \item{pPRELES}{
@@ -31,7 +31,7 @@ InitMultiSite(nYearsMS, pCROBAS = pCROB, pHcMod = pHcM, pPRELES = pPREL, etmodel
 }
 
 \item{etmodel}{
-  (Value -1, 0, 1 or 2) Evapotranspiration model for PRELES. Default etmodel = 0. (ADD REFERENCE!!)
+  (Value -1, 0, 1 or 2) Evapotranspiration model for PRELES. Default etmodel = 0. (Package Rpreles, Peltoniemi et al., 2015)
 }
 
 \item{pYASSO}{
@@ -39,7 +39,7 @@ InitMultiSite(nYearsMS, pCROBAS = pCROB, pHcMod = pHcM, pPRELES = pPREL, etmodel
 }
 
 \item{pAWEN}{
-  (12 x nSpecies matrix) Matrix of parameter sets for partitioning tree organs (foliage, branch and woody) in AWEN pools. Columns referes to different species. Note that the columns of pAWEN must correspond to the species of pPRELES. Default pAWEN = parsAWEN are for 1: Scots pine (pisy), 2: Norway spruce (piab), 3: Silver birch (beal), 4: ?? (fasy), 5: ?? (pipi), 6: ?? (eugl) and 7: ?? (rops). (ADD REFERENCE!!)
+  (12 x nSpecies matrix) Matrix of parameter sets for partitioning tree organs (foliage, branch and woody) in AWEN pools. Columns referes to different species. Note that the columns of pAWEN must correspond to the species of pPRELES. Default pAWEN = parsAWEN are for 1: Scots pine (pisy), 2: Norway Spruce (piab), 3: Silver birch (beal), 4: European beech (fasy), 5: Maritime pine (pipi), 6: Blue gum (eugl), 7: Black locust (rops), 8: Poplar(popu), 9: Eucalyptus grandis x Eucalyptus urophylla (eugrur), 10:Norway spruce in Germany(piab(DE)). 
 }
 
 \item{siteInfo}{%%     ~~Describe \code{siteInfo} here~~
@@ -57,8 +57,8 @@ siteInfos[,2] <- siteInfos[,1] <- 1:nSites
 If initVar is not provided the model is initialized from plantation using default planting parameters (see initClearcut) and assuming that Pine, Spruce and Birch are equally present at plantation.
 }
 
-\item{multiThin }{???????????????????????????????
-  A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs. (see examples)
+\item{multiThin }{
+  A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.
 }
 
 \item{multiNthin}{?}
