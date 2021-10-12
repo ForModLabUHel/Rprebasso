@@ -122,162 +122,319 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   ### A post-process function for modifying prebas model output for meeting the Digital Twin Earth project requirements
   monthlyFluxes <- function(modOut,weatherOption=1){
-    cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
-    nYears <- dim(modOut$multiOut)[2]
-    nMonths <- nYears * 12
-    nSites <- modOut$nSites
-    nLayers <- dim(modOut$multiOut)[4]
-    
-    # if(is.matrix(mGPP)){
-    ##aggregating total GPP (tree layers + GV) at monthly time step
-    mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum"))                           # Daily GPP is converted into daily GPP using the function monthlyGPP, which is defined above
-                                                                                              # $dailyPRELES is a output matrix from the prebas model
-    ### Calculate CUE for different layers
-    cueTrees <- modOut$multiOut[,,18,,1]/modOut$multiOut[,,44,,1]                             # CUE = calculate npp / GPPspecies, but include data only from the standing trees
-    cueTrees[which(is.na(cueTrees))] <- 0.                                                    # Replace NAs with a value
-    cueAll <- pGPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears,(modOut$maxNlayers+1)))    # Create a pair of 3D arrays: x=1:7, y=1:150, z=1:4
-    cueAll[,,1] <- cueGV                                                                      # When layer is 1, then CUE is cueGV?
-    cueAll[,,2:(modOut$maxNlayers+1)] <- cueTrees                                             # ... and otherwise its cueTrees?
-
-    ### Calculate total GPP (totGPP) and ratio of GPP at a layer/total GPP (pGPP)    
-    if(nYears==1 & max(nLayers)==1){
-      totGPP <- modOut$multiOut[,1,44,1,1] + modOut$GVout[,,3]
-    }else{
-      totGPP <- apply(modOut$multiOut[,,44,,1],1:2,sum) + modOut$GVout[,,3]                     # Sum of GPP for each year and site in a 2d array
-    }
-    pGPP[,,1] <- modOut$GVout[,,3]/totGPP                                                     # Ratio between CUE of vegetation and CUE total?
-    
-    for(i in 1:modOut$maxNlayers){                                                            # Ratio between CUE of vegetation and pine or spruce or mixed
-      pGPP[,,(i+1)] <- modOut$multiOut[,,44,i,1] / totGPP
-    }
-    ### Create arrays for monthly GPP and NPP values
-    mGPP <- mNPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears*12,(modOut$maxNlayers+1)))   # Create another 3D array, similar as before.
-    for(i in 1:dim(pGPP)[3]){                                                                 # Loop goes through forest layers 1-4 with i
-      for(ij in 1:modOut$nSites){                                                             # ... and for every layers it goes through different sites ij
-        mGPP[ij,,i] <- rep(pGPP[ij,,i],each=12) * mGPPtot[ij,]                                # Calculate monthly GPP for different layers by multiplying layer's share of GPP with monthly total GPP
-        mNPP[ij,,i] <- mGPP[ij,,i] * rep(cueAll[ij,,i],each=12)                               # Calculate monthly NPP for different layers by multiplying monthly total GPP with layers yearly CUE
-      }
-    }
-    
-    
-    ###litterfall calculations lit is splitted to August and September
-    # Woody litter
-# These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
-    if(nYears==1 & max(nLayers)==1){
-      Lf <- t(matrix(mLit(modOut$multiOut[,,26,,1],months=8:9),nMonths,nSites))
-      Lfr <- t(matrix(mLit(modOut$multiOut[,,27,,1],months=8:9),nMonths,nSites))
-      Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
-      Lfw <- t(matrix(mLit(modOut$multiOut[,,28,,1],months=8:9),nMonths,nSites))
-      Lw <- t(matrix(mLit(modOut$multiOut[,,29,,1],months=8:9),nMonths,nSites))
-    }else{
-      if(nLayers>1){
-        Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
-        Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
-        Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
-        Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # fine woody litter
-        Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Coarse woody litter
+    if(class(modOut)!="prebas"){
+      cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
+      nYears <- dim(modOut$multiOut)[2]
+      nMonths <- nYears * 12
+      nSites <- modOut$nSites
+      nLayers <- dim(modOut$multiOut)[4]
+      
+      # if(is.matrix(mGPP)){
+      ##aggregating total GPP (tree layers + GV) at monthly time step
+      mGPPtot <- t(apply(modOut$dailyPRELES[,,1],1,monthlyGPP,"sum"))                           # Daily GPP is converted into daily GPP using the function monthlyGPP, which is defined above
+      # $dailyPRELES is a output matrix from the prebas model
+      ### Calculate CUE for different layers
+      cueTrees <- modOut$multiOut[,,18,,1]/modOut$multiOut[,,44,,1]                             # CUE = calculate npp / GPPspecies, but include data only from the standing trees
+      cueTrees[which(is.na(cueTrees))] <- 0.                                                    # Replace NAs with a value
+      cueAll <- pGPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears,(modOut$maxNlayers+1)))    # Create a pair of 3D arrays: x=1:7, y=1:150, z=1:4
+      cueAll[,,1] <- cueGV                                                                      # When layer is 1, then CUE is cueGV?
+      cueAll[,,2:(modOut$maxNlayers+1)] <- cueTrees                                             # ... and otherwise its cueTrees?
+      
+      ### Calculate total GPP (totGPP) and ratio of GPP at a layer/total GPP (pGPP)    
+      if(nYears==1 & max(nLayers)==1){
+        totGPP <- modOut$multiOut[,1,44,1,1] + modOut$GVout[,,3]
       }else{
-        Lf <- t(apply(modOut$multiOut[,,26,,1],1,mLit,months=8:9))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
-        Lfr <- t(apply(modOut$multiOut[,,27,,1],1,mLit,months=8:9))   # The mLit function moves litter fall to the August and September time period in the model output
-        Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
-        Lfw <- t(apply(modOut$multiOut[,,28,,1],1,mLit,months=8:9))   # fine woody litter
-        Lw <- t(apply(modOut$multiOut[,,29,,1],1,mLit,months=8:9))    # Coarse woody litter
+        totGPP <- apply(modOut$multiOut[,,44,,1],1:2,sum) + modOut$GVout[,,3]                     # Sum of GPP for each year and site in a 2d array
       }
-    }
-    
-    ### Create a input array for the Yasso model with the litter fall information
-    litter <- array(0.,dim=c(nSites,nMonths,nLayers,3))
-    litter[,,,1] <- Lnw   # Non-woody litter
-    litter[,,,2] <- Lfw   # Branch litter
-    litter[,,,3] <- Lw    # Woody litter
-    # litter <- litter*12
-    ### Prepare also other initialization information for Yasso
-    species <- modOut$multiOut[,1,4,,1]
-    nSp <- max(species)
-    litterSize <- modOut$litterSize[,1:nSp]
-    soilC <- array(0.,dim=c(nSites,(nMonths+1),5,3,nLayers))
-    soilC[,1,,,] <- modOut$soilC[,1,,,1:nLayers]  ###initialize with soilC from simulations
-    nClimID <- modOut$nClimID
-    climIDs <- modOut$siteInfo[,2]
-    weatherYasso <- array(0,dim=c(nClimID,nMonths,3))
-    if(weatherOption==1){
-      weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
-      weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
-    }else if(weatherOption==2){
-      weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
-      weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
-      weatherYasso[,,3] <- (t(apply(modOut$weather[,,,2],1,monthlyWeather,"max")) - 
-          t(apply(modOut$weather[,,,2],1,monthlyWeather,"min"))) /2
-    }else if(weatherOption==3){
-      for(i in 1:nClimID){
-        for(j in 1:nYears){
-          weatherYasso[i,(((j-1)*12)+1):(j*12),1] <- modOut$weatherYasso[i,j,1]
-          weatherYasso[i,(((j-1)*12)+1):(j*12),2] <- modOut$weatherYasso[i,j,2]
-          weatherYasso[i,(((j-1)*12)+1):(j*12),3] <- modOut$weatherYasso[i,j,3]
+      pGPP[,,1] <- modOut$GVout[,,3]/totGPP                                                     # Ratio between CUE of vegetation and CUE total?
+      
+      for(i in 1:modOut$maxNlayers){                                                            # Ratio between CUE of vegetation and pine or spruce or mixed
+        pGPP[,,(i+1)] <- modOut$multiOut[,,44,i,1] / totGPP
+      }
+      ### Create arrays for monthly GPP and NPP values
+      mGPP <- mNPP <- array(NA,dim=c(modOut$nSites,modOut$maxYears*12,(modOut$maxNlayers+1)))   # Create another 3D array, similar as before.
+      for(i in 1:dim(pGPP)[3]){                                                                 # Loop goes through forest layers 1-4 with i
+        for(ij in 1:modOut$nSites){                                                             # ... and for every layers it goes through different sites ij
+          mGPP[ij,,i] <- rep(pGPP[ij,,i],each=12) * mGPPtot[ij,]                                # Calculate monthly GPP for different layers by multiplying layer's share of GPP with monthly total GPP
+          mNPP[ij,,i] <- mGPP[ij,,i] * rep(cueAll[ij,,i],each=12)                               # Calculate monthly NPP for different layers by multiplying monthly total GPP with layers yearly CUE
         }
       }
-    }
-    ### Run the Yasso model, which is a function in the src/A_routines.90 file
-    soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter*12), ###*12 rescale monthly litter to annual units
-                           litterSize=as.array(litterSize),
-                           nMonths=as.integer(nMonths), 
-                           nLayers=as.integer(nLayers), 
-                           nSites=as.integer(nSites),
-                           nSp=as.integer(nSp),
-                           species=as.matrix(species),
-                           nClimID=as.integer(nClimID),
-                           climIDs=as.integer(climIDs),
-                           pAWEN=as.matrix(parsAWEN),
-                           pYasso=as.double(pYAS),
-                           climate=as.matrix(weatherYasso),
-                           soilC=as.array(soilC)) 
+      
+      
+      ###litterfall calculations lit is splitted to August and September
+      # Woody litter
+      # These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
+      if(nYears==1 & max(nLayers)==1){
+        Lf <- t(matrix(mLit(modOut$multiOut[,,26,,1],months=8:9),nMonths,nSites))
+        Lfr <- t(matrix(mLit(modOut$multiOut[,,27,,1],months=8:9),nMonths,nSites))
+        Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+        Lfw <- t(matrix(mLit(modOut$multiOut[,,28,,1],months=8:9),nMonths,nSites))
+        Lw <- t(matrix(mLit(modOut$multiOut[,,29,,1],months=8:9),nMonths,nSites))
+      }else{
+        if(nLayers>1){
+          Lf <- aperm(apply(modOut$multiOut[,,26,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+          Lfr <- aperm(apply(modOut$multiOut[,,27,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # The mLit function moves litter fall to the August and September time period in the model output
+          Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+          Lfw <- aperm(apply(modOut$multiOut[,,28,,1],c(1,3),mLit,months=8:9),c(2,1,3))   # fine woody litter
+          Lw <- aperm(apply(modOut$multiOut[,,29,,1],c(1,3),mLit,months=8:9),c(2,1,3))    # Coarse woody litter
+        }else{
+          Lf <- t(apply(modOut$multiOut[,,26,,1],1,mLit,months=8:9))    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+          Lfr <- t(apply(modOut$multiOut[,,27,,1],1,mLit,months=8:9))   # The mLit function moves litter fall to the August and September time period in the model output
+          Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+          Lfw <- t(apply(modOut$multiOut[,,28,,1],1,mLit,months=8:9))   # fine woody litter
+          Lw <- t(apply(modOut$multiOut[,,29,,1],1,mLit,months=8:9))    # Coarse woody litter
+        }
+      }
+      
+      ### Create a input array for the Yasso model with the litter fall information
+      litter <- array(0.,dim=c(nSites,nMonths,nLayers,3))
+      litter[,,,1] <- Lnw   # Non-woody litter
+      litter[,,,2] <- Lfw   # Branch litter
+      litter[,,,3] <- Lw    # Woody litter
+      # litter <- litter*12
+      ### Prepare also other initialization information for Yasso
+      species <- modOut$multiOut[,1,4,,1]
+      nSp <- max(species)
+      litterSize <- modOut$litterSize[,1:nSp]
+      soilC <- array(0.,dim=c(nSites,(nMonths+1),5,3,nLayers))
+      soilC[,1,,,] <- modOut$soilC[,1,,,1:nLayers]  ###initialize with soilC from simulations
+      nClimID <- modOut$nClimID
+      climIDs <- modOut$siteInfo[,2]
+      weatherYasso <- array(0,dim=c(nClimID,nMonths,3))
+      if(weatherOption==1){
+        weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
+        weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
+      }else if(weatherOption==2){
+        weatherYasso[,,1] <- t(apply(modOut$weather[,,,2],1,monthlyWeather,"mean")) ###monthly tempearture
+        weatherYasso[,,2] <- t(apply(modOut$weather[,,,4],1,monthlyWeather,"sum")) *12 ###monthly precipitation ###*12 rescales to annual mm
+        weatherYasso[,,3] <- (t(apply(modOut$weather[,,,2],1,monthlyWeather,"max")) - 
+                                t(apply(modOut$weather[,,,2],1,monthlyWeather,"min"))) /2
+      }else if(weatherOption==3){
+        for(i in 1:nClimID){
+          for(j in 1:nYears){
+            weatherYasso[i,(((j-1)*12)+1):(j*12),1] <- modOut$weatherYasso[i,j,1]
+            weatherYasso[i,(((j-1)*12)+1):(j*12),2] <- modOut$weatherYasso[i,j,2]
+            weatherYasso[i,(((j-1)*12)+1):(j*12),3] <- modOut$weatherYasso[i,j,3]
+          }
+        }
+      }
+      ### Run the Yasso model, which is a function in the src/A_routines.90 file
+      soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter*12), ###*12 rescale monthly litter to annual units
+                             litterSize=as.array(litterSize),
+                             nMonths=as.integer(nMonths), 
+                             nLayers=as.integer(nLayers), 
+                             nSites=as.integer(nSites),
+                             nSp=as.integer(nSp),
+                             species=as.matrix(species),
+                             nClimID=as.integer(nClimID),
+                             climIDs=as.integer(climIDs),
+                             pAWEN=as.matrix(parsAWEN),
+                             pYasso=as.double(pYAS),
+                             climate=as.matrix(weatherYasso),
+                             soilC=as.array(soilC)) 
+      
+      ###calculate soil C for gv
+      fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
+      fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.                                                    # Convert NAs to values
+      AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))                                                         # Add the layer dimension on the fAPAR array
+      p0 = as.matrix(modOut$multiOut[,,6,1,1])                                                                          # Annual potential photosynthesis, 3d array: site,year,value
+      ETSy = as.matrix(modOut$multiOut[,,5,1,1])
+      
+      for(ij in 1:nYears){
+        AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) 
+          .Fortran("fAPARgv",fAPAR[i,ij],
+                   ETSy[i,ij],modOut$siteInfo[i,2],
+                   0,0,p0[i,ij],rep(0,4))[[7]]))
+      }
+      
+      mAWEN <- array(0,dim=c(nSites,nMonths,5))
+      mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))*12 ###*12 rescale monthly litter to annual units
+      if(nYears==1 & max(nLayers)==1){
+        mGVit <- t(matrix(mLit(modOut$GVout[,,2],months=6:9),nMonths,nSites))
+      }else{
+        mGVit <- t(apply(modOut$GVout[,,2],1,mLit,months=6:9))
+      }
+      
+      ###calculate steady state soil C per GV
+      # ststGV <- matrix(NA,nSites,5)
+      soilGV <- array(0,dim=c(nSites,(nMonths+1),5))
+      
+      soilCgv <- .Fortran("runYassoAWENinMonthly",
+                          mAWEN=as.array(mAWEN),
+                          nMonths=as.integer(nMonths),  
+                          nSites=as.integer(nSites), 
+                          litSize=0.,
+                          nClimID=as.integer(nClimID),
+                          climIDs=as.integer(climIDs),
+                          pYasso=as.double(pYAS),
+                          climate=as.matrix(weatherYasso),
+                          soilCgv=as.array(soilGV))
+      ####add gvsoilc to first layer foliage soilC
+      # check in normal runs where ground vegetation soilC is calculated
+      soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
+      mRhTot <- soilCtot[,1:nMonths]/10 - soilCtot[,2:(nMonths+1)]/10 +
+        apply(litter,1:2,sum)/10 + mGVit/10
+      mNPPtot <- apply(mNPP,1:2,sum)
+      mRaTot <- mGPPtot - mNPPtot
+      mNEPtot <- mNPPtot - mRhTot
+      return(list(mGPP=mGPPtot,mNPP=mNPPtot,mRa=mRaTot,mRh=mRhTot,
+                  mNEP=mNEPtot,soilC=soilCtot))
     
-    ###calculate soil C for gv
-    fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
-    fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.                                                    # Convert NAs to values
-    AWENgv <- array(NA,dim=c(dim(modOut$fAPAR),4))                                                         # Add the layer dimension on the fAPAR array
-    p0 = as.matrix(modOut$multiOut[,,6,1,1])                                                                          # Annual potential photosynthesis, 3d array: site,year,value
-    ETSy = as.matrix(modOut$multiOut[,,5,1,1])
-
-    for(ij in 1:nYears){
-      AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) 
-                    .Fortran("fAPARgv",fAPAR[i,ij],
-                    ETSy[i,ij],modOut$siteInfo[i,2],
-                    0,0,p0[i,ij],rep(0,4))[[7]]))
-    }
-    
-    mAWEN <- array(0,dim=c(nSites,nMonths,5))
-    mAWEN[,,1:4] <- aperm(apply(AWENgv,c(1,3),mLit,months=6:9),c(2,1,3))*12 ###*12 rescale monthly litter to annual units
-    if(nYears==1 & max(nLayers)==1){
-      mGVit <- t(matrix(mLit(modOut$GVout[,,2],months=6:9),nMonths,nSites))
     }else{
-      mGVit <- t(apply(modOut$GVout[,,2],1,mLit,months=6:9))
+      
+      cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
+      nYears <- dim(modOut$output)[1]
+      nMonths <- nYears * 12
+      nSites <- 1
+      nLayers <- dim(modOut$output)[3]
+      
+      # if(is.matrix(mGPP)){
+      ##aggregating total GPP (tree layers + GV) at monthly time step
+      mGPPtot <- monthlyGPP(modOut$dailyPRELES[,1])                           # Daily GPP is converted into daily GPP using the function monthlyGPP, which is defined above
+      # $dailyPRELES is a output matrix from the prebas model
+      ### Calculate CUE for different layers
+      cueTrees <- modOut$output[,18,,1]/modOut$output[,44,,1]                             # CUE = calculate npp / GPPspecies, but include data only from the standing trees
+      cueTrees[which(is.na(cueTrees))] <- 0.                                                    # Replace NAs with a value
+      cueAll <- pGPP <- array(NA,dim=c(nYears,(nLayers+1)))    # Create a pair of 3D arrays: x=1:7, y=1:150, z=1:4
+      cueAll[,1] <- cueGV                                                                      # When layer is 1, then CUE is cueGV?
+      cueAll[,2:(nLayers+1)] <- cueTrees                                             # ... and otherwise its cueTrees?
+      
+      ### Calculate total GPP (totGPP) and ratio of GPP at a layer/total GPP (pGPP)    
+      if(nYears==1 & nLayers==1){
+        totGPP <- modOut$output[1,44,1,1] + modOut$GVout[,3]
+      }else{
+        totGPP <- rowSums(modOut$output[,44,,1]) + modOut$GVout[,3]                     # Sum of GPP for each year and site
+      }
+      pGPP[,1] <- modOut$GVout[,3]/totGPP                                                     # Ratio between GPP of ground vegetation and GPP total
+      
+      for(i in 1:nLayers){                                                            # Ratio between CUE of vegetation and pine or spruce or mixed
+        pGPP[,(i+1)] <- modOut$output[,44,i,1] / totGPP
+      }
+      ### Create arrays for monthly GPP and NPP values
+      mGPP <- mNPP <- array(NA,dim=c(nYears*12,(nLayers+1)))   # Create another matrix, similar as before.
+      for(i in 1:dim(pGPP)[2]){                                                                 # Loop goes through forest layers 1-4 with i
+        mGPP[,i] <- rep(pGPP[,i],each=12) * mGPPtot                                # Calculate monthly GPP for different layers by multiplying layer's share of GPP with monthly total GPP
+        mNPP[,i] <- mGPP[,i] * rep(cueAll[,i],each=12)                               # Calculate monthly NPP for different layers by multiplying monthly total GPP with layers yearly CUE
+      }
+      
+      
+      ###litterfall calculations lit is splitted to August and September
+      # Woody litter
+      # These 5 variables below are different litter categories, have 3d structure: site,litter variable,layer
+      if(nYears==1 & nLayers==1){
+        Lf <- mLit(modOut$output[,26,1,1],months=8:9)
+        Lfr <- mLit(modOut$output[,27,1,1],months=8:9)
+        Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+        Lfw <- mLit(modOut$output[,28,1,1],months=8:9)
+        Lw <- mLit(modOut$output[,29,1,1],months=8:9)
+      }else{
+        if(nLayers>1){
+          Lf <- apply(modOut$output[,26,,1],2,mLit,months=8:9)    # Runs model output variable Litter_fol through the 'mLit' function and transforms the containing array by switching places between rows and columns
+          Lfr <- apply(modOut$output[,27,,1],2,mLit,months=8:9)   # The mLit function moves litter fall to the August and September time period in the model output
+          Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+          Lfw <- apply(modOut$output[,28,,1],2,mLit,months=8:9)   # fine woody litter
+          Lw <- apply(modOut$output[,29,,1],2,mLit,months=8:9)    # Coarse woody litter
+        }else{
+          Lf <- mLit(modOut$output[,26,1,1],months=8:9)
+          Lfr <- mLit(modOut$output[,27,1,1],months=8:9)
+          Lnw <- Lf + Lfr                                                                 # Non-woody litter = The sum of Foliage litter (var. Litter_fol) and Fine root litter (var. Litter_fr) prebas output variables
+          Lfw <- mLit(modOut$output[,28,1,1],months=8:9)
+          Lw <- mLit(modOut$output[,29,1,1],months=8:9)
+        }
+      }
+      
+      ### Create a input array for the Yasso model with the litter fall information
+      litter <- array(0.,dim=c(nSites,nMonths,nLayers,3))
+      litter[1,,,1] <- Lnw   # Non-woody litter
+      litter[1,,,2] <- Lfw   # Branch litter
+      litter[1,,,3] <- Lw    # Woody litter
+      litter[which(is.na(litter))] <- 0
+      # litter <- litter*12
+      ### Prepare also other initialization information for Yasso
+      species <- modOut$output[1,4,,1]
+      nSp <- max(species)
+      litterSize <- modOut$litterSize[,1:nSp]
+      soilC <- array(0.,dim=c(nSites,(nMonths+1),5,3,nLayers))
+      soilC[1,1,,,] <- modOut$soilC[1,,,1:nLayers]  ###initialize with soilC from simulations
+      nClimID <- 1#modOut$nClimID
+      climIDs <- 1#modOut$siteInfo[,2]
+      weatherYasso <- array(0,dim=c(nClimID,nMonths,3))
+      if(weatherOption==1){
+        weatherYasso[1,,1] <- monthlyWeather(modOut$weather[,,2],"mean") ###monthly tempearture
+        weatherYasso[1,,2] <- monthlyWeather(modOut$weather[,,4],"sum") *12 ###monthly precipitation ###*12 rescales to annual mm
+      }else if(weatherOption==2){
+        weatherYasso[,,1] <- monthlyWeather(modOut$weather[,,2],"mean") ###monthly tempearture
+        weatherYasso[,,2] <- monthlyWeather(modOut$weather[,,4],"sum") *12 ###monthly precipitation ###*12 rescales to annual mm
+        weatherYasso[,,3] <- (monthlyWeather(modOut$weather[,,2],"max") - 
+                                monthlyWeather(modOut$weather[,,2],"min")) /2
+      }else if(weatherOption==3){
+        for(j in 1:nYears){
+          weatherYasso[1,(((j-1)*12)+1):(j*12),1] <- modOut$weatherYasso[j,1]
+          weatherYasso[1,(((j-1)*12)+1):(j*12),2] <- modOut$weatherYasso[j,2]
+          weatherYasso[1,(((j-1)*12)+1):(j*12),3] <- modOut$weatherYasso[j,3]
+        }
+      }
+      ### Run the Yasso model, which is a function in the src/A_routines.90 file
+      soilCtrees <- .Fortran("runYassoMonthly",litter=as.array(litter*12), ###*12 rescale monthly litter to annual units
+                             litterSize=as.array(litterSize),
+                             nMonths=as.integer(nMonths), 
+                             nLayers=as.integer(nLayers), 
+                             nSites=as.integer(nSites),
+                             nSp=as.integer(nSp),
+                             species=as.matrix(species),
+                             nClimID=as.integer(nClimID),
+                             climIDs=as.integer(climIDs),
+                             pAWEN=as.matrix(parsAWEN),
+                             pYasso=as.double(pYAS),
+                             climate=as.matrix(weatherYasso),
+                             soilC=as.array(soilC)) 
+      
+      ###calculate soil C for gv
+      fAPAR <- modOut$fAPAR                                                                                  # fAPAR from the preles model within prebas. 3d array, value for each year, but no layer dimension
+      fAPAR[which(is.na(modOut$fAPAR),arr.ind = T)] <- 0.                                                    # Convert NAs to values
+      AWENgv <- array(NA,dim=c(nYears,4))                                                         # Add the layer dimension on the fAPAR array
+      p0 = as.matrix(modOut$output[,6,1,1])                                                                          # Annual potential photosynthesis, 3d array: site,year,value
+      ETSy = as.matrix(modOut$output[,5,1,1])
+      
+      for(ij in 1:nYears){
+        AWENgv[ij,] <- .Fortran("fAPARgv",fAPAR[ij],
+                                ETSy[ij],climIDs,
+                                0,0,p0[ij],rep(0,4))[[7]]
+      }
+      
+      mAWEN <- array(0,dim=c(nSites,nMonths,5))
+      mAWEN[1,,1:4] <- apply(AWENgv,2,mLit,months=6:9)*12 ###*12 rescale monthly litter to annual units
+      if(nYears==1 & nLayers==1){
+        mGVit <- mLit(modOut$GVout[1,2],months=6:9)
+      }else{
+        mGVit <- mLit(modOut$GVout[,2],months=6:9)
+      }
+      
+      ###calculate steady state soil C per GV
+      # ststGV <- matrix(NA,nSites,5)
+      soilGV <- array(0,dim=c(nSites,(nMonths+1),5))
+      
+      soilCgv <- .Fortran("runYassoAWENinMonthly",
+                          mAWEN=as.array(mAWEN),
+                          nMonths=as.integer(nMonths),  
+                          nSites=as.integer(nSites), 
+                          litSize=0.,
+                          nClimID=as.integer(nClimID),
+                          climIDs=as.integer(climIDs),
+                          pYasso=as.double(pYAS),
+                          climate=as.matrix(weatherYasso),
+                          soilCgv=as.array(soilGV))
+      ####add gvsoilc to first layer foliage soilC
+      # check in normal runs where ground vegetation soilC is calculated
+      soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
+      mRhTot <- soilCtot[,1:nMonths]/10 - soilCtot[,2:(nMonths+1)]/10 +
+        apply(litter,1:2,sum)/10 + mGVit/10
+      mNPPtot <- apply(mNPP,1,sum)
+      mRaTot <- mGPPtot - mNPPtot
+      mNEPtot <- mNPPtot - mRhTot
+      return(list(mGPP=mGPPtot,mNPP=mNPPtot,mRa=mRaTot,mRh=mRhTot[1,],
+                  mNEP=mNEPtot[1,],soilC=soilCtot[1,]))      
     }
-    
-    ###calculate steady state soil C per GV
-    # ststGV <- matrix(NA,nSites,5)
-    soilGV <- array(0,dim=c(nSites,(nMonths+1),5))
-    
-    soilCgv <- .Fortran("runYassoAWENinMonthly",
-                        mAWEN=as.array(mAWEN),
-                        nMonths=as.integer(nMonths),  
-                        nSites=as.integer(nSites), 
-                        litSize=0.,
-                        nClimID=as.integer(nClimID),
-                        climIDs=as.integer(climIDs),
-                        pYasso=as.double(pYAS),
-                        climate=as.matrix(weatherYasso),
-                        soilCgv=as.array(soilGV))
-    ####add gvsoilc to first layer foliage soilC
-    # check in normal runs where ground vegetation soilC is calculated
-    soilCtot <- apply(soilCtrees$soilC,1:2,sum) + apply(soilCgv$soilCgv,1:2,sum)
-    mRhTot <- soilCtot[,1:nMonths]/10 - soilCtot[,2:(nMonths+1)]/10 +
-      apply(litter,1:2,sum)/10 + mGVit/10
-    mNPPtot <- apply(mNPP,1:2,sum)
-    mRaTot <- mGPPtot - mNPPtot
-    mNEPtot <- mNPPtot - mRhTot
-    return(list(mGPP=mGPPtot,mNPP=mNPPtot,mRa=mRaTot,mRh=mRhTot,
-                mNEP=mNEPtot,soilC=soilCtot))
   } 
   
   
