@@ -78,8 +78,8 @@ HcModDef[[1]] <- HcModDef[[5]]<- function(inputs){
   return(pmax(Hc_sim,0.,na.rm = T)) 
 } 
 
-###default HcModel for piab
-HcModDef[[2]] <- function(inputs){ 
+###default HcModel for piab FI and DE
+HcModDef[[2]]<- HcModDef[[10]] <- function(inputs){ 
   pValues=inputs[1:7]
   H=inputs[8]
   D=inputs[9]
