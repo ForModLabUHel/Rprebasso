@@ -2,86 +2,96 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !subroutine bridging
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output,nThinning,maxYearSite,fAPAR,initClearcut,&
-		fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
-		litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
-		inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun) !energyCut
-
+subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
+     nThinning,maxYearSite,fAPAR,initClearcut,&
+     fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,&
+     etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
+     litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
+     inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
+     ftTapio,tTapio,GVout,GVrun) !energyCut
 
 implicit none
 
- integer, parameter :: nVar=54,npar=44, inttimes = 1!, nSp=3
+!! Constants
+integer, parameter :: nVar=54, npar=44, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
- ! logical steadystate_pred= .false.
-!define arguments
- integer, intent(in) :: nYears,nLayers,nSp
- real (kind=8), intent(in) :: weatherPRELES(nYears,365,5)
- integer, intent(in) :: DOY(365),etmodel
- real (kind=8), intent(inout) :: pPRELES(30),tapioPars(5,2,3,20),thdPer,limPer
- real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
- real (kind=8), intent(inout) :: thinning(nThinning,9)
- real (kind=8), intent(inout) :: initClearcut(5)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
- real (kind=8), intent(in) :: pCrobas(npar,nSp),pAWEN(12,nSp)
- integer, intent(in) :: maxYearSite
- real (kind=8), intent(in) :: defaultThin,ClCut,energyCut,yassoRun,fixBAinitClarcut		!energyCut
 
- real (kind=8), intent(in) :: inDclct(nSp),inAclct(nSp)
+!! define arguments, inputs and outputs
+ integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
+ real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
+ integer, intent(in) :: DOY(365), etmodel 
+ real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
+ real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
+ real (kind=8), intent(inout) :: thinning(nThinning, 9) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
+ real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
+ real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp)
+ integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
+ real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
+
+ real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp) ! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
 ! integer, intent(in) :: siteThinning(nSites)
- integer, intent(inout) :: nThinning
- !!!ground vegetation variables
- real (kind=8) :: AWENgv(4)  !!!ground vegetation
- integer, intent(in) :: gvRun			!!!ground vegetation
- real (kind=8), intent(inout) :: fAPAR(nYears),GVout(nYears,3) !fAPAR_gv,litGV,photoGV			!!!ground vegetation
- real (kind=8), intent(inout) :: dailyPRELES((nYears*365),3)
- real (kind=8), intent(inout) :: initVar(7,nLayers),P0y(nYears,2),ETSy(nYears),initCLcutRatio(nLayers)!
- real (kind=8), intent(inout) :: siteInfo(10)
- real (kind=8), intent(inout) :: output(nYears,nVar,nLayers,2), energyWood(nYears,nLayers,2)
- real (kind=8), intent(inout) :: soilCinOut(nYears,5,3,nLayers),soilCtotInOut(nYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
- real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3),litterSize(3,nSp) !litterSize dimensions: treeOrgans,species
- real (kind=8) :: prelesOut(16),fAPARsite
- real (kind=8) :: leac=0 !leaching parameter for Yasso
- real (kind=8),DIMENSION(nLayers,5) :: fbAWENH,folAWENH,stAWENH
- real (kind=8),DIMENSION(nLayers) :: Lb,Lf,Lst
-! real (kind=8),DIMENSION(nLayers) :: speciesIDs
- real (kind=8),DIMENSION(nLayers) :: valX
- integer,DIMENSION(nLayers) :: layerX
- real (kind=8) :: STAND(nVar),STAND_tot(nVar),param(npar)!, output(nYear,nSites,nVar)
- integer :: i, ij, ijj,species,layer,nSpec,ll! tree species 1,2,3 = scots pine, norway spruce, birch
+ integer, intent(inout) :: nThinning ! user defined n of thinnings.
 
- real (kind=8) :: p0_ref, ETS_ref,P0yX(nYears,2)
- integer :: time, ki, year,yearX,Ainit, countThinning,domSp(1)
+!!!ground vegetation variables
+ real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
+ integer, intent(in) :: gvRun !!! flag for including ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 3) ! GVout contains: fAPAR_gv, litGV, photoGV !!! ground vegetation
+ real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
+ real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
+ real (kind=8), intent(inout) :: siteInfo(10)
+ real (kind=8), intent(inout) :: output(nYears, nVar, nLayers, 2), energyWood(nYears, nLayers, 2) ! last dimension: 1 is for stand and 2 is for harvested sum of wood.
+ real (kind=8), intent(inout) :: soilCinOut(nYears, 5, 3, nLayers), soilCtotInOut(nYears) ! dimensions: nyears, AWENH, woody/fineWoody/foliage, layers
+ real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
+
+!! Parameters internal to the model
+ real (kind=8) :: prelesOut(16), fAPARsite
+ real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
+ real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
+ real (kind=8), DIMENSION(nLayers) :: Lb, Lf, Lst
+! real (kind=8),DIMENSION(nLayers) :: speciesIDs
+ real (kind=8), DIMENSION(nLayers) :: valX
+ integer, DIMENSION(nLayers) :: layerX
+ real (kind=8) :: STAND(nVar), STAND_tot(nVar), param(npar) ! temp variables fillled for each layer and fills  output(nYear, nSites, nVar).
+ integer :: i, ij, ijj, species, layer, nSpec, ll ! tree species 1,2,3 = scots pine, norway spruce, birch
+
+ real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
+ integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
  real (kind=8) :: step, totBA
 
- real (kind=8) :: stand_all(nVar,nLayers)
- real (kind=8) :: outt(nVar,nLayers,2)
- real (kind=8) :: modOut((nYears+1),nVar,nLayers,2)
- real (kind=8) :: soilC((nYears+1),5,3,nLayers),soilCtot((nYears+1))
- real (kind=8) :: par_phib,par_phic,par_alfat,par_alfar1,par_alfar2,par_alfar3,par_alfar4
- real (kind=8) :: par_alfar5,par_etab,par_k,par_vf,par_vr,par_sla,par_mf,par_mr,par_mw,par_vf0, mrFact,par_vr0
- real (kind=8) :: par_z,par_rhos,par_cR, par_x, Light,MeanLight(nLayers),par_mf0,par_mr0,par_mw0,par_zb!par_zb= ratio between dead branches l and mean pipe leanght
- real (kind=8) :: par_sarShp, par_S_branchMod
- real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas
- real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort
- real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test,par_thetaMax, par_H0max,par_kH, par_gamma,par_H0
- real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS,dHcCum,dHCum,pars(30), thinningType = 0.
+ real (kind=8) :: stand_all(nVar, nLayers)
+ real (kind=8) :: outt(nVar, nLayers, 2)
+ real (kind=8) :: modOut((nYears+1), nVar, nLayers, 2)
+ real (kind=8) :: soilC((nYears+1), 5, 3, nLayers), soilCtot((nYears+1))
+ real (kind=8) :: par_phib, par_phic, par_alfat, par_alfar1, par_alfar2, par_alfar3, par_alfar4
+ real (kind=8) :: par_alfar5, par_etab, par_k, par_vf, par_vr, par_sla, &
+      par_mf, par_mr, par_mw, par_vf0, mrFact, par_vr0 ! parameters filled from Crobas-vector
+ real (kind=8) :: par_z, par_rhos, par_cR, par_x, Light, MeanLight(nLayers), &
+      par_mf0,par_mr0,par_mw0,par_zb !par_zb: ratio between dead branches l and mean pipe lenght
+ ! Light is light at canopy bottom, MeanLight is layer-specific mean. Calculated by &
+ ! Llight extinction subroutine.
+ real (kind=8) :: par_sarShp, par_S_branchMod ! crobas param
+ real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas ! crobas param
+ real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort ! crobas param
+ real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test, par_thetaMax, par_H0max, par_kH, par_gamma,par_H0 ! more variables and crobas params.
+ real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(30), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
 
 !management routines
- real (kind=8) :: A_clearcut, D_clearcut, BAr(nLayers), BA_tot,BA_lim, BA_thd, ETSthres = 1000
- real (kind=8) :: dens_thd, dens_lim, Hdom_lim
+ real (kind=8) :: A_clearcut, D_clearcut, BAr(nLayers), BA_tot, BA_lim, BA_thd, ETSthres = 1000
+ real (kind=8) :: dens_thd, dens_lim, Hdom_lim ! thinning parameters
 
 !define varibles
- real (kind=8) :: LAT, LONG, sitetype, P0, age, meantemp, mintemp, maxtemp, rainfall, ETS
- real (kind=8) :: H, D, B, Hc, Cw, Lc, N, Ntree, Ntot,dNtot
- real (kind=8) :: wf_treeKG, wf_STKG, sar_con, sar_ell, rc, ppow, sar,W_stem
- real (kind=8) :: lproj, leff,laPer_sar, keff, slc
- real (kind=8) :: hb, A, B2,beta0, beta1,beta2, betab!,betas
+ real (kind=8) :: sitetype, P0, age, meantemp, mintemp, maxtemp, rainfall, ETS 
+ real (kind=8) :: H, D, B, Hc, Cw, Lc, N, Ntree, Ntot, dNtot
+ real (kind=8) :: wf_treeKG, wf_STKG, sar_con, sar_ell, rc, ppow, sar, W_stem
+ real (kind=8) :: lproj, leff, laPer_sar, keff, slc
+ real (kind=8) :: hb, A, B2, beta0, beta1,beta2, betab !,betas
  real (kind=8) :: c,dHc,dH,dLc,g0,g1,g2,g3,g4,g5
- real (kind=8) :: npp, p_eff_all, gammaC, betaC, W_c, W_s,Wdb,Wsh
- real (kind=8) :: p_eff, par_alfar,p,gpp_sp
+ real (kind=8) :: npp, p_eff_all, gammaC, betaC, W_c, W_s, Wdb, Wsh
+ real (kind=8) :: p_eff, par_alfar, p, gpp_sp
  real (kind=8) :: s0,par_s0scale,par_sla0,par_tsla
  real (kind=8) :: weight, dNp,dNb,dNs
- real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V,Vold
+ real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V, Vold
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
@@ -119,10 +129,11 @@ P0yX = P0y
 Reineke(:) = 0.
 ETSmean = sum(ETSy)/nYears
 
+! Fill in model output structure with initial values and ids.
  modOut(:,1,:,1) = siteInfo(1)  !! assign siteID 
  ! modOut(1,2,:,1) = initVar(8,:)	!! assign initial gammaC values !!newX
- modOut(1,11,:,1) = initVar(3,:)
- modOut(1,16,:,1) = initVar(7,:)
+ modOut(1,11,:,1) = initVar(3,:) ! height of trees
+ modOut(1,16,:,1) = initVar(7,:) 
  ! modOut(1,12,:,1) = initVar(4,:)
  ! modOut(1,13,:,1) = initVar(5,:)
  modOut(1,14,:,1) = initVar(6,:)
@@ -145,33 +156,19 @@ ETSmean = sum(ETSy)/nYears
 	modOut(1,17,i,1) = 0. 
 	modOut(1,35,i,1) = 0.
   endif
-			! wf_STKG = N * wf_treeKG  !!newX
-			! W_froot = par_rhor * A * N  !!to check  !!newX
-			! W_wsap = par_rhow * A * N * (beta1 * H + beta2 * Hc) !!newX
-			! W_c = par_rhow * A * N * Hc !sapwood stem below Crown
-			! W_s = par_rhow * A * N * betas * Lc !sapwood stem within crown
-			! W_branch =  par_rhow * A * N * betab * Lc !branches biomass
- 	        ! W_croot = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
-			! Wsh = (A+B+sqrt(A*B)) * Hc * par_rhow * N/2.9 - Wc !initialize heart wood, only stem considered. W_bole (total biomass below crown)  - Wc
-			! !initialize Wdb dead branches biomass
-		! if(par_S_branchMod .eq. 1.) then
-			! Wdb = Tdb * W_branch * ((0.0337+0.000009749*N)*exp(-0.00456*D**2)+0.00723)
-		! else
-			! Wdb = Tdb * W_branch *((-0.00513+0.000012*N)*exp((0.00000732-0.000000764*N)*D**2)+0.00467)
-		! endif
+
  enddo
 
-!######!
+!######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 do year = 1, (nYears)
-
 ! write(1,*) year,yearX,Ainit,initClearcut(5)
-  if(year==int(min(yearX,nYears))) then
-   Ainit = int(min(Ainit, Ainit + nYears - yearX))
-      totBA = sum(modOut((year-Ainit-1),13,:,1))
-   do ijj = 1,nLayers
-     species = int(modOut(year,4,ijj,1))  ! read species
-	 if(fixBAinitClarcut==1) then
+  if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clear cut
+   Ainit = int(min(Ainit, Ainit + nYears - yearX)) ! Ainit is the age stand is measureable. This is to avoid some special conditions that might occur in some simulation cases.
+      totBA = sum(modOut((year-Ainit-1), 13, :, 1)) ! BA structure before clearcut, used for estimating spec. proportions at initialization if fixBAratio is = 0 (1 is for user defined)
+   do ijj = 1, nLayers
+     species = int(modOut(year, 4, ijj, 1))  ! read species
+	 if (fixBAinitClarcut==1) then
 	  modOut(year,13,ijj,1) = initClearcut(3) * initCLcutRatio(ijj)
 	 else
       modOut(year,13,ijj,1) = initClearcut(3) * modOut((year-Ainit-1),13,ijj,1)/ totBA
@@ -582,7 +579,8 @@ if (year <= maxYearSite) then
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
    if(gvRun==1) then
 	if(fAPARsite>0.) then
-     call fAPARgv(fAPARsite,ETSmean,siteType,GVout(year,1),GVout(year,2),sum(P0yX(:,1))/nYears,AWENgv) !reduced input output
+    call fAPARgv(fAPARsite, ETSmean, siteType, GVout(year,1), GVout(year,2), &
+         sum(P0yX(:,1))/nYears, AWENgv) !reduced input output
      GVout(year,3) = prelesOut(1) * GVout(year,1)/fAPARsite! Photosynthesis in g C m-2 
      ! GVout(year,4) = GVout(year,3)*0.5 !where to put those two variables
    	 ! STAND_all(26,1) = STAND_all(26,1) + GVout(year,2)	!add !!!ground vegetation to the 1st layer
@@ -674,7 +672,7 @@ else
   leff = STAND(19)
   keff = STAND(20)
   lproj = STAND(21)
-  p_eff_all = STAND(10)*P0yX(year,2)/P0yX(year,1) !!##!!2    smoothing PHOTOSYNTHESIS
+  p_eff_all = STAND(10)*P0yX(year, 2)/P0yX(year, 1) !!##!! 2 smoothing PHOTOSYNTHESIS
   weight = STAND(23)
   A = STAND(16)
   dHc=stand(52)
@@ -715,19 +713,20 @@ if (N>0.) then
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
 
-  par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!!new version
-  theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!!new version
+  
+  par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
+  theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
 
   mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
   par_mr = par_mr0* p0 / p0_ref + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
   par_mf = par_mf0* p0 / p0_ref !!newX
   par_mw = par_mw0* p0 / p0_ref !!newX
 
-  par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
+  par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
   par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
-  par_rhor = par_alfar * par_rhof
+  par_rhor = par_alfar * par_rhof !rho: pipe model parameter for fine roots
 
     ! -------------------------------------
     !GPP all STAND$species   UNITS: g C  /  m2
