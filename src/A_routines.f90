@@ -1,4 +1,4 @@
-subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
+subroutine initBiomasses(pCrobas,initVar,siteType,biomasses) 
 	implicit none
     integer, parameter :: nVar=54, npar=44
 	real (kind=8), parameter :: pi = 3.1415927
