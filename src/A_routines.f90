@@ -1363,12 +1363,12 @@ subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs) !reduc
 	litBG(1)*AWENsh + litBG(2) *AWENghBG
  
  ! !calculate LAI
- lai_gv = agW * laB / 10000 * 0.5   !!!!0.5 converts DW to carbon
+ lai_gv = agW * laB / (10000 * 0.5)   !!!!0.5 converts SLA (m2/kg DW) to (m2/kg C) 
   
  fAPAR_gv(1) = (1-fAPARstand) * (1-exp(-0.5*(lai_gv(1))))
  fAPAR_gv(2) = (1-fAPARstand-fAPAR_gv(1)) * (1-exp(-0.5*(lai_gv(2))))
  fAPAR_gv(3) = (1-fAPARstand-fAPAR_gv(1)-fAPAR_gv(2)) * (1-exp(-0.5*(lai_gv(3))))
- totfAPAR_gv = sum(fAPAR_gv)
+ totfAPAR_gv = sum(fAPAR_gv)   !!!alternatively 0.6354*fAPARstand + 0.3716
  totlitGV = sum(litAG) + sum(litBG)
  
 end subroutine fAPARgv
