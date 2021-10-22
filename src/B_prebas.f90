@@ -2,13 +2,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !subroutine bridging
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
-     nThinning,maxYearSite,fAPAR,initClearcut,&
-     fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,&
-     etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
-     litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
-     inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
-     ftTapio,tTapio,GVout,GVrun) !energyCut
+subroutine prebas(nYears, nLayers, nSp, siteInfo, pCrobas, initVar, thinning, output, &
+     nThinning, maxYearSite, fAPAR,initClearcut,&
+     fixBAinitClarcut, initCLcutRatio, ETSy, P0y, weatherPRELES, DOY, pPRELES,&
+     etmodel, soilCinOut, pYasso, pAWEN, weatherYasso,&
+     litterSize, soilCtotInOut, defaultThin, ClCut, energyCut, inDclct,&
+     inAclct, dailyPRELES, yassoRun, energyWood, tapioPars, thdPer, limPer,&
+     ftTapio, tTapio, GVout, GVrun) !energyCut
 
 implicit none
 
@@ -335,6 +335,8 @@ do ij = 1 , nLayers 		!loop Species
 
 ! do siteNo = 1, nSites  !loop sites
 
+! If simulation extends the maximum plausible simulation duration, the 
+! stand state variables are set to zero. STAND contains the variables in output array.
 if (year > maxYearSite) then
   STAND(2) = 0. !!newX
   STAND(8:21) = 0. !#!#
