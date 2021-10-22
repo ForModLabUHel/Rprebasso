@@ -335,8 +335,6 @@ do ij = 1 , nLayers 		!loop Species
 
 ! do siteNo = 1, nSites  !loop sites
 
-! If simulation extends the maximum plausible simulation duration, the 
-! stand state variables are set to zero. STAND contains the variables in output array.
 if (year > maxYearSite) then
   STAND(2) = 0. !!newX
   STAND(8:21) = 0. !#!#
