@@ -123,7 +123,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   \item{output}{
   An array with annual model outputs. 1st dimension corresponds to the number of years of the simulation (nYears); 2nd dimension corresponds to the output variables (see list below); 3rd dimension corresponds to the number of layers in the stand (nLayers); 4th dimensions reports the state of the stand (1) and (2) the variables of the harvested trees (2).
 
-  Output variables:
+  Output variables: \cr
   1."siteID" \cr
   2."gammaC" internal parameter \cr
   3."sitetype" site fertility class \cr

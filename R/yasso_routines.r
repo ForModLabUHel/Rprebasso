@@ -608,6 +608,13 @@ stXX <- function(PrebOut){
 
 #### calculate steady state C using prebas output.
 ####included option for ground vegetation 
+####the output of the function is an array with soilC at steady state
+#### the output array has dimension: 1. nSites; 2. AWENH,3.litType,4.nLayers
+#### nSites= number of sites in the prebas runs (it varies according to simulations);
+#### AWENH = YASSO pools (5 elements)
+#### litType = litter type of yasso, (3 elements: non woody litter, fine woody litter, coarse woody litter);
+#### nLayers = number of layers in the prebas runs (it varies according to simulations).
+#In the first layer is included the contribution of ground vegetation to the soilC if GVrun=1
 stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWEN){
   ### prebOut is a PREBAS output from a multiSite/region run
   ### GVrun, flag for including or not ground vegetation in the simulation (0=no, 1=yes)
