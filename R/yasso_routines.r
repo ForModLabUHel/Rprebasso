@@ -862,7 +862,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
   prebOut$multiOut[,,46,,1] <-  prebOut$multiOut[,,44,,1] - prebOut$multiOut[,,9,,1] - 
     prebOut$multiOut[,,45,,1]
   ###add GVnpp to first layer of multiout of NEP  
-  prebOut$multiOut[,,46,1,1] <- prebOut$multiOut[,,46,1,1] - prebOut$GVout[,,3]*0.5
+  prebOut$multiOut[,,46,1,1] <- prebOut$multiOut[,,46,1,1] + prebOut$GVout[,,3]*0.5
   
   
   return(prebOut)
