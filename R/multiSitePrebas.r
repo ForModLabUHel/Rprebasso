@@ -503,6 +503,9 @@ regionPrebas <- function(multiSiteInit,
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  
+  prebas <- yassoPREBASin(prebas,multiSiteInit$soilC[,1,,,])
+  
   return(prebas)
 }
 
