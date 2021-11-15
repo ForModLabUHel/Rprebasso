@@ -410,7 +410,7 @@ multiPrebas <- function(multiSiteInit){
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
                      GVrun = as.integer(multiSiteInit$GVrun)
-                     )
+  )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
@@ -424,16 +424,15 @@ regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
                          cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
-                                        ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
-                                          ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
+                         ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
+                         ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
                          compHarv = 3.,###flag for compensating harvest if harvest do not reach the desired levels
                          ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
                          ### compHarv=2 compensate harvest with thinnings
                          thinFact = 0.25 ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
                          #######compHarv[1]
-                         ){
+){
   
-  initSoilC <- multiSiteInit$soilC[,1,,,]
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
@@ -504,11 +503,7 @@ regionPrebas <- function(multiSiteInit,
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
-  
-  prebas <- yassoPREBASin(prebas,initSoilC)
-  
   return(prebas)
 }
-
 
 
