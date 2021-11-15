@@ -433,6 +433,7 @@ regionPrebas <- function(multiSiteInit,
                          #######compHarv[1]
                          ){
   
+  initSoilC <- multiSiteInit$soilC[,1,,,]
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
@@ -504,7 +505,7 @@ regionPrebas <- function(multiSiteInit,
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   
-  prebas <- yassoPREBASin(prebas,multiSiteInit$soilC[,1,,,])
+  prebas <- yassoPREBASin(prebas,initSoilC)
   
   return(prebas)
 }
