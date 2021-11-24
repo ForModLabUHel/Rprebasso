@@ -38,10 +38,12 @@ InitMultiSite <- function(nYearsMS,
                           limPer = NA,
                           ftTapioPar = ftTapio,
                           tTapioPar = tTapio,
-                          GVrun = 1
+                          GVrun = 1,
+                          thinInt = 999.
 ){  
   
   nSites <- length(nYearsMS)
+  if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
@@ -358,7 +360,8 @@ InitMultiSite <- function(nYearsMS,
     ftTapioPar = ftTapioPar,
     tTapioPar = tTapioPar,
     GVrun=as.integer(GVrun),
-    GVout=array(0.,dim = c(nSites,maxYears,3))
+    GVout=array(0.,dim = c(nSites,maxYears,3)),
+    thinInt = thinInt
   )
   return(multiSiteInit)
 }
@@ -409,7 +412,8 @@ multiPrebas <- function(multiSiteInit){
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
-                     GVrun = as.integer(multiSiteInit$GVrun)
+                     GVrun = as.integer(multiSiteInit$GVrun),
+                     thinInt=as.double(multiSiteInit$thinInt)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -491,7 +495,9 @@ regionPrebas <- function(multiSiteInit,
                      GVout = as.array(multiSiteInit$GVout),
                      GVrun = as.integer(multiSiteInit$GVrun),
                      cutAreas=as.matrix(cutAreas),
-                     compHarv=as.double(compHarv))
+                     compHarv=as.double(compHarv),
+                     thinInt=as.double(multiSiteInit$thinInt)
+                     )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas

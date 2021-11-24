@@ -8,7 +8,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv)		!!energCuts
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt)		!!energCuts
 
 
 implicit none
@@ -32,6 +32,8 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
  real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
+ real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
+					!from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  !!!ground vegetation
  integer, intent(in) :: gvRun			!!!ground vegetation
@@ -185,7 +187,7 @@ do ij = 1,maxYears
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
-		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun) !!energCuts
+		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i)) !!energCuts
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
@@ -421,7 +423,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
  elseif(compHarv(1)==3.) then  !!!thin to compensate harvest limits
    n = 0
   do while((n < nSites .and. roundWood < HarvLim(ij,1)) .and. &
-	cuttingArea(ij,2) < cuttingArea(ij,1))		!!energCuts
+	cuttingArea(ij,2) < cuttingArea(ij,1))		
    n = n + 1
    do i = 1, nSites
 	if(ClCut(i) > 0. ) then

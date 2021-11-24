@@ -8,7 +8,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
-     ftTapio,tTapio,GVout,GVrun) !energyCut
+     ftTapio,tTapio,GVout,GVrun,thinInt) !energyCut
 
 implicit none
 
@@ -29,8 +29,10 @@ integer, parameter :: nVar=54, npar=44, inttimes = 1 ! no. of variables, paramet
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
 
- real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp) ! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
-! integer, intent(in) :: siteThinning(nSites)
+ real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp)! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
+ real (kind=8), intent(in) :: thinInt !parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
+										!thinInt=999. uses the default value from tapio rules
+ ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning ! user defined n of thinnings.
 
 !!!ground vegetation variables
@@ -1298,13 +1300,17 @@ if(defaultThin == 1.) then
 	else if(thinningType == 3.) then 
 		BA_tot = BA_thd
 		BA = BAr(ij) * BA_thd
-
-		if(par_sarShp==1.) then
-			H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
-			D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
+        if(thinInt .ne. 999.) then 
+			H = stand_all(11,ij) * thinInt
+			D = stand_all(12,ij) * thinInt
 		else
-			H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
-			D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
+			if(par_sarShp==1.) then
+				H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
+				D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
+			else
+				H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
+				D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
+			endif
 		endif
 		N = BA/(pi*((D/2./100.)**2.))
 	endif
