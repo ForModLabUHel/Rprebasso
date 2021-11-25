@@ -1,6 +1,6 @@
 subroutine initBiomasses(pCrobas,initVar,siteType,biomasses) 
 	implicit none
-    integer, parameter :: nVar=54, npar=44
+    integer, parameter :: nVar=54, npar=47
 	real (kind=8), parameter :: pi = 3.1415927
 	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
 	real (kind=8), intent(inout) :: biomasses(nvar)
@@ -10,7 +10,7 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
 	real (kind=8) :: A, ba, d, N, h, hc, B, Lc, betab, beta0, beta1, beta2, betaC, V
 	real (kind=8) :: wf_STKG, W_froot, W_wsap, W_c, W_s, W_branch, W_croot, Wdb, W_stem, Wsh
 	real (kind=8) :: W_crs, W_crh
-  
+    real (kind=8) :: age_factor, par_fAa, par_fAb, par_fAc
  	
   !initBiomasses = function(pCrobas,initVarX){
   ! initVarX<-as.matrix(initVarX) change vector to matrix when maxlayer=1
@@ -23,12 +23,13 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   par_mf = pCrobas(8)
   par_mr = pCrobas(9)
   par_mw = pCrobas(10)
-  par_alfar = pCrobas(int(20+min(siteType,5.)))
   par_c = pCrobas(7)
   par_rhof = pCrobas(15)
-  par_rhor = par_alfar * par_rhof
   par_rhow = pCrobas(2)
   par_S_branchMod = pCrobas(27)
+  par_fAa = pCrobas(45)
+  par_fAb = pCrobas(46)
+  par_fAc = pCrobas(47)
   gammaC = 0. !#initVarX(8,)
   Tbd = 10 !#####to include in the parameters
   
@@ -39,8 +40,13 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   h = initVar(3); hc = initVar(6)
   B = ba/N
   Lc = h - hc
+  
+  age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa
+  par_alfar = pCrobas(int(20+min(siteType,5.))) * age_factor
+  par_rhor = par_alfar * par_rhof
+  beta0 = par_beta0 * age_factor
+  
   betab =  par_betab * Lc**(par_x-1)
-  beta0 = par_beta0
   beta1 = (beta0 + betab + par_betas) 
   beta2 = 1. - betab - par_betas 		
   betaC = (beta1 + gammaC * beta2) / par_betas

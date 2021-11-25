@@ -13,7 +13,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
-integer, parameter :: nVar=54, npar=44, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+integer, parameter :: nVar=54, npar=47, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
 
@@ -92,6 +92,7 @@ integer, parameter :: nVar=54, npar=44, inttimes = 1 ! no. of variables, paramet
  real (kind=8) :: npp, p_eff_all, gammaC, betaC, W_c, W_s, Wdb, Wsh
  real (kind=8) :: p_eff, par_alfar, p, gpp_sp
  real (kind=8) :: s0,par_s0scale,par_sla0,par_tsla
+ real (kind=8) :: age_factor,par_fAa,par_fAb,par_fAc ! Changes in fine root allocation for young seedlings, affecting beta0 and alfar 
  real (kind=8) :: weight, dNp,dNb,dNs
  real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V, Vold
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
@@ -199,10 +200,11 @@ do year = 1, (nYears)
   par_mf = pCrobas(8,int(initVar(1,ijj)))
   par_mr = pCrobas(9,int(initVar(1,ijj)))
   par_mw = pCrobas(10,int(initVar(1,ijj)))
-  par_alfar = pCrobas(int(20+min(siteType,5.)),int(initVar(1,ijj)))
+  par_fAa = pCrobas(45,int(initVar(1,ijj)))
+  par_fAb = pCrobas(46,int(initVar(1,ijj))) 
+  par_fAc = pCrobas(47,int(initVar(1,ijj)))
   par_c = pCrobas(7,int(initVar(1,ijj)))
   par_rhof = pCrobas(15,int(initVar(1,ijj)))
-  par_rhor = par_alfar * par_rhof
   par_rhow = pCrobas(2,int(initVar(1,ijj)))
   par_S_branchMod = pCrobas(27,int(initVar(1,ijj)))
   gammaC = 0. !initVarX(8,)
@@ -214,11 +216,16 @@ do year = 1, (nYears)
   d = modOut(year,12,ijj,1)
   N = ba/(pi*((d/2/100)**2))
   h = modOut(year,11,ijj,1)
+  
+  age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa		
+  par_alfar = pCrobas(int(20+min(siteType,5.)),int(initVar(1,ijj))) * age_factor
+  par_rhor = par_alfar * par_rhof
+  
   hc = modOut(year,14,ijj,1)
   B = ba/N
   Lc = h - hc
   betab =  par_betab * Lc**(par_x-1)
-  beta0 = par_beta0
+  beta0 = par_beta0 * age_factor
   beta1 = (beta0 + betab + par_betas) 
   beta2 = 1. - betab - par_betas 		
   betaC = (beta1 + gammaC * beta2) / par_betas
@@ -334,7 +341,9 @@ do ij = 1 , nLayers 		!loop Species
  par_kH = param(34)
  par_sla0 = param(39)
  par_tsla = param(40)
-
+ par_fAa = param(45)
+ par_fAb = param(46)
+ par_fAc = param(47)
 ! do siteNo = 1, nSites  !loop sites
 
 if (year > maxYearSite) then
@@ -646,7 +655,9 @@ do ij = 1 , nLayers
  par_sla0 = param(39)
  par_tsla = param(40)
  par_zb = param(41)
-
+ par_fAa = param(45)
+ par_fAb = param(46)
+ par_fAc = param(47)
 ! do siteNo = 1, nSites  !start site loop
 
 if (year > maxYearSite) then
@@ -694,19 +705,20 @@ else
   hb = par_betab * Lc ** par_x
   Cw = 2. * hb
 
+  age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
 if (N>0.) then
 
 !!!!###here starts stand2 subroutine!!!!!!!!!!!#########
   if (sitetype <= 1.) then
-   par_alfar = par_alfar1
+   par_alfar = par_alfar1 * age_factor
   else if (sitetype==2.) then
-   par_alfar = par_alfar2
+   par_alfar = par_alfar2 * age_factor
   else if (sitetype==3.) then
-   par_alfar = par_alfar3
+   par_alfar = par_alfar3 * age_factor
   else if (sitetype==4.) then
-   par_alfar = par_alfar4
+   par_alfar = par_alfar4 * age_factor
   else
-   par_alfar = par_alfar5
+   par_alfar = par_alfar5 * age_factor
   end if
 
 !!relate metabolic and structural parameters to site conditions
@@ -758,7 +770,8 @@ if (N>0.) then
         ! HERE the units are kg / ha
 			gammaC = par_cR/Light
             betab = hb/Lc
-            beta0 = par_beta0
+			age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
+            beta0 = par_beta0 * age_factor
             beta1 = (beta0 + betab + par_betas) !!newX
             beta2 = 1. - betab - par_betas 		!!newX
 			betaC = (beta1 + gammaC * beta2) / par_betas
@@ -885,7 +898,8 @@ endif
 
 ! more dependent variables (not used in calculation)
         betab = hb/Lc
-        beta0 = par_beta0
+		age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
+        beta0 = par_beta0 * age_factor
         beta1 = (beta0 + betab + par_betas) !!newX
         beta2 = 1. - betab - par_betas 		!!newX
 		betaC = (beta1 + gammaC * beta2) / par_betas
@@ -1023,7 +1037,8 @@ endif
 	 par_rhof = par_rhof1 * ETS + par_rhof2
  	 par_rhor = par_alfar * par_rhof
      betab = hb/Lc
-     beta0 = par_beta0
+	 age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
+     beta0 = par_beta0 * age_factor
      beta1 = (beta0 + betab + par_betas) !!newX
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
@@ -1286,6 +1301,9 @@ if(defaultThin == 1.) then
     par_H0max = param(32)
     par_gamma = param(33)
 	par_kH = param(34)
+	par_fAa = param(45)
+    par_fAb = param(46)
+    par_fAc = param(47)
     par_rhof1 = 0.!param(20)
     par_Cr2 = 0.!param(24)
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
@@ -1327,19 +1345,19 @@ if(defaultThin == 1.) then
     A = stand_all(16,ij) * B/stand_all(35,ij) !!! to check 
     hb = par_betab * Lc ** par_x
     Cw = 2. * hb
-
-
+	
+    age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa
 !!update biomasses
     if (sitetype <= 1.) then
-     par_alfar = par_alfar1
+     par_alfar = par_alfar1 * age_factor
     else if (sitetype==2.) then
-     par_alfar = par_alfar2
+     par_alfar = par_alfar2 * age_factor
     else if (sitetype==3.) then
-     par_alfar = par_alfar3
+     par_alfar = par_alfar3 * age_factor
     else if (sitetype==4.) then
-     par_alfar = par_alfar4
+     par_alfar = par_alfar4 * age_factor
     else
-     par_alfar = par_alfar5
+     par_alfar = par_alfar5 * age_factor
     end if
 
      ! Update dependent variables
@@ -1347,7 +1365,7 @@ if(defaultThin == 1.) then
 	 par_rhof = par_rhof1 * ETS + par_rhof2
  	 par_rhor = par_alfar * par_rhof
      betab = hb/Lc
-     beta0 = par_beta0
+     beta0 = par_beta0 * age_factor
      beta1 = (beta0 + betab + par_betas) !!newX
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
