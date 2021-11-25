@@ -123,22 +123,22 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   \item{output}{
   An array with annual model outputs. 1st dimension corresponds to the number of years of the simulation (nYears); 2nd dimension corresponds to the output variables (see list below); 3rd dimension corresponds to the number of layers in the stand (nLayers); 4th dimensions reports the state of the stand (1) and (2) the variables of the harvested trees (2).
 
-  Output variables:
+  Output variables: \cr
   1."siteID" \cr
-  2."climID" \cr
-  3."sitetype" \cr
+  2."gammaC" internal parameter \cr
+  3."sitetype" site fertility class \cr
   4."species" \cr
   5."ETS" effective temperature sums \cr
   6."P0" Potential annual gross primary production (gC m-2 y-1) \cr
   7."age" Age of the layer (years) \cr
   8."DeadWoodVolume" Dead wood volume (m3 ha-1) \cr
   9."Respi_tot" Autotrophic respiration (gC m-2 y-1) \cr
-  10."GPP/1000" Total GPP  (kgC m-2 y-1) \cr
+  10."GPP/1000" Total tree GPP  (kgC m-2 y-1) \cr
   11."H" Layer average height (m) \cr
   12."D" Layer average diameter at breast height (cm) \cr
   13."BA" Layer basal area (m-2 ha-1) \cr
-  14."Hc_base" Base of crown height (m) \cr
-  15."Cw" Crorn width (m) \cr
+  14."Hc_base" Layer Base of crown height (m) \cr
+  15."Cw" Crown width (m) \cr
   16."Lc" Length of the crown (m) \cr
   17."N" Layer density \cr
   18."npp" net primary production (gC m-2 y-1) \cr
@@ -151,25 +151,34 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   25."WfineRoots" Fine roots biomass (kgC ha-1) \cr
   26."Litter_fol" Foliage litter (kgC ha-1) \cr
   27."Litter_fr" Fine root litter (kgC ha-1) \cr
-  28."Litter_branch" Branch litter (kgC ha-1) \cr
-  29."Litter_wood" Woody litter (kgC ha-1) \cr
+  28."Litter_fWoody" fine woody litter (kgC ha-1) \cr
+  29."Litter_cWood" coarse woody litter (kgC ha-1) \cr
   30."V" Layer volume (m3 ha-1) \cr
   31."Wstem" Stem Biomass (kgC ha-1) \cr
   32."W_croot" Course root Biomass (kgC ha-1) \cr
   33."wf_STKG" Foliage biomass (kgC ha-1) \cr
   34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) \cr
   35."B_tree" Basal area of average tree (m2 ha-1) \cr
-  36."Light" light interseption \cr
-  37."Vharvested" harvested volume (m3 ha-1) \cr
-  38."Wharvested" haversted biomass (kgC ha-1) \cr
+  36."Light" light interception \cr
+  37."VroundWood" harvested round wood volume (m3 ha-1) \cr
+  38."WroundWood" haversted round wood biomass (kgC ha-1) \cr
   39."soilC" totaal soil carbon (kgC ha-1) \cr
   40."aSW" average available soil water (mm) \cr
-  41."summerSW" summer soil water (mm) \cr
+  41."dH" height growth (m) \cr
   42."Vmort" volume of dead trees (m3 ha-1) \cr
-  43."gross growth" (m3 ha-1 y-1) \cr
-  44."GPPspecies" Gross primary production per layer (gC m-2 y-1) \cr
-  45."Rh species" (gC m-2 y-1) \cr
-  46."NEP sp" Net ecosystem exchange (gC m-2 y-1)}
+  43."grossGrowth" gross growth (m3 ha-1 y-1) \cr
+  44."GPPtrees" Gross primary production per tree layer (gC m-2 y-1) \cr
+  45."Rh" heterotrophic respiration (gC m-2 y-1) \cr
+  46."NEP" Net ecosystem exchange (gC m-2 y-1), note 1st layer include fluxes from ground vegetation \cr
+  47." W_wsap" sapwood biomass (kgC ha-1) \cr
+  48."W_c" sapwood stem below Crown (kgC ha-1) \cr
+  49."W_s" sapwood stem within crown (kgC ha-1) \cr
+  50."Wsh" biomass of stem heartwood  (kgC ha-1) \cr
+  51."Wdb" biomass of dead branches (kgC ha-1) \cr
+  52."dHc" Height of the crown base change (m) \cr
+  53."Wbh" biomass of branches heartwood (kgC ha-1) \cr
+  54."Wcrh" biomass of coarse root heartwood (kgC ha-1)
+  }
   \item{dailyPRELES}{
     Matrix with daily output from preles. 1st column is the daily GPP (gC m-2 d-1), 2nd column daily evapotranspiration (mm m-2), 3rd column daily soil water (mm -2).
   }%%  ~Describe the value returned

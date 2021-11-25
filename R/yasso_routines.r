@@ -325,7 +325,7 @@ compAWENH <- function(Lit,parsAWEN,spec,litType){
 }
 
 
-#YAsso function that to be used in R function apply
+#YAsso, steady state calculations
 yassoStSt <- function(SimulationTime,Steadystate_pred,
                    MeanTemperature,TemperatureAmplitude,Precipitation,
                    Lit.W,lit.fW,litt.F,InitialCPool,
@@ -608,6 +608,13 @@ stXX <- function(PrebOut){
 
 #### calculate steady state C using prebas output.
 ####included option for ground vegetation 
+####the output of the function is an array with soilC at steady state
+#### the output array has dimension: 1. nSites; 2. AWENH,3.litType,4.nLayers
+#### nSites= number of sites in the prebas runs (it varies according to simulations);
+#### AWENH = YASSO pools (5 elements)
+#### litType = litter type of yasso, (3 elements: non woody litter, fine woody litter, coarse woody litter);
+#### nLayers = number of layers in the prebas runs (it varies according to simulations).
+#In the first layer is included the contribution of ground vegetation to the soilC if GVrun=1
 stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWEN){
   ### prebOut is a PREBAS output from a multiSite/region run
   ### GVrun, flag for including or not ground vegetation in the simulation (0=no, 1=yes)
@@ -668,9 +675,9 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
     # ststGV <- matrix(NA,nSites,5)
     climIDs <- prebOut$siteInfo[,2]
     ststGV <- t(sapply(1:nSites, function(ij) .Fortran("mod5c",
-                                                       pYAS,1.,colMeans(prebOut$weatherYasso[climIDs[ij],,]),
-                                                       rep(0,5),c(AWENgv2[ij,],0),litterSize=0,leac=0.,rep(0,5),
-                                                       stSt=1.)[[8]]))
+             pYAS,1.,colMeans(prebOut$weatherYasso[climIDs[ij],,]),
+           rep(0,5),c(AWENgv2[ij,],0),litterSize=0,leac=0.,rep(0,5),
+                                         stSt=1.)[[8]]))
   }
   if(nLayers>1){
     litter <- array(0.,dim=c(nSites, nLayers, 3))
@@ -744,8 +751,6 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
   }
   return(soilC)
 }
-
-
 
 
 
@@ -855,7 +860,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
   prebOut$multiOut[,,46,,1] <-  prebOut$multiOut[,,44,,1] - prebOut$multiOut[,,9,,1] - 
     prebOut$multiOut[,,45,,1]
   ###add GVnpp to first layer of multiout of NEP  
-  prebOut$multiOut[,,46,1,1] <- prebOut$multiOut[,,46,1,1] - prebOut$GVout[,,3]*0.5
+  prebOut$multiOut[,,46,1,1] <- prebOut$multiOut[,,46,1,1] + prebOut$GVout[,,3]*0.5
   
   
   return(prebOut)

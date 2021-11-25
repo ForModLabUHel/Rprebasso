@@ -10,10 +10,8 @@ initBiomasses <- function(pCro,initVarX){
   par_mf <- pCro[8,initVarX[1,]]
   par_mr <- pCro[9,initVarX[1,]]
   par_mw <- pCro[10,initVarX[1,]]
-  par_alfar <- pCro[20+pmin(siteType,5),initVarX[1,]]
   par_c <- pCro[7,initVarX[1,]]
   par_rhof <- pCro[15,initVarX[1,]]
-  par_rhor <- par_alfar * par_rhof
   par_rhow <- pCro[2,initVarX[1,]]
   par_S_branchMod <- pCro[27,initVarX[1,]]
   gammaC <- 0. #initVarX[8,]
@@ -26,8 +24,14 @@ initBiomasses <- function(pCro,initVarX){
   h = initVarX[3,]; hc <- initVarX[6,]
   B = ba/N
   Lc <- h - hc
+  
+  ### Fine root allocation of early growth  
+  age_factor <-  (1. - (1- pCro[44,initVarX[1,]])/ (1. + exp((-h+ pCro[45,initVarX[1,]])/ pCro[46,initVarX[1,]])))/ pCro[44,initVarX[1,]] 
+  par_alfar <- pCro[20+pmin(siteType,5),initVarX[1,]]* age_factor
+  par_rhor <- par_alfar * par_rhof
+  beta0 <- par_beta0 * age_factor
+  
   betab =  par_betab * Lc^(par_x-1)
-  beta0 = par_beta0
   beta1 = (beta0 + betab + par_betas) 
   beta2 = 1. - betab - par_betas 		
   betaC = (beta1 + gammaC * beta2) / par_betas
@@ -63,11 +67,11 @@ compA <- function(inputs){
   return(A)
 }
 
-varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWoodVolume', 'Respi_tot','GPP/1000',
+varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWoodVolume', 'Respi_tot','GPPTot/1000',
                'H','D', 'BA','Hc_base','Cw','Ac','N','npp','leff','keff','lproj','ET_preles','weight',
                'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_fWoody','Litter_cWoody','V',
-               'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"Vharvested","Wharvested","soilC",
-               "aSW","dH","Vmort","gross growth", "GPPspecies","Rh species", "NEP sp"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
+               'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"VroundWood","WroundWood","soilC",
+               "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh", "NEP"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
                "Wbh","Wcrh")
 
   getVarNam <- function(){
