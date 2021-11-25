@@ -8,7 +8,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
-     ftTapio,tTapio,GVout,GVrun,thinInt) !energyCut
+     ftTapio,tTapio,GVout,GVrun,thinInt)
 
 implicit none
 
