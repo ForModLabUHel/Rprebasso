@@ -39,7 +39,7 @@ InitMultiSite <- function(nYearsMS,
                           ftTapioPar = ftTapio,
                           tTapioPar = tTapio,
                           GVrun = 1,
-                          thinInt = 999.
+                          thinInt = -999.
 ){  
   
   nSites <- length(nYearsMS)

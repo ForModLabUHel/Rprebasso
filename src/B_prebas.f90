@@ -1300,7 +1300,7 @@ if(defaultThin == 1.) then
 	else if(thinningType == 3.) then 
 		BA_tot = BA_thd
 		BA = BAr(ij) * BA_thd
-        if(thinInt .ne. 999.) then 
+        if(thinInt > 0.) then 
 			H = stand_all(11,ij) * thinInt
 			D = stand_all(12,ij) * thinInt
 		else
