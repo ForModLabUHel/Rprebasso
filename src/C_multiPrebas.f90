@@ -12,7 +12,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 
 implicit none
 
-integer, parameter :: nVar=54,npar=44!, nSp=3
+integer, parameter :: nVar=54,npar=47!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: nYears(nSites),nLayers(nSites)
 
