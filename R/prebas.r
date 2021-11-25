@@ -33,7 +33,7 @@ prebas <- function(nYears,
                    ftTapioPar = ftTapio,
                    tTapioPar = tTapio,
                    GVrun = 1,
-                   thinInt=999.){
+                   thinInt=-999.){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
