@@ -1806,38 +1806,18 @@ subroutine calRein(outputs,nLayers,pRein,nVar,nSp,reinX)
 END subroutine calRein
 
 
-
-! subroutine deadWoodVol(modOut,nLayers,pRein,nVar,nSp,reinX)
- ! IMPLICIT NONE
- ! real (kind=8), parameter :: pi = 3.1415927
- ! integer, intent(in) :: nLayers, nVar,nSp
- ! real (kind=8), intent(in) :: outputs(nVar,nLayers) !!takes multiOut(maxYears,nVar,maxNlayers,2)
-														! !!dim1 nVar, dim2 maxNlayers 1 year and 1standing trees
- ! real (kind=8), intent(in) :: pRein(nSp)
- ! real (kind=8), intent(inout) ::reinX
- ! real (kind=8) :: valX(nLayers), domSp(1),  Ntot, B, Reineke(nLayers)
- ! integer :: i, ijx,layerX(nLayers)
-
-  ! for(year in 1:dim(modOut)[2]){
-    ! for(ij in 1:nLayers){
-      ! if(year == 1){
-        ! D <- modOut[siteX,year,12,ij,1]
-      ! }else{
-        ! D <- modOut[siteX,(year-1),12,ij,1]
-      ! }
-      ! # V <- modOut[siteX,year,30,ij,1]
-      ! Vmort <- modOut[siteX,year,42,ij,1]
-      ! if(Vmort>0){
-        ! # D <- modOut[siteX,year,12,ij,1]
-        ! species <- modOut[siteX,year,4,ij,1]
-        ! deadWV[siteX,year,ij] = Vmort + deadWV[siteX,year,ij]
-        ! deadWV[siteX,(year+1):  nYearsX,ij] = deadWV[siteX,(year+1):  nYearsX,ij] + Vmort *
-          ! exp(-exp(pCrobas[35,species] + pCrobas[36,species]*(1:(nYearsX-year)) + 
-                     ! pCrobas[37,species]*D + pCrobas[44,species])) 
-      ! }
-    ! }
-  ! }
-! END subroutine calRein
-
-
-
+	subroutine changeOrder(oldOrd,age,newOrd,nSites,ageX)
+	implicit none
+	integer, allocatable :: indices(:)
+	integer,intent(in) :: nSites
+	real(8),intent(in) :: ageX
+	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
+	real(8), intent(in) :: age(nSites)
+	integer i, nX
+		indices = PACK([(i, i=1,nSites)], age<=ageX)
+		nX = size(indices)
+		newOrd(1:nX) = oldOrd(indices)
+		indices = PACK([(i, i=1,nSites)], age>ageX)
+		newOrd((nX+1):nSites) = oldOrd(indices)
+	end subroutine changeOrder 
+	
