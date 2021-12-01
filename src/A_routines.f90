@@ -1806,52 +1806,6 @@ subroutine calRein(outputs,nLayers,pRein,nVar,nSp,reinX)
 END subroutine calRein
 
 
-!from https://fortranwiki.org/fortran/show/scramble
-  module M_scramble
-   implicit none
-   private
-   public scramble
-
-contains
-
-   function scramble( number_of_values ) result(array)
-
-!@(#) M_random::scramble(3f): return integer array of random values 1 to N.
-      integer,intent(in)    :: number_of_values
-      integer,allocatable   :: array(:)
-      integer               :: i, j, k, m, n
-      integer               :: temp
-      real                  :: u
-
-      array=[(i,i=1,number_of_values)]
-
-! The intrinsic RANDOM_NUMBER(3f) returns a real number (or an array
-! of such) from the uniform distribution over the interval [0,1). (ie.
-! it includes 0 but not 1.).
-!
-! To have a discrete uniform distribution on
-! the integers {n, n+1, ..., m-1, m} carve the continuous distribution
-! up into m+1-n equal sized chunks, mapping each chunk to an integer.
-!
-! One way is:
-!   call random_number(u)
-!   j = n + FLOOR((m+1-n)*u)  ! choose one from m-n+1 integers
-
-      n=1
-      m=number_of_values
-      do k=1,2
-         do i=1,m
-            call random_number(u)
-            j = n + FLOOR((m+1-n)*u)
-            ! switch values
-            temp=array(j)
-            array(j)=array(i)
-            array(i)=temp
-         enddo
-      enddo
-
-   end function scramble
-end module
 
 ! subroutine deadWoodVol(modOut,nLayers,pRein,nVar,nSp,reinX)
  ! IMPLICIT NONE
@@ -1887,34 +1841,3 @@ end module
 
 
 
-
-   subroutine demo_scramble(intX,outX)
-    use M_scramble, only : scramble
-    implicit none
-	integer,intent(in) :: intX
-	integer,intent(inout) :: outX(intX)
-
-    !@(#) print a list of character values in random order several times
-
-    ! here is a list of character values to use for an example
-    ! it could be a list of any type
-          outX = scramble(intX)
-
-    end subroutine demo_scramble
-	
-	
-
-	subroutine changeOrder(oldOrd,age,newOrd,nSites,ageX)
-	implicit none
-	integer, allocatable :: indices(:)
-	integer,intent(in) :: nSites
-	real(8),intent(in) :: ageX
-	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
-	real(8), intent(in) :: age(nSites)
-	integer i, nX
-		indices = PACK([(i, i=1,nSites)], age<=ageX)
-		nX = size(indices)
-		newOrd(1:nX) = oldOrd(indices)
-		indices = PACK([(i, i=1,nSites)], age>ageX)
-		newOrd((nX+1):nSites) = oldOrd(indices)
-	end subroutine changeOrder

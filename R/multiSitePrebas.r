@@ -433,31 +433,16 @@ regionPrebas <- function(multiSiteInit,
                          compHarv = 3.,###flag for compensating harvest if harvest do not reach the desired levels
                          ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
                          ### compHarv=2 compensate harvest with thinnings
-                         thinFact = 0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
+                         thinFact = 0.25 ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
                          #######compHarv[1]
-                         ageMitigScen = 0. ####flag used in the IBC-carbon runs of
-                         ######the mitigation Scenario. If higer then 0. the mitigation scenario is activated and
-                         #####the sites are ordered according to the siteType and
-                         ###priority is given to the sites where age is lower then ageMitigScen
 ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
   compHarv <- c(compHarv,thinFact)
-  if(ageMitigScen > 0.){
-    sitesCl1 <- which(multiSiteInit$siteInfo[,3]<4)
-    sitesCl2 <- which(multiSiteInit$siteInfo[,3]>3)
-    siteOrder1 <- matrix(sitesCl1,length(sitesCl1),multiSiteInit$maxYears)
-    siteOrder1 <- apply(siteOrder1,2,sample)
-    siteOrder2 <- matrix(sitesCl2,length(sitesCl2),multiSiteInit$maxYears)
-    siteOrder2 <- apply(siteOrder2,2,sample)
-    siteOrder <- rbind(siteOrder1,siteOrder2)
-  }else{
-    siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
-    siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
-  }
-  if(ageMitigScen > 0.)
+  siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
+  siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
   
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
@@ -511,9 +496,8 @@ regionPrebas <- function(multiSiteInit,
                      GVrun = as.integer(multiSiteInit$GVrun),
                      cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv),
-                     thinInt=as.double(multiSiteInit$thinInt),
-                     ageMitigScen = as.double(ageMitigScen)
-                     )
+                     thinInt=as.double(multiSiteInit$thinInt)
+  )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
@@ -527,5 +511,4 @@ regionPrebas <- function(multiSiteInit,
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   return(prebas)
 }
-
 
