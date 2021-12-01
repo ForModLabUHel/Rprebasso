@@ -510,6 +510,7 @@ regionPrebas <- function(multiSiteInit,
                      cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv),
                      thinInt=as.double(multiSiteInit$thinInt),
+                     ageMitigScen = as.double(ageMitigScen)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
