@@ -8,8 +8,8 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt)!, &
-		! ageMitigScen)
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
+		ageMitigScen)
 
 implicit none
 
@@ -18,8 +18,8 @@ real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
-real (kind=8), intent(inout) :: siteOrder(nSites,maxYears)
-real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv!,ageMitigScen
+integer, intent(inout) :: siteOrder(nSites,maxYears)
+real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
@@ -65,7 +65,7 @@ cuttingArea(:,6) = 0.
 thinFact = compHarv(2)
 tTapioX = tTapio
 ftTapioX = ftTapio
-! multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
+multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
