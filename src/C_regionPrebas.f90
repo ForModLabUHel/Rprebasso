@@ -191,7 +191,7 @@ do ij = 1,maxYears
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
-		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,0.9) !!energCuts
+		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i)) !!energCuts
 	
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
