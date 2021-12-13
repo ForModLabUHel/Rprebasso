@@ -376,9 +376,9 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
 	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,30,1:nLayers(siteX),1)*thinFact
+			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio*thinFact
 	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,31,1:nLayers(siteX),1)*thinFact
+			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio*thinFact
      !update state of the forests
 	 do ijj = 1, nLayers(siteX)
       multiOut(siteX,ij,9:10,ijj,2) = multiOut(siteX,ij,9:10,ijj,1) * thinFact
@@ -543,9 +543,9 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
 	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,30,1:nLayers(siteX),1)*thinFact
+			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio*thinFact
 	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,31,1:nLayers(siteX),1)*thinFact
+			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio*thinFact
      !update state of the forests
 	 do ijj = 1, nLayers(siteX)
       multiOut(siteX,ij,9:10,ijj,2) = multiOut(siteX,ij,9:10,ijj,1) * thinFact
