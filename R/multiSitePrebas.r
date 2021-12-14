@@ -435,10 +435,11 @@ regionPrebas <- function(multiSiteInit,
                          ### compHarv=2 compensate harvest with thinnings
                          thinFact = 0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
                          #######compHarv[1]
-                         ageMitigScen = 0. ####flag used in the IBC-carbon runs of
+                         ageMitigScen = 0., ####flag used in the IBC-carbon runs of
                          ######the mitigation Scenario. If higer then 0. the mitigation scenario is activated and
                          #####the sites are ordered according to the siteType and
                          ###priority is given to the sites where age is lower then ageMitigScen
+                         siteOrder=NA
 ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -453,7 +454,7 @@ regionPrebas <- function(multiSiteInit,
     siteOrder2 <- matrix(sitesCl2,length(sitesCl2),multiSiteInit$maxYears)
     siteOrder2 <- apply(siteOrder2,2,sample)
     siteOrder <- rbind(siteOrder1,siteOrder2)
-  }else{
+  }elseif(all(is.na(siteOrder))){
     siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
     siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
   }  
