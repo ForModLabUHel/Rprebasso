@@ -385,7 +385,15 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,11:12,ijj,2) = multiOut(siteX,ij,11:12,ijj,1)
 	  multiOut(siteX,ij,13,ijj,2) = multiOut(siteX,ij,13,ijj,1) * thinFact
 	  multiOut(siteX,ij,14:16,ijj,2) = multiOut(siteX,ij,14:16,ijj,1)
-	  multiOut(siteX,ij,17:34,ijj,2) = multiOut(siteX,ij,17:34,ijj,1) * thinFact
+	  multiOut(siteX,ij,17:23,ijj,2) = multiOut(siteX,ij,17:23,ijj,1) * thinFact
+	  multiOut(siteX,ij,26:29,ijj,2) = multiOut(siteX,ij,26:29,ijj,1) * thinFact
+	  
+	  !update biomasses and Volumes
+	  multiOut(siteX,ij,24:25,ijj,2) = multiOut(siteX,ij,24:25,ijj,1) * thinFact + &
+					multiOut(siteX,ij,24:25,ijj,2)
+	  multiOut(siteX,ij,30:34,ijj,2) = multiOut(siteX,ij,30:34,ijj,1) * thinFact + &
+					multiOut(siteX,ij,30:34,ijj,2)
+	  
 	  multiOut(siteX,ij,35,ijj,2) = multiOut(siteX,ij,35,ijj,1)
 	  multiOut(siteX,ij,44,ijj,2) = multiOut(siteX,ij,44,ijj,1) * thinFact
 	  
@@ -552,7 +560,15 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,11:12,ijj,2) = multiOut(siteX,ij,11:12,ijj,1)
 	  multiOut(siteX,ij,13,ijj,2) = multiOut(siteX,ij,13,ijj,1) * thinFact
 	  multiOut(siteX,ij,14:16,ijj,2) = multiOut(siteX,ij,14:16,ijj,1)
-	  multiOut(siteX,ij,17:34,ijj,2) = multiOut(siteX,ij,17:34,ijj,1) * thinFact
+	  multiOut(siteX,ij,17:23,ijj,2) = multiOut(siteX,ij,17:23,ijj,1) * thinFact
+	  multiOut(siteX,ij,26:29,ijj,2) = multiOut(siteX,ij,26:29,ijj,1) * thinFact
+	  
+	  !update biomasses and Volumes
+	  multiOut(siteX,ij,24:25,ijj,2) = multiOut(siteX,ij,24:25,ijj,1) * thinFact + &
+					multiOut(siteX,ij,24:25,ijj,2)
+	  multiOut(siteX,ij,30:34,ijj,2) = multiOut(siteX,ij,30:34,ijj,1) * thinFact + &
+					multiOut(siteX,ij,30:34,ijj,2)
+
 	  multiOut(siteX,ij,35,ijj,2) = multiOut(siteX,ij,35,ijj,1)
 	  multiOut(siteX,ij,44,ijj,2) = multiOut(siteX,ij,44,ijj,1) * thinFact
 	  
