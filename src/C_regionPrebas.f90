@@ -234,8 +234,6 @@ do ij = 1,maxYears
 	  cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
 	endif
 
-
-
 	initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
 	initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
 	initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
@@ -288,9 +286,17 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
 	 multiOut(siteX,ij,2,1,2) = 2. !!!flag for clearcut compensation
      do ijj = 1, nLayers(siteX)
-      multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
+      multiOut(siteX,ij,6:23,ijj,2) = multiOut(siteX,ij,6:23,ijj,1)
       multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
       multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
+      multiOut(siteX,ij,28:29,ijj,2) = multiOut(siteX,ij,28:29,ijj,1)
+      multiOut(siteX,ij,35:nVar,ijj,2) = multiOut(siteX,ij,35:nVar,ijj,1)
+	  !update biomasses and Volumes
+	  multiOut(siteX,ij,24:25,ijj,2) = multiOut(siteX,ij,24:25,ijj,1) + &
+					multiOut(siteX,ij,24:25,ijj,2)
+	  multiOut(siteX,ij,30:34,ijj,2) = multiOut(siteX,ij,30:34,ijj,1) + &
+					multiOut(siteX,ij,30:34,ijj,2)
+
 !!energCuts
       if(energyCutX == 1.) then
 	   multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
@@ -465,9 +471,16 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
 	 multiOut(siteX,ij,2,1,2) = 2. !!!flag for clearcut compensation
      do ijj = 1, nLayers(siteX)
-      multiOut(siteX,ij,6:nVar,ijj,2) = multiOut(siteX,ij,6:nVar,ijj,1)
+      multiOut(siteX,ij,6:23,ijj,2) = multiOut(siteX,ij,6:23,ijj,1)
       multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
       multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
+      multiOut(siteX,ij,28:29,ijj,2) = multiOut(siteX,ij,28:29,ijj,1)
+      multiOut(siteX,ij,35:nVar,ijj,2) = multiOut(siteX,ij,35:nVar,ijj,1)
+	  !update biomasses and Volumes
+	  multiOut(siteX,ij,24:25,ijj,2) = multiOut(siteX,ij,24:25,ijj,1) + &
+					multiOut(siteX,ij,24:25,ijj,2)
+	  multiOut(siteX,ij,30:34,ijj,2) = multiOut(siteX,ij,30:34,ijj,1) + &
+					multiOut(siteX,ij,30:34,ijj,2)
 !!energCuts
       if(energyCutX == 1.) then
 	   multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
