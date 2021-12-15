@@ -220,7 +220,7 @@ prebas <- function(nYears,
                      limPer = as.double(limPer),
                      ftTapioPar = as.array(ftTapioPar),
                      tTapioPar = as.array(tTapioPar),
-                     GVout = matrix(0,nYears,3),
+                     GVout = matrix(0,nYears,4),
                      GVrun = as.integer(GVrun),
                      thinInt = as.double(thinInt))
   class(prebas) <- "prebas"

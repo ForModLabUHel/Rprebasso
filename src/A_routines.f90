@@ -1302,10 +1302,10 @@ end subroutine chooseThin
 !  function to calculate fAPAR of ground vegetation
 !***************************************************************
 ! subroutine fAPARgv(fAPARstand,ets,siteType,agW,bgW,fAPAR_gv,litAG,litBG)
-subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs) !reduced input output	
+subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,totwGV) !reduced input output	
 	implicit none
     real (kind=8) :: fAPARstand,ets,siteType, litAG(3), litBG(2),p0
-	real (kind=8) :: totfAPAR_gv,totlitGV
+	real (kind=8) :: totfAPAR_gv,totlitGV, totwGV
 	real (kind=8) :: bgW(2),agW(3), xx(3),lai_gv(3),fAPAR_gv(3)!x_g, x_s, x_m !%cover grass&herbs, shrubs and mosses&lichens
     real (kind=8) :: b_g,a_g,a_s,a_m,b_m,alpha_ag(3),beta_ag(3),alpha_bg(2),beta_bg(2),laB(3)
 	real (kind=8) :: turnAG(3),turnBG(2),p0ref
@@ -1376,6 +1376,7 @@ subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs) !reduc
  fAPAR_gv(3) = (1-fAPARstand-fAPAR_gv(1)-fAPAR_gv(2)) * (1-exp(-0.5*(lai_gv(3))))
  totfAPAR_gv = sum(fAPAR_gv)   !!!alternatively 0.6354*fAPARstand + 0.3716
  totlitGV = sum(litAG) + sum(litBG)
+ totwGV = sum(agW) + sum(bgW)
  
 end subroutine fAPARgv
 
@@ -1435,18 +1436,18 @@ END SUBROUTINE runYassoAWENin
 
 
 ! subroutine multiGV(fAPARstand,ets,siteType,agW,bgW,fAPAR_gv,litAG,litBG)
-subroutine multiGV(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,nYears,nSites) !reduced input output	
+subroutine multiGV(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,nYears,nSites,totWGV) !reduced input output	
 	implicit none
 	integer,INTENT(IN) :: nYears,nSites
     real (kind=8) :: fAPARstand(nSites,nYears),ets(nSites,nYears),siteType(nSites),p0(nSites,nYears)
-	real (kind=8) :: totfAPAR_gv(nSites,nYears),totlitGV(nSites,nYears)
+	real (kind=8) :: totfAPAR_gv(nSites,nYears),totlitGV(nSites,nYears),totWGV(nSites,nYears)
 	real (kind=8) :: AWENs(nSites,nYears,4)
 	integer :: site,year
 	
  do site = 1, nSites
   do year = 1,nYears
 	call fAPARgv(fAPARstand(site,year),ets(site,year),siteType(site),totfAPAR_gv(site,year), &
-			totlitGV(site,year),p0(site,year),AWENs(site,year,:))
+			totlitGV(site,year),p0(site,year),AWENs(site,year,:),totWGV(site,year))
   enddo !year
  enddo !site
  

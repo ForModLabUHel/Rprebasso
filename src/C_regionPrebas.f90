@@ -38,7 +38,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  !!!ground vegetation
  integer, intent(in) :: gvRun			!!!ground vegetation
- real (kind=8), intent(inout) :: GVout(nSites,maxYears,3) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,4) !fAPAR_gv,litGV,photoGV,biomassGV			!!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common

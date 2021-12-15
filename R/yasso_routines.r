@@ -639,7 +639,7 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
     fAPAR <- prebOut$fAPAR
     fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
     ###calculate soil C for gv
-    fAPARgv <- litGV <- matrix(0,nSites,nYears)
+    fAPARgv <- litGV <- wGV <- matrix(0,nSites,nYears)
     fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
     fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
     fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
@@ -657,7 +657,8 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
                        p0=as.matrix(p0),
                        AWENgv=as.array(AWENgv[,,1:4]),
                        nYears = as.integer(nYears),
-                       nSites = as.integer(nSites))$AWENgv
+                       nSites = as.integer(nSites),
+                       wGV=as.matrix(wGV))$AWENgv
     
     # for(ij in 1:nYears){
     #   AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
@@ -798,7 +799,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
   if(runGV==1){
     ###calculate soil C for gv
     fAPAR <- prebOut$fAPAR
-    fAPARgv <- litGV <- matrix(0,nSites,nYears)
+    fAPARgv <- litGV <- wGV <- matrix(0,nSites,nYears)
     fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
     fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
     fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
@@ -816,7 +817,8 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
                        p0=as.matrix(p0),
                        AWENgv=as.array(AWENgv[,,1:4]),
                        nYears = as.integer(nYears),
-                       nSites = as.integer(nSites))$AWENgv
+                       nSites = as.integer(nSites),
+                       wGV=as.matrix(wGV))$AWENgv
     
     soilCgv <- .Fortran("runYassoAWENin",
                         AWENin=as.array(AWENgv),
