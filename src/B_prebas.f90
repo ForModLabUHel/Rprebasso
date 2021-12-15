@@ -38,7 +38,7 @@ integer, parameter :: nVar=54, npar=47, inttimes = 1 ! no. of variables, paramet
 !!!ground vegetation variables
  real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
  integer, intent(in) :: gvRun !!! flag for including ground vegetation
- real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV,biomassGV !!! ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 3) ! GVout contains: fAPAR_gv, litGV, photoGV !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
  real (kind=8), intent(inout) :: siteInfo(10)
@@ -591,7 +591,7 @@ if (year <= maxYearSite) then
    if(gvRun==1) then
 	if(fAPARsite>0.) then
     call fAPARgv(fAPARsite, ETSmean, siteType, GVout(year,1), GVout(year,2), &
-         sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4)) !reduced input output
+         sum(P0yX(:,1))/nYears, AWENgv) !reduced input output
      GVout(year,3) = prelesOut(1) * GVout(year,1)/fAPARsite! Photosynthesis in g C m-2 
      ! GVout(year,4) = GVout(year,3)*0.5 !where to put those two variables
    	 ! STAND_all(26,1) = STAND_all(26,1) + GVout(year,2)	!add !!!ground vegetation to the 1st layer

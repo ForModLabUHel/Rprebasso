@@ -248,7 +248,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
         AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) 
           .Fortran("fAPARgv",fAPAR[i,ij],
                    ETSy[i,ij],modOut$siteInfo[i,2],
-                   0,0,p0[i,ij],rep(0,4),0)[[7]]))
+                   0,0,p0[i,ij],rep(0,4))[[7]]))
       }
       
       mAWEN <- array(0,dim=c(nSites,nMonths,5))
@@ -403,7 +403,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       for(ij in 1:nYears){
         AWENgv[ij,] <- .Fortran("fAPARgv",fAPAR[ij],
                                 ETSy[ij],climIDs,
-                                0,0,p0[ij],rep(0,4),0)[[7]]
+                                0,0,p0[ij],rep(0,4))[[7]]
       }
       
       mAWEN <- array(0,dim=c(nSites,nMonths,5))
