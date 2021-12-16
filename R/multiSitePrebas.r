@@ -456,6 +456,7 @@ regionPrebas <- function(multiSiteInit,
     siteOrder <- rbind(siteOrder1,siteOrder2)
   }else if(all(is.na(siteOrder))){
     siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
+    se.seed(NULL)
     siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
   }  
   prebas <- .Fortran("regionPrebas",
