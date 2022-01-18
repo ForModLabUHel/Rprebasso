@@ -206,7 +206,7 @@ do ij = 1,maxYears
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)-1.
 		flagFert(i)=2
-		!write(*,*)siteInfo(i,3),yearsFert,multiOut(i,(ij+1):(ij+yearsFert),3,1,1)
+		write(*,*)yearsFert
 	endif
 
 
