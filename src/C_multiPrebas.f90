@@ -34,7 +34,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
 
  !!! fertilization parameters
  integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
- logical, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
+ integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
 
 !!!ground vegetation

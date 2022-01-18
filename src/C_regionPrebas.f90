@@ -19,7 +19,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
 
 !!! fertilization parameters
  integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
- logical, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
+ integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
 
@@ -168,7 +168,7 @@ do ij = 1,maxYears
 	  do ki = 1,int(initClearcut(i,5)+1)
 	   multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	  enddo !ki
-	  call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,(ij-1),:,ijj,1))
+	  call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1),multiOut(i,(ij-1),:,ijj,1))
 	 enddo !ijj
 	endif
 
@@ -202,10 +202,11 @@ do ij = 1,maxYears
 		fertThin,flagFert(i),nYearsFert) !!energCuts
 	
 	!!!if fertilization at thinning increase siteType
-	if(flagFert(i)) then 
+	if(flagFert(i)==1) then 
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)+1.
-		write(*,*)siteInfo(i,3),yearsFert,multiOut(i,(ij+1):(ij+yearsFert),3,1,1)
+		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)-1.
+		flagFert(i)==2
+		!write(*,*)siteInfo(i,3),yearsFert,multiOut(i,(ij+1):(ij+yearsFert),3,1,1)
 	endif
 
 

@@ -19,7 +19,7 @@ implicit none
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
 !!! fertilization parameters
  integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
- logical, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
+ integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
 !! define arguments, inputs and outputs
@@ -147,7 +147,9 @@ ETSmean = sum(ETSy)/nYears
  modOut(1,14,:,1) = initVar(6,:)
  ! modOut(1,17,:,1) = modOut(1,13,:,1)/(pi*((modOut(1,12,:,1)/2/100)**2))
  ! modOut(1,35,:,1) =  modOut(1,13,:,1)/modOut(1,17,:,1)
- modOut(:,3,:,1) = siteInfo(3);sitetype = siteInfo(3)! assign site type
+ !init siteType
+ modOut(1,3,:,1) = output(1,3,:,1) ! assign site type
+ modOut(2:nYears,3,:,1) = output(:,3,:,1) ! assign site type
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
@@ -308,6 +310,7 @@ do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
  species = int(stand(4))
  param = pCrobas(:,species)
+ sitetype=STAND(3)
 
  par_cR= param(1)
  par_rhow= param(2)
@@ -546,6 +549,11 @@ end do !!!!!!!end loop layers
 if (year <= maxYearSite) then
 	nSpec = nSp
 	ll = nLayers
+	
+	domSp = maxloc(STAND_all(13,:))
+	layer = int(domSp(1))
+	siteType = modOut(year,3,layer,1) !siteInfo(3)
+
     call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
 		nVar,nPar,MeanLight,coeff,fAPARsite)
    STAND_all(36,:) = MeanLight
@@ -622,6 +630,7 @@ do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
  species = int(stand(4))
  param = pCrobas(:,species)
+ sitetype=stand(3)
 
  par_cR=param(1)
  par_rhow=param(2)
@@ -1168,7 +1177,7 @@ if (ClCut == 1.) then
   thinClx(year,2) = 1 !flag for clearcut
   !reset flags for fertilizations and site type
   if(fertThin > 0) then
-	flagFert = .false.  
+	flagFert = 0  
   endif
   
   do ij = 1, nLayers
@@ -1271,11 +1280,11 @@ if(defaultThin == 1.) then
 
  if(doThin) then
  !!!fertilization at thinning
-	if(fertThin == 3 .and. .not.(flagFert) .and. siteType>3.) then 
-		flagFert=.true.
+	if(fertThin == 3 .and. flagFert==0 .and. siteType>3.) then 
+		flagFert=1
 		!write(*,*) "w3",flagFert
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
-		modOut((year+1):(year+yearsFert),3,:,1) = siteType+1.
+		modOut((year+1):(year+yearsFert),3,:,1) = siteType-1.
 	endif
 !!!end fertilization at thinning
 

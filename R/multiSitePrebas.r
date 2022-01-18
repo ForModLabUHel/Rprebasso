@@ -369,6 +369,12 @@ InitMultiSite <- function(nYearsMS,
 multiPrebas <- function(multiSiteInit,
                         fertThin = 0,
                         nYearsFert = 20){
+  ###initialize siteType
+  multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
+                                          dim=c(multiSiteInit$nSites,
+                                                multiSiteInit$maxYears,
+                                                multiSiteInit$maxNlayers))
+  
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -417,7 +423,7 @@ multiPrebas <- function(multiSiteInit,
                      GVrun = as.integer(multiSiteInit$GVrun),
                      thinInt=as.double(multiSiteInit$thinInt),
                      fertThin = as.integer(fertThin),
-                     flagFert = as.logical(FALSE),
+                     flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
@@ -466,6 +472,11 @@ regionPrebas <- function(multiSiteInit,
     set.seed(NULL)
     siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
   }  
+  ###initialize siteType
+  multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
+                                          dim=c(multiSiteInit$nSites,
+                                                multiSiteInit$maxYears,
+                                                multiSiteInit$maxNlayers))
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
@@ -521,7 +532,7 @@ regionPrebas <- function(multiSiteInit,
                      thinInt=as.double(multiSiteInit$thinInt),
                      ageMitigScen = as.double(ageMitigScen),
                      fertThin = as.integer(fertThin),
-                     flagFert = as.logical(rep(FALSE,multiSiteInit$nSites)),
+                     flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert)
   )
   class(prebas) <- "regionPrebas"

@@ -181,7 +181,10 @@ prebas <- function(nYears,
   # print(biomasses)
   initVar <- initVar[1:7,]
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
-
+  
+  ###initialize siteType
+  output[,3,,1] <- siteInfo
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -226,7 +229,7 @@ prebas <- function(nYears,
                      GVrun = as.integer(GVrun),
                      thinInt = as.double(thinInt),
                      fertThin = as.integer(fertThin),
-                     flagFert = as.logical(FALSE),
+                     flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert)
                      )
   class(prebas) <- "prebas"
