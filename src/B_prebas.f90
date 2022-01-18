@@ -1280,9 +1280,9 @@ if(defaultThin == 1.) then
 
  if(doThin) then
  !!!fertilization at thinning
-	if(fertThin == 3 .and. flagFert==0 .and. siteType>3.) then 
+	if(fertThin == 3 .and. flagFert<1 .and. siteType>3.) then 
 		flagFert=1
-		!write(*,*) "w3",flagFert
+		write(*,*) flagFert
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = siteType-1.
 	endif
