@@ -1238,6 +1238,7 @@ if(defaultThin == 1.) then
  ! endif
  if(thinningType == 3.) then   
 !!!fertilization at thinning
+write(*,*) flagFert,flagFert,sitetype
 	if(fertThin == 3 .and. flagFert .and. siteType>3.) then 
 		flagFert=.true.
 		write(*,*) flagFert
