@@ -1236,12 +1236,13 @@ if(defaultThin == 1.) then
  ! if (thinningType>0.) then
   ! write(1,*) thinningType,stand_all(1,1),year
  ! endif
+ write(*,*) "w1",thinningType
  if(thinningType == 3.) then   
 !!!fertilization at thinning
-write(*,*) flagFert,flagFert,sitetype
+write(*,*) "w2",flagFert,flagFert,sitetype
 	if(fertThin == 3 .and. flagFert .and. siteType>3.) then 
 		flagFert=.true.
-		write(*,*) flagFert
+		write(*,*) "w3",flagFert
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = siteType+1.
 	endif
