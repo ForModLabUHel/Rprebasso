@@ -1237,15 +1237,6 @@ if(defaultThin == 1.) then
   ! write(1,*) thinningType,stand_all(1,1),year
  ! endif
  if(thinningType == 3.) then   
-!!!fertilization at thinning
-	if(fertThin == 3 .and. .not.(flagFert) .and. siteType>3.) then 
-		flagFert=.true.
-		write(*,*) "w3",flagFert
-		yearsFert = max(1,min((nYears) - year,nYearsFert))
-		modOut((year+1):(year+yearsFert),3,:,1) = siteType+1.
-	endif
-!!!end fertilization at thinning
-
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
 	BA_thd = BAtapio(2) ! BA after thinning
@@ -1279,6 +1270,15 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
+ !!!fertilization at thinning
+	if(fertThin == 3 .and. .not.(flagFert) .and. siteType>3.) then 
+		flagFert=.true.
+		write(*,*) "w3",flagFert
+		yearsFert = max(1,min((nYears) - year,nYearsFert))
+		modOut((year+1):(year+yearsFert),3,:,1) = siteType+1.
+	endif
+!!!end fertilization at thinning
+
   ! modOut(year+1,1,1,2) = thinx !flag for thinning
   thinClx(year,1) = thinningType  !flag for thinning
   ! outt(1,1,2) = thinX
