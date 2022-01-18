@@ -149,7 +149,7 @@ ETSmean = sum(ETSy)/nYears
  ! modOut(1,35,:,1) =  modOut(1,13,:,1)/modOut(1,17,:,1)
  !init siteType
  modOut(1,3,:,1) = output(1,3,:,1) ! assign site type
- ! modOut(2:nYears,3,:,1) = output(:,3,:,1) ! assign site type
+ modOut(2:nYears,3,:,1) = output(:,3,:,1) ! assign site type
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
