@@ -366,7 +366,9 @@ InitMultiSite <- function(nYearsMS,
   return(multiSiteInit)
 }
 
-multiPrebas <- function(multiSiteInit){
+multiPrebas <- function(multiSiteInit,
+                        fertThin = 0,
+                        nYearsFert = 20){
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -413,7 +415,10 @@ multiPrebas <- function(multiSiteInit){
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
                      GVrun = as.integer(multiSiteInit$GVrun),
-                     thinInt=as.double(multiSiteInit$thinInt)
+                     thinInt=as.double(multiSiteInit$thinInt),
+                     fertThin = as.integer(fertThin),
+                     flagFert = as.logical(FALSE),
+                     nYearsFert = as.integer(nYearsFert)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -439,7 +444,9 @@ regionPrebas <- function(multiSiteInit,
                          ######the mitigation Scenario. If higer then 0. the mitigation scenario is activated and
                          #####the sites are ordered according to the siteType and
                          ###priority is given to the sites where age is lower then ageMitigScen
-                         siteOrder=NA
+                         siteOrder=NA,
+                         fertThin = 0.,
+                         nYearsFert = 20
 ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -512,7 +519,10 @@ regionPrebas <- function(multiSiteInit,
                      cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv),
                      thinInt=as.double(multiSiteInit$thinInt),
-                     ageMitigScen = as.double(ageMitigScen)
+                     ageMitigScen = as.double(ageMitigScen),
+                     fertThin = as.integer(fertThin),
+                     flagFert = as.logical(rep(FALSE,multiSiteInit$nSites)),
+                     nYearsFert = as.integer(nYearsFert)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

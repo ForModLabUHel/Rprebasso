@@ -9,13 +9,20 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
-		ageMitigScen)
+		ageMitigScen, fertThin,flagFert,nYearsFert)
 
 implicit none
 
 integer, parameter :: nVar=54,npar=47!, nSp=3
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
+
+!!! fertilization parameters
+ integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ logical, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
+ integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
+ integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
+
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
 integer, intent(inout) :: siteOrder(nSites,maxYears)
@@ -191,10 +198,19 @@ do ij = 1,maxYears
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
-		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i)) !!energCuts
+		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
+		fertThin,flagFert(i),nYearsFert) !!energCuts
 	
+	!!!if fertilization at thinning increase siteType
+	if(flagFert(i)) then 
+		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
+		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)+1.
+	endif
+
+
 	! if clearcut occur initialize initVar and age
 	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
+
 	 if((maxYears-ij)<10) then
  		! if(initClearcut(i,5)<998.) then
 			! Ainit = initClearcut(i,5)

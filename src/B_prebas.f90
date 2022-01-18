@@ -8,15 +8,20 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
-     ftTapio,tTapio,GVout,GVrun,thinInt)
+     ftTapio,tTapio,GVout,GVrun,thinInt, &
+	 fertThin,flagFert,nYearsFert)
 
 implicit none
 
 !! Constants
-integer, parameter :: nVar=54, npar=47, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=47, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
-
+!!! fertilization parameters
+ integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ logical, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
+ integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
+ integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
 !! define arguments, inputs and outputs
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
@@ -191,7 +196,7 @@ do year = 1, (nYears)
     endif
      ! modOut(year,35,ijj,1) = modOut(year,13,ijj,1) / modOut(year,17,ijj,1)
 	 
-	   siteType = siteInfo(3)
+	   siteType = modOut(year,3,ijj,1) !siteInfo(3)
   !!set parameters
   par_betab = pCrobas(13,int(initVar(1,ijj)))
   par_x = pCrobas(19,int(initVar(1,ijj)))
@@ -1161,6 +1166,10 @@ if (ClCut == 1.) then
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   thinClx(year,2) = 1 !flag for clearcut
+  !reset flags for fertilizations and site type
+  if(fertThin > 0) then
+	flagFert = .false.  
+  endif
   
   do ij = 1, nLayers
   ! if(stand_all(1,1)==6944. .and. ij==1) then
@@ -1209,11 +1218,12 @@ endif
 !!!!test for thinnings!!!!
  !!!!!!!for coniferous dominated stands!!!!!!
 if(defaultThin == 1.) then
- sitetype = siteInfo(3)
+ ! sitetype = siteInfo(3)
  BA_tot = sum(stand_all(13,:))!+stand_all(13,2)+stand_all(13,3)
  BAr = stand_all(13,:)/BA_tot
  domSp = maxloc(STAND_all(13,:))
  layer = int(domSp(1))
+ siteType = modOut(year,3,layer,1) !siteInfo(3)
  H = stand_all(11,layer)
  species = int(stand_all(4,layer))
 
@@ -1226,7 +1236,15 @@ if(defaultThin == 1.) then
  ! if (thinningType>0.) then
   ! write(1,*) thinningType,stand_all(1,1),year
  ! endif
- if(thinningType == 3.) then    
+ if(thinningType == 3.) then   
+!!!fertilization at thinning
+	if(fertThin == 3 .and. flagFert .and. siteType>3.) then 
+		flagFert=.true.
+		yearsFert = max(1,min((nYears) - year,nYearsFert))
+		modOut((year+1):(year+yearsFert),3,:,1) = siteType+1.
+	endif
+!!!end fertilization at thinning
+
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
 	BA_thd = BAtapio(2) ! BA after thinning

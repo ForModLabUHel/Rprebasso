@@ -8,7 +8,8 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		weatherPRELES,DOY,pPRELES,etmodel, soilC,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtot, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt) !!energCut
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
+		fertThin,flagFert,nYearsFert) !!energCut
 
 implicit none
 
@@ -31,7 +32,12 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites)
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
 					!from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
 
- !!!ground vegetation
+ !!! fertilization parameters
+ integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ logical, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
+ integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
+
+!!!ground vegetation
  integer, intent(in) :: gvRun			!!!ground vegetation
  real (kind=8), intent(inout) :: GVout(nSites,maxYears,4) !fAPAR_gv,litGV,photoGV,respGV			!!!ground vegetation
 ! integer, intent(in) :: siteThinning(nSites)
@@ -89,7 +95,8 @@ do i = 1,nSites
 		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
-		GVout(i,1:nYears(i),:),GVrun,thinInt(i)) !energyCut)
+		GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
+		fertThin,flagFert,nYearsFert) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do

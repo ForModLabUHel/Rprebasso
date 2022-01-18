@@ -1822,3 +1822,18 @@ END subroutine calRein
 		newOrd((nX+1):nSites) = oldOrd(indices)
 	end subroutine changeOrder 
 	
+	
+subroutine testOption(a,b,c,valX1,valX2,valX3)
+	implicit none
+	real(8),intent(inout) :: a, b, c
+	real(8), optional, intent(in) :: valX1,valX2,valX3
+	real(8) :: v1,v2,v3
+	v1=1.
+	v2=2.
+	v3=3.
+	if(present(valX1)) then 
+	 v1 = valX1
+	endif
+	c=a+b+v1+v2+v3
+end subroutine testOption 
+
