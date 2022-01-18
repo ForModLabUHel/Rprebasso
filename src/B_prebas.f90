@@ -1240,6 +1240,7 @@ if(defaultThin == 1.) then
 !!!fertilization at thinning
 	if(fertThin == 3 .and. flagFert .and. siteType>3.) then 
 		flagFert=.true.
+		write(*,*) flagFert
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = siteType+1.
 	endif
