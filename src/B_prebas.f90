@@ -22,6 +22,7 @@ implicit none
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
+ real(8) :: alfarFert(nYearsFert,nLayers)
 !! define arguments, inputs and outputs
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
@@ -1282,11 +1283,14 @@ if(defaultThin == 1.) then
 
  if(doThin) then
  !!!fertilization at thinning
-	if(fertThin == 3 .and. flagFert<1 .and. siteType>3.) then 
+	if(fertThin == 3 .and. flagFert<1 .and. siteType>3. .and. siteType<6.) then 
 		flagFert=1
 		! write(*,*) flagFert
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = siteType-1.
+		call calcAlfar(modOut(year,3,:,:),modOut(year,4,:,1),pCrobas, &
+				nLayers,alfarFert,nSp,nYearsFert)
+		modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
 	endif
 !!!end fertilization at thinning
 

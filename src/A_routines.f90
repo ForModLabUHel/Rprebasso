@@ -1837,3 +1837,26 @@ subroutine testOption(a,b,c,valX1,valX2,valX3)
 	c=a+b+v1+v2+v3
 end subroutine testOption 
 
+
+subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar,nSp,nYearsFert)
+	implicit none
+	integer, intent(in) :: nLayers,nSp,nYearsFert
+	real(8),intent(inout) :: siteTAlpha(nLayers,2),pCrobas(47,nSp)
+	real(8),intent(inout) :: alfar(nYearsFert,nLayers),species(nLayers)
+	! integer,intent(inout) :: year!,ind(3,2)
+	integer :: i
+	real(8):: alfarUnfert(nLayers), alfarFert(nLayers),slope,interc
+	
+    ! ind(:,1) = int(max(20+min(modOut(1,year,3,:,1),5.)-1.,21.))
+	! ind(:,2) = int(modOut(1,year,4,:,1))
+	do i = 1,3
+		alfarUnfert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.),21.)),int(species(i)))
+		alfarFert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.)-1.,21.)),int(species(i)))
+		alfar(1:int(nYearsFert/2),i) = alfarFert(i)
+		slope = (alfarUnfert(i) - alfarFert(i))/((nYearsFert/2+1)-0.)
+		interc = alfarFert(i) - slope*1.
+		alfar(int(nYearsFert/2+1):int(nYearsFert/2),i) = slope*(/2.,3.,4.,5.,6.,7.,8.,9.,10.,11./) + interc
+	enddo
+	! alfar = pCrobas(max(int(20+min(modOut(year,3,:,1),5)),21),int(initVar(1,:)))
+end subroutine calcAlfar	
+	
