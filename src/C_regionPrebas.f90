@@ -16,14 +16,6 @@ implicit none
 integer, parameter :: nVar=54,npar=47!, nSp=3
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
-
-!!! fertilization parameters
- integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
- integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
- integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
- integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,maxNlayers)
-
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
 integer, intent(inout) :: siteOrder(nSites,maxYears)
@@ -61,6 +53,14 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D
  
+
+!!! fertilization parameters
+ integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
+ integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
+ integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
+ real(8) :: alfarFert(nYearsFert,maxNlayers)
+
 !!!!initialize run
 ! multiOut = 0.
 yearX = 0.
@@ -207,9 +207,9 @@ do ij = 1,maxYears
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)-1.
 
-		call calcAlfar(multiOut(i,ij,3,:,:),multiOut(i,ij,4,:,1),pCrobas, &
-				maxNlayers,alfarFert,allSP,nYearsFert)
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		! call calcAlfar(multiOut(i,ij,3,:,:),multiOut(i,ij,4,:,1),pCrobas, &
+				! maxNlayers,alfarFert,allSP,nYearsFert)
+		! multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
 		
 		flagFert(i)=2
 	endif

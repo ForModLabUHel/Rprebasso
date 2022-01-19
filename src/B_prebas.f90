@@ -17,13 +17,6 @@ implicit none
  integer, parameter :: nVar=54, npar=47, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
-!!! fertilization parameters
- integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
- integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
- integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
- integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,nLayers)
-!! define arguments, inputs and outputs
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
  integer, intent(in) :: DOY(365), etmodel 
@@ -35,6 +28,13 @@ implicit none
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
 
+!!! fertilization parameters
+ integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
+ integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
+ integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
+ real(8) :: alfarFert(nYearsFert,nLayers)
+!! define arguments, inputs and outputs
  real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp)! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
  real (kind=8), intent(in) :: thinInt !parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
 										!thinInt=999. uses the default value from tapio rules
@@ -1288,9 +1288,9 @@ if(defaultThin == 1.) then
 		! write(*,*) flagFert
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = siteType-1.
-		call calcAlfar(modOut(year,3,:,:),modOut(year,4,:,1),pCrobas, &
-				nLayers,alfarFert,nSp,nYearsFert)
-		modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		! call calcAlfar(modOut(year,3,:,:),modOut(year,4,:,1),pCrobas, &
+				! nLayers,alfarFert,nSp,nYearsFert)
+		! modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
 	endif
 !!!end fertilization at thinning
 
