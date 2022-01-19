@@ -182,8 +182,9 @@ prebas <- function(nYears,
   initVar <- initVar[1:7,]
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
   
-  ###initialize siteType
-  output[,3,,1] <- siteInfo
+  ###initialize siteType and alfar parameter
+  output[,3,,1] <- siteInfo[3]
+  for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),

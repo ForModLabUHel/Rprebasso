@@ -374,6 +374,12 @@ multiPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  for(ijj in 1:multiSiteInit$maxNlayers){
+    multiSiteInit$multiOut[,,3,ijj,2] = 
+      rep(multiSiteInit$pCROBAS[(20+min(multiSiteInit$siteInfo[,3],5)),
+                                multiSiteInit$multiInitVar[,1,ijj]],
+          multiSiteInit$maxYears)
+  } 
   
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
@@ -477,6 +483,13 @@ regionPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  for(ijj in 1:multiSiteInit$maxNlayers){
+    multiSiteInit$multiOut[,,3,ijj,2] = 
+      rep(multiSiteInit$pCROBAS[(20+min(multiSiteInit$siteInfo[,3],5)),
+                            multiSiteInit$multiInitVar[,1,ijj]],
+          multiSiteInit$maxYears)
+  } 
+  
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),

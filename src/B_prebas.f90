@@ -148,8 +148,8 @@ ETSmean = sum(ETSy)/nYears
  ! modOut(1,17,:,1) = modOut(1,13,:,1)/(pi*((modOut(1,12,:,1)/2/100)**2))
  ! modOut(1,35,:,1) =  modOut(1,13,:,1)/modOut(1,17,:,1)
  !init siteType
- modOut(1,3,:,1) = output(1,3,:,1) ! assign site type
- modOut(2:nYears,3,:,1) = output(:,3,:,1) ! assign site type
+ modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
+ modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
@@ -225,7 +225,8 @@ do year = 1, (nYears)
   h = modOut(year,11,ijj,1)
   
   age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa		
-  par_alfar = pCrobas(int(20+min(siteType,5.)),int(initVar(1,ijj))) * age_factor
+  par_alfar = modOut(year,3,ijj,2) * age_factor
+  ! par_alfar = pCrobas(int(20+min(siteType,5.)),int(initVar(1,ijj))) * age_factor
   par_rhor = par_alfar * par_rhof
   
   hc = modOut(year,14,ijj,1)
@@ -724,17 +725,18 @@ else
 if (N>0.) then
 
 !!!!###here starts stand2 subroutine!!!!!!!!!!!#########
-  if (sitetype <= 1.) then
-   par_alfar = par_alfar1 * age_factor
-  else if (sitetype==2.) then
-   par_alfar = par_alfar2 * age_factor
-  else if (sitetype==3.) then
-   par_alfar = par_alfar3 * age_factor
-  else if (sitetype==4.) then
-   par_alfar = par_alfar4 * age_factor
-  else
-   par_alfar = par_alfar5 * age_factor
-  end if
+  par_alfar = modOut(year,3,ij,2) * age_factor
+  ! if (sitetype <= 1.) then
+   ! par_alfar = par_alfar1 * age_factor
+  ! else if (sitetype==2.) then
+   ! par_alfar = par_alfar2 * age_factor
+  ! else if (sitetype==3.) then
+   ! par_alfar = par_alfar3 * age_factor
+  ! else if (sitetype==4.) then
+   ! par_alfar = par_alfar4 * age_factor
+  ! else
+   ! par_alfar = par_alfar5 * age_factor
+  ! end if
 
 !!relate metabolic and structural parameters to site conditions
 
@@ -1375,19 +1377,21 @@ if(defaultThin == 1.) then
     hb = par_betab * Lc ** par_x
     Cw = 2. * hb
 	
-    age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa
-!!update biomasses
-    if (sitetype <= 1.) then
-     par_alfar = par_alfar1 * age_factor
-    else if (sitetype==2.) then
-     par_alfar = par_alfar2 * age_factor
-    else if (sitetype==3.) then
-     par_alfar = par_alfar3 * age_factor
-    else if (sitetype==4.) then
-     par_alfar = par_alfar4 * age_factor
-    else
-     par_alfar = par_alfar5 * age_factor
-    end if
+    
+  !!update biomasses
+	age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa
+	par_alfar = modOut(year,3,ij,2) * age_factor
+    ! if (sitetype <= 1.) then
+     ! par_alfar = par_alfar1 * age_factor
+    ! else if (sitetype==2.) then
+     ! par_alfar = par_alfar2 * age_factor
+    ! else if (sitetype==3.) then
+     ! par_alfar = par_alfar3 * age_factor
+    ! else if (sitetype==4.) then
+     ! par_alfar = par_alfar4 * age_factor
+    ! else
+     ! par_alfar = par_alfar5 * age_factor
+    ! end if
 
      ! Update dependent variables
 	 gammaC = par_cR/stand_all(36,ij)
