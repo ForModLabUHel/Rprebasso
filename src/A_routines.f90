@@ -1852,10 +1852,10 @@ subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar)
 	do i = 1,3
 		alfarUnfert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.),21.)),int(species(i)))
 		alfarFert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.)-1.,21.)),int(species(i)))
-		alfar(1:10,i) = alfarFert(i)
-		slope = (alfarUnfert(i) - alfarFert(i))/(11.-0.)
-		interc = alfarFert(i) - slope*1.
-		alfar(11:20,i) = slope*(/2.,3.,4.,5.,6.,7.,8.,9.,10.,11./) + interc
+		! alfar(1:10,i) = alfarFert(i)
+		! slope = (alfarUnfert(i) - alfarFert(i))/(11.-0.)
+		! interc = alfarFert(i) - slope*1.
+		! alfar(11:20,i) = slope*(/2.,3.,4.,5.,6.,7.,8.,9.,10.,11./) + interc
 	enddo
 	! alfar = pCrobas(max(int(20+min(modOut(year,3,:,1),5)),21),int(initVar(1,:)))
 end subroutine calcAlfar	
