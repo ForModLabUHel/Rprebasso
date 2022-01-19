@@ -206,7 +206,7 @@ do ij = 1,maxYears
 	if(flagFert(i)==1) then 
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)-1.
-		call calcAlfar(multiOut(i,ij,3,:,:),multiOut(i,ij,4,:,1),pCrobas, &
+		call calcAlfar(multiOut(i,ij,3,1:nLayers(i),:),multiOut(i,ij,4,1:nLayers(i),1),pCrobas, &
 				nLayers(i),alfarFert,allSP,nYearsFert,npar)
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
 		flagFert(i)=2
