@@ -1849,7 +1849,7 @@ subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar)
 	
     ! ind(:,1) = int(max(20+min(modOut(1,year,3,:,1),5.)-1.,21.))
 	! ind(:,2) = int(modOut(1,year,4,:,1))
-	do i = 1,3
+	do i = 1,nLayers
 		alfarUnfert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.),21.)),int(max(species(i),1.)))
 		alfarFert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.)-1.,21.)),int(max(species(i),1.)))
 		write(*,*) i,siteTAlpha(i,1),species(i),alfarFert(i), alfarUnfert(i)
