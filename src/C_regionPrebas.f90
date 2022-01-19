@@ -208,7 +208,7 @@ do ij = 1,maxYears
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)-1.
 
 		! call calcAlfar(multiOut(i,ij,3,:,:),multiOut(i,ij,4,:,1),pCrobas, &
-				! maxNlayers,alfarFert,allSP,nYearsFert)
+				! maxNlayers,alfarFert,allSP,nYearsFert,npar)
 		! multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
 		
 		flagFert(i)=2
