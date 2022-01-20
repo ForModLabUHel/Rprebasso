@@ -202,8 +202,8 @@ do ij = 1,maxYears
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert) !!energCuts
 	
-	!!!if fertilization at thinning increase siteType
-	if(flagFert(i)==1) then 
+ 	!!!if fertilization at thinning is active,  increase siteType
+	if(flagFert(i)==1 .and. fertThin>0) then 
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(i,3)-1.
 		call calcAlfar(multiOut(i,ij,3,1:nLayers(i),:),initVar(i,1,1:nLayers(i)),pCrobas, &
@@ -296,6 +296,12 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	  energyCutX = 0.
 	 endif
+	 
+	 !if fertilization at thinning is active reset flagFert
+	 if(fertThin > 0) then
+	  flagFert(siteX) = 0  
+	 endif
+
   ! close(10)
 !!   !!clearcut!!
 ! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
@@ -446,7 +452,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 		multiOut(siteX,ij,31,ijj,1)* (1-harvRatio)* thinFact))
        multiOut(siteX,ij,29,ijj,1)=multiOut(siteX,ij,32,ijj,1)*0.17* thinFact+multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	  endif
-!!energCuts
+!!end energCuts
 	  multiOut(siteX,ij,9:10,ijj,1) = multiOut(siteX,ij,9:10,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,13,ijj,1) = multiOut(siteX,ij,13,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,17:25,ijj,1) = multiOut(siteX,ij,17:25,ijj,1)*(1-thinFact)
@@ -458,6 +464,17 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
 	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
 	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
+	 
+ 	!!!if fertilization at thinning is active,  increase siteType
+	if(flagFert(siteX)==0 .and. fertThin>0) then 
+		yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
+		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(siteX,3)-1.
+		call calcAlfar(multiOut(siteX,ij,3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
+				nLayers(siteX),alfarFert,allSP,nYearsFert,npar)
+		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		flagFert(siteX)=2
+	endif
+
     endif !(maxState(i)>minDharv)
    enddo !end do while
  elseif(compHarv(1)==3.) then  !!!thin to compensate harvest limits
@@ -481,7 +498,10 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	  energyCutX = 0.
 	 endif
-  ! close(10)
+	 !if fertilization at thinning is active reset flagFert
+	 if(fertThin > 0) then
+	  flagFert(siteX) = 0  
+	 endif
 !!   !!clearcut!!
 ! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
@@ -640,7 +660,18 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
 	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
 	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
-    endif !(maxState(i)>minDharv)
+    
+	 	!!!if fertilization at thinning is active,  increase siteType
+	if(flagFert(siteX)==0 .and. fertThin>0) then 
+		yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
+		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,1) = siteInfo(siteX,3)-1.
+		call calcAlfar(multiOut(siteX,ij,3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
+				nLayers(siteX),alfarFert,allSP,nYearsFert,npar)
+		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		flagFert(siteX)=2
+	endif
+
+	endif !(maxState(i)>minDharv)
    enddo !end do while
  
  

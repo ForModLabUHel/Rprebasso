@@ -1178,7 +1178,7 @@ if (ClCut == 1.) then
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   thinClx(year,2) = 1 !flag for clearcut
-  !reset flags for fertilizations and site type
+	 !if fertilization at thinning is active reset flagFert
   if(fertThin > 0) then
 	flagFert = 0  
   endif
