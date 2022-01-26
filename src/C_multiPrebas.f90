@@ -9,13 +9,13 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		pAWEN,weatherYasso,litterSize,soilCtot, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
-		fertThin,flagFert,nYearsFert) !!energCut
+		fertThin,flagFert,nYearsFert,protect) !!energCut
 
 implicit none
 
 integer, parameter :: nVar=54,npar=47!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
-integer, intent(in) :: nYears(nSites),nLayers(nSites)
+integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
@@ -96,7 +96,7 @@ do i = 1,nSites
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
 		GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
-		fertThin,flagFert,nYearsFert) !energyCut)
+		fertThin,flagFert,nYearsFert,protect) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do

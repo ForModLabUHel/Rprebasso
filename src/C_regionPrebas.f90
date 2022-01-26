@@ -9,13 +9,13 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
-		ageMitigScen, fertThin,flagFert,nYearsFert)
+		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer)
 
 implicit none
 
 integer, parameter :: nVar=54,npar=47!, nSp=3
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
-integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP
+integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,oldLayer
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
 integer, intent(inout) :: siteOrder(nSites,maxYears)
@@ -50,8 +50,8 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,9)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact	!!energCuts
- integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
- real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D
+ integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species,layerX,domSp(1)
+ real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX
  
 
 !!! fertilization parameters
@@ -59,7 +59,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,maxNlayers)
+ real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem
 
 !!!!initialize run
 ! multiOut = 0.
@@ -78,7 +78,7 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
- ! open(1,file="ftTapioREg.txt")
+  ! open(1,file="test.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
  ! write(1,*) tTapio
@@ -92,8 +92,6 @@ do i = 1,nSites
 			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
  enddo
-enddo
-do i = 1,nSites
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
 
@@ -144,14 +142,20 @@ do ij = 1,maxYears
 	 ftTapioX = ftTapio
 	endif
 
-
 !!!
 	climID = siteInfo(i,2)
 	if(ij==int(min(yearX(i),maxYears)))then
 	 initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearX(i)))
 	 yearX(i) = 0
 
-	 do ijj = 1,nLayers(i)
+!if scenario = "oldLayer" do not consider the old layer
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif
+
+	 do ijj = 1,jj
 	  species = int(multiOut(i,1,4,ijj,1))
 	  initVar(i,1,ijj) = multiOut(i,1,4,ijj,1)
 	  initVar(i,2,ijj) = initClearcut(i,5)
@@ -183,14 +187,13 @@ do ij = 1,maxYears
   ! if(ij==1) then
    ! write(*,*) sum(soilCinOut(i,ij,:,:,1:nLayers(i)))
   ! endif
-	if(ij>2) then
+	if(ij>1) then
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
 		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
 	else
 		output(1,:,:,1) = multiOut(i,1,:,:,1)
 		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
 	endif
-	
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
@@ -200,8 +203,7 @@ do ij = 1,maxYears
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
-		fertThin,flagFert(i),nYearsFert) !!energCuts
-	
+		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
  	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(i)==1 .and. fertThin>0) then 
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
@@ -212,33 +214,26 @@ do ij = 1,maxYears
 		flagFert(i)=2
 	endif
 
-
 	! if clearcut occur initialize initVar and age
-	if(sum(output(1,11,1:nLayers(i),1))==0 .and. yearX(i) == 0) then
-
+!!calculate year of replanting after a clearcut
+!if scenario = "oldLayer" do not consider the old layer
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif
+	if(sum(output(1,11,1:jj,1))==0 .and. yearX(i) == 0) then
 	 if((maxYears-ij)<10) then
- 		! if(initClearcut(i,5)<998.) then
-			! Ainit = initClearcut(i,5)
-		! else
-			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
-		! endif
+ 		Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
 	 else
- 		! if(initClearcut(i,5)<998.) then
-			! Ainit = initClearcut(i,5)
-		! else
-			Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
-		! endif
+ 		Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
 	 endif
-	 
 	 !!!!update area of cuttings
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
- 	! if(ij==35) then
-	 ! write(1,*) cuttingArea(ij,2),i,iz,roundWood
-	! endif
 	 yearX(i) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
-	  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
+	  relBA(i,1:jj) = initVar(i,5,1:jj)/sum(initVar(i,5,1:jj))
 	 endif
 	endif
 	
@@ -276,13 +271,18 @@ do ij = 1,maxYears
  !or thin based on stand density index
 if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
  if(compHarv(1)==1.) then  !!!!clearcut to compensate harvest limits
-
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
    n = n + 1
+   !!!search for site with highest DBH
    do i = 1, nSites
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif 
 	if(ClCut(i) > 0. ) then
-	 maxState(i) = maxval(multiOut(i,ij,12,1:nLayers(i),1))!!!search for site with highest DBH
+	 maxState(i) = maxval(multiOut(i,ij,12,1:jj,1))!!!search for site with highest DBH
 	else
 	 maxState(i) = 0.
 	endif
@@ -302,18 +302,41 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  flagFert(siteX) = 0  
 	 endif
 
-  ! close(10)
+!!if oldLayer scenario -> populate old layer with the dominant species and clearcut other layers
+if(oldLayer==1) then
+ jj=max((nLayers(siteX)-1),1)
+ domSp = maxloc(multiOut(siteX,ij,13,1:jj,1))
+ layerX = int(domSp(1))
+  
+  !!!!calculate percentage of trees remaining after clearcut(pDomRem)
+  call random_number(randX)
+   pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
+			sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
+   
+	!update old layer
+	multiOut(siteX,ij,:,nLayers(siteX),1) = multiOut(siteX,ij,:,layerX,1)
+	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),nLayers(siteX),1) = &
+	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (pDomRem)
+	multiOut(siteX,ij,24:34,nLayers(siteX),1) = multiOut(siteX,ij,24:34,layerX,1) * (pDomRem)
+	multiOut(siteX,ij,47:51,nLayers(siteX),1) = multiOut(siteX,ij,47:51,layerX,1) * (pDomRem)
+	!update dominant layer
+	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) = &
+ 	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (1-pDomRem)
+	multiOut(siteX,ij,24:34,layerX,1) = multiOut(siteX,ij,24:34,layerX,1) * (1-pDomRem)
+	multiOut(siteX,ij,47:51,layerX,1) = multiOut(siteX,ij,47:51,layerX,1) * (1-pDomRem)
+else
+ jj=nLayers(siteX)
+endif
+
 !!   !!clearcut!!
-! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
-	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
-	! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
-	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
-	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
+	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)*areas(siteX) !!energCuts
+	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
+			multiOut(siteX,ij,30,1:jj,1)*harvRatio
+	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:jj,1) + &
+			multiOut(siteX,ij,31,1:jj,1)*harvRatio
 	 multiOut(siteX,ij,2,1,2) = 2. !!!flag for clearcut compensation
-     do ijj = 1, nLayers(siteX)
+     do ijj = 1, jj
       multiOut(siteX,ij,6:23,ijj,2) = multiOut(siteX,ij,6:23,ijj,1)
       multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
       multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
@@ -324,7 +347,6 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 					multiOut(siteX,ij,24:25,ijj,2)
 	  multiOut(siteX,ij,30:34,ijj,2) = multiOut(siteX,ij,30:34,ijj,1) + &
 					multiOut(siteX,ij,30:34,ijj,2)
-
 !!energCuts
       if(energyCutX == 1.) then
 	   multiWood(siteX,ij,ijj,2) = multiWood(siteX,ij,ijj,2) + (multiOut(siteX,ij,24,ijj,1) + &
@@ -362,16 +384,20 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 yearX(siteX) = Ainit + ij + 1
 	 initClearcut(siteX,5) = Ainit
 	 if(ij==1) then
-	  relBA(siteX,1:nLayers(siteX)) = initVar(siteX,5,1:nLayers(siteX))/ &
-		sum(initVar(siteX,5,1:nLayers(siteX)))
+	  relBA(siteX,1:jj) = initVar(siteX,5,1:jj)/ &
+		sum(initVar(siteX,5,1:jj))
 	 else
-	  relBA(siteX,1:nLayers(siteX)) = multiOut(siteX,(ij-1),13,1:nLayers(siteX),1)/ &
-		sum(multiOut(siteX,(ij-1),13,1:nLayers(siteX),1))
+	  relBA(siteX,1:jj) = multiOut(siteX,(ij-1),13,1:jj,1)/ &
+		sum(multiOut(siteX,(ij-1),13,1:jj,1))
 	 endif
 
     !initVar(siteX,1,1:nLayers(siteX)) = 0. !output(1,4,:,1)
-     initVar(siteX,2,1:nLayers(siteX)) = 0.!output(1,7,:,1)
-     initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
+   	 initVar(siteX,1,1:nLayers(siteX)) = multiOut(siteX,ij,4,1:nLayers(siteX),1)
+	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
+	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
+	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
+     initVar(siteX,2,1:jj) = 0.!output(1,7,:,1)
+     initVar(siteX,3:7,1:jj) = 0.!output(1,11:14,:,1)  !!newX
     endif !(maxState(i)>minDharv)
    enddo !end do while
    
@@ -379,17 +405,14 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
    !Perform thinning to compensate harvest levels
    !calculate SDI
   do i = 1, nSites
-! !!start!! use stand density index to order the forests
-   ! if(ClCut(i) > 0.) then
-	! call calRein(multiOut(i,ij,:,:,1),nLayers(i),pCrobas(17,:),nVar,allSP,maxState(i))
-   ! else
-	! maxState(i) = 0.
-   ! endif
-! !!end!! use stand density index to order the forests
-
 !!start!! use stand volume to order the forests
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif 
 	if(ClCut(i) > 0. ) then
-	 maxState(i) = sum(multiOut(i,ij,30,1:nLayers(i),1))!!!search for site with highest DBH
+	 maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
 	else
 	 maxState(i) = 0.
 	endif
@@ -406,15 +429,21 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	  energyCutX = 0.
 	 endif
+
 	 !!!harvest thinFact 
-	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
+if(oldLayer==1) then
+ jj=max((nLayers(siteX)-1),1)
+else
+ jj=nLayers(siteX)
+endif 
+	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
-	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio*thinFact
-	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio*thinFact
+	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
+			multiOut(siteX,ij,30,1:jj,1)*harvRatio*thinFact
+	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:jj,1) + &
+			multiOut(siteX,ij,31,1:jj,1)*harvRatio*thinFact
      !update state of the forests
-	 do ijj = 1, nLayers(siteX)
+	 do ijj = 1, jj
       multiOut(siteX,ij,9:10,ijj,2) = multiOut(siteX,ij,9:10,ijj,1) * thinFact
 	  multiOut(siteX,ij,11:12,ijj,2) = multiOut(siteX,ij,11:12,ijj,1)
 	  multiOut(siteX,ij,13,ijj,2) = multiOut(siteX,ij,13,ijj,1) * thinFact
@@ -460,10 +489,10 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo !ijj layers loop
-   	 initVar(siteX,1,1:nLayers(siteX)) = multiOut(siteX,ij,4,1:nLayers(siteX),1)
-	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
-	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
-	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
+   	 initVar(siteX,1,1:jj) = multiOut(siteX,ij,4,1:jj,1)
+	 initVar(siteX,2,1:jj) = multiOut(siteX,ij,7,1:jj,1)
+	 initVar(siteX,3:6,1:jj) = multiOut(siteX,ij,11:14,1:jj,1)
+	 initVar(siteX,7,1:jj) = multiOut(siteX,ij,16,1:jj,1)
 	 
  	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
@@ -483,8 +512,13 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	cuttingArea(ij,2) < cuttingArea(ij,1))		
    n = n + 1
    do i = 1, nSites
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif 
 	if(ClCut(i) > 0. ) then
-	 maxState(i) = maxval(multiOut(i,ij,12,1:nLayers(i),1))!!!search for site with highest DBH
+	 maxState(i) = maxval(multiOut(i,ij,12,1:jj,1))!!!search for site with highest DBH
 	else
 	 maxState(i) = 0.
 	endif
@@ -502,17 +536,43 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 if(fertThin > 0) then
 	  flagFert(siteX) = 0  
 	 endif
+
+!!if oldLayer scenario -> populate old layer with the dominant species and clearcut other layers
+if(oldLayer==1) then
+ jj=max((nLayers(siteX)-1),1)
+ ops = maxloc(multiOut(siteX,ij,13,1:jj,1))
+ layerX = int(ops(1))
+  
+  !!!!calculate percentage of trees remaining after clearcut(pDomRem)
+   call random_number(randX)
+   pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
+   sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
+   
+
+	!update old layer
+	multiOut(siteX,ij,:,nLayers(i),1) = multiOut(siteX,ij,:,layerX,1)
+	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),nLayers(i),1) = &
+	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (pDomRem)
+	multiOut(siteX,ij,24:34,nLayers(i),1) = multiOut(siteX,ij,24:34,layerX,1) * (pDomRem)
+	multiOut(siteX,ij,47:51,nLayers(i),1) = multiOut(siteX,ij,47:51,layerX,1) * (pDomRem)
+	!update dominant layer
+	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) = &
+ 	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (1-pDomRem)
+	multiOut(siteX,ij,24:34,layerX,1) = multiOut(siteX,ij,24:34,layerX,1) * (1-pDomRem)
+	multiOut(siteX,ij,47:51,layerX,1) = multiOut(siteX,ij,47:51,layerX,1) * (1-pDomRem)
+else
+ jj=nLayers(i)
+endif
 !!   !!clearcut!!
 ! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
-	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)*areas(siteX) !!energCuts
-	! write(1,*) roundWood,HarvLim(ij,1), ij,sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio),areas(siteX),n,nSites
-	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio
-	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio
+	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)*areas(siteX) !!energCuts
+	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
+			multiOut(siteX,ij,30,1:jj,1)*harvRatio
+	   multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:jj,1) + &
+			multiOut(siteX,ij,31,1:jj,1)*harvRatio
 	 multiOut(siteX,ij,2,1,2) = 2. !!!flag for clearcut compensation
-     do ijj = 1, nLayers(siteX)
+     do ijj = 1, jj
       multiOut(siteX,ij,6:23,ijj,2) = multiOut(siteX,ij,6:23,ijj,1)
       multiOut(siteX,ij,26,ijj,1) = multiOut(siteX,ij,33,ijj,1) + multiOut(siteX,ij,26,ijj,1)
       multiOut(siteX,ij,27,ijj,1) = multiOut(siteX,ij,25,ijj,1) + multiOut(siteX,ij,27,ijj,1)
@@ -560,20 +620,28 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	 yearX(siteX) = Ainit + ij + 1
 	 initClearcut(siteX,5) = Ainit
 	 if(ij==1) then
-	  relBA(siteX,1:nLayers(siteX)) = initVar(siteX,5,1:nLayers(siteX))/ &
-		sum(initVar(siteX,5,1:nLayers(siteX)))
+	  relBA(siteX,1:nLayers(i)) = initVar(siteX,5,1:nLayers(i))/ &
+		sum(initVar(siteX,5,1:nLayers(i)))
 	 else
-	  relBA(siteX,1:nLayers(siteX)) = multiOut(siteX,(ij-1),13,1:nLayers(siteX),1)/ &
-		sum(multiOut(siteX,(ij-1),13,1:nLayers(siteX),1))
+	  relBA(siteX,1:nLayers(i)) = multiOut(siteX,(ij-1),13,1:nLayers(i),1)/ &
+		sum(multiOut(siteX,(ij-1),13,1:nLayers(i),1))
 	 endif
 
-    !initVar(siteX,1,1:nLayers(siteX)) = 0. !output(1,4,:,1)
-     initVar(siteX,2,1:nLayers(siteX)) = 0.!output(1,7,:,1)
-     initVar(siteX,3:7,1:nLayers(siteX)) = 0.!output(1,11:14,:,1)  !!newX
+   	 ! initVar(siteX,1,1:nLayers(siteX)) = multiOut(siteX,ij,4,1:nLayers(siteX),1)
+	 ! initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
+	 ! initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
+	 ! initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
+     initVar(siteX,2,1:jj) = 0.!output(1,7,:,1)
+     initVar(siteX,3:7,1:jj) = 0.!output(1,11:14,:,1)  !!newX
     endif !(maxState(i)>minDharv)
    enddo !end do while
 
   do i = 1, nSites
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif 
 ! !!start!! use stand density index to order the forests
    ! if(ClCut(i) > 0.) then
 	! call calRein(multiOut(i,ij,:,:,1),nLayers(i),pCrobas(17,:),nVar,allSP,maxState(i))
@@ -584,7 +652,7 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 
 !!start!! use stand volume to order the forests
 	if(ClCut(i) > 0. ) then
-	 maxState(i) = sum(multiOut(i,ij,30,1:nLayers(i),1))!!!search for site with highest DBH
+	 maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest DBH
 	else
 	 maxState(i) = 0.
 	endif
@@ -603,14 +671,20 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  energyCutX = 0.
 	 endif
 	 !!!harvest thinFact 
-	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio)* thinFact *areas(siteX) !!energCuts
+if(oldLayer==1) then
+ jj=max((nLayers(siteX)-1),1)
+else
+ jj=nLayers(siteX)
+endif 
+
+	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
-	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,30,1:nLayers(siteX),1)*harvRatio*thinFact
-	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:nLayers(siteX),1) + &
-			multiOut(siteX,ij,31,1:nLayers(siteX),1)*harvRatio*thinFact
+	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
+			multiOut(siteX,ij,30,1:jj,1)*harvRatio*thinFact
+	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:jj,1) + &
+			multiOut(siteX,ij,31,1:jj,1)*harvRatio*thinFact
      !update state of the forests
-	 do ijj = 1, nLayers(siteX)
+	 do ijj = 1, jj
       multiOut(siteX,ij,9:10,ijj,2) = multiOut(siteX,ij,9:10,ijj,1) * thinFact
 	  multiOut(siteX,ij,11:12,ijj,2) = multiOut(siteX,ij,11:12,ijj,1)
 	  multiOut(siteX,ij,13,ijj,2) = multiOut(siteX,ij,13,ijj,1) * thinFact
@@ -656,10 +730,10 @@ if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo !ijj layers loop
-   	 initVar(siteX,1,1:nLayers(siteX)) = multiOut(siteX,ij,4,1:nLayers(siteX),1)
-	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
-	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
-	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
+   	 initVar(siteX,1,1:jj) = multiOut(siteX,ij,4,1:jj,1)
+	 initVar(siteX,2,1:jj) = multiOut(siteX,ij,7,1:jj,1)
+	 initVar(siteX,3:6,1:jj) = multiOut(siteX,ij,11:14,1:jj,1)
+	 initVar(siteX,7,1:jj) = multiOut(siteX,ij,16,1:jj,1)
     
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 

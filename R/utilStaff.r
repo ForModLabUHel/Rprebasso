@@ -623,4 +623,43 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(list(ssDeadW=deadWVss,deadWV=deadWV))
   }
   
+  ####Function used in the oldLayer option 
+  ####the function is used to add an additional empty layer
+  ##for the oldLayer
+  ###add layer for old layer in initial state
+  addOldLayer <- function(multiSiteInit){
+    maxNlayers = multiSiteInit$maxNlayers = 
+      multiSiteInit$maxNlayers + 1
+    ###add layer for old layer in multiOut array
+    dims=dim(multiSiteInit$multiOut);dims[4] <- maxNlayers
+    multiOut = array(0,dim=dims)
+    multiOut[,,,-(maxNlayers),] = multiSiteInit$multiOut
+    multiSiteInit$multiOut <- multiOut
+    ###add layer for old layer in initial state
+    dims=dim(multiSiteInit$multiInitVar);dims[3] <- maxNlayers
+    multiInitVar = array(0,dim=dims)
+    multiInitVar[,,-(maxNlayers)] = multiSiteInit$multiInitVar
+    multiSiteInit$multiInitVar <- multiInitVar
+    ###add layer
+    multiSiteInit$nLayers = multiSiteInit$nLayers + 1
+    ###add layer to nLayers in siteInfo
+    multiSiteInit$siteInfo[8] + multiSiteInit$siteInfo[8] + 1
+    ###add layer to initClCutRatio
+    initCLcutRatio <- matrix(0.,multiSiteInit$nSites,
+                             maxNlayers)
+    initCLcutRatio[,-maxNlayers] = multiSiteInit$initCLcutRatio
+    multiSiteInit$initCLcutRatio = initCLcutRatio
+    
+    dims=dim(multiSiteInit$soilC);dims[5] <- maxNlayers
+    soilC = array(0,dim=dims)
+    soilC[,,,,-(maxNlayers)] = multiSiteInit$soilC
+    multiSiteInit$soilC <- soilC
+    
+    dims=dim(multiSiteInit$multiEnergyWood);dims[3] <- maxNlayers
+    multiEnergyWood = array(0,dim=dims)
+    multiEnergyWood[,,-(maxNlayers),] <- multiSiteInit$multiEnergyWood
+    multiSiteInit$multiEnergyWood <- multiEnergyWood
+    
+    return(multiSiteInit)
+  }
   

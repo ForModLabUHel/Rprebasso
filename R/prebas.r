@@ -35,7 +35,8 @@ prebas <- function(nYears,
                    GVrun = 1,
                    thinInt=-999.,
                    fertThin=0.,
-                   nYearsFert=20){
+                   nYearsFert=20,
+                   protect=0){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -231,7 +232,8 @@ prebas <- function(nYears,
                      thinInt = as.double(thinInt),
                      fertThin = as.integer(fertThin),
                      flagFert = as.integer(0),
-                     nYearsFert = as.integer(nYearsFert)
+                     nYearsFert = as.integer(nYearsFert),
+                     protect = as.integer(protect)
                      )
   class(prebas) <- "prebas"
   return(prebas)

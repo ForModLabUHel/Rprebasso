@@ -1861,3 +1861,14 @@ subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar,nSp,nYearsFert,npa
 	! alfar = pCrobas(max(int(20+min(modOut(year,3,:,1),5)),21),int(initVar(1,:)))
 end subroutine calcAlfar	
 	
+	
+	subroutine test(a,b)
+	implicit none
+	integer, intent(in) :: a
+	real(8),intent(inout) :: b(a)
+	
+	call random_number(b)
+	
+	
+	end subroutine
+	

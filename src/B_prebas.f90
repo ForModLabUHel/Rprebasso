@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert)
+	 fertThin,flagFert,nYearsFert, oldLayer)
 
 implicit none
 
@@ -27,7 +27,8 @@ implicit none
  real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
-
+ !!oldLayer scenario
+ integer, intent(in) :: oldLayer
 !!! fertilization parameters
  integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
@@ -111,7 +112,7 @@ implicit none
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
- real (kind=8) :: Hdom,thinClx(nYears,2)
+ real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -171,10 +172,9 @@ ETSmean = sum(ETSy)/nYears
  enddo
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 do year = 1, (nYears)
-! write(1,*) year,yearX,Ainit,initClearcut(5)
-  if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clear cut
+!!!! Initialize after clearcut (start)
+  if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
    Ainit = int(min(Ainit, Ainit + nYears - yearX)) ! Ainit is the age stand is measureable. This is to avoid some special conditions that might occur in some simulation cases.
       totBA = sum(modOut((year-Ainit-1), 13, :, 1)) ! BA structure before clearcut, used for estimating spec. proportions at initialization if fixBAratio is = 0 (1 is for user defined)
    do ijj = 1, nLayers
@@ -197,9 +197,8 @@ do year = 1, (nYears)
 	  modOut(year,17,ijj,1) = 0. 
 	  modOut(year,35,ijj,1) = 0. 
     endif
-     ! modOut(year,35,ijj,1) = modOut(year,13,ijj,1) / modOut(year,17,ijj,1)
 	 
-	   siteType = modOut(year,3,ijj,1) !siteInfo(3)
+  siteType = modOut(year,3,ijj,1) !siteInfo(3)
   !!set parameters
   par_betab = pCrobas(13,int(initVar(1,ijj)))
   par_x = pCrobas(19,int(initVar(1,ijj)))
@@ -272,9 +271,8 @@ do year = 1, (nYears)
     enddo
    enddo	
 	yearX = 0
-	
-	
   endif
+!!!! Initialize after clearcut (end)
 
   stand_all = modOut(year,:,:,1)
 
@@ -561,24 +559,22 @@ if (year <= maxYearSite) then
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
 ! fAPARsite=0.7
-   if(sum(modOut(year,11,:,1)) == 0. .and. yearX == 0) then
+
+!!calculate year of replanting after a clearcut
+!if scenario = "oldLayer" do not consider the old layer
+if(oldLayer==1) then
+ ij=max((nLayers-1),1)
+else
+ ij=nLayers
+endif
+   if(sum(modOut(year,11,1:ij,1)) == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
-		! if(initClearcut(5)>0.) then
-			! Ainit = initClearcut(5)
-		! else
 			Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25)
-		! endif
 	else
-		! if(initClearcut(5)>0.) then
-			! Ainit = 11!initClearcut(5)
-		! else
-			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10) + 2.25)
-		! endif
+			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10.) + 2.25)
 	endif
 	yearX = Ainit + year 
-!	initClearcut(5) = Ainit
    endif
-
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARsite
       
@@ -986,7 +982,7 @@ else
   STAND(7) = STAND(7) + step
 endif
 endif
- 
+
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
@@ -1160,13 +1156,13 @@ end do !!!!end loop species
  end do !!!!end loop inttimes
 
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
-!do siteNo = 1, nSites
- ! write(2,*) "before clcut"
- ! if(stand_all(1,1)==6944.) then
-	! write(2,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
- ! endif
 !!!!test for clearcut!!!!
- domSp = maxloc(STAND_all(13,:))
+	if(oldLayer==1) then
+	 ll=max((nLayers-1),1)
+	else
+	 ll=nLayers
+	endif
+ domSp = maxloc(STAND_all(13,1:ll))
  layer = int(domSp(1))
 if (ClCut == 1.) then
 	species = int(stand_all(4,layer))
@@ -1176,6 +1172,7 @@ if (ClCut == 1.) then
 	age = stand_all(7,layer)
 	! write(1,*) siteInfo(1),D, D_clearcut,D > D_clearcut,age, A_clearcut , age > A_clearcut
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
+ 
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   thinClx(year,2) = 1 !flag for clearcut
 	 !if fertilization at thinning is active reset flagFert
@@ -1183,15 +1180,35 @@ if (ClCut == 1.) then
 	flagFert = 0  
   endif
   
-  do ij = 1, nLayers
-  ! if(stand_all(1,1)==6944. .and. ij==1) then
-	! write(1,*) stand_all(30,1), stand_all(30,2), stand_all(30,3)
-  ! endif
-   outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
+  if(oldLayer==1) then !if oldLayer
+  !!check dominant layer
+   ! domSp = maxloc(STAND_all(13,1:(nLayers - 1)))
+   ! layer = int(domSp(1))
+  
+  !!!!calculate percentage of trees remaining after clearcut(pDomRem)
+  call random_number(randX)
+   pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
+			sum(stand_all(13,1:ll))/stand_all(13,layer)
+   
+	!update old layer
+   stand_all(:,nLayers) = stand_all(:,layer)
+   stand_all((/9,10,13,17,18,37,38,40,43,44,53,54/),nLayers) = &
+	stand_all((/9,10,13,17,18,37,38,40,43,44,53,54/),layer) * (pDomRem)
+   stand_all(24:34,nLayers) = stand_all(24:34,layer) * (pDomRem)
+   stand_all(47:51,nLayers) = stand_all(47:51,layer) * (pDomRem)
+	!update dominant layer
+   stand_all((/9,10,13,17,18,37,38,40,43,44,53,54/),layer) = &
+	stand_all((/9,10,13,17,18,37,38,40,43,44,53,54/),layer) * (1-pDomRem)
+   stand_all(24:34,layer) = stand_all(24:34,layer) * (1-pDomRem)
+   stand_all(47:51,layer) = stand_all(47:51,layer) * (1-pDomRem)
+
+  !!!implement clearcut by layer (start) (not for old layer in oldLayer sceario)
+   do ij = 1, ll
+    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
 
   !energyCut
-   S_fol = stand_all(33,ij) + stand_all(26,ij)
-   S_fr = stand_all(25,ij) + stand_all(27,ij)
+    S_fol = stand_all(33,ij) + stand_all(26,ij)
+    S_fr = stand_all(25,ij) + stand_all(27,ij)
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
@@ -1206,34 +1223,73 @@ if (ClCut == 1.) then
 	 S_wood = stand_all(32,ij) *0.17 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
 	endif
   !energyCut
-   stand_all(2,ij) = 0. !!newX
-   stand_all(8,ij) = 0.
-   stand_all(10:17,ij) = 0.
-   stand_all(19:21,ij) = 0.
-   stand_all(23:38,ij) = 0.
-   stand_all(41,ij) = 0.
-   stand_all(43,ij) = 0.
-   stand_all(47:nVar,ij) = 0.
-   stand_all(26,ij) = S_fol
-   stand_all(27,ij) = S_fr
-   stand_all(28,ij) = S_branch
-   stand_all(29,ij) = S_wood
-!!update age
-  ! do ki = 1, min(20,(nyears-year))
-   ! modOut((year+ki),7,ij,1) = ki !#!#
-   ! modOut((year+ki),4,ij,1) = initVar(1,ij) !#!#
-  ! enddo
-  enddo
+    stand_all(2,ij) = 0. !!newX
+    stand_all(7,ij) = 0.
+	stand_all(8,ij) = 0.	
+    stand_all(10:17,ij) = 0.
+    stand_all(19:21,ij) = 0.
+    stand_all(23:38,ij) = 0.
+    stand_all(41,ij) = 0.
+    stand_all(43,ij) = 0.
+    stand_all(47:nVar,ij) = 0.
+    stand_all(26,ij) = S_fol
+    stand_all(27,ij) = S_fr
+    stand_all(28,ij) = S_branch
+    stand_all(29,ij) = S_wood
+   enddo   !!!implement clearcut by layer (end) (not for old layer in oldLayer sceario)
+  else !end if oldLayer
+    !!!implement clearcut by layer (start)
+   do ij = 1, nLayers
+    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
+
+  !energyCut
+    S_fol = stand_all(33,ij) + stand_all(26,ij)
+    S_fr = stand_all(25,ij) + stand_all(27,ij)
+	if(energyCut==1.) then
+	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
+					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
+	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij) + stand_all(51,ij)) * &
+		(1-energyRatio) + stand_all(32,ij) * 0.83 +&
+		stand_all(31,ij)* (1-harvRatio) * (1-energyRatio)))
+	 S_wood = stand_all(32,ij) *0.17 * (1-energyRatio) + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+	else
+	 S_branch = max(0.,(stand_all(51,ij)+stand_all(24,ij)+stand_all(28,ij)+stand_all(32,ij)* 0.83 +&
+			stand_all(31,ij)* (1-harvRatio)))
+	 S_wood = stand_all(32,ij) *0.17 + stand_all(29,ij) !(1-harvRatio) takes into account of the stem residuals after clearcuts
+	endif
+  !energyCut
+    stand_all(2,ij) = 0. !!newX
+    stand_all(7,ij) = 0.
+	stand_all(8,ij) = 0.
+    stand_all(10:17,ij) = 0.
+    stand_all(19:21,ij) = 0.
+    stand_all(23:38,ij) = 0.
+    stand_all(41,ij) = 0.
+    stand_all(43,ij) = 0.
+    stand_all(47:nVar,ij) = 0.
+    stand_all(26,ij) = S_fol
+    stand_all(27,ij) = S_fr
+    stand_all(28,ij) = S_branch
+    stand_all(29,ij) = S_wood
+   enddo !!!implement clearcut by layer (end)
+  endif !!!end if oldLayer
  endif
 endif
 
 !!!!test for thinnings!!!!
  !!!!!!!for coniferous dominated stands!!!!!!
 if(defaultThin == 1.) then
+	if(oldLayer==1) then
+	 ll=max((nLayers-1),1)
+	else
+	 ll=nLayers
+	endif
+
  ! sitetype = siteInfo(3)
- BA_tot = sum(stand_all(13,:))!+stand_all(13,2)+stand_all(13,3)
- BAr = stand_all(13,:)/BA_tot
- domSp = maxloc(STAND_all(13,:))
+ BA_tot = sum(stand_all(13,1:ll))!+stand_all(13,2)+stand_all(13,3)
+ BAr = stand_all(13,1:ll)/BA_tot
+ domSp = maxloc(STAND_all(13,1:ll))
  layer = int(domSp(1))
  siteType = modOut(year,3,layer,1) !siteInfo(3)
  H = stand_all(11,layer)
@@ -1296,8 +1352,9 @@ if(defaultThin == 1.) then
 
   ! modOut(year+1,1,1,2) = thinx !flag for thinning
   thinClx(year,1) = thinningType  !flag for thinning
-  ! outt(1,1,2) = thinX
-  do ij = 1, nLayers
+  !if scenario = "oldLayer" do not consider the old layer in the thinnings
+
+  do ij = 1, ll
 
    if(stand_all(17,ij)>0.) then
     STAND_tot = stand_all(:,ij)
@@ -1502,6 +1559,9 @@ modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
+ if(oldLayer==1) then 
+	modOut((year+1),:,nLayers,:) = outt(:,nLayers,:) 
+ endif
 !!!!run Yasso
  if(yassoRun==1.) then
   do ijj = 1, nLayers
@@ -1551,10 +1611,6 @@ do year = 1,(nYears+1)
 	! write(*,*) modOut(year,39,ijj,1)
   enddo
 enddo
-
-
-
- ! write(2,*) "here2"
 
 !compute fluxes in g C m−2 y−1
  modOut(:,44,:,1) = modOut(:,44,:,1)*1000. !*1000 coverts units to g C m−2 y−1

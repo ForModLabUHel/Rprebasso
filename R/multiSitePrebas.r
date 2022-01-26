@@ -368,7 +368,8 @@ InitMultiSite <- function(nYearsMS,
 
 multiPrebas <- function(multiSiteInit,
                         fertThin = 0,
-                        nYearsFert = 20){
+                        nYearsFert = 20,
+                        oldLayer=0){
   ###initialize siteType
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
                                           dim=c(multiSiteInit$nSites,
@@ -381,6 +382,9 @@ multiPrebas <- function(multiSiteInit,
              multiSiteInit$nSites,multiSiteInit$maxYears)
   } 
   
+  if(oldLayer==1){
+    multiSiteInit <- addOldLayer(multiSiteInit)
+  }
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -430,7 +434,8 @@ multiPrebas <- function(multiSiteInit,
                      thinInt=as.double(multiSiteInit$thinInt),
                      fertThin = as.integer(fertThin),
                      flagFert = as.integer(0),
-                     nYearsFert = as.integer(nYearsFert)
+                     nYearsFert = as.integer(nYearsFert),
+                     oldLayer=as.integer(oldLayer)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -452,20 +457,22 @@ regionPrebas <- function(multiSiteInit,
                          ### compHarv=2 compensate harvest with thinnings
                          thinFact = 0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
                          #######compHarv[1]
-                         ageMitigScen = 0., ####flag used in the IBC-carbon runs of
-                         ######the mitigation Scenario. If higer then 0. the mitigation scenario is activated and
+                         ageHarvPrior = 0., ####flag used in the IBC-carbon runs of
+                         ####the mitigation Scenario and biodiversity protection 
+                         ####scenario (protect). If higher then 0. the scenarios is activated and
                          #####the sites are ordered according to the siteType and
-                         ###priority is given to the sites where age is lower then ageMitigScen
+                         ###priority is given to the sites where age is lower then ageHarvPrior
                          siteOrder=NA,
                          fertThin = 0.,
-                         nYearsFert = 20
+                         nYearsFert = 20,
+                         oldLayer=0 ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
 ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
   compHarv <- c(compHarv,thinFact)
-  if(ageMitigScen > 0.){
+  if(ageHarvPrior > 0.){
     sitesCl1 <- which(multiSiteInit$siteInfo[,3]<4)
     sitesCl2 <- which(multiSiteInit$siteInfo[,3]>3)
     siteOrder1 <- matrix(sitesCl1,length(sitesCl1),multiSiteInit$maxYears)
@@ -490,6 +497,9 @@ regionPrebas <- function(multiSiteInit,
              multiSiteInit$nSites,multiSiteInit$maxYears)
   } 
   
+  if(oldLayer==1){
+    multiSiteInit <- addOldLayer(multiSiteInit)
+  }
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
@@ -543,10 +553,11 @@ regionPrebas <- function(multiSiteInit,
                      cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv),
                      thinInt=as.double(multiSiteInit$thinInt),
-                     ageMitigScen = as.double(ageMitigScen),
+                     ageHarvPrior = as.double(ageHarvPrior),
                      fertThin = as.integer(fertThin),
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
-                     nYearsFert = as.integer(nYearsFert)
+                     nYearsFert = as.integer(nYearsFert),
+                     oldLayer=as.integer(oldLayer)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
