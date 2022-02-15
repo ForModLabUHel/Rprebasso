@@ -723,6 +723,8 @@ if (N>0.) then
 
 !!!!###here starts stand2 subroutine!!!!!!!!!!!#########
   par_alfar = modOut(year,3,ij,2) * age_factor
+  if(modOut(1,1,1,1)==202) write(1,*) modOut(year,3,ij,2), par_alfar, "test1"
+  
   ! if (sitetype <= 1.) then
    ! par_alfar = par_alfar1 * age_factor
   ! else if (sitetype==2.) then
@@ -1188,6 +1190,7 @@ if (ClCut == 1.) then
    !set siteType and alfar for old layer
   modOut(:,3,nLayers,1) = modOut(year,3,species,1)
   modOut(:,3,nLayers,2) = modOut(year,3,species,2)
+  if(modOut(1,1,1,1)==202) write(1,*) modOut(year,3,species,1:2), "test2"
     
   !!!!calculate percentage of trees remaining after clearcut(pDomRem)
   call random_number(randX)
