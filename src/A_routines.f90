@@ -1862,13 +1862,13 @@ subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar,nSp,nYearsFert,npa
 end subroutine calcAlfar	
 	
 	
-	subroutine test(a,b)
-	implicit none
-	integer, intent(in) :: a
-	real(8),intent(inout) :: b(a)
+	! subroutine test(a,b)
+	! implicit none
+	! integer, intent(in) :: a
+	! real(8),intent(inout) :: b(a)
 	
-	call random_number(b)
+	! call random_number(b)
 	
 	
-	end subroutine
+	! end subroutine
 	
