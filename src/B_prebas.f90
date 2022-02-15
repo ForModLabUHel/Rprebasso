@@ -723,7 +723,7 @@ if (N>0.) then
 
 !!!!###here starts stand2 subroutine!!!!!!!!!!!#########
   par_alfar = modOut(year,3,ij,2) * age_factor
-  if(modOut(1,1,1,1)==202) write(1,*) modOut(year,3,ij,2), par_alfar, "test1"
+  if(modOut(1,1,1,1)==202) write(1,*) oldLayer, modOut(year,3,ij,2), par_alfar, "test1"
   
   ! if (sitetype <= 1.) then
    ! par_alfar = par_alfar1 * age_factor
