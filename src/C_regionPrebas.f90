@@ -188,7 +188,7 @@ endif
    ! write(*,*) sum(soilCinOut(i,ij,:,:,1:nLayers(i)))
   ! endif
 	if(ij>1) then
-		output(1,3,:,:) = multiOut(i,(ij-1),3,:,:)
+		if(oldLayer==1) output(1,3,:,:) = multiOut(i,(ij-1),3,:,:)
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
 		output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
 	else
