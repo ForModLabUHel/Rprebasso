@@ -1190,6 +1190,7 @@ if (ClCut == 1.) then
    !set siteType and alfar for old layer
   modOut(:,3,nLayers,1) = modOut(year,3,species,1)
   modOut(:,3,nLayers,2) = modOut(year,3,species,2)
+  outt(3,nLayers,:) = modOut(year,3,species,1:2)
   if(modOut(1,1,1,1)==202) write(1,*) modOut(year,3,species,1:2), "test2"
     
   !!!!calculate percentage of trees remaining after clearcut(pDomRem)
