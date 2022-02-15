@@ -78,7 +78,7 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
-  open(1,file="test.txt")
+  ! open(1,file="test.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
  ! write(1,*) tTapio
@@ -331,7 +331,6 @@ if(oldLayer==1) then
     !!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	multiOut(siteX,ij:maxYears,3,nLayers(siteX),1) = multiOut(siteX,ij,3,layerX,1)
 	multiOut(siteX,ij:maxYears,3,nLayers(siteX),2) = multiOut(siteX,ij,3,layerX,2)
-	write(1,*) multiOut(siteX,ij,3,nLayers(siteX),1), multiOut(siteX,ij,3,nLayers(siteX),2), "test1"
 	!update dominant layer
 	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) = &
  	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (1-pDomRem)
@@ -572,8 +571,6 @@ if(oldLayer==1) then
     !!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	multiOut(siteX,ij:maxYears,3,nLayers(siteX),1) = multiOut(siteX,ij,3,layerX,1)
 	multiOut(siteX,ij:maxYears,3,nLayers(siteX),2) = multiOut(siteX,ij,3,layerX,2)
-	write(1,*) multiOut(siteX,1,1,1,1),multiOut(siteX,ij,46,:,1), &
-		multiOut(siteX,ij,3,nLayers(siteX),1), multiOut(siteX,ij,3,nLayers(siteX),2), "test2"
 	!update dominant layer
 	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) = &
  	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (1-pDomRem)
@@ -816,7 +813,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
