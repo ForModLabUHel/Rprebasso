@@ -238,7 +238,7 @@ endif
 	endif
 	
 	multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
-	multiOut(i,ij,1:2,1:nLayers(i),:) = output(1,1:2,1:nLayers(i),:)
+	multiOut(i,ij,1:3,1:nLayers(i),:) = output(1,1:3,1:nLayers(i),:)
 	multiOut(i,ij,4:7,1:nLayers(i),:) = output(1,4:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
 
