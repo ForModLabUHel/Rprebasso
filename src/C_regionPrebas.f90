@@ -78,7 +78,7 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
-  open(1,file="test.txt")
+  ! open(1,file="test.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
  ! write(1,*) tTapio
@@ -208,7 +208,6 @@ endif
  	
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
-	 if(output(1,1,1,1)==202) write(1,*) oldLayer, output(1,3,nLayers(i),:), "test3"
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
 		 multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
 	endif	
@@ -807,7 +806,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
