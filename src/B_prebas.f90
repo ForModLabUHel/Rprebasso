@@ -1186,7 +1186,9 @@ if (ClCut == 1.) then
    ! layer = int(domSp(1))
    
    !set siteType and alfar for old layer
-  modOut(:,3,nLayers,1:2) = modOut(:,3,species,1:2)
+  modOut(:,3,nLayers,1) = modOut(year,3,species,1)
+  modOut(:,3,nLayers,2) = modOut(year,3,species,2)
+    
   !!!!calculate percentage of trees remaining after clearcut(pDomRem)
   call random_number(randX)
    pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
