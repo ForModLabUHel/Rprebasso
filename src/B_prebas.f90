@@ -175,7 +175,7 @@ ETSmean = sum(ETSy)/nYears
 do year = 1, (nYears)
 !!!! Initialize after clearcut (start)
   if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
-   Ainit = int(min(Ainit, Ainit + nYears - yearX)) ! Ainit is the age stand is measureable. This is to avoid some special conditions that might occur in some simulation cases.
+   Ainit = int(Ainit)!int(min(Ainit, Ainit + nYears - yearX)) ! Ainit is the age stand is measureable. This is to avoid some special conditions that might occur in some simulation cases.
       totBA = sum(modOut((year-Ainit-1), 13, :, 1)) ! BA structure before clearcut, used for estimating spec. proportions at initialization if fixBAratio is = 0 (1 is for user defined)
    do ijj = 1, nLayers
      species = int(modOut(year, 4, ijj, 1))  ! read species
