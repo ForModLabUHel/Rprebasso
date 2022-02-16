@@ -144,7 +144,8 @@ do ij = 1,maxYears
 
 !!!
 	climID = siteInfo(i,2)
-	if(ij==int(min(yearX(i),maxYears)))then
+	if(ij==int(yearX(i)))then
+	!if(ij==int(min(yearX(i),maxYears)))then
 	 initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearX(i)))
 	 yearX(i) = 0
 
