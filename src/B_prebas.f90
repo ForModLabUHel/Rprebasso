@@ -1574,7 +1574,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    Lb(ijj) =  outt(28,ijj,1)
    Lf(ijj) = outt(26,ijj,1)+outt(27,ijj,1)
 
-   species = int(initVar(1,ijj))
+   species = int(modOut((year+1),4,ijj,1))
    call compAWENH(Lf(ijj),folAWENH(ijj,:),pAWEN(1:4,species))   !!!awen partitioning foliage
    if(GVrun==1 .and. ijj==1) then 
     folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
