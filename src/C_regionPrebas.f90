@@ -79,7 +79,7 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
-  ! open(1,file="test.txt")
+ open(1,file="test.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
  ! write(1,*) tTapio
@@ -208,7 +208,7 @@ endif
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
- 	
+ 	if(siteInfo(i,1)==411310.) write(1,*) output(1,13,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
@@ -816,7 +816,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  ! close(1)
+  close(1)
   ! close(2)
   ! close(3)
 ! write(10,*) "here5"
