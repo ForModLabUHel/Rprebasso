@@ -89,10 +89,15 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
 write(1,*) 0,multiOut(16179,1,31,:,1)
 do i = 1,nSites
  do ijj = 1,nLayers(i)
-	species = int(initVar(i,1,ijj))
+	if(initVar(i,5,ijj) == 0.) then
+		initVar(i,7,ijj) = 0. 
+		multiOut(i,1,(/24,25,30,31,32,33,47,48,49,50,51,54/),ijj,1)=0.
+	else		
+		species = int(initVar(i,1,ijj))
 		initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
 			initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
-	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
+		call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
+	endif
  enddo
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
