@@ -76,10 +76,10 @@ ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
-    ! open(1,file="test1.txt")
-    ! open(2,file="test2.txt")
+    open(1,file="test1.txt")
+    open(2,file="test2.txt")
     ! open(3,file="test3.txt")
- open(1,file="test.txt")
+ ! open(1,file="test.txt")
  ! open(2,file="tTapioReg.txt")
  ! write(1,*) ftTapio
  ! write(1,*) tTapio
@@ -100,8 +100,6 @@ do i = 1,nSites
  enddo
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
-	write(1,*) 0.,initVar(1617,3,:)
-	write(1,*) 0.5,initVar(16179,3,:)
 
 do ij = 1,maxYears
  roundWood = 0.
@@ -205,6 +203,8 @@ do ij = 1,maxYears
 		output(1,:,:,1) = multiOut(i,1,:,:,1)
 		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
 	endif
+ 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
+	if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -217,6 +217,7 @@ do ij = 1,maxYears
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
  	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
+	if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
@@ -765,6 +766,7 @@ endif
      enddo !ijj layers loop
 	
 	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
+	if(siteInfo(siteX,1)==35.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
