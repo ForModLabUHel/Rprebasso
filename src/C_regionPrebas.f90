@@ -749,12 +749,14 @@ endif
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
      enddo !ijj layers loop
-   	 initVar(siteX,1,1:jj) = multiOut(siteX,ij,4,1:jj,1)
-	 initVar(siteX,2,1:jj) = multiOut(siteX,ij,7,1:jj,1)
-	 initVar(siteX,3:6,1:jj) = multiOut(siteX,ij,11:14,1:jj,1)
-	 initVar(siteX,7,1:jj) = multiOut(siteX,ij,16,1:jj,1)
-    
-	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,13,:,1)
+   	 
+	 initVar(siteX,1,1:nLayers(siteX)) = multiOut(siteX,ij,4,1:nLayers(siteX),1)
+	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
+	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
+	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
+
+	
+	if(siteInfo(siteX,1)==411310.) write(1,*) ij,initVar(siteX,5,1:nLayers(siteX))
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
@@ -777,6 +779,7 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
   !HarvLim(ij,1) = roundWood
   !HarvLim(ij,2) = energyWood
 end do !end Year loop 
+
  do i = 1,nSites
   do ij = 1, maxYears 
     do ijj = 1,nLayers(i)
