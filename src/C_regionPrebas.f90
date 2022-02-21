@@ -99,8 +99,8 @@ enddo
 do ij = 1,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
- if(ageMitigScen > 0.) call changeOrder(siteOrder(:,ij),multiOut(:,ij,7,1,1), & 
-								siteOrder(:,ij),nSites,ageMitigScen)
+ ! if(ageMitigScen > 0.) call changeOrder(siteOrder(:,ij),multiOut(:,ij,7,1,1), & 
+								! siteOrder(:,ij),nSites,ageMitigScen)
  
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
