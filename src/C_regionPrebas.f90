@@ -86,6 +86,7 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
  ! close(1)
  ! close(2)
 !!inititialize A and biomasses
+write(1,*) 0,multiOut(16179,1,31,:,1)
 do i = 1,nSites
  do ijj = 1,nLayers(i)
 	species = int(initVar(i,1,ijj))
@@ -95,6 +96,7 @@ do i = 1,nSites
  enddo
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
+write(1,*) 0.5,multiOut(16179,1,31,:,1)
 
 do ij = 1,maxYears
  roundWood = 0.
