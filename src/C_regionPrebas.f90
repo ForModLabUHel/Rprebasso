@@ -208,7 +208,7 @@ endif
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
- 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,13,1:nLayers(i),1)
+ 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,31,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
@@ -505,7 +505,7 @@ endif
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
 
-   	  initVar(siteX,1,ijj) = multiOut(siteX,ij,4,ijj,1)
+   	  initVar(siteX,1,ijj) = multiOut(siteX,ij,4,jj,1)
  	  initVar(siteX,2,ijj) = multiOut(siteX,ij,7,ijj,1)
 	  initVar(siteX,3:6,ijj) = multiOut(siteX,ij,11:14,ijj,1)
 	  initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
@@ -756,7 +756,7 @@ endif
 	 initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
      enddo !ijj layers loop
 	
-	if(siteInfo(siteX,1)==411310.) write(1,*) ij,initVar(siteX,5,:)
+	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,31,:,1)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
