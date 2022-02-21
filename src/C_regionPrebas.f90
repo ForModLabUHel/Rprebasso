@@ -79,12 +79,7 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
     open(1,file="test1.txt")
     open(2,file="test2.txt")
     ! open(3,file="test3.txt")
- ! open(1,file="test.txt")
- ! open(2,file="tTapioReg.txt")
- ! write(1,*) ftTapio
- ! write(1,*) tTapio
- ! close(1)
- ! close(2)
+
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
@@ -106,12 +101,9 @@ do ij = 1,maxYears
  energyWood = 0.	!!energCuts
  if(ageMitigScen > 0.) call changeOrder(siteOrder(:,ij),multiOut(:,ij,7,1,1), & 
 								siteOrder(:,ij),nSites,ageMitigScen)
- ! ! write(1,*) "year", ij
+ 
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
-! open(10,file="multiSite.txt")
- ! write(10,*) "years =",ij, "siteRun = ",iz
-! close(10)
 	ClCutX = ClCut(i)
 	defaultThinX = defaultThin(i)
 	energyCutX = energyCuts(i)		!!energCuts
@@ -123,8 +115,7 @@ do ij = 1,maxYears
 	endif
 
 !!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
-    ! write(1,*) cuttingArea(ij,:)
-	if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
+    if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
 	 ClCutX = 0.
 	endif
 	if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
@@ -192,9 +183,7 @@ do ij = 1,maxYears
 	  thinningX(az,1) = 1.
 	 endif
 	enddo
-  ! if(ij==1) then
-   ! write(*,*) sum(soilCinOut(i,ij,:,:,1:nLayers(i)))
-  ! endif
+
 	if(ij>1) then
 		if(oldLayer==1) output(1,3,:,:) = multiOut(i,(ij-1),3,:,:)
 		output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
@@ -785,7 +774,6 @@ endif
  endif 
 endif !roundWood < HarvLim .and. HarvLim /= 0.
 
-! write(10,*) "here4"
   !HarvLim(ij,1) = roundWood
   !HarvLim(ij,2) = energyWood
 end do !end Year loop 
@@ -832,10 +820,8 @@ end do !end Year loop
   enddo
  enddo	
   close(1)
-  ! close(2)
+  close(2)
   ! close(3)
-! write(10,*) "here5"
-! close(10)
 soilCinOut = soilC
 soilCtotInOut = soilCtot
 
