@@ -502,7 +502,7 @@ regionPrebas <- function(multiSiteInit,
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
   prebas <- .Fortran("regionPrebas",
-                     siteOrder = integer(siteOrder),
+                     siteOrder = as.integer(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
                      multiOut = as.array(multiSiteInit$multiOut),
