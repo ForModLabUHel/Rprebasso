@@ -74,6 +74,7 @@ thinFact = compHarv(2)
 tTapioX = tTapio
 ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
+multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
