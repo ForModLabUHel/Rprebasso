@@ -86,7 +86,6 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
  ! close(1)
  ! close(2)
 !!inititialize A and biomasses
-write(1,*) 0,multiOut(16179,1,11,:,1)
 do i = 1,nSites
  do ijj = 1,nLayers(i)
 	if(initVar(i,5,ijj) == 0.) then
@@ -101,7 +100,8 @@ do i = 1,nSites
  enddo
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
-write(1,*) 0.5,multiOut(16179,1,11,:,1)
+	write(1,*) 0.,initVar(1617,3,:)
+	write(1,*) 0.5,initVar(16179,3,:)
 
 do ij = 1,maxYears
  roundWood = 0.
@@ -159,11 +159,11 @@ do ij = 1,maxYears
 	 yearX(i) = 0
 
 !if scenario = "oldLayer" do not consider the old layer
-if(oldLayer==1) then
- jj=max((nLayers(i)-1),1)
-else
- jj=nLayers(i)
-endif
+	 if(oldLayer==1) then
+		jj=max((nLayers(i)-1),1)
+	 else
+		jj=nLayers(i)
+	 endif
 
 	 do ijj = 1,jj
 	  species = int(multiOut(i,1,4,ijj,1))
@@ -205,6 +205,7 @@ endif
 		output(1,:,:,1) = multiOut(i,1,:,:,1)
 		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
 	endif
+
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
