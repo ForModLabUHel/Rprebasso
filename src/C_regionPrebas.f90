@@ -86,7 +86,7 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
  ! close(1)
  ! close(2)
 !!inititialize A and biomasses
-write(1,*) 0,multiOut(16179,1,31,:,1)
+write(1,*) 0,multiOut(16179,1,11,:,1)
 do i = 1,nSites
  do ijj = 1,nLayers(i)
 	if(initVar(i,5,ijj) == 0.) then
@@ -101,7 +101,7 @@ do i = 1,nSites
  enddo
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
-write(1,*) 0.5,multiOut(16179,1,31,:,1)
+write(1,*) 0.5,multiOut(16179,1,11,:,1)
 
 do ij = 1,maxYears
  roundWood = 0.
@@ -215,7 +215,7 @@ endif
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
- 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,31,1:nLayers(i),1)
+ 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
@@ -763,7 +763,7 @@ endif
 	 initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
      enddo !ijj layers loop
 	
-	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,31,:,1)
+	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
