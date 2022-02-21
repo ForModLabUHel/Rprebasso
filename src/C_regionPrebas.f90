@@ -114,7 +114,7 @@ do ij = 1,maxYears
 								siteOrder(:,ij),nSites,ageMitigScen)
  
  do iz = 1,nSites
- 	i=int(siteOrder(iz,ij))
+ 	i=siteOrder(iz,ij)
 	ClCutX = ClCut(i)
 	defaultThinX = defaultThin(i)
 	energyCutX = energyCuts(i)		!!energCuts
