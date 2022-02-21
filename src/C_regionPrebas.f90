@@ -754,7 +754,7 @@ endif
 	 initVar(siteX,3:6,1:jj) = multiOut(siteX,ij,11:14,1:jj,1)
 	 initVar(siteX,7,1:jj) = multiOut(siteX,ij,16,1:jj,1)
     
-	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,13,:,1),1)
+	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,13,:,1)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
