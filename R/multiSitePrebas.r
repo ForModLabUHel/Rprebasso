@@ -476,9 +476,9 @@ regionPrebas <- function(multiSiteInit,
     sitesCl1 <- which(multiSiteInit$siteInfo[,3]<4)
     sitesCl2 <- which(multiSiteInit$siteInfo[,3]>3)
     siteOrder1 <- matrix(sitesCl1,length(sitesCl1),multiSiteInit$maxYears)
-    siteOrder1 <- apply(siteOrder1,2,sample)
+    siteOrder1 <- apply(siteOrder1,2,sample,length(sitesCl1))
     siteOrder2 <- matrix(sitesCl2,length(sitesCl2),multiSiteInit$maxYears)
-    siteOrder2 <- apply(siteOrder2,2,sample)
+    siteOrder2 <- apply(siteOrder2,2,sample,length(sitesCl2))
     siteOrder <- rbind(siteOrder1,siteOrder2)
     print(which(siteOrder[,1]==16179))
   }else if(all(is.na(siteOrder))){
@@ -502,7 +502,7 @@ regionPrebas <- function(multiSiteInit,
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
   prebas <- .Fortran("regionPrebas",
-                     siteOrder = as.matrix(siteOrder),
+                     siteOrder = integer(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
                      multiOut = as.array(multiSiteInit$multiOut),
