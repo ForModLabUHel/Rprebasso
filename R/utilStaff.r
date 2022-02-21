@@ -640,7 +640,6 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     multiInitVar = array(0,dim=dims)
     multiInitVar[,,-(maxNlayers)] = multiSiteInit$multiInitVar
     multiSiteInit$multiInitVar <- multiInitVar
-    multiSiteInit$multiInitVar[,1,maxNlayers] <- 1
     ###add layer
     multiSiteInit$nLayers = multiSiteInit$nLayers + 1
     ###add layer to nLayers in siteInfo
