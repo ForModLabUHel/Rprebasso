@@ -1812,7 +1812,7 @@ END subroutine calRein
 	integer, allocatable :: indices(:)
 	integer,intent(in) :: nSites
 	real(8),intent(in) :: ageX
-	integer,intent(inout) :: oldOrd(nSites),newOrd(nSites)
+	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
 	real(8), intent(in) :: age(nSites)
 	integer i, nX
 		indices = PACK([(i, i=1,nSites)], age<=ageX)
