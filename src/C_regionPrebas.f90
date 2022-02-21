@@ -59,7 +59,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem
+ real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites)
 
 !!!!initialize run
 ! multiOut = 0.
@@ -99,8 +99,19 @@ enddo
 do ij = 1,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
- ! if(ageMitigScen > 0.) call changeOrder(siteOrder(:,ij),multiOut(:,ij,7,1,1), & 
-								! siteOrder(:,ij),nSites,ageMitigScen)
+ 
+ do i = 1,nSites
+  if(oldLayer==1) then
+   jj = max((nLayers(i)-1),1)
+  else
+   jj = nLayers(siteX)
+  endif
+  domSp = maxloc(multiOut(siteX,ij,13,1:jj,1))
+  layerX = int(domSp(1))
+  age(i) = multiOut(i,ij,7,layerX,1)
+ enddo
+ if(ageMitigScen > 0.) call changeOrder(siteOrder(:,ij),age, & 
+								siteOrder(:,ij),nSites,ageMitigScen)
  
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
