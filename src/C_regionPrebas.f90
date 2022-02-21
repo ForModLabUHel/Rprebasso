@@ -504,11 +504,12 @@ endif
 	  multiOut(siteX,ij,30:33,ijj,1) = multiOut(siteX,ij,30:33,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
+
+   	  initVar(siteX,1,ijj) = multiOut(siteX,ij,4,ijj,1)
+ 	  initVar(siteX,2,ijj) = multiOut(siteX,ij,7,ijj,1)
+	  initVar(siteX,3:6,ijj) = multiOut(siteX,ij,11:14,ijj,1)
+	  initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
      enddo !ijj layers loop
-   	 initVar(siteX,1,1:jj) = multiOut(siteX,ij,4,1:jj,1)
-	 initVar(siteX,2,1:jj) = multiOut(siteX,ij,7,1:jj,1)
-	 initVar(siteX,3:6,1:jj) = multiOut(siteX,ij,11:14,1:jj,1)
-	 initVar(siteX,7,1:jj) = multiOut(siteX,ij,16,1:jj,1)
 	 
  	!!!if fertilization at thinning is active,  decrease siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
@@ -748,15 +749,14 @@ endif
 	  multiOut(siteX,ij,30:33,ijj,1) = multiOut(siteX,ij,30:33,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,47:51,ijj,1) = multiOut(siteX,ij,47:51,ijj,1)*(1-thinFact)
 	  multiOut(siteX,ij,53:nVar,ijj,1) = multiOut(siteX,ij,53:nVar,ijj,1)*(1-thinFact)
-     enddo !ijj layers loop
-   	 
-	 initVar(siteX,1,1:nLayers(siteX)) = multiOut(siteX,ij,4,1:nLayers(siteX),1)
-	 initVar(siteX,2,1:nLayers(siteX)) = multiOut(siteX,ij,7,1:nLayers(siteX),1)
-	 initVar(siteX,3:6,1:nLayers(siteX)) = multiOut(siteX,ij,11:14,1:nLayers(siteX),1)
-	 initVar(siteX,7,1:nLayers(siteX)) = multiOut(siteX,ij,16,1:nLayers(siteX),1)
 
+	 initVar(siteX,1,ijj) = multiOut(siteX,ij,4,ijj,1)
+	 initVar(siteX,2,ijj) = multiOut(siteX,ij,7,ijj,1)
+	 initVar(siteX,3:6,ijj) = multiOut(siteX,ij,11:14,ijj,1)
+	 initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
+     enddo !ijj layers loop
 	
-	if(siteInfo(siteX,1)==411310.) write(1,*) ij,initVar(siteX,5,1:nLayers(siteX))
+	if(siteInfo(siteX,1)==411310.) write(1,*) ij,initVar(siteX,5,:)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
