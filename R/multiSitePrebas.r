@@ -480,12 +480,21 @@ regionPrebas <- function(multiSiteInit,
     for(ix in 1: multiSiteInit$maxYears){
       siteOrder1[,ix] <- sample(sitesCl1)
       siteOrder2[,ix] <- sample(sitesCl2)
+    print("a")
+    print(all(sitesCl1 %in% siteOrder1[,ix]))
+    print("b")
+    print(all(sitesCl2 %in% siteOrder2[,ix]))
     }
     # siteOrder1 <- matrix(sitesCl1,length(sitesCl1),multiSiteInit$maxYears)
     # siteOrder1 <- apply(siteOrder1,1,sample)
     # siteOrder2 <- matrix(sitesCl2,length(sitesCl2),multiSiteInit$maxYears)
     # siteOrder2 <- apply(siteOrder2,1,sample)
     siteOrder <- rbind(siteOrder1,siteOrder2)
+    for(ix in 1:36){
+      print("c")
+      print(all((1:multiSiteInit$nSites)%in%siteOrder[,ix]))
+    } 
+    
   }else if(all(is.na(siteOrder))){
     siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
     set.seed(NULL)
