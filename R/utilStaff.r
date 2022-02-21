@@ -54,6 +54,7 @@ initBiomasses <- function(pCro,initVarX){
   V = W_stem / par_rhow
   biomasses <- rbind(wf_STKG,W_froot,W_wsap,W_c,W_s,W_branch,W_croot,Wsh,Wdb,W_stem,V,W_crh)
 
+  biomasses[which(is.na(biomasses))] <- 0.
   return(biomasses)
 }
 
