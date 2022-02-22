@@ -111,10 +111,11 @@ do ij = 1,maxYears
   ! age(i) = multiOut(i,ij,7,layerX,1)
  ! enddo
  if(ageMitigScen > 0.) then
-	siteOrdX <- real(siteOrder(:,ij),8)
+	siteOrdX = real(siteOrder(:,ij),8)
 	call changeOrder(siteOrdX,multiOut(:,ij,7,1,1), & 
 								siteOrdX,nSites,ageMitigScen)
-	siteOrder(:,ij) <- int(siteOrdX)
+	siteOrder(:,ij) = int(siteOrdX)
+ endif
  
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
