@@ -480,7 +480,6 @@ regionPrebas <- function(multiSiteInit,
     siteOrder2 <- matrix(sitesCl2,length(sitesCl2),multiSiteInit$maxYears)
     siteOrder2 <- apply(siteOrder2,2,sample,length(sitesCl2))
     siteOrder <- rbind(siteOrder1,siteOrder2)
-    print(which(siteOrder[,1]==16179))
   }else if(all(is.na(siteOrder))){
     siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
     set.seed(NULL)
