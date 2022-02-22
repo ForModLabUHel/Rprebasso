@@ -18,7 +18,7 @@ real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,oldLayer
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
-real (kind=8), intent(inout) :: siteOrder(nSites,maxYears)
+integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: DOY(365),etmodel
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
@@ -114,7 +114,7 @@ do ij = 1,maxYears
 								! siteOrder(:,ij),nSites,ageMitigScen)
  
  do iz = 1,nSites
- 	i=int(siteOrder(iz,ij))
+ 	i=siteOrder(iz,ij)
 	ClCutX = ClCut(i)
 	defaultThinX = defaultThin(i)
 	energyCutX = energyCuts(i)		!!energCuts
