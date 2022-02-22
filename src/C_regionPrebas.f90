@@ -76,8 +76,8 @@ ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
-    open(1,file="test1.txt")
-    open(2,file="test2.txt")
+    ! open(1,file="test1.txt")
+    ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
 
 !!inititialize A and biomasses
@@ -207,8 +207,8 @@ do ij = 1,maxYears
 		output(1,:,:,1) = multiOut(i,1,:,:,1)
 		output(1,3:nVar,:,2) = multiOut(i,1,3:nVar,:,2)
 	endif
- 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
-	if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
+ 	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
+	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 
 	  call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -220,8 +220,8 @@ do ij = 1,maxYears
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
- 	if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
-	if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
+ 	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
+	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
@@ -266,8 +266,6 @@ endif
 	multiOut(i,ij,4:7,1:nLayers(i),:) = output(1,4:7,1:nLayers(i),:)
 	multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
 
-	! if(multiOut(i,ij,1,1,2)>0.) write(1,*) multiOut(i,ij,1,1,2)
-	 
 	if(multiOut(i,ij,1,1,2) == 1.) then
 	  cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
 	endif
@@ -289,8 +287,6 @@ endif
 	endif
  end do !iz i site loop
 
-! write(10,*) "here3"
-! write(2,*) roundWood,HarvLim(ij,1), ij
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by DBH 
  !or thin based on stand density index
 if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.) then
@@ -314,7 +310,6 @@ endif
    ops = maxloc(maxState)
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
-! write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
 	if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
      energyCutX = energyCuts(siteX)
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
@@ -556,7 +551,7 @@ endif
    ops = maxloc(maxState)
    siteX = int(ops(1))
    climID = int(siteInfo(siteX,2))
-! write(3,*) ij,roundWood,HarvLim(ij,1),n, maxState(siteX), ClCut(siteX),areas(siteX) 
+
 	if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
      energyCutX = energyCuts(siteX)
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
@@ -597,7 +592,6 @@ else
  jj=nLayers(i)
 endif
 !!   !!clearcut!!
-! write(1,*) "clearcutting", ij,maxState(siteX),minDharv
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
 	   roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)*areas(siteX) !!energCuts
 	   multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
@@ -769,8 +763,8 @@ endif
 	 initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
      enddo !ijj layers loop
 	
-	if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
-	if(siteInfo(siteX,1)==35.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
+	! if(siteInfo(siteX,1)==411310.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
+	! if(siteInfo(siteX,1)==35.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0) then 
@@ -834,8 +828,8 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
-  close(2)
+  ! close(1)
+  ! close(2)
   ! close(3)
 soilCinOut = soilC
 soilCtotInOut = soilCtot
