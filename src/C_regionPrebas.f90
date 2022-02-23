@@ -106,11 +106,11 @@ do ij = 1,maxYears
    if(oldLayer==1) then
     jj = max((nLayers(i)-1),1)
    else
-    jj = nLayers(siteX)
+    jj = nLayers(i)
    endif
-   domSp = maxloc(multiOut(siteX,ij,13,1:jj,1))
+   domSp = maxloc(multiOut(i,ij,13,1:jj,1))
    layerX = int(domSp(1))
-   age(i) = 1!multiOut(i,ij,7,layerX,1)
+   age(i) = multiOut(i,ij,7,layerX,1)
   enddo
   siteOrdX = real(siteOrder(:,ij),8)
   call changeOrder(siteOrdX,age, & 
