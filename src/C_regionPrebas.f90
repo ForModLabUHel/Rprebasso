@@ -497,7 +497,7 @@ endif
 	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
 	   	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
 		(1-energyRatio)* thinFact + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact +&
-		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)** thinFact))
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)* thinFact))
        multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)* thinFact+ &
 			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	  else
@@ -741,7 +741,7 @@ endif
 	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
 	   	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
 		(1-energyRatio)* thinFact + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact +&
-		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)** thinFact))
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio) * thinFact))
        multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)* thinFact+ &
 			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
 	  else
