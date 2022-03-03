@@ -22,7 +22,7 @@ dim(pCROB)
 colnames(pCROB)
 ```
 
-| No. of the column |  Tree species                 |  Latin names |
+| No. of the column |  Tree species                 |  Scientific names |
 |:------------------|:------------------------------|:-------------------|
 |1                  | Scots pine     | _Pinus sylvestris_|
 |2                  | Norway spruce  | _Picea abies_|
