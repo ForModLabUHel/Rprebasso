@@ -45,7 +45,7 @@ implicit none
 !!!ground vegetation variables
  real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
  integer, intent(in) :: gvRun !!! flag for including ground vegetation
- real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV !!! ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
  real (kind=8), intent(inout) :: siteInfo(10)
