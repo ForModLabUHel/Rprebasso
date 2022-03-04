@@ -44,23 +44,26 @@ A dataframe of yield table for Scots pine.
 Computing the temporal development of stand characteristics in Scots pine with the models by Vuokila & Väliaho (1980)
 }
 \examples{
-The default setting of 5 yield tables, site index from 33 to 21. 
+The default setting of 6 yield tables, site index from 30 to 15.
 The variables H100, T0, H0, N0, G0 are recommended to use these default settings.
 
-   YieldTable_Pine_VV(H100=33,T0=15,H0=5.7,N0=2200,G0=4.9,
+   YieldTable_Pine_VV(H100=30,T0=15,H0=5.7,N0=2000,G0=9.1,
                       Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))
-   
-   YieldTable_Pine_VV(H100=30,T0=20,H0=7.0,N0=2200,G0=7.4,
+
+   YieldTable_Pine_VV(H100=27,T0=20,H0=7.0,N0=2000,G0=11.1,
                       Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))
-   
-   YieldTable_Pine_VV(H100=27,T0=25,H0=7.7,N0=2000,G0=8.4,
+
+   YieldTable_Pine_VV(H100=24,T0=20,H0=5.6,N0=1800,G0=6.3,
                       Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))
-   
-   YieldTable_Pine_VV(H100=24,T0=25,H0=5.9,N0=2000,G0=3.1,
-                      Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))                                                    
-   
-   YieldTable_Pine_VV(H100=21,T0=30,H0=6.0,N0=1800,G0=1.9,
-                      Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))      
+
+   YieldTable_Pine_VV(H100=21,T0=25,H0=6.1,N0=1800,G0=6.4,
+                      Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))
+
+   YieldTable_Pine_VV(H100=18,T0=30,H0=6.1,N0=1600,G0=4.8,
+                      Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))
+
+   YieldTable_Pine_VV(H100=15,T0=40,H0=6.6,N0=1600,G0=4.4,
+                      Tn=110,thin.n=3,thin.times=c(50, 65, 85),thin.ints= c(0.30, 0.30, 0.30))
 
 
 }
