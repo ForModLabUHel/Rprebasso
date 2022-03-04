@@ -210,6 +210,7 @@ YieldTable_Spruce_VV <-
                half.MSE = 0.010764) {
         Sperc <-
           95 * (1 - exp(a0 + half.MSE + a1 * 1000 * V / N + a2 * H + a3 * H ^ 2))
+        Sperc<-max(0,Sperc)
         return(Sperc)
       }
     

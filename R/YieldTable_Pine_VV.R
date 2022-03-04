@@ -226,6 +226,7 @@ YieldTable_Pine_VV <-
                a2 = 0.0037506,
                half.MSE = 0.019969) {
         Sperc <- 95 * (1 - exp(a0 + half.MSE + a1 * 1000 * V / N + a2 * T))
+        Sperc <- max(0,Sperc)
         return(Sperc)
       }
     
