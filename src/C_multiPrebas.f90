@@ -79,7 +79,7 @@ enddo
 
 do i = 1,nSites
  ! write(*,*) i
- output(1,:,:,:) = multiOut(i,1,:,:,:)
+ output(:,:,:,:) = multiOut(i,:,:,:,:)
  ! write(1,*) i
 
 	climID = siteInfo(i,2)
