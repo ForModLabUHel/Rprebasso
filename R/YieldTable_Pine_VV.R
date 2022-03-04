@@ -511,7 +511,7 @@ YieldTable_Pine_VV <-
             else {
               S[i] <- V[i] * Sperc.pine.f(V = V[i],
                                           N = N[i],
-                                          H = H[i]) / 100
+                                          T = T[i]) / 100
               FF[i] <-
                 V[i] * (100 - Sperc.pine.f(
                   V = V[i],
