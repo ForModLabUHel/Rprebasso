@@ -1,0 +1,86 @@
+---
+title: "The parameters in CROBAS"
+author: 'Xianglin Tian'
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parameters_pCROB}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Rprebasso)
+dim(pCROB)
+colnames(pCROB)
+```
+
+| No. of the column |  Tree species                 |  Scientific names |
+|:------------------|:------------------------------|:-------------------|
+|1                  | Scots pine     | _Pinus sylvestris_|
+|2                  | Norway spruce  | _Picea abies_|
+|3                  | Silver birch   | _Betula pendula_|
+|4                  | European beech | _Fagus sylvatica_|
+|5                  | Maritime pine  | _Pinus pinaster_|
+|6                  | Blue gum       | _Eucalyptus globulus_ |
+|7                  | Black locust   | _Robinia pseudoacacia_ |
+|8                  | Poplar         | _Populus_ spp. |
+|9                  | Hybrid eucalyptus | _Eucalyptus grandis_ x _Eucalyptus urophylla_ |
+|10                 | Norway spruce (in Germany) | _Picea abies_ |
+
+| No. of the row|  Parameter |  Meaning |
+|:-----|:---|:-------------------|
+|1|cR|	Light level at crown base that prompts full crown rise (to follow height growth)|
+|2|rhow|	Wood density (kg C / m3)
+|3|sla|	Specific leaf area (m2/kg C) (all-sided)
+|4|k|	Homogeneous extinction coefficient (all-sided)
+|5|vf|	Leaf longevity (yr)
+|6|vr|	Fine root longevity (yr)
+|7|c|	Growth respiration rate (kg C / kg C / yr)
+|8|mf|	Maintenance respiration rate of foliage
+|9|mr|	Maintenance respiration rate of fine roots
+|10|mw|	Maintenance respiration rate of wood
+|11|z|	Foliage allometry parameter
+|12|beta0|	Ratio of coarse root biomass to above-ground sapwood biomass
+|13|betab|	Ratio of mean branch pipe length to crown length
+|14|betas|	Ratio of mean pipe length in stem above crown base to crown length
+|15|rhof2|	Ratio of foliage mass to cross-sectional area at crown base, kg C/m2
+|16|s1|	Parameter relating to reduction of photosynthesis with crown length
+|17|kRein|	Stand density index (reference DBH = 25 cm)
+|18|s0scale|	Adjusting photosynthesis rate of per weight of foliage biomass
+|19|x| Parameter for relating branch length to crown length
+|20|aETS|	Effect of the effective temperature sum on the longevity of foliage and fine roots.
+|21|alfar1|	Ratio of fine roots to foliage mass for site type 1
+|22|alfar2|	Ratio of fine roots to foliage mass for site type 2
+|23|alfar3|	Ratio of fine roots to foliage mass for site type 3
+|24|alfar4|	Ratio of fine roots to foliage mass for site type 4
+|25|alfar5|	Ratio of fine roots to foliage mass for site type 5
+|26|sarShp|	Shape surface area of the crown
+|27|S_branchMod|	For branch litter model
+|28|conifers=1 or decidous=2| Relate to the basal area limit for harvesting	
+|29|p0_ref|	A reference rate of potential photosynthesis
+|30|ETS_ref|	A reference of effective temperature sum
+|31|thetaMax|	Old growth about diameter/heigh allocation, not used currently
+|32|H0max	| Old growth about diameter/heigh allocation, not used currently
+|33|gamma|	Old growth about diameter/heigh allocation, not used currently
+|34|kH|   Old growth about diameter/heigh allocation, not used currently
+|35|decayVp1| Calculate deadWood using Gompetz function
+|36|decayVp2| Calculate deadWood using Gompetz function
+|37|decayVp3| Calculate deadWood using Gompetz function
+|38|ksi	| Relating sapwood area and crown length
+|39|sla0	| The specific leaf area at age 0
+|40|tsla	| The age at which SLA reaches the average of leave from age 0 and mature
+|41|zb| Ratio between dead branches length and mean pipe length
+|42|aHdom| Dominant height model (Intercept)
+|43|bHdom| Dominant height model (Slop)
+|44|decayVp4| Calculate deadWood using Gompetz function
+|45|fAa|The inverse of extra allocation level for seedlings' roots at age 0. The value should be fAa=0.3 when it's working.No effects when fAa=1.|
+|46|fAb|The reference height for extra allocation level decrease to the half of age 0.|
+|47|fAc|The changing speed of the extra allocation level to roots from young age to old age.|

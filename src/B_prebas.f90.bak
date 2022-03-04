@@ -45,7 +45,7 @@ implicit none
 !!!ground vegetation variables
  real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
  integer, intent(in) :: gvRun !!! flag for including ground vegetation
- real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv !!! ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
  real (kind=8), intent(inout) :: siteInfo(10)
@@ -1304,7 +1304,7 @@ if(defaultThin == 1.) then
  species = int(stand_all(4,layer))
 
  ! counting the dominant height of the dominant species
- Hdom = pCrobas(42,species)*exp(-1/max((H-1.3),0.001))+pCrobas(43,species)*H
+ Hdom = pCrobas(42,species)+pCrobas(43,species)*exp(-1/max((H-1.3),0.001)) 
  Ntot = sum(STAND_all(17,:))
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
