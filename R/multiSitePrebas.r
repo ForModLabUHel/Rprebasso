@@ -375,12 +375,16 @@ multiPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  
   for(ijj in 1:multiSiteInit$maxNlayers){
-    multiSiteInit$multiOut[,,3,ijj,2] = 
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5)),
-                                multiSiteInit$multiInitVar[,1,ijj])],
-             multiSiteInit$nSites,multiSiteInit$maxYears)
-  } 
+    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+    multiSiteInit$multiOut[,,3,ijj,2] =
+      matrix(0,multiSiteInit$nSites,multiSiteInit$maxYears)
+    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
+                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
+             length(siteXs),multiSiteInit$maxYears)
+  }
   
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)

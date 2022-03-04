@@ -2,32 +2,33 @@
 initBiomasses <- function(pCro,initVarX){
   initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
   siteType <- initVarX[8,1]
+  layerXs <- which(initVarX[1,] %in% 1:ncol(pCROB))
   ##set parameters
-  par_betab <- pCro[13,initVarX[1,]]
-  par_x <- pCro[19,initVarX[1,]]
-  par_beta0 <- pCro[12,initVarX[1,]]
-  par_betas <- pCro[14,initVarX[1,]]
-  par_mf <- pCro[8,initVarX[1,]]
-  par_mr <- pCro[9,initVarX[1,]]
-  par_mw <- pCro[10,initVarX[1,]]
-  par_c <- pCro[7,initVarX[1,]]
-  par_rhof <- pCro[15,initVarX[1,]]
-  par_rhow <- pCro[2,initVarX[1,]]
-  par_S_branchMod <- pCro[27,initVarX[1,]]
+  par_betab <- pCro[13,initVarX[1,layerXs]]
+  par_x <- pCro[19,initVarX[1,layerXs]]
+  par_beta0 <- pCro[12,initVarX[1,layerXs]]
+  par_betas <- pCro[14,initVarX[1,layerXs]]
+  par_mf <- pCro[8,initVarX[1,layerXs]]
+  par_mr <- pCro[9,initVarX[1,layerXs]]
+  par_mw <- pCro[10,initVarX[1,layerXs]]
+  par_c <- pCro[7,initVarX[1,layerXs]]
+  par_rhof <- pCro[15,initVarX[1,layerXs]]
+  par_rhow <- pCro[2,initVarX[1,layerXs]]
+  par_S_branchMod <- pCro[27,initVarX[1,layerXs]]
   gammaC <- 0. #initVarX[8,]
   Tbd <- 10 #####to include in the parameters
   
   ###set variables
-  A <- initVarX[7,]
-  ba <- initVarX[5,]; d <- initVarX[4,]
+  A <- initVarX[7,layerXs]
+  ba <- initVarX[5,layerXs]; d <- initVarX[4,layerXs]
   N <- ba/(pi*((d/2/100)^2))
-  h = initVarX[3,]; hc <- initVarX[6,]
+  h = initVarX[3,layerXs]; hc <- initVarX[6,layerXs]
   B = ba/N
   Lc <- h - hc
   
   ### Fine root allocation of early growth  
-  age_factor <-  (1. - (1- pCro[44,initVarX[1,]])/ (1. + exp((-h+ pCro[45,initVarX[1,]])/ pCro[46,initVarX[1,]])))/ pCro[44,initVarX[1,]] 
-  par_alfar <- pCro[20+pmin(siteType,5),initVarX[1,]]* age_factor
+  age_factor <-  (1. - (1- pCro[44,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[45,initVarX[1,layerXs]])/ pCro[46,initVarX[1,layerXs]])))/ pCro[44,initVarX[1,layerXs]] 
+  par_alfar <- pCro[20+pmin(siteType,5),initVarX[1,layerXs]]* age_factor
   par_rhor <- par_alfar * par_rhof
   beta0 <- par_beta0 * age_factor
   
@@ -52,9 +53,10 @@ initBiomasses <- function(pCro,initVarX){
   W_croot = W_crh + W_crs
   #W_croot = pmax(0.,(par_rhow * Lc * beta0 * A / par_betas * N + (W_c + Wsh) * beta0)) #coarse root biomass
   V = W_stem / par_rhow
-  biomasses <- rbind(wf_STKG,W_froot,W_wsap,W_c,W_s,W_branch,W_croot,Wsh,Wdb,W_stem,V,W_crh)
-
-  biomasses[which(is.na(biomasses))] <- 0.
+  biomassesX <- rbind(wf_STKG,W_froot,W_wsap,W_c,W_s,W_branch,W_croot,Wsh,Wdb,W_stem,V,W_crh)
+  biomasses<-matrix(0,nrow = nrow(biomassesX), ncol = ncol(initVarX))
+  biomasses[,layerXs]<-biomassesX
+  # biomasses[which(is.na(biomasses))] <- 0.
   return(biomasses)
 }
 
