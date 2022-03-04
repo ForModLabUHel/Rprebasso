@@ -1304,7 +1304,7 @@ if(defaultThin == 1.) then
  species = int(stand_all(4,layer))
 
  ! counting the dominant height of the dominant species
- Hdom = pCrobas(42,species)*exp(-1/max((H-1.3),0.001))+pCrobas(43,species)*H
+ Hdom = pCrobas(42,species)+pCrobas(43,species)*exp(-1/max((H-1.3),0.001)) 
  Ntot = sum(STAND_all(17,:))
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
