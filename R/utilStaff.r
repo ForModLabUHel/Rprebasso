@@ -1,4 +1,13 @@
-####init Biomass
+
+#' initBiomasses
+#'
+#' @param pCro matrix of CROBAS parameters where each column correspond to a different species
+#' @param initVarX initial state of the forests.
+#'
+#' @return the biomasses at initialization 
+#' @export
+#'
+#' @examples
 initBiomasses <- function(pCro,initVarX){
   initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
   siteType <- initVarX[8,1]
@@ -61,6 +70,14 @@ initBiomasses <- function(pCro,initVarX){
 }
 
 #### function to calculate initial sapwood area at crown base (A)
+#' Title
+#'
+#' @param inputs 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 compA <- function(inputs){
   p_ksi = inputs[1]
   p_rhof = inputs[2]
