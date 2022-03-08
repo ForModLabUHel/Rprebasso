@@ -70,7 +70,7 @@ initBiomasses <- function(pCro,initVarX){
 }
 
 #### function to calculate initial sapwood area at crown base (A)
-#' Title
+#' compA
 #'
 #' @param inputs 
 #'
@@ -120,6 +120,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   
   ### Function for the calculation of monthly mean values from a daily model output variable GPP 
+#' monthlyGPP
+#'
+#' @param GPPx 
+#' @param func 
+#'
+#' @return A vector of the mean daily GPP for each month.
+#' @export
+#'
+#' @examples
   monthlyGPP <- function(GPPx,func="sum"){
     monthsDays <- c(rep(1,31),rep(2,28),rep(3,31),rep(4,30),rep(5,31),rep(6,30),             # Number of days in each month
                     rep(7,31),rep(8,31),rep(9,30),rep(10,31),rep(11,30),rep(12,31))
@@ -130,6 +139,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(GPPm)
   }
   
+#' monthlyWeather
+#'
+#' @param varx 
+#' @param func 
+#'
+#' @return A vector of the mean daily weather for each month. 
+#' @export
+#'
+#' @examples
   monthlyWeather <- function(varx,func){                                                     # This function works similarly as the monthlyGPP above but with different data set
     monthsDays <- c(rep(1,31),rep(2,28),rep(3,31),rep(4,30),rep(5,31),rep(6,30),
                     rep(7,31),rep(8,31),rep(9,30),rep(10,31),rep(11,30),rep(12,31))
@@ -145,6 +163,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
   ### A post-process function for modifying prebas model output for meeting the Digital Twin Earth project requirements
+#' monthlyFluxes
+#'
+#' @param modOut PREBAS output of a multisite run
+#' @param weatherOption 
+#'
+#' @return
+#' @export
+#'
+#' @examples
   monthlyFluxes <- function(modOut,weatherOption=1){
     if(class(modOut)!="prebas"){
       cueGV <- 0.5 ###carbon use efficiency (NPP/GPP) of ground vegetation
@@ -464,6 +491,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
    
   ### This function is used for adding yearling litter fall to the fall period on a timeseries data set, used in the monthlyFluxes function
+#' mLit
+#'
+#' @param aLit Number of years
+#' @param months August and September 
+#'
+#' @return A time series with the annual autumn litter fall.  
+#' @export
+#'
+#' @examples
   mLit <- function(aLit,months=8:9){
     nYears <- length(aLit)                                                        # Gets the length of the array
     nMonths <- length(months)
@@ -475,8 +511,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   
   
   ###Function to calculate basal weighted mean of a PREBAS output
-  ### modOut = multisite PREBAS output
-  ### varX = index of the variable for which the basal area weighted mean needs to be calculated
+#' baWmean
+#'
+#' @param modOut PREBAS output of a multisite run
+#' @param varX index of the variable for which the basal area weighted mean needs to be calculated
+#'
+#' @return The weighted mean basal area for a PREBAS output (including both multi site and single site runs)
+#' @export
+#'
+#' @examples
   baWmean <- function(modOut,varX){
     ###calculates basal area weighted mean for single site runs
     if(class(modOut)=="prebas"){
@@ -495,12 +538,28 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
 ####function to calculate quadratic mean diameter
-  ####D -> average diameter 
-  ####N stand density
-  DqFun <- function(D,N) sqrt(sum(D^2*N)/sum(N))
+#' DqFun
+#'
+#' @param D average diameter
+#' @param N stand density
+#'
+#' @return The quadratic mean diameter for a stand. 
+#' @export
+#'
+#' @examples
+  DqFun <- function(D,N){ 
+    sqrt(sum(D^2*N)/sum(N))
+  }
   
 ####Calculate quadratic mean diameter using a multisite PREBAS run
-  ###modOut PREBAS output of a multisite run
+#' DqFunMS
+#'
+#' @param modOut PREBAS output of a multisite run
+#'
+#' @return The quadratic mean diameter of a multisite PREBAS run 
+#' @export
+#'
+#' @examples
   DqFunMS <- function(modOut){
     D <-modOut[,,12,,1]
     N <-modOut[,,17,,1]
@@ -509,6 +568,16 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
 ####Calculate Reineke Stand density index
+#' reineke1
+#'
+#' @param Dq quadratic mean diameter of a multisite PREBAS run
+#' @param k 
+#' @param spID 
+#'
+#' @return Reineke Stand density index
+#' @export
+#'
+#' @examples
   reineke1 <- function(Dq,k,spID){
     Nmax <- k/Dq^1.605
     return(Nmax)
