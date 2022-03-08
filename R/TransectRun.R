@@ -157,7 +157,7 @@ TransectRun <- function(SiteType = NA, species = NA, nYears = 100, pCROBAS = pCR
     # ClCut = 1.,
     yassoRun = 1
   )
-
+  initPrebas$multiInitVar[,2,] <- round(6 + 2*SiteType - 0.005*rowMeans(initPrebas$ETSy) + 2.25) ##Initial age
   TransectOut <- multiPrebas(initPrebas)
   return(TransectOut)
 }
