@@ -14,7 +14,8 @@ TransectRun(
   H0_new = 1.35,
   Hc0_new = 0.2,
   N0_new = 2000,
-  defaultThin = 1
+  defaultThin = 1,
+  ClCut = 1
 )
 }
 \arguments{
@@ -37,12 +38,14 @@ TransectRun(
 \item{N0_new}{Initial stand density of seedlings. Taking effect only when newInitSeedling == T.}
 
 \item{defaultThin}{If defaultThin = 1 (default) Finnish standard management practices are applied (ref).}
+
+\item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 }
 \value{
 The output from multiPrebas()
 }
 \description{
-The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect
+The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect. Start from seedlings!
 }
 \examples{
 Pine.1<-TransectRun(SiteType = 1,species = 'Pine')

@@ -1,5 +1,6 @@
 #' @title Transect runs for pine, spruce, or mixed forests
-#' @description The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect
+#' @description The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect. Start from seedlings!
+#'
 #' @param SiteType  A value between 1 to 5.
 #' @param species   Should be 'Pine', or 'Spruce', or 'Mixed'
 #' @param nYears    Number of years to run the model.Default value is 100.
@@ -10,6 +11,7 @@
 #' @param Hc0_new   Initial crown base height of seedlings. Taking effect only when newInitSeedling == T.
 #' @param N0_new    Initial stand density of seedlings. Taking effect only when newInitSeedling == T.
 #' @param defaultThin If defaultThin = 1 (default) Finnish standard management practices are applied (ref).
+#' @param ClCut     Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
 #'
 #' @return The output from multiPrebas()
 #' @export
@@ -24,7 +26,7 @@
 #' 
 TransectRun <- function(SiteType = NA, species = NA, nYears = 100, pCROBAS = pCROB,
                          AgeEffect = F, newInitSeedling = F, H0_new=1.35, Hc0_new=0.2, N0_new=2000,
-                        defaultThin = 1) {
+                        defaultThin = 1,ClCut = 1) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, SiteType, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
   siteInfo[, 2] <- siteInfo[, 1] <- 1:nSites
@@ -154,7 +156,7 @@ TransectRun <- function(SiteType = NA, species = NA, nYears = 100, pCROBAS = pCR
     CO2 = do.call(cbind, replicate(nRep, CO2tran, simplify = FALSE)),
     # litterSize = litterSize,
     # pAWEN = parsAWEN,
-    # ClCut = 1.,
+    ClCut = ClCut,
     yassoRun = 1
   )
   initPrebas$multiInitVar[,2,] <- round(6 + 2*SiteType - 0.005*rowMeans(initPrebas$ETSy) + 2.25) ##Initial age
