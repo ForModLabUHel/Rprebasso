@@ -15,7 +15,8 @@ TransectRun(
   Hc0_new = 0.2,
   N0_new = 2000,
   defaultThin = 1,
-  ClCut = 1
+  ClCut = 1,
+  energyCut = 0
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ TransectRun(
 \item{defaultThin}{If defaultThin = 1 (default) Finnish standard management practices are applied (ref).}
 
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
+
+\item{energyCut}{Energy cutting strategy will be applied if set to 1. Default value is 0.}
 }
 \value{
 The output from multiPrebas()

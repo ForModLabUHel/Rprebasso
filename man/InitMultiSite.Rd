@@ -124,7 +124,7 @@ If initVar is not provided the model is initialized from plantation using defaul
 %%     ~~Describe \code{ClCut} here~~
 }
   
-\item{energyCut}{?}
+\item{energyCut}{Energy cutting strategy is applied when set to 1. Default value is 0.}
   
 \item{inDclct}{ (nSites x nLayer matrix??)
   Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
