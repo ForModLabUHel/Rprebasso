@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilStaff.r
 \name{compA}
 \alias{compA}
-\title{Title}
+\title{compA}
 \usage{
 compA(inputs)
 }
@@ -13,5 +13,5 @@ compA(inputs)
 
 }
 \description{
-Title
+compA
 }
