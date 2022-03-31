@@ -11,10 +11,6 @@ TransectRun(
   nYears = 100,
   pCROBAS = pCROB,
   AgeEffect = F,
-  newInitSeedling = F,
-  H0_new = 1.35,
-  Hc0_new = 0.2,
-  N0_new = 2000,
   defaultThin = 1,
   ClCut = 1,
   energyCut = 0
@@ -25,21 +21,13 @@ TransectRun(
 
 \item{initVar}{initial state of the forest. Array with nSites,VarsIn,nLayers dimentions: nSites=number of sites (7); VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))}
 
-\item{species}{If the initial state of the forest is not provvided (initVar) Should be 'Pine', or 'Spruce', or 'Birch' or 'Mixed'}
+\item{species}{If the initial state of the forest is not provided (initVar) Should be 'Pine', or 'Spruce', or 'Birch' or 'Mixed'}
 
 \item{nYears}{Number of years to run the model.Default value is 100.}
 
 \item{pCROBAS}{(47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). Default is pCROB, print(pCROB) to see the parameter values and names.}
 
-\item{AgeEffect}{Carbon allocation strategy for seedlings. When True, the early growth will decrease due to age effect.}
-
-\item{newInitSeedling}{Change the initial state of seedlings. Default value is False.}
-
-\item{H0_new}{Initial height of seedlings. Taking effect only when newInitSeedling == T.}
-
-\item{Hc0_new}{Initial crown base height of seedlings. Taking effect only when newInitSeedling == T.}
-
-\item{N0_new}{Initial stand density of seedlings. Taking effect only when newInitSeedling == T.}
+\item{AgeEffect}{Carbon allocation strategy for seedlings. When True, the early growth will decrease due to age effect,by setting pCROBAS[45,]<-0.3.}
 
 \item{defaultThin}{If defaultThin = 1 (default) Finnish standard management practices are applied (ref).}
 
@@ -54,12 +42,12 @@ The output from multiPrebas()
 The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect. Start from seedlings!
 }
 \examples{
-Pine.1<-TransectRun(SiteType = 1,species = 'Pine')
-Pine.1.ns<-TransectRun(SiteType = 1,species = 'Pine',newInitSeedling = T)
-Pine.1.ns.ae<-TransectRun(SiteType = 1,species = 'Pine',newInitSeedling = T,AgeEffect = T)
-          
-plot(Pine.1$multiOut[1,,30,1,1],type = 'l')
-lines(Pine.1.ns$multiOut[1,,30,1,1],col='red')
-lines(Pine.1.ns.ae$multiOut[1,,30,1,1],col='blue')
+Pine.1 <- TransectRun(SiteType = 1, species = "Pine")
+Pine.1.ns <- TransectRun(SiteType = 1, species = "Pine", newInitSeedling = T)
+Pine.1.ns.ae <- TransectRun(SiteType = 1, species = "Pine", newInitSeedling = T, AgeEffect = T)
+
+plot(Pine.1$multiOut[1, , 30, 1, 1], type = "l")
+lines(Pine.1.ns$multiOut[1, , 30, 1, 1], col = "red")
+lines(Pine.1.ns.ae$multiOut[1, , 30, 1, 1], col = "blue")
 
 }
