@@ -1,3 +1,9 @@
+initialAgeSeedl <- function(SiteType,ETS){
+  round(6 + 2*SiteType - 0.005*rowMeans(ETS) + 2.25) ##Initial age
+}
+
+
+
 
 #' initBiomasses
 #'

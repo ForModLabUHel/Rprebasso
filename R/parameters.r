@@ -1,3 +1,7 @@
+###default initial state at plantation
+initSeedling.def <- c(1.5,0.5,0.0431969,0.,NA)
+names(initSeedling.def) <- c("H","dbh","BA","hc","Ac")
+
 ###default parameters
 speciesNam <- c("pisy","piab","beal","fasy","pipi","eugl","rops",'popu','eugrur','piab(DE)')
 pCROB <- matrix(NA,47,10,dimnames = list(NULL,speciesNam))

@@ -85,7 +85,7 @@ InitMultiSite <- function(nYearsMS,
   multiEnergyWood <- array(0, dim=c(nSites,(maxYears),maxNlayers,2),
                            dimnames = list(site=NULL,year=NULL,layer=layerNam,
                                            variable=c("volume","biomass")))
-  initClearcut = c(1.5,0.5,0.0431969,0.,NA)
+  initClearcut = initSeedling.def
   if (all(is.na(multiInitClearCut))) multiInitClearCut <- matrix(initClearcut,nSites,5,byrow = T)
   # multiInitClearCut <- cbind(multiInitClearCut,0.0008025897)
   ###process yasso inputs if missing

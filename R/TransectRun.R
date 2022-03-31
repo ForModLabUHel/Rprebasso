@@ -2,7 +2,8 @@
 #' @description The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect. Start from seedlings!
 #'
 #' @param SiteType  A value between 1 to 5.
-#' @param species   Should be 'Pine', or 'Spruce', or 'Mixed'
+#' @param initVar   initial state of the forest. Array with nSites,VarsIn,nLayers dimentions: nSites=number of sites (7); VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))
+#' @param species   If the initial state of the forest is not provvided (initVar) Should be 'Pine', or 'Spruce', or 'Birch' or 'Mixed'
 #' @param nYears    Number of years to run the model.Default value is 100.
 #' @param pCROBAS   (47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). Default is pCROB, print(pCROB) to see the parameter values and names. 
 #' @param AgeEffect Carbon allocation strategy for seedlings. When True, the early growth will decrease due to age effect.
@@ -25,24 +26,15 @@
 #'lines(Pine.1.ns$multiOut[1,,30,1,1],col='red')
 #'lines(Pine.1.ns.ae$multiOut[1,,30,1,1],col='blue')
 #' 
-TransectRun <- function(SiteType = NA, species = NA, nYears = 100, pCROBAS = pCROB,
+TransectRun <- function(SiteType = NA, initVar=NA, species = NA, nYears = 100, pCROBAS = pCROB,
                          AgeEffect = F, newInitSeedling = F, H0_new=1.35, Hc0_new=0.2, N0_new=2000,
                         defaultThin = 1,ClCut = 1, energyCut = 0) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, SiteType, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
   siteInfo[, 2] <- siteInfo[, 1] <- 1:nSites
 
-  if (species == "Pine") {
-    path <-
-      system.file("transect", "initVarP.csv", package = "Rprebasso")
-    initVar <-
-      read.csv(
-        file = path,
-        header = T,
-        row.names = 1
-      )
-    initVar <-
-      aperm(array(as.matrix(initVar), dim = c(7, 1, 7)), c(3, 1, 2))
+  if (species == "Pine" & is.na(initVar)) {
+    initVar <- aperm(array(c(1,NA,initSeedling.def),dim=c(7,7,1)),c(2,1,3))
     if(newInitSeedling ==T){
       initVar[,3,1]<-H0_new
       initVar[,6,1]<-Hc0_new
@@ -51,17 +43,8 @@ TransectRun <- function(SiteType = NA, species = NA, nYears = 100, pCROBAS = pCR
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
 
-  if (species == "Spruce") {
-    path <-
-      system.file("transect", "initVarSp.csv", package = "Rprebasso")
-    initVar <-
-      read.csv(
-        file = path,
-        header = T,
-        row.names = 1
-      )
-    initVar <-
-      aperm(array(as.matrix(initVar), dim = c(7, 1, 7)), c(3, 1, 2))
+  if (species == "Spruce" & is.na(initVar)) {
+    initVar <- aperm(array(c(2,NA,initSeedling.def),dim=c(7,7,1)),c(2,1,3))
     if(newInitSeedling ==T){
       initVar[,3,1]<-H0_new
       initVar[,6,1]<-Hc0_new
@@ -70,17 +53,23 @@ TransectRun <- function(SiteType = NA, species = NA, nYears = 100, pCROBAS = pCR
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
 
-  if (species == "Mixed") {
-    path <-
-      system.file("transect", "initVarAll.csv", package = "Rprebasso")
-    initVar <-
-      read.csv(
-        file = path,
-        header = T,
-        row.names = 1
-      )
-    initVar <-
-      aperm(array(as.matrix(initVar), dim = c(7, 3, 7)), c(3, 1, 2))
+  if (species == "Birch" & is.na(initVar)) {
+    initVar <- aperm(array(c(3,NA,initSeedling.def),dim=c(7,7,1)),c(2,1,3))
+    if(newInitSeedling ==T){
+      initVar[,3,1]<-H0_new
+      initVar[,6,1]<-Hc0_new
+      initVar[,5,1]<-3.14*0.5*0.5/40000*N0_new
+    }
+    siteInfo[, 8:9] <- 1 # even-aged pure forests
+  }
+
+  if (species == "Mixed" & is.na(initVar)) {
+    initVar <- array(NA,dim=c(7,7,3))
+    initVar[,,1] <- matrix(c(1,NA,initSeedling.def),7,7,byrow = T)
+    initVar[,,2] <- matrix(c(2,NA,initSeedling.def),7,7,byrow = T)
+    initVar[,,3] <- matrix(c(3,NA,initSeedling.def),7,7,byrow = T)
+    initVar[,5,1:2] <- initVar[,5,1:2] * 0.45  ##45% basal area is pine and 45% spruce
+    initVar[,5,3] <- initVar[,5,1:2] * 0.1   ###10% basal area is birch
     if(newInitSeedling ==T){
       initVar[,3,1]<-H0_new
       initVar[,6,1]<-Hc0_new
