@@ -17,12 +17,8 @@
 #' @export
 #'
 #' @examples Pine.1 <- TransectRun(SiteType = 1, species = "Pine")
-#' Pine.1.ns <- TransectRun(SiteType = 1, species = "Pine", newInitSeedling = T)
-#' Pine.1.ns.ae <- TransectRun(SiteType = 1, species = "Pine", newInitSeedling = T, AgeEffect = T)
-#'
 #' plot(Pine.1$multiOut[1, , 30, 1, 1], type = "l")
-#' lines(Pine.1.ns$multiOut[1, , 30, 1, 1], col = "red")
-#' lines(Pine.1.ns.ae$multiOut[1, , 30, 1, 1], col = "blue")
+
 #' 
 TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100, pCROBAS = pCROB,
                         AgeEffect = F, defaultThin = 1, ClCut = 1, energyCut = 0) {
