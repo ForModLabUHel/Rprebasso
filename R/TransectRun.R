@@ -30,10 +30,15 @@ TransectRun <- function(SiteType = NA, initVar=NA, species = NA, nYears = 100, p
                          AgeEffect = F, newInitSeedling = F, H0_new=1.35, Hc0_new=0.2, N0_new=2000,
                         defaultThin = 1,ClCut = 1, energyCut = 0) {
   nSites <- 7
-  siteInfo <- matrix(c(NA, NA, SiteType, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
+  siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
+  if(is.na(SiteType)){
+    SiteType = 3
+    warning("siteType 3 was assigned to all sites since SiteType was not provvided")
+  } 
+  siteInfo[,3] <- SiteType
   siteInfo[, 2] <- siteInfo[, 1] <- 1:nSites
 
-  if (species == "Pine" & is.na(initVar)) {
+  if (species == "Pine" & all(is.na(initVar))) {
     initVar <- aperm(array(c(1,NA,initSeedling.def),dim=c(7,7,1)),c(2,1,3))
     if(newInitSeedling ==T){
       initVar[,3,1]<-H0_new
@@ -43,7 +48,7 @@ TransectRun <- function(SiteType = NA, initVar=NA, species = NA, nYears = 100, p
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
 
-  if (species == "Spruce" & is.na(initVar)) {
+  if (species == "Spruce" & all(is.na(initVar))) {
     initVar <- aperm(array(c(2,NA,initSeedling.def),dim=c(7,7,1)),c(2,1,3))
     if(newInitSeedling ==T){
       initVar[,3,1]<-H0_new
@@ -53,7 +58,7 @@ TransectRun <- function(SiteType = NA, initVar=NA, species = NA, nYears = 100, p
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
 
-  if (species == "Birch" & is.na(initVar)) {
+  if (species == "Birch" & all(is.na(initVar))) {
     initVar <- aperm(array(c(3,NA,initSeedling.def),dim=c(7,7,1)),c(2,1,3))
     if(newInitSeedling ==T){
       initVar[,3,1]<-H0_new
@@ -63,7 +68,7 @@ TransectRun <- function(SiteType = NA, initVar=NA, species = NA, nYears = 100, p
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
 
-  if (species == "Mixed" & is.na(initVar)) {
+  if (species == "Mixed" & all(is.na(initVar))) {
     initVar <- array(NA,dim=c(7,7,3))
     initVar[,,1] <- matrix(c(1,NA,initSeedling.def),7,7,byrow = T)
     initVar[,,2] <- matrix(c(2,NA,initSeedling.def),7,7,byrow = T)

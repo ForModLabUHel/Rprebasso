@@ -6,6 +6,7 @@
 \usage{
 TransectRun(
   SiteType = NA,
+  initVar = NA,
   species = NA,
   nYears = 100,
   pCROBAS = pCROB,
@@ -22,7 +23,9 @@ TransectRun(
 \arguments{
 \item{SiteType}{A value between 1 to 5.}
 
-\item{species}{Should be 'Pine', or 'Spruce', or 'Mixed'}
+\item{initVar}{initial state of the forest. Array with nSites,VarsIn,nLayers dimentions: nSites=number of sites (7); VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))}
+
+\item{species}{If the initial state of the forest is not provvided (initVar) Should be 'Pine', or 'Spruce', or 'Birch' or 'Mixed'}
 
 \item{nYears}{Number of years to run the model.Default value is 100.}
 
