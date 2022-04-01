@@ -1,9 +1,15 @@
+#' Initial age of the seedlings
+#'
+#' @param SiteType Site type
+#' @param ETS Effective temperature sum
+#'
+#' @return Initial age of the seedlings
+#' @export
+#'
+#' @examples initialAgeSeedl(2, 1200)
 initialAgeSeedl <- function(SiteType,ETS){
-  round(6 + 2*SiteType - 0.005*rowMeans(ETS) + 2.25) ##Initial age
+  round(6 + 2*SiteType - 0.005*ETS + 2.25) ##Initial age
 }
-
-
-
 
 #' initBiomasses
 #'
