@@ -1861,14 +1861,23 @@ subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar,nSp,nYearsFert,npa
 	! alfar = pCrobas(max(int(20+min(modOut(year,3,:,1),5)),21),int(initVar(1,:)))
 end subroutine calcAlfar	
 	
+
+!!!random mortality calculations based on Siilipehto et 2020	
+subroutine randMort(N,ba)
+	implicit none
+	real(8),intent(inout) :: N,ba
+	!parameters
+	real(8) :: m=0.0004, Interc=-0.01  !parameters of probability of mortality obtained fitting a linear model as function of tree density (Fig 3A siipilehto et al.2020)
+	real(8) :: a=0.2643402, b= 0.9987199  !parameters of proportion of dead BA obtained fitting an exponential model as function of tree density (Fig 6C siipilehto et al.2020)
+	real(8) :: randX, nX, baX,pMort,perBAmort
 	
-	! subroutine test(a,b)
-	! implicit none
-	! integer, intent(in) :: a
-	! real(8),intent(inout) :: b(a)
+	nX = max(min(N,1500.),100.)
+	pMort = (nX*m + Interc)/5.  !/5 rescale the probability from 5 years to 1y time step
+	perBAmort = (a*b**nX)
 	
-	! call random_number(b)
-	
-	
-	! end subroutine
+	call random_number(randX)
+	if (randX<pMort) then
+	 ba=(1-perBAmort)*ba
+	endif
+end subroutine
 	
