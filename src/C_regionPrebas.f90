@@ -9,7 +9,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
-		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer)
+		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod)
 
 implicit none
 
@@ -20,7 +20,7 @@ integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
 integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
- integer, intent(in) :: DOY(365),etmodel
+ integer, intent(in) :: DOY(365),etmodel,mortMod
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6) 
@@ -220,7 +220,7 @@ do ij = 1,maxYears
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
-		fertThin,flagFert(i),nYearsFert,oldLayer) !!energCuts
+		fertThin,flagFert(i),nYearsFert,oldLayer,mortMod) !!energCuts
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations

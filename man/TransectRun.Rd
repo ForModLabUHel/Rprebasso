@@ -13,7 +13,8 @@ TransectRun(
   AgeEffect = F,
   defaultThin = 1,
   ClCut = 1,
-  energyCut = 0
+  energyCut = 0,
+  mortMod = 1
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ TransectRun(
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
 \item{energyCut}{Energy cutting strategy will be applied if set to 1. Default value is 0.}
+
+\item{mortMod}{flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)}
 }
 \value{
 The output from multiPrebas()
