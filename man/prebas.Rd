@@ -159,7 +159,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   33."wf_STKG" Foliage biomass (kgC ha-1) \cr
   34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) \cr
   35."B_tree" Basal area of average tree (m2 ha-1) \cr
-  36."Light" light interception \cr
+  36."Light" The proportion of light that has not been intercepted by canopy (meanlight) \cr
   37."VroundWood" harvested round wood volume (m3 ha-1) \cr
   38."WroundWood" haversted round wood biomass (kgC ha-1) \cr
   39."soilC" totaal soil carbon (kgC ha-1) \cr
