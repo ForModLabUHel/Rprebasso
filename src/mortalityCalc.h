@@ -199,9 +199,31 @@ endif
 if(mortMod==2 .or. mortMod==3) then
 
 ! ! calculate relative basal area to be used in the mortality calculations
-  BA_tot = sum(modOut(year,13,:,1))
-  BAr = modOut(year,13,:,1)/BA_tot
-
+  BA_tot = sum(STAND_all(13,:))
+  BAr = STAND_all(13,:)/BA_tot
+  BAmort = 0.d0
+  pMort = 0.d0
+  perBAmort = 0.d0
+  indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==1.)
+  rPine = sum(STAND_all(13,indices))/BA_tot
+  ! write(1,*) indices, rPine
+  indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==3.)
+  rBirch = sum(STAND_all(13,indices))/BA_tot
+  ! write(1,*) indices, rBirch
+   call randMort( & !!!returns the basal area after mortality rescaled to ha
+	 sum(STAND_all(7,:)*BAr), & !BA weighted age
+	 sum(STAND_all(12,:)*BAr), & !BA weighted dbh
+	 BA_tot, & !BA
+	 sum(STAND_all(17,:)), & !Ntot
+	 rPine, & !relative BA pine
+	 rBirch, & !relative BA birch
+	 0.048d0, & !slope
+	 314.16d0, & !plotSize
+	 pMort, & 
+	 perBAmort, & 
+	 1.d0, &
+	 BAmort)
+! write(1,*) BAmort
 	do ij = 1 , nLayers 		!loop Species
 
 	 STAND=STAND_all(:,ij)
@@ -298,15 +320,11 @@ if(mortMod==2 .or. mortMod==3) then
 	! Mortality - use random model from siilipehto et al. 2020
 		 if(time==inttimes) then
 		!report BA and N to ha using the relative BA
-		Nmort = N / BAr(ij)   
-		BAmort = BA / BAr(ij)
 		
-		call randMort(Nmort,BAmort) !!!returns the basal area after mortality rescaled to ha
-		
-		if(BAmort < (BA / BAr(ij))) then !check if mortality occurs
+		if(BAmort > 0.) then !check if mortality occurs
 		 Vold = V
 		 Nold = N
-		 dN = Nold * (BAmort/(BA/BAr(ij))) - Nold
+		 dN = -Nold * (BAmort/(BA/BAr(ij)))
 		else
 		 dN = 0.	
 		endif
@@ -393,7 +411,5 @@ if(mortMod==2 .or. mortMod==3) then
 
 	 STAND_all(:,ij)=STAND
 	end do !!!!!!!end loop layers
-
-
 
 endif

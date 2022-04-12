@@ -1863,21 +1863,56 @@ end subroutine calcAlfar
 	
 
 !!!random mortality calculations based on Siilipehto et 2020	
-subroutine randMort(N,ba)
+subroutine randMort(age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,baDead)
 	implicit none
-	real(8),intent(inout) :: N,ba
+	real(8),intent(inout) :: age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,baDead
 	!parameters
-	real(8) :: m=0.0004, Interc=-0.01  !parameters of probability of mortality obtained fitting a linear model as function of tree density (Fig 3A siipilehto et al.2020)
-	real(8) :: a=0.2643402, b= 0.9987199  !parameters of proportion of dead BA obtained fitting an exponential model as function of tree density (Fig 6C siipilehto et al.2020)
-	real(8) :: randX, nX, baX,pMort,perBAmort
+	! real(8) :: m=0.0004d0, Interc=-0.01d0  !parameters of probability of mortality obtained fitting a linear model as function of tree density (Fig 3A siipilehto et al.2020)
+	! real(8) :: a=0.2643402d0, b= 0.9987199d0  !parameters of proportion of dead BA obtained fitting an exponential model as function of tree density (Fig 6C siipilehto et al.2020)
+	real(8) :: randX, nX, baX, XB1,rp1,rp=314.16d0, XB2,rp2
 	
-	nX = max(min(N,1500.),100.)
-	pMort = (nX*m + Interc)/5.  !/5 rescale the probability from 5 years to 1y time step
-	perBAmort = (a*b**nX)
+	!parameters mod1&2 siilipehto et al. 2020
+	real(8) :: int_m1, Age_m1, DQ_m1, sqrtBA_m1, BApineRelxAge_m1
+	real(8) :: BAbrdRelxAge_m1,Slope_100_m1, west_m1, TH5xBA_m1, peat_m1
+	real(8) :: int_m2, lnN_m2, ba_m2, sqrtN_m2, lnDQ_m2, BApineRelxlnAge_m2
+	real(8) :: BAbrdRelxlnAge_m2,Slope_100west_m2, Norway_m2
+
+!initParameters 
+    int_m1 = 3.1751d0
+	Age_m1 = -0.00417d0
+	DQ_m1 = 0.01382d0
+	sqrtBA_m1 = -0.6693d0
+	BApineRelxAge_m1 = 0.004356d0
+	BAbrdRelxAge_m1 = -0.01112d0
+	Slope_100_m1 = -1.0542d0
+	west_m1 = 0.1354d0
+	TH5xBA_m1 = 0.005803d0
+	peat_m1 = -0.2201d0
+	int_m2 = -7.3745d0
+	lnN_m2=	1.4010d0
+	sqrtN_m2 = -0.0296d0
+	ba_m2 = -0.0117d0
+	lnDQ_m2 = 0.5633d0
+	BApineRelxlnAge_m2 = 0.0790d0
+	BAbrdRelxlnAge_m2 = -0.0500d0
+	Slope_100west_m2 = 0.2438d0
+	Norway_m2 = 0.1657d0
+
+	rp1=(step/5.d0) * (pSize/rp)
+	XB1 = int_m1 + Age_m1 * age + DQ_m1*d**(1.5d0) + sqrtBA_m1 * sqrt(ba) + BApineRelxAge_m1* rBApine * age + &
+		BAbrdRelxAge_m1* rBAbrd * age + Slope_100_m1* slope + west_m1 * 0.25d0+ TH5xBA_m1 * ba*0.005d0 + peat_m1 * 0.001d0
+	rp2=(rp/pSize)
+	XB2 = int_m2 + lnN_m2 * log(N) + sqrtN_m2 *sqrt(N) + ba_m2*ba + lnDQ_m2 *log(d) + &
+		BApineRelxlnAge_m2 * rBApine * log(age) + BAbrdRelxlnAge_m2 * rBAbrd * log(age) + &
+		Slope_100west_m2 *slope*0.25d0 + Norway_m2*0.d0
+	
+	pMort = 1.d0 - (1.d0 + exp(-(XB1)))**(-(rp1))!probability of survival
+	perBAmort = 1.d0 - (1.d0+exp(-XB2))**(-rp2)
 	
 	call random_number(randX)
-	if (randX<pMort) then
-	 ba=(1-perBAmort)*ba
+	 if (randX < pMort) then
+	  baDead = perBAmort * ba
 	endif
+	 
 end subroutine
 	

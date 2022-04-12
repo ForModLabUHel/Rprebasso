@@ -63,6 +63,8 @@ implicit none
  integer, DIMENSION(nLayers) :: layerX
  real (kind=8) :: STAND(nVar), STAND_tot(nVar), param(npar) ! temp variables fillled for each layer and fills  output(nYear, nSites, nVar).
  integer :: i, ij, ijj, species, layer, nSpec, ll ! tree species 1,2,3 = scots pine, norway spruce, birch
+ integer, allocatable :: indices(:)
+ real(kind=8) :: rPine, rBirch, perBAmort, pMort
 
  real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
