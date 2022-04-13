@@ -223,6 +223,9 @@ if(mortMod==2 .or. mortMod==3) then
 	 perBAmort, & 
 	 1.d0, &
 	 BAmort)
+	 
+	 if(STAND_all(7,1)==10.) then 
+			BAmort = sum(STAND_all(13,:))/2.
 ! write(1,*) BAmort
 	do ij = 1 , nLayers 		!loop Species
 
