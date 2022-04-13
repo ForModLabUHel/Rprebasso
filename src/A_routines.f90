@@ -1908,6 +1908,7 @@ subroutine randMort(age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,b
 	
 	pMort = 1.d0 - (1.d0 + exp(-(XB1)))**(-(rp1))!probability of survival
 	perBAmort = 1.d0 - (1.d0+exp(-XB2))**(-rp2)
+	if(age<20) pMort = max(pMort,0.2)
 	
 	call random_number(randX)
 	 if (randX < pMort) then
