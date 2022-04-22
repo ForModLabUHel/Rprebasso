@@ -195,7 +195,7 @@ if (mortMod==1 .or. mortMod==3) then
 endif
 
 
-!!!!!random Mortality
+!!!!!empirical Mortality model (siilipehto et al. 2020)
 if(mortMod==2 .or. mortMod==3) then
 
 ! ! calculate relative basal area to be used in the mortality calculations
