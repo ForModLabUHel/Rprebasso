@@ -68,7 +68,7 @@ implicit none
 
  real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
- real (kind=8) :: step, totBA
+ real (kind=8) :: step, totBA,GVnpp(nYears)
 
  real (kind=8) :: stand_all(nVar, nLayers)
  real (kind=8) :: outt(nVar, nLayers, 2)
@@ -1533,8 +1533,11 @@ enddo
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
-if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:,3)*0.5 
-
+if(GVrun==1) then 
+ GVnpp = GVout(2:(nYears),4)/10. - GVout(1:(nYears-1),4)/10. + GVout(1:(nYears-1),2)/10.
+ modOut(2:(nYears),46,1,1) = modOut(2:(nYears),46,1,1) + GVnpp
+ modOut((nYears+1),46,1,1) = modOut((nYears+1),46,1,1) + GVnpp(nYears) !!!!!hugly way of add an additional year ....
+endif
 !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
  do year = 2,(nYears +1)
   do ij = 1,nLayers
