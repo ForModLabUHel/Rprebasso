@@ -45,7 +45,7 @@ implicit none
 !!!ground vegetation variables
  real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
  integer, intent(in) :: gvRun !!! flag for including ground vegetation
- real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv !!! ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
  real (kind=8), intent(inout) :: siteInfo(10)
@@ -177,7 +177,7 @@ ETSmean = sum(ETSy)/nYears
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
-!!!! Initialize after clearcut (start)
+!!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
    !Ainit = int(min(Ainit, Ainit + nYears - yearX)) ! Ainit is the age stand is measureable. This is to avoid some special conditions that might occur in some simulation cases.
@@ -279,7 +279,7 @@ do year = 1, (nYears)
    enddo	
 	yearX = 0
   endif
-!!!! Initialize after clearcut (end)
+!!!! check if clearcut occured. If yes initialize forest (end)
 
   stand_all = modOut(year,:,:,1)
 
@@ -1534,9 +1534,9 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 if(GVrun==1) then 
- GVnpp = GVout(2:(nYears),4)/10. - GVout(1:(nYears-1),4)/10. + GVout(1:(nYears-1),2)/10.
- modOut(2:(nYears),46,1,1) = modOut(2:(nYears),46,1,1) + GVnpp
- modOut((nYears+1),46,1,1) = modOut((nYears+1),46,1,1) + GVnpp(nYears) !!!!!hugly way of add an additional year ....
+ GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10. - GVout(1:(nYears-1),4)/10. + GVout(1:(nYears-1),2)/10.
+ GVout(nYears,5) = GVout((nYears-1),5) !!!!!hugly way of add an additional year ....
+ modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
 endif
 !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
  do year = 2,(nYears +1)
