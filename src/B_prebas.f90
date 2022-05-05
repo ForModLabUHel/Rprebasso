@@ -54,7 +54,7 @@ implicit none
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
 
 !! Parameters internal to the model
- real (kind=8) :: prelesOut(16), fAPARsite
+ real (kind=8) :: prelesOut(16), fAPARsite, lastGVout(5)  !!!state of the GV at the last year
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
  real (kind=8), DIMENSION(nLayers) :: Lb, Lf, Lst
@@ -1533,9 +1533,23 @@ enddo
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
+!!!calculate state of GV at the last year
 if(GVrun==1) then 
- GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
- GVout(nYears,5) = GVout((nYears-1),5) !!!!!hugly way of add an additional year ....
+ stand_all = modOut((nYears+1),:,:,1)
+ call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
+	nVar,nPar,MeanLight,coeff,fAPARsite)
+ call fAPARgv(fAPARsite, ETSmean, siteType, lastGVout(1), lastGVout(2), &
+         sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
+     !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
+ if(nYears > 1) then
+  GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
+  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),5)/10.d0 + GVout((nYears),2)/10.d0
+  GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
+  GVout(nYears,4) = lastGVout(4)
+ else  !!!when nYears ==1 in the region multi prebas
+  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),5)/10.d0 + GVout((nYears),2)/10.d0
+  GVout(nYears,4) = lastGVout(4)
+ endif
  modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
 endif
 !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
