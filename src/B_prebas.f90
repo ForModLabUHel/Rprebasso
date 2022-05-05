@@ -1534,7 +1534,7 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 if(GVrun==1) then 
- GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10. - GVout(1:(nYears-1),4)/10. + GVout(1:(nYears-1),2)/10.
+ GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
  GVout(nYears,5) = GVout((nYears-1),5) !!!!!hugly way of add an additional year ....
  modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
 endif
