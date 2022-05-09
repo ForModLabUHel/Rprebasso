@@ -133,7 +133,7 @@ implicit none
      k(i) = PARAM(4)               ! k 
      LAI(i) = STAND_all(33,i) * par_sla / 10000.   ! WF_stand * sla
      ! par_betab(i) = PARAM(17)   ! betab
-     rc(i) = STAND_all(15,i)/2.         ! rc
+     rc(i) = STAND_all(15,i)/2.         ! rc crown radius
      N(i) = STAND_all(17,i) / 10000.   ! N per m2
  end do
        
@@ -1347,11 +1347,10 @@ subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,totWGV)
  AWENml = (/0.786,0.088445,0.034055,0.0915/) !!!!Awen parameters for lichens and mosses
 
  !% cover calculations
- if(fAPARstand==0.) then
-  xx(1) = a_s * (fAPARstand+0.2) !* (log(1/fAPARstand)) **0.5
- else
-  xx(1) = a_s * (fAPARstand+0.2) * (log(1/fAPARstand)) **0.5
- endif
+ ! if(fAPARstand==0.) then
+  ! fAPARstand = 0.04
+ ! endif
+ xx(1) = a_s * (fAPARstand+0.2) * (log((1.04)/(fAPARstand+0.04))) **0.5 !!1.04 0.04 is to avoid division by 0 and to make the argument of log 1 at fAPAR=1
  xx(2) = a_g * (1-fAPARstand) + b_g
  xx(3) = a_m * (1-fAPARstand) + b_m * fAPARstand
  

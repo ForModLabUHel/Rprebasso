@@ -147,7 +147,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   21."lproj" Projected leaf area \cr
   22."ET_preles" Annual evapotranspiration (mm y-1) \cr
   23."weight" Layer weight on photosynthesis \cr
-  24."Wbranch" Branch biomass (kgC ha-1) \cr
+  24."Wbranch" Living Branch biomass (kgC ha-1) \cr
   25."WfineRoots" Fine roots biomass (kgC ha-1) \cr
   26."Litter_fol" Foliage litter (kgC ha-1) \cr
   27."Litter_fr" Fine root litter (kgC ha-1) \cr
@@ -174,7 +174,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   48."W_c" sapwood stem below Crown (kgC ha-1) \cr
   49."W_s" sapwood stem within crown (kgC ha-1) \cr
   50."Wsh" biomass of stem heartwood  (kgC ha-1) \cr
-  51."Wdb" biomass of dead branches (kgC ha-1) \cr
+  51."Wdb" biomass of dead branches on living trees (kgC ha-1) \cr
   52."dHc" Height of the crown base change (m) \cr
   53."Wbh" biomass of branches heartwood (kgC ha-1) \cr
   54."Wcrh" biomass of coarse root heartwood (kgC ha-1)

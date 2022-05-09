@@ -361,7 +361,7 @@ InitMultiSite <- function(nYearsMS,
     ftTapioPar = ftTapioPar,
     tTapioPar = tTapioPar,
     GVrun=as.integer(GVrun),
-    GVout=array(0.,dim = c(nSites,maxYears,4)),
+    GVout=array(0.,dim = c(nSites,maxYears,5)),
     thinInt = thinInt,
     mortMod = mortMod
   )
