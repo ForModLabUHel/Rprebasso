@@ -133,7 +133,7 @@ implicit none
      k(i) = PARAM(4)               ! k 
      LAI(i) = STAND_all(33,i) * par_sla / 10000.   ! WF_stand * sla
      ! par_betab(i) = PARAM(17)   ! betab
-     rc(i) = STAND_all(15,i)/2.         ! rc
+     rc(i) = STAND_all(15,i)/2.         ! rc crown radius
      N(i) = STAND_all(17,i) / 10000.   ! N per m2
  end do
        
@@ -1347,11 +1347,10 @@ subroutine fAPARgv(fAPARstand,ets,siteType,totfAPAR_gv,totlitGV,p0,AWENs,totWGV)
  AWENml = (/0.786,0.088445,0.034055,0.0915/) !!!!Awen parameters for lichens and mosses
 
  !% cover calculations
- if(fAPARstand==0.) then
-  xx(1) = a_s * (fAPARstand+0.2) !* (log(1/fAPARstand)) **0.5
- else
-  xx(1) = a_s * (fAPARstand+0.2) * (log(1/fAPARstand)) **0.5
- endif
+ ! if(fAPARstand==0.) then
+  ! fAPARstand = 0.04
+ ! endif
+ xx(1) = a_s * (fAPARstand+0.2) * (log((1.04)/(fAPARstand+0.04))) **0.5 !!1.04 0.04 is to avoid division by 0 and to make the argument of log 1 at fAPAR=1
  xx(2) = a_g * (1-fAPARstand) + b_g
  xx(3) = a_m * (1-fAPARstand) + b_m * fAPARstand
  
@@ -1861,14 +1860,60 @@ subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar,nSp,nYearsFert,npa
 	! alfar = pCrobas(max(int(20+min(modOut(year,3,:,1),5)),21),int(initVar(1,:)))
 end subroutine calcAlfar	
 	
+
+!!!random mortality calculations based on Siilipehto et 2020	
+subroutine randMort(age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,baDead)
+	implicit none
+	real(8),intent(inout) :: age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,baDead
+	!parameters
+	! real(8) :: m=0.0004d0, Interc=-0.01d0  !parameters of probability of mortality obtained fitting a linear model as function of tree density (Fig 3A siipilehto et al.2020)
+	! real(8) :: a=0.2643402d0, b= 0.9987199d0  !parameters of proportion of dead BA obtained fitting an exponential model as function of tree density (Fig 6C siipilehto et al.2020)
+	real(8) :: randX, nX, baX, XB1,rp1,rp=314.16d0, XB2,rp2
 	
-	! subroutine test(a,b)
-	! implicit none
-	! integer, intent(in) :: a
-	! real(8),intent(inout) :: b(a)
+	!parameters mod1&2 siilipehto et al. 2020
+	real(8) :: int_m1, Age_m1, DQ_m1, sqrtBA_m1, BApineRelxAge_m1
+	real(8) :: BAbrdRelxAge_m1,Slope_100_m1, west_m1, TH5xBA_m1, peat_m1
+	real(8) :: int_m2, lnN_m2, ba_m2, sqrtN_m2, lnDQ_m2, BApineRelxlnAge_m2
+	real(8) :: BAbrdRelxlnAge_m2,Slope_100west_m2, Norway_m2
+
+!initParameters 
+    int_m1 = 3.1751d0
+	Age_m1 = -0.00417d0
+	DQ_m1 = 0.01382d0
+	sqrtBA_m1 = -0.6693d0
+	BApineRelxAge_m1 = 0.004356d0
+	BAbrdRelxAge_m1 = -0.01112d0
+	Slope_100_m1 = -1.0542d0
+	west_m1 = 0.1354d0
+	TH5xBA_m1 = 0.005803d0
+	peat_m1 = -0.2201d0
+	int_m2 = -7.3745d0
+	lnN_m2=	1.4010d0
+	sqrtN_m2 = -0.0296d0
+	ba_m2 = -0.0117d0
+	lnDQ_m2 = 0.5633d0
+	BApineRelxlnAge_m2 = 0.0790d0
+	BAbrdRelxlnAge_m2 = -0.0500d0
+	Slope_100west_m2 = 0.2438d0
+	Norway_m2 = 0.1657d0
+
+	rp1=(step/5.d0) * (pSize/rp)
+	XB1 = int_m1 + Age_m1 * age + DQ_m1*d**(1.5d0) + sqrtBA_m1 * sqrt(ba) + BApineRelxAge_m1* rBApine * age + &
+		BAbrdRelxAge_m1* rBAbrd * age + Slope_100_m1* slope + west_m1 * 0.25d0+ TH5xBA_m1 * ba*0.005d0 + peat_m1 * 0.001d0
+	rp2=(rp/pSize)
+	XB2 = int_m2 + lnN_m2 * log(N) + sqrtN_m2 *sqrt(N) + ba_m2*ba + lnDQ_m2 *log(d) + &
+		BApineRelxlnAge_m2 * rBApine * log(age) + BAbrdRelxlnAge_m2 * rBAbrd * log(age) + &
+		Slope_100west_m2 *slope*0.25d0 + Norway_m2*0.d0
 	
-	! call random_number(b)
+	pMort = 1.d0 - (1.d0 + exp(-(XB1)))**(-(rp1))!probability of survival
+	perBAmort = 1.d0 - (1.d0+exp(-XB2))**(-rp2)
+	! if(age<30) pMort = max(min(pMort*2,0.5),0.4)
+	! if(age<30) perBAmort = min(perBAmort*2,0.5)
 	
-	
-	! end subroutine
+	call random_number(randX)
+	 if (randX < pMort) then
+	  baDead = perBAmort * ba
+	endif
+	 
+end subroutine
 	

@@ -10,6 +10,7 @@
 #' @param defaultThin If defaultThin = 1 (default) Finnish standard management practices are applied (ref).
 #' @param ClCut     Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
 #' @param energyCut Energy cutting strategy will be applied if set to 1. Default value is 0.
+#' @param mortMod flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)
 #'
 #' @importFrom plyr aaply
 #'
@@ -21,7 +22,8 @@
 
 #' 
 TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100, pCROBAS = pCROB,
-                        AgeEffect = F, defaultThin = 1, ClCut = 1, energyCut = 0) {
+                        AgeEffect = F, defaultThin = 1, ClCut = 1, energyCut = 0,
+                        mortMod=1,GVrun=1) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
   if (is.na(SiteType)) {
@@ -132,7 +134,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     # pAWEN = parsAWEN,
     ClCut = ClCut,
     yassoRun = 1,
-    energyCut = energyCut
+    energyCut = energyCut,
+    mortMod=mortMod,
+    GVrun=GVrun
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

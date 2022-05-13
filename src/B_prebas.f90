@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod)
 
 implicit none
 
@@ -28,7 +28,7 @@ implicit none
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
- integer, intent(in) :: oldLayer
+ integer, intent(in) :: oldLayer,mortMod
 !!! fertilization parameters
  integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
@@ -45,7 +45,7 @@ implicit none
 !!!ground vegetation variables
  real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
  integer, intent(in) :: gvRun !!! flag for including ground vegetation
- real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 4) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv !!! ground vegetation
+ real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
  real (kind=8), intent(inout) :: siteInfo(10)
@@ -54,7 +54,7 @@ implicit none
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
 
 !! Parameters internal to the model
- real (kind=8) :: prelesOut(16), fAPARsite
+ real (kind=8) :: prelesOut(16), fAPARsite, lastGVout(5)  !!!state of the GV at the last year
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
  real (kind=8), DIMENSION(nLayers) :: Lb, Lf, Lst
@@ -63,10 +63,12 @@ implicit none
  integer, DIMENSION(nLayers) :: layerX
  real (kind=8) :: STAND(nVar), STAND_tot(nVar), param(npar) ! temp variables fillled for each layer and fills  output(nYear, nSites, nVar).
  integer :: i, ij, ijj, species, layer, nSpec, ll ! tree species 1,2,3 = scots pine, norway spruce, birch
+ integer, allocatable :: indices(:)
+ real(kind=8) :: rPine, rBirch, perBAmort, pMort
 
  real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
- real (kind=8) :: step, totBA
+ real (kind=8) :: step, totBA,GVnpp(nYears)
 
  real (kind=8) :: stand_all(nVar, nLayers)
  real (kind=8) :: outt(nVar, nLayers, 2)
@@ -105,6 +107,8 @@ implicit none
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
+!variables for random mortality calculations
+real (kind=8) :: Nmort, BAmort
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -173,7 +177,7 @@ ETSmean = sum(ETSy)/nYears
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
-!!!! Initialize after clearcut (start)
+!!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
    !Ainit = int(min(Ainit, Ainit + nYears - yearX)) ! Ainit is the age stand is measureable. This is to avoid some special conditions that might occur in some simulation cases.
@@ -275,7 +279,7 @@ do year = 1, (nYears)
    enddo	
 	yearX = 0
   endif
-!!!! Initialize after clearcut (end)
+!!!! check if clearcut occured. If yes initialize forest (end)
 
   stand_all = modOut(year,:,:,1)
 
@@ -308,8 +312,10 @@ do year = 1, (nYears)
 	enddo
  endif
 
-do ij = 1 , nLayers 		!loop Species
+!calculate reneike and random mortality
+include 'mortalityCalc.h'
 
+do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
  species = int(stand(4))
  param = pCrobas(:,species)
@@ -357,13 +363,6 @@ do ij = 1 , nLayers 		!loop Species
  par_fAc = param(47)
 ! do siteNo = 1, nSites  !loop sites
 
-if (year > maxYearSite) then
-  STAND(2) = 0. !!newX
-  STAND(8:21) = 0. !#!#
-  STAND(23:37) = 0. !#!#
-  STAND(42:44) = 0. !#!#
-  STAND(47:nVar) = 0. !#!#
-else
 ! initialize site variables
 !  sitetype = STAND(3)
 
@@ -384,10 +383,10 @@ else
   ETS = STAND(5) !!##!!2
   Light = STAND(36)
   V = stand(30)
-  mort = stand(40)
+  ! mort = stand(40)
   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
   
-if (N>0.) then
+ if (N>0.) then
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
   par_rhof = par_rhof1 * ETS + par_rhof2
@@ -402,91 +401,6 @@ if (N>0.) then
   wf_STKG = wf_treeKG * N !needle mass per STAND in units C
   ppow=1.6075
 
-! Mortality - use Reineke from above
-!      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
-     if(time==inttimes) then
-      Rein = Reineke(ij) / par_kRein
-
-      if(Rein > 1.) then
-           dN = - 0.02 * N * Rein
-      else
-           dN = 0.
-      endif
-	  if(mort == 888.) then
-		dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-		mort=0.
-		stand(40) = 0.
-	  endif
-      Vold = V
-      Nold = N
-      ! if(N < 5.) N = 0.0
-
-      N = max(0.0, N + step*dN)
-
-	  if (dN<0. .and. Nold>0.) then
-			W_wsap = stand(47)
-			W_froot = stand(25)
-			W_c = stand(48) !sapwood stem below Crown
-			W_s = stand(49) !sapwood stem within crown
-			W_branch = stand(24) !branches biomass
-			W_croot = stand(32) !coarse root biomass
-			Wsh = stand(50)
-			Wdb = stand(51)
-			W_bh = stand(53)
-			W_crh = stand(54)
-			W_stem = stand(31)
-	S_branch = max(0.,(W_branch + W_croot*0.83 + Wdb) * min(1.,-dN*step/Nold) )
-	S_wood = (W_croot*0.17 + W_stem) * min(1.,-dN*step/Nold)
-    S_fol = wf_STKG * min(1.,-dN*step/Nold) !foliage litterfall
-    S_fr  = W_froot * min(1.,-dN*step/Nold)  !fine root litter
-			W_wsap = W_wsap * N/Nold
-			W_froot = W_froot * N/Nold
-			W_c = W_c * N/Nold
-			W_s = W_s * N/Nold
-			W_branch = W_branch * N/Nold
-			W_croot = W_croot * N/Nold
-			Wsh = Wsh * N/Nold
-			W_bh = W_bh * N/Nold
-			W_crh = W_crh * N/Nold
-			Wdb = Wdb * N/Nold
-			W_stem = W_stem * N/Nold
-			V = V * N/Nold
-			BA = BA * N/Nold
-			wf_STKG = wf_STKG * N/Nold
-  STAND(24) = W_branch
-  STAND(25) = W_froot
-  STAND(26) = S_fol
-  STAND(27) = S_fr
-  STAND(28) = S_branch
-  STAND(29) = S_wood
-  STAND(31) = W_stem
-  STAND(32) = W_croot
-  STAND(42) = Vold - V!* min(1.,-dN*step/Nold)
-  STAND(47) = W_wsap
-  STAND(48) = W_c
-  STAND(49) = W_s
-  STAND(50) = Wsh
-  STAND(53) = W_bh
-  STAND(54) = W_crh
-  STAND(51) = Wdb
-
-      else
-  STAND(26) = 0.
-  STAND(27) = 0.
-  STAND(28) = 0.
-  STAND(29) = 0.
-  STAND(42) = 0.
-      endif
-
-	  !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
-	  ! if(dN<0.) then
-	  ! modOut((year+1),8,ij,1) = modOut((year+1),8,ij,1) + V* min(1.,-dN*step/N)
-	    ! do ijj = 1,(nyears-year)
-			! modOut((year+ijj+1),8,ij,1) = modOut((year+ijj+1),8,ij,1) + (V/N) * (-dN*step) * &
-				! exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ijj + pCrobas(37,species)*D + pCrobas(44,species)))
-		! enddo
-	  ! end if
-	 endif
 !!keff calculations
   if(par_sarShp==0.) then
 	keff = par_k
@@ -521,27 +435,13 @@ if (N>0.) then
   STAND(20) = keff
   STAND(21) = lproj
   STAND(23) = weight
-  ! STAND(24) = W_branch
-  ! STAND(25) = W_froot
-  STAND(11) = H
-  STAND(12) = D
-  STAND(13) = BA ! * par_ops2
-  STAND(14) = Hc
-  STAND(15) = Cw
-  STAND(17) = N
-  STAND(33) = wf_STKG
-  STAND(34) = wf_treeKG
-  STAND(35) = B
-  STAND(30) = V
-else
+ else
   STAND(2) = 0. !#!#
   STAND(8:21) = 0. !#!#
   STAND(23:37) = 0. !#!#
   STAND(42:44) = 0. !#!#
   STAND(47:nVar) = 0. !#!#
-endif
-endif
-! end do !!!!!!!end loop sites
+ endif
 
  STAND_all(:,ij)=STAND
 end do !!!!!!!end loop layers
@@ -1633,8 +1533,25 @@ enddo
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
-if(GVrun==1) modOut(2:(nYears+1),46,1,1) = modOut(2:(nYears+1),46,1,1) + GVout(:,3)*0.5 
-
+!!!calculate state of GV at the last year
+if(GVrun==1) then 
+ stand_all = modOut((nYears+1),:,:,1)
+ call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
+	nVar,nPar,MeanLight,coeff,fAPARsite)
+ call fAPARgv(fAPARsite, ETSmean, siteType, lastGVout(1), lastGVout(2), &
+         sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
+     !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
+ if(nYears > 1) then
+  GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
+  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
+  GVout(nYears,4) = lastGVout(4)
+ else  !!!when nYears ==1 in the region multi prebas
+  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  GVout(nYears,4) = lastGVout(4)
+ endif
+ modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
+endif
 !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
  do year = 2,(nYears +1)
   do ij = 1,nLayers
