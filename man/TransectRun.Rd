@@ -14,7 +14,8 @@ TransectRun(
   defaultThin = 1,
   ClCut = 1,
   energyCut = 0,
-  mortMod = 1
+  mortMod = 1,
+  GVrun = 1
 )
 }
 \arguments{

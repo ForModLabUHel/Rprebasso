@@ -379,11 +379,13 @@ endif
 	   species = int(multiOut(siteX,ij,4,ijj,1))
 	   multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
 	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
-	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
-		(1-energyRatio) + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 +&
-		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)))
-       multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)+ &
-			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)*(1-energyRatio) +   &
+			multiOut(siteX,ij,51,ijj,1) + multiOut(siteX,ij,28,ijj,1)) + &
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio) + &
+		 (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.83 ))
+       multiOut(siteX,ij,29,ijj,1) = (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.17 + &
+			multiOut(siteX,ij,29,ijj,1) 
+			
 	  else
 	   multiOut(siteX,ij,28,ijj,1) = max(0.,(multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
 		multiOut(siteX,ij,51,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 + &
@@ -495,11 +497,14 @@ endif
 	   species = int(multiOut(siteX,ij,4,ijj,1))
 	   multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
 	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
-	   	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
-		(1-energyRatio)* thinFact + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact +&
-		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)* thinFact))
-       multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)* thinFact+ &
-			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	   
+	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)*(1-energyRatio) * thinFact +   &
+			multiOut(siteX,ij,51,ijj,1)* thinFact + multiOut(siteX,ij,28,ijj,1)) + &
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio) * thinFact + &
+		 (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.83 * thinFact))
+       multiOut(siteX,ij,29,ijj,1) = (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.17 * thinFact+ &
+			multiOut(siteX,ij,29,ijj,1) 
+				
 	  else
 	   multiOut(siteX,ij,28,ijj,1) = max(0.,(multiOut(siteX,ij,24,ijj,1)* thinFact + multiOut(siteX,ij,28,ijj,1) + &
 		multiOut(siteX,ij,51,ijj,1)* thinFact + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact + &
@@ -618,11 +623,13 @@ endif
 	   species = int(multiOut(siteX,ij,4,ijj,1))
 	   multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
 	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
-	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
-		(1-energyRatio) + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 +&
-		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio)))
-       multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)+ &
-			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+	   
+   	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)*(1-energyRatio)  +   &
+			multiOut(siteX,ij,51,ijj,1) + multiOut(siteX,ij,28,ijj,1)) + &
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio) + &
+		 (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.83 ))
+       multiOut(siteX,ij,29,ijj,1) = (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.17 + &
+			multiOut(siteX,ij,29,ijj,1) 
 	  else
 	   multiOut(siteX,ij,28,ijj,1) = max(0.,(multiOut(siteX,ij,24,ijj,1) + multiOut(siteX,ij,28,ijj,1) + &
 		multiOut(siteX,ij,51,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83 + &
@@ -739,11 +746,14 @@ endif
 	   species = int(multiOut(siteX,ij,4,ijj,1))
 	   multiWood(siteX,ij,ijj,1) = multiWood(siteX,ij,ijj,2) / pCrobas(2,species)
 	   energyWood = energyWood + multiWood(siteX,ij,ijj,1) * areas(siteX)   !!energCuts !!!we are looking at volumes
-	   	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)+multiOut(siteX,ij,51,ijj,1)) * &
-		(1-energyRatio)* thinFact + multiOut(siteX,ij,28,ijj,1) + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact +&
-		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio) * thinFact))
-       multiOut(siteX,ij,29,ijj,1) = multiOut(siteX,ij,32,ijj,1)*0.17*(1-energyRatio)* thinFact+ &
-			multiOut(siteX,ij,29,ijj,1) !0.1 takes into account of the stem residuals after clearcuts
+
+	   multiOut(siteX,ij,28,ijj,1) = max(0.,((multiOut(siteX,ij,24,ijj,1)*(1-energyRatio) * thinFact +   &
+			multiOut(siteX,ij,51,ijj,1)* thinFact + multiOut(siteX,ij,28,ijj,1)) + &
+		 multiOut(siteX,ij,31,ijj,1)* (1-harvRatio) * (1-energyRatio) * thinFact + &
+		 (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.83 * thinFact))
+       multiOut(siteX,ij,29,ijj,1) = (0.3 * (1-energyRatio)+0.7) * multiOut(siteX,ij,32,ijj,1) *0.17 * thinFact+ &
+			multiOut(siteX,ij,29,ijj,1) 
+
 	  else
 	   multiOut(siteX,ij,28,ijj,1) = max(0.,(multiOut(siteX,ij,24,ijj,1)* thinFact + multiOut(siteX,ij,28,ijj,1) + &
 		multiOut(siteX,ij,51,ijj,1)* thinFact + multiOut(siteX,ij,32,ijj,1)*0.83* thinFact + &
