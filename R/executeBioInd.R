@@ -11,7 +11,7 @@
 #' @examples
 calBioIndices <- function(modOut){
   ### test if is is a multiSite version or a single site version
-  if(class(modOut) == "multiPrebas"){
+  if(class(modOut) %in% c("multiPrebas","regionPrebas")){
     ##calculate inputs to the indices
     Vpine = apply(modOut$multiOut,1:2,calVspec,speciesID=1)
     Vspruce = apply(modOut$multiOut,1:2,calVspec,speciesID=2)
