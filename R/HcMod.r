@@ -57,7 +57,6 @@ model.Hc <- function(inputs){
   return(Hc)
 }
 
-
 HcModDef <- list()
 ###default HcModel for pisy and pipi
 HcModDef[[1]] <- HcModDef[[5]]<- function(inputs){ 
