@@ -207,7 +207,7 @@ HSIfs <- function(Vspruce,Pspruce,Vdec) {
 calVspec <- function(prebout,speciesID){
   speciesLoc <- which(prebout[4,,1]==speciesID)
   if (!is.null(speciesLoc)){
-    Vtot <- sum(prebout[30,speciesLoc,1])
+    Vtot <- sum(prebout[30,speciesLoc,1],na.rm=T)
   }else {
     Vtot = 0
   }
@@ -228,7 +228,7 @@ calVspec <- function(prebout,speciesID){
 calBAspec <- function(prebout,speciesID){
   speciesLoc <- which(prebout[4,,1]==speciesID)
   if (!is.null(speciesLoc)){
-    BAspec <- sum(prebout[13,speciesLoc,1])
+    BAspec <- sum(prebout[13,speciesLoc,1],na.rm=T)
   }else {
     BAspec = 0
   }
