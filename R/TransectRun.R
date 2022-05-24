@@ -5,6 +5,7 @@
 #' @param initVar   initial state of the forest. Array with nSites,VarsIn,nLayers dimentions: nSites=number of sites (7); VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))
 #' @param species   If the initial state of the forest is not provided (initVar) Should be 'Pine', or 'Spruce', or 'Birch' or 'Mixed'
 #' @param nYears    Number of years to run the model.Default value is 100.
+#' @param pPRELES   A vector of PRELES parameter. Default is the boreal forest version pPREL. 
 #' @param pCROBAS   (47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). Default is pCROB, print(pCROB) to see the parameter values and names.
 #' @param AgeEffect Carbon allocation strategy for seedlings. When True, the early growth will decrease due to age effect,by setting pCROBAS[45,]<-0.3.
 #' @param defaultThin If defaultThin = 1 (default) Finnish standard management practices are applied (ref).
@@ -22,7 +23,7 @@
 
 #' 
 TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100, pCROBAS = pCROB,
-                        AgeEffect = F, defaultThin = 1, ClCut = 1, energyCut = 0,
+                        pPRELES= pPREL,AgeEffect = F, defaultThin = 1, ClCut = 1, energyCut = 0,
                         mortMod=1,GVrun=1) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -123,6 +124,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     nYearsMS = rep(nYears, nSites),
     siteInfo = siteInfo,
     pCROBAS = pCROBAS,
+    pPRELES = pPRELES,
     defaultThin = defaultThin,
     multiInitVar = as.array(initVar),
     PAR = do.call(cbind, replicate(nRep, PARtran, simplify = FALSE)),
