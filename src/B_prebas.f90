@@ -1096,8 +1096,8 @@ if (ClCut == 1.) then
     
   !!!!calculate percentage of trees remaining after clearcut(pDomRem)
   call random_number(randX)
-   pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
-			sum(stand_all(13,1:ll))/stand_all(13,layer)
+   pDomRem =   max((randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
+			sum(stand_all(13,1:ll))/stand_all(13,layer),0.05)
    
 	!update old layer
    stand_all(:,nLayers) = stand_all(:,layer)

@@ -1917,3 +1917,16 @@ subroutine randMort(age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,b
 	 
 end subroutine
 	
+	
+! subroutine test(ciao,species)
+	
+	! implicit none
+	! integer, intent(inout) :: ciao(4)
+	! real(8) :: species(1)
+	! species(1) = 0
+	! ciao(2) = 1/species(1)
+	! species = maxloc(ciao)
+	
+	! if(species(1) /= species(1)) species(1)=999
+	
+! end subroutine test
