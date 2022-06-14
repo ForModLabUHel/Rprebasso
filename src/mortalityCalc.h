@@ -321,13 +321,13 @@ if(mortMod==2 .or. mortMod==3) then
 		 if(time==inttimes) then
 		!report BA and N to ha using the relative BA
 		
+		 Vold = stand(30)
+		 Nold = stand(17)
 		if(BAmort > 0.) then !check if mortality occurs
 		 dN = -Nold * (BAmort/(BA/BAr(ij)))
 		else
 		 dN = 0.	
 		endif
-		 Vold = V
-		 Nold = N
 
 	!!!update variables
 		  N = max(0.0, N + step*dN)
