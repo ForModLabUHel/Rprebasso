@@ -192,6 +192,9 @@ if (mortMod==1 .or. mortMod==3) then
 
 	 STAND_all(:,ij)=STAND
 	end do !!!!!!!end loop layers
+	if(stand_all(1,1) ==1498663.)then
+		write(1,*) stand_all(42,:), "mort 1",stand_all(7,1)
+	endif
 endif
 
 
@@ -415,5 +418,7 @@ if(mortMod==2 .or. mortMod==3) then
 
 	 STAND_all(:,ij)=STAND
 	end do !!!!!!!end loop layers
-
+if(stand_all(1,1) ==1498663.)then
+		write(1,*) stand_all(42,:), "mort 2",stand_all(7,1)
+endif
 endif
