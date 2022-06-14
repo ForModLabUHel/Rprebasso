@@ -163,11 +163,11 @@ if (mortMod==1 .or. mortMod==3) then
 	  STAND(51) = Wdb
 
 		  else
-	  STAND(26) = 0.
-	  STAND(27) = 0.
-	  STAND(28) = 0.
-	  STAND(29) = 0.
-	  STAND(42) = 0.
+	  STAND(26) = STAND(26)
+	  STAND(27) = STAND(27)
+	  STAND(28) = STAND(28)
+	  STAND(29) = STAND(29)
+	  STAND(42) = STAND(42)
 		  endif
 		 endif
 	  
