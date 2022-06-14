@@ -109,8 +109,8 @@ if (mortMod==1 .or. mortMod==3) then
 			stand(40) = 0.
 		  endif
 
-		  Vold = V
-		  Nold = N
+		  Vold = stand(30)
+		  Nold = stand(17)
 		  ! if(N < 5.) N = 0.0
 
 		  N = max(0.0, N + step*dN)
