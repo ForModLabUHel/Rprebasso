@@ -103,11 +103,11 @@ if (mortMod==1 .or. mortMod==3) then
 		  else
 			   dN = 0.
 		  endif
-		  if(mort == 888.) then
-			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort=0.
-			stand(40) = 0.
-		  endif
+!		  if(mort == 888.) then
+!			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+!			mort=0.
+!			stand(40) = 0.
+!		  endif
 
 		  Vold = V
 		  Nold = N
@@ -328,11 +328,11 @@ if(mortMod==2 .or. mortMod==3) then
 		else
 		 dN = 0.	
 		endif
-		  if(mortMod==2 .and. mort == 888.) then
-			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort=0.
-			stand(40) = 0.
-		  endif
+		  !if(mortMod==2 .and. mort == 888.) then
+			!dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+			!mort=0.
+			!stand(40) = 0.
+		  !endif
 
 	!!!update variables
 		  N = max(0.0, N + step*dN)
