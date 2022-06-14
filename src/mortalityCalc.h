@@ -326,8 +326,8 @@ if(mortMod==2 .or. mortMod==3) then
 		else
 		 dN = 0.	
 		endif
-	 Vold = V
-	 Nold = N
+		 Vold = V
+		 Nold = N
 
 	!!!update variables
 		  N = max(0.0, N + step*dN)
