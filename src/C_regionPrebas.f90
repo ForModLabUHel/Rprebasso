@@ -130,7 +130,7 @@ do ij = 1,maxYears
 	 soilC(i,ij,:,:,1:nLayers(i)) = soilC(i,(ij-1),:,:,1:nLayers(i))
 	endif
 
-!!!check if the limit has been exceeded if yes no havest (thinning or clearcut will be performed)
+!!!check if the limit has been exceeded if yes no harvest (thinning or clearcut will be performed)
     if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
 	 ClCutX = 0.
 	endif

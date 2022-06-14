@@ -332,8 +332,6 @@ if(mortMod==2 .or. mortMod==3) then
 	!!!update variables
 		  N = max(0.0, N + step*dN)
 
-		  N = max(0.0, N + step*dN)
-
 		  if (dN<0. .and. Nold>0.) then
 				W_wsap = stand(47)
 				W_froot = stand(25)
