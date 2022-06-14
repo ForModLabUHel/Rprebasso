@@ -103,11 +103,11 @@ if (mortMod==1 .or. mortMod==3) then
 		  else
 			   dN = 0.
 		  endif
-		  if(mort == 888.) then
-			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort = 0.
-			stand(40) = 0.
-		  endif
+!		  if(mort == 888.) then
+!			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+!			mort = 0.
+!			stand(40) = 0.
+!		  endif
 
 		  Vold = stand(30)
 		  Nold = stand(17)
@@ -192,7 +192,7 @@ if (mortMod==1 .or. mortMod==3) then
 
 	 STAND_all(:,ij)=STAND
 	end do !!!!!!!end loop layers
-	if(stand_all(1,1) ==1498663.)then
+	if(stand_all(1,1) ==1368025.)then
 		write(1,*) stand_all(42,:), "mort 1",stand_all(7,1)
 	endif
 endif
@@ -332,11 +332,11 @@ if(mortMod==2 .or. mortMod==3) then
 		else
 		 dN = 0.	
 		endif
-		  if(mortMod==2 .and. mort == 888.) then
-			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort=0.
-			stand(40) = 0.
-		  endif
+!		  if(mortMod==2 .and. mort == 888.) then
+!			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+!			mort=0.
+!			stand(40) = 0.
+!		  endif
 
 	!!!update variables
 		  N = max(0.0, N + step*dN)
@@ -418,7 +418,7 @@ if(mortMod==2 .or. mortMod==3) then
 
 	 STAND_all(:,ij)=STAND
 	end do !!!!!!!end loop layers
-if(stand_all(1,1) ==1498663.)then
+if(stand_all(1,1) ==1368025.)then
 		write(1,*) stand_all(42,:), "mort 2",stand_all(7,1)
 endif
 endif
