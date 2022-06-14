@@ -153,7 +153,7 @@ if (mortMod==1 .or. mortMod==3) then
 	  STAND(29) = S_wood
 	  STAND(31) = W_stem
 	  STAND(32) = W_croot
-	  STAND(42) = Vold - V!* min(1.,-dN*step/Nold)
+	  STAND(42) = Vold - V + STAND(42)!* min(1.,-dN*step/Nold)
 	  STAND(47) = W_wsap
 	  STAND(48) = W_c
 	  STAND(49) = W_s
@@ -370,7 +370,7 @@ if(mortMod==2 .or. mortMod==3) then
 	  STAND(29) = S_wood
 	  STAND(31) = W_stem
 	  STAND(32) = W_croot
-	  STAND(42) = Vold - V!* min(1.,-dN*step/Nold)
+	  STAND(42) = Vold - V + STAND(42)!* min(1.,-dN*step/Nold)
 	  STAND(47) = W_wsap
 	  STAND(48) = W_c
 	  STAND(49) = W_s
