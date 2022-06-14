@@ -103,11 +103,11 @@ if (mortMod==1 .or. mortMod==3) then
 		  else
 			   dN = 0.
 		  endif
-!		  if(mort == 888.) then
-!			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-!			mort=0.
-!			stand(40) = 0.
-!		  endif
+		  if(mort == 888.) then
+			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+			mort = 0.
+			stand(40) = 0.
+		  endif
 
 		  Vold = V
 		  Nold = N
@@ -153,7 +153,7 @@ if (mortMod==1 .or. mortMod==3) then
 	  STAND(29) = S_wood + STAND(29)
 	  STAND(31) = W_stem
 	  STAND(32) = W_croot
-	  STAND(42) = Vold - V + STAND(42)!* min(1.,-dN*step/Nold)
+	  STAND(42) = Vold - V + STAND(42)
 	  STAND(47) = W_wsap
 	  STAND(48) = W_c
 	  STAND(49) = W_s
@@ -204,6 +204,7 @@ if(mortMod==2 .or. mortMod==3) then
   BAmort = 0.d0
   pMort = 0.d0
   perBAmort = 0.d0
+  dN=0.d0
   indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==1.)
   rPine = sum(STAND_all(13,indices))/BA_tot
   ! write(1,*) indices, rPine
@@ -328,11 +329,11 @@ if(mortMod==2 .or. mortMod==3) then
 		else
 		 dN = 0.	
 		endif
-		  !if(mortMod==2 .and. mort == 888.) then
-			!dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			!mort=0.
-			!stand(40) = 0.
-		  !endif
+		  if(mortMod==2 .and. mort == 888.) then
+			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+			mort=0.
+			stand(40) = 0.
+		  endif
 
 	!!!update variables
 		  N = max(0.0, N + step*dN)
