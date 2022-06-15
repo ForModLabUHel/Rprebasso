@@ -147,13 +147,13 @@ if (mortMod==1 .or. mortMod==3) then
 				wf_STKG = wf_STKG * N/Nold
 	  STAND(24) = W_branch
 	  STAND(25) = W_froot
-	  STAND(26) = S_fol + STAND(26)
-	  STAND(27) = S_fr + STAND(27)
-	  STAND(28) = S_branch + STAND(28)
-	  STAND(29) = S_wood + STAND(29)
+	  STAND(26) = S_fol
+	  STAND(27) = S_fr
+	  STAND(28) = S_branch
+	  STAND(29) = S_wood
 	  STAND(31) = W_stem
 	  STAND(32) = W_croot
-	  STAND(42) = Vold - V + STAND(42)
+	  STAND(42) = Vold - V
 	  STAND(47) = W_wsap
 	  STAND(48) = W_c
 	  STAND(49) = W_s
@@ -163,10 +163,10 @@ if (mortMod==1 .or. mortMod==3) then
 	  STAND(51) = Wdb
 
 		  else
-	  STAND(26) = STAND(26)
-	  STAND(27) = STAND(27)
-	  STAND(28) = STAND(28)
-	  STAND(29) = STAND(29)
+	  STAND(26) = 0.
+	  STAND(27) = 0.
+	  STAND(28) = 0.
+	  STAND(29) = 0.
 	  STAND(42) = 0.
 		  endif
 		 endif
@@ -200,7 +200,14 @@ endif
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
 if(mortMod==2 .or. mortMod==3) then
-
+  if(mortMod==2) then
+	STAND_all(26,:) = 0.
+	STAND_all(27,:) = 0.
+	STAND_all(28,:) = 0.
+	STAND_all(29,:) = 0.
+	STAND_all(42,:) = 0.
+  endif
+  
 ! ! calculate relative basal area to be used in the mortality calculations
   BA_tot = sum(STAND_all(13,:))
   BAr = STAND_all(13,:)/BA_tot
