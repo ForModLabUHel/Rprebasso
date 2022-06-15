@@ -329,11 +329,9 @@ if(oldLayer==1) then
  layerX = int(domSp(1))
   
   !!!!calculate percentage of trees remaining after clearcut(pDomRem)
-  ! call random_number(randX)
-   pDomRem = 0.075*sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
-
-   !(randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
-			!sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
+  call random_number(randX)
+   pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
+			sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
    
 	!update old layer
 	multiOut(siteX,ij,:,nLayers(siteX),1) = multiOut(siteX,ij,:,layerX,1)
@@ -577,10 +575,9 @@ if(oldLayer==1) then
  layerX = int(ops(1))
   
   !!!!calculate percentage of trees remaining after clearcut(pDomRem)
-   ! call random_number(randX)
-   pDomRem =   0.075*sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
-   ! (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
-   ! sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
+   call random_number(randX)
+   pDomRem =   (randX*5.+5.)/100.* &  !!randomly sample between 5 and 10 %
+   sum(multiOut(siteX,ij,13,1:jj,1))/multiOut(siteX,ij,13,layerX,1)
    
 
 	!update old layer
