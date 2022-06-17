@@ -10,6 +10,7 @@ TransectRun(
   species = NA,
   nYears = 100,
   pCROBAS = pCROB,
+  pPRELES = pPREL,
   AgeEffect = F,
   defaultThin = 1,
   ClCut = 1,
@@ -28,6 +29,8 @@ TransectRun(
 \item{nYears}{Number of years to run the model.Default value is 100.}
 
 \item{pCROBAS}{(47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). Default is pCROB, print(pCROB) to see the parameter values and names.}
+
+\item{pPRELES}{A vector of PRELES parameter. Default is the boreal forest version pPREL.}
 
 \item{AgeEffect}{Carbon allocation strategy for seedlings. When True, the early growth will decrease due to age effect,by setting pCROBAS[45,]<-0.3.}
 
