@@ -1463,7 +1463,7 @@ if(defaultThin == 1.) then
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-if(stand_all(1,1) == 454702.)) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
+if(stand_all(1,1) == 454702.) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
  
    endif
   enddo
