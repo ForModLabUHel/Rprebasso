@@ -467,12 +467,9 @@ else
  jj=nLayers(siteX)
 endif 
 
-if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned 1", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1), multiOut(siteX,ij,37,ijj,1)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned 2", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 2", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1), multiOut(siteX,ij,37,ijj,1)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned 3", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1), multiOut(siteX,ij,37,ijj,1)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", multiOut(siteX,ij,11,1,1), multiOut(siteX,ij,13,1,1), multiOut(siteX,ij,37,1,1)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 2", multiOut(siteX,ij,11,2,1), multiOut(siteX,ij,13,2,1), multiOut(siteX,ij,37,2,1)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,3,1), multiOut(siteX,ij,13,3,1), multiOut(siteX,ij,37,3,1)
 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
@@ -489,6 +486,8 @@ if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,
 	  multiOut(siteX,ij,17:23,ijj,2) = multiOut(siteX,ij,17:23,ijj,1) * thinFact
 	  multiOut(siteX,ij,26:29,ijj,2) = multiOut(siteX,ij,26:29,ijj,1) * thinFact
 	  
+	  if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned x", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
+
 	  !update biomasses and Volumes
 	  multiOut(siteX,ij,24:25,ijj,2) = multiOut(siteX,ij,24:25,ijj,1) * thinFact + &
 					multiOut(siteX,ij,24:25,ijj,2)
