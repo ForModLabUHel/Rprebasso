@@ -466,6 +466,14 @@ if(oldLayer==1) then
 else
  jj=nLayers(siteX)
 endif 
+
+if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned 1", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1), multiOut(siteX,ij,37,ijj,1)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned 2", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 2", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1), multiOut(siteX,ij,37,ijj,1)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned 3", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), multiOut(siteX,ij,30,ijj,2)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1), multiOut(siteX,ij,37,ijj,1)
+
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
 	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
