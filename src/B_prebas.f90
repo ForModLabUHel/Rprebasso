@@ -1186,7 +1186,7 @@ if (ClCut == 1.) then
     stand_all(28,ij) = S_branch
     stand_all(29,ij) = S_wood
 	
-	if(siteInfo(1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2) 
+	if(siteInfo(1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2), outt(30,ij,2) 
 
    enddo !!!implement clearcut by layer (end)
   endif !!!end if oldLayer
