@@ -291,8 +291,8 @@ endif
 
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by DBH 
  !or thin based on stand density index
-! if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.5) then
-if(.false.) then
+if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.5) then
+! if(.false.) then
  if(compHarv(1)==1.) then  !!!!clearcut to compensate harvest limits
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
@@ -337,6 +337,7 @@ if(oldLayer==1) then
    
 	!update old layer
 	multiOut(siteX,ij,:,nLayers(siteX),1) = multiOut(siteX,ij,:,layerX,1)
+	multiOut(siteX,ij,42,nLayers(siteX),1) = 0.
 	! multiOut(siteX,ij,3,nLayers(siteX),2) = multiOut(siteX,ij,3,layerX,2)
 	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),nLayers(siteX),1) = &
 	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (pDomRem)
@@ -584,6 +585,7 @@ if(oldLayer==1) then
 
 	!update old layer
 	multiOut(siteX,ij,:,nLayers(i),1) = multiOut(siteX,ij,:,layerX,1)
+	multiOut(siteX,ij,42,nLayers(i),1) = 0.
 	multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),nLayers(i),1) = &
 	 multiOut(siteX,ij,(/9,10,13,17,18,37,38,40,43,44,53,54/),layerX,1) * (pDomRem)
 	multiOut(siteX,ij,24:34,nLayers(i),1) = multiOut(siteX,ij,24:34,layerX,1) * (pDomRem)

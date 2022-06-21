@@ -1075,6 +1075,7 @@ if (ClCut == 1.) then
    
 	!update old layer
    stand_all(:,nLayers) = stand_all(:,layer)
+   stand_all(42,nLayers) = 0.
    stand_all((/9,10,13,17,18,37,38,40,43,44,53,54/),nLayers) = &
 	stand_all((/9,10,13,17,18,37,38,40,43,44,53,54/),layer) * (pDomRem)
    stand_all(24:34,nLayers) = stand_all(24:34,layer) * (pDomRem)
