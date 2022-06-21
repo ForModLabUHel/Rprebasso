@@ -422,5 +422,5 @@ if(mortMod==2 .or. mortMod==3) then
 
 	 STAND_all(:,ij)=STAND
 	end do !!!!!!!end loop layers
-	if(siteInfo(1) == 568233.) write(2,*) "check mort",year, STAND_all(42,:) 
+	
 endif
