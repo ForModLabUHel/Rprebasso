@@ -1182,6 +1182,8 @@ if (ClCut == 1.) then
     stand_all(27,ij) = S_fr
     stand_all(28,ij) = S_branch
     stand_all(29,ij) = S_wood
+	
+	if(siteInfo(1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2) 
    enddo !!!implement clearcut by layer (end)
   endif !!!end if oldLayer
  endif
@@ -1463,7 +1465,7 @@ if(defaultThin == 1.) then
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-if(stand_all(1,1) == 454702.) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
+if(siteInfo(1) == 454702.) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
  
    endif
   enddo
