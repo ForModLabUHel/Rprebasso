@@ -178,7 +178,6 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
-!if(siteInfo(1) == 454702.) write(1,*) "I'm year", initVar(2,1)
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
@@ -1423,9 +1422,6 @@ if(defaultThin == 1.) then
   !energyCut
 	
 	
-	
-	
-	
     outt(11,ij,2) = STAND_tot(11)
     outt(12,ij,2) = STAND_tot(12)
     outt(13,ij,2) = STAND_tot(13) - BA
@@ -1469,7 +1465,8 @@ if(defaultThin == 1.) then
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-if(siteInfo(1) == 454702.) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
+if(siteInfo(1) == 454702.) write(1,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
+if(siteInfo(1) == 454702.) write(1,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
  
    endif
   enddo
