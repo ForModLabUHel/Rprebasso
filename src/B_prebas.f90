@@ -1465,8 +1465,8 @@ if(defaultThin == 1.) then
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-if(siteInfo(1) == 454702.) write(1,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
-if(siteInfo(1) == 454702.) write(1,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
+if(siteInfo(1) == 454702.) write(2,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
+if(siteInfo(1) == 454702.) write(2,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
 
  
    endif
