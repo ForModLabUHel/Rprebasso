@@ -178,7 +178,7 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
-
+if(siteInfo(1) == 454702.) write(1,*) "I'm year", initVar(2,1)
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
@@ -367,7 +367,7 @@ do ij = 1 , nLayers 		!loop Species
 
 ! initialize site variables
 !  sitetype = STAND(3)
-	if(stand(1) == 454702.) write(1,*) "sim", year, modOut(year,11,,1), modOut(year,30,,1)
+	if(siteInfo(1) == 454702.) write(1,*) "sim", year, modOut(year,11,,1), modOut(year,30,,1)
 
   age = STAND(7)
   H = STAND(11)
@@ -1186,7 +1186,7 @@ if (ClCut == 1.) then
     stand_all(28,ij) = S_branch
     stand_all(29,ij) = S_wood
 	
-	if(stand_all(1,1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2) 
+	if(siteInfo(1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2) 
 
    enddo !!!implement clearcut by layer (end)
   endif !!!end if oldLayer
@@ -1469,7 +1469,7 @@ if(defaultThin == 1.) then
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-if(stand_all(1,1) == 454702.) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
+if(siteInfo(1) == 454702.) write(1,*) ij, stand_all(7,ij), outt(11,ij,2) 
  
    endif
   enddo
