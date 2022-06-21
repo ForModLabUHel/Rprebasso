@@ -526,8 +526,8 @@ endif
  	  initVar(siteX,2,ijj) = multiOut(siteX,ij,7,ijj,1)
 	  initVar(siteX,3:6,ijj) = multiOut(siteX,ij,11:14,ijj,1)
 	  initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
+if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2)
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1)
 
      enddo !ijj layers loop
 	 
