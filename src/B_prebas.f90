@@ -178,7 +178,7 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
-if(siteInfo(1) == 454702.) write(1,*) "I'm year", initVar(2,1)
+!if(siteInfo(1) == 454702.) write(1,*) "I'm year", initVar(2,1)
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
