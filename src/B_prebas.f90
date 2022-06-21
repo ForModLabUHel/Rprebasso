@@ -1185,7 +1185,8 @@ if (ClCut == 1.) then
     stand_all(28,ij) = S_branch
     stand_all(29,ij) = S_wood
 	
-	if(siteInfo(1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2), outt(30,ij,2) 
+	if(siteInfo(1) == 454702.) write(1,*) "clCut Harv",ij, outt(7,ij,2), outt(11,ij,2), outt(30,ij,2) 
+    if(siteInfo(1) == 454702.) write(1,*) "clCut remains",ij, stand_all(7,ij), stand_all(11,ij), stand_all(30,ij) 
 
    enddo !!!implement clearcut by layer (end)
   endif !!!end if oldLayer
@@ -1467,6 +1468,8 @@ if(defaultThin == 1.) then
 
 if(siteInfo(1) == 454702.) write(1,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
 if(siteInfo(1) == 454702.) write(1,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
+	if(siteInfo(1) == 454702.) write(1,*) "clCut",ij, stand_all(7,ij), outt(11,ij,2), outt(30,ij,2) 
+
  
    endif
   enddo
