@@ -467,7 +467,7 @@ else
  jj=nLayers(siteX)
 endif 
 
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", multiOut(siteX,ij,11,1,1), multiOut(siteX,ij,13,1,1),&
+if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", ij, multiOut(siteX,ij,11,1,1), multiOut(siteX,ij,13,1,1),&
 	multiOut(siteX,ij,37,1,1)
 if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 2", multiOut(siteX,ij,11,2,1), multiOut(siteX,ij,13,2,1), &
 	multiOut(siteX,ij,37,2,1)
