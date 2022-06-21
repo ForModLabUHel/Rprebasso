@@ -366,7 +366,6 @@ do ij = 1 , nLayers 		!loop Species
 
 ! initialize site variables
 !  sitetype = STAND(3)
-	if(siteInfo(1) == 454702.) write(1,*) "sim", year, STAND(11), stand(30)
 
   age = STAND(7)
   H = STAND(11)
