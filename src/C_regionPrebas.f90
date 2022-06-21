@@ -77,10 +77,10 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
      ! open(1,file="test1.txt")
-    open(2,file="test2.txt")
+    ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
 
-write(2,*) "compHarv",compHarv
+! write(2,*) "compHarv",compHarv
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
@@ -841,7 +841,7 @@ end do !end Year loop
   enddo
  enddo	
    ! close(1)
-  close(2)
+  ! close(2)
   ! close(3)
 soilCinOut = soilC
 soilCtotInOut = soilCtot

@@ -672,10 +672,6 @@ if (N>0.) then
 !else
         s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
 ! endif
-		! if(ij==1 .and. output(year,1,ij,1) == 3.) write(1,*) year, s0, &
-	! par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.
-  ! if(ij==2) write(2,*) s0,par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.
-  ! if(ij==3) write(3,*) s0,par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.
     else
         s0 = 0.
     endif
@@ -718,8 +714,6 @@ if (N>0.) then
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
 			
         !Height growth-----------------------
-			! if(ij==1 .and. stand(1)==13429) write(1,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
-				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 		f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
 		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
 				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
@@ -738,29 +732,12 @@ if (N>0.) then
 			mort = 888.
 		endif
 
- ! if(stand_all(1,1)==4746. .and. ij==1) then
-	 ! write(1,*) f1,f2,dH,gammaC, ij,&
-	 ! H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
-	 ! par_z,W_c,W_bs,betaC,W_s
- ! endif
- ! if(stand_all(1,1)==4746. .and. ij==2) then
-	 ! write(2,*) f1,f2,dH,gammaC, ij,&
-	 ! H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
-	 ! par_z,W_c,W_bs,betaC,W_s
- ! endif
-! if(stand_all(1,1)==4746. .and. ij==3) then
-	 ! write(3,*) f1,f2,dH,gammaC, ij,&
-	 ! H,Hc,npp,wf_STKG,par_vf,W_froot,par_vr,theta,W_wsap, & 
-	 ! par_z,W_c,W_bs,betaC,W_s
- ! endif
   
  !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
 !        if(2.*hb > 100./sqrt(N) ) then
         dHc = min(gammaC * dH,(H - Hc))
-			! if(ij==1 .and. stand(1)==13429) write(2,*) dH,H,Hc,npp,wf_STKG,par_vf,W_froot, &
-				! par_vr,theta,W_wsap, par_z, W_wsap,gammaC, W_c,W_bs, betaC, W_s
 		
 if(time==1)then
       dHcCum = 0.
@@ -834,11 +811,7 @@ endif
 		W_croot = W_crs + W_crh
 		
   age = age + step
-  ! if (dH==0.) mort=888.
-  ! if(ij==1) write(11,*)gammaC , dH, dHc,H,Hc
-  ! if(ij==2) write(12,*)gammaC , dH, dHc,H,Hc
-  ! if(ij==3) write(13,*)gammaC , dH, dHc,H,Hc
-! write(3,*) gammaC, dH,dHc
+
   STAND(2) = gammaC
   STAND(40) = mort
   STAND(41) = dH
@@ -1075,7 +1048,7 @@ if (ClCut == 1.) then
 	A_clearcut = inAclct(species)
 	D = stand_all(12,layer)
 	age = stand_all(7,layer)
-	! write(1,*) siteInfo(1),D, D_clearcut,D > D_clearcut,age, A_clearcut , age > A_clearcut
+
  if ((D > D_clearcut) .or. (age > A_clearcut)) then
  
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
@@ -1184,8 +1157,8 @@ if (ClCut == 1.) then
     stand_all(28,ij) = S_branch
     stand_all(29,ij) = S_wood
 	
-	if(siteInfo(1) == 454702.) write(2,*) "clCutHarv",ij, outt(7,ij,2), outt(11,ij,2), outt(30,ij,2) 
-    if(siteInfo(1) == 454702.) write(2,*) "clCutremains",ij, stand_all(7,ij), stand_all(11,ij), stand_all(30,ij) 
+	! if(siteInfo(1) == 454702.) write(2,*) "clCutHarv",ij, outt(7,ij,2), outt(11,ij,2), outt(30,ij,2) 
+    ! if(siteInfo(1) == 454702.) write(2,*) "clCutremains",ij, stand_all(7,ij), stand_all(11,ij), stand_all(30,ij) 
 
    enddo !!!implement clearcut by layer (end)
   endif !!!end if oldLayer
@@ -1216,9 +1189,7 @@ if(defaultThin == 1.) then
 	!! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType) 
  ! thinx = thinningType
- ! if (thinningType>0.) then
-  ! write(1,*) thinningType,stand_all(1,1),year
- ! endif
+
  if(thinningType == 3.) then   
 	call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)  
 	BA_lim = BAtapio(1) ! BA limit to start thinning
@@ -1256,7 +1227,7 @@ if(defaultThin == 1.) then
  !!!fertilization at thinning
 	if(fertThin == 3 .and. flagFert<1 .and. siteType>3. .and. siteType<6.) then 
 		flagFert=1
-		! write(*,*) flagFert
+
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = siteType-1.
 		call calcAlfar(modOut(year,3,:,:),initVar(1,:),pCrobas, &
@@ -1465,15 +1436,14 @@ if(defaultThin == 1.) then
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-if(siteInfo(1) == 454702.) write(2,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
-if(siteInfo(1) == 454702.) write(2,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
-
+! if(siteInfo(1) == 454702.) write(2,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
+! if(siteInfo(1) == 454702.) write(2,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
  
    endif
   enddo
  endif !default thin
 endif
- ! write(2,*) "after thinnings"
+ 
 outt(:,:,1) = STAND_all
 
 modOut((year+1),2,:,:) = outt(2,:,:)
@@ -1505,14 +1475,10 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,3,ijj),folAWENH(ijj,:),litterSize(3,species), &
 	leac,soilC((year+1),:,3,ijj),0.)
   enddo
- ! write(2,*) "after yasso"
 
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
-  ! write(*,*) soilCtot(year+1)
  endif !end yassoRun if
 enddo !end year loop
-
-! write(2,*) "after loop years"
 
 !soil and harvested volume outputs
 modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
@@ -1529,7 +1495,6 @@ do year = 1,(nYears+1)
 	  modOut(year,43,ijj,1) = modOut(year,30,ijj,1) - modOut((year-1),30,ijj,1) + &
 				modOut(year,42,ijj,1) + modOut(year,37,ijj,1)/harvRatio
 	endif
-	! write(*,*) modOut(year,39,ijj,1)
   enddo
 enddo
 
@@ -1588,10 +1553,6 @@ endif
  soilCinOut = soilC(2:(nYears+1),:,:,:)
  soilCtotInOut = soilCtot(2:(nYears+1))
  output(:,1:2,1,2) = thinClx
- ! write(2,*) "end"
- ! close(1)
- ! close(2)
- ! close(3)
 
 end subroutine
 
