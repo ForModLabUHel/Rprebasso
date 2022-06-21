@@ -291,7 +291,8 @@ endif
 
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by DBH 
  !or thin based on stand density index
-if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.5) then
+! if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.5) then
+if(.false.) then
  if(compHarv(1)==1.) then  !!!!clearcut to compensate harvest limits
   n = 0
   do while(n < nSites .and. roundWood < HarvLim(ij,1))		!!energCuts
