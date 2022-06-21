@@ -80,6 +80,7 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
     open(2,file="test2.txt")
     ! open(3,file="test3.txt")
 
+write(2,*) "compHarv",compHarv
 !!inititialize A and biomasses
 do i = 1,nSites
  do ijj = 1,nLayers(i)
