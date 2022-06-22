@@ -1806,22 +1806,22 @@ subroutine calRein(outputs,nLayers,pRein,nVar,nSp,reinX)
 END subroutine calRein
 
 
-	subroutine changeOrder(oldOrd,age,newOrd,nSites,ageX,ij)
+	subroutine changeOrder(oldOrd,age,newOrd,nSites,ageX)
 	implicit none
 	integer, allocatable :: indices1(:)
 	integer, allocatable :: indices2(:)
-	integer,intent(in) :: nSites,ij
+	integer,intent(in) :: nSites
 	real(8),intent(in) :: ageX
 	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
 	real(8), intent(inout) :: age(nSites)
 	integer i, nX
 		indices1 = PACK([(i, i=1,nSites)], age<=ageX)
-		if(ij==1) write(1,*) indices1
+		! if(ij==1) write(1,*) indices1
 		nX = size(indices1)
 		newOrd(1:nX) = oldOrd(indices1)
 		indices2 = PACK([(i, i=1,nSites)], age>ageX)
 		newOrd((nX+1):nSites) = oldOrd(indices2)
-		if(ij==1) write(2,*) indices2
+		! if(ij==1) write(2,*) indices2
 	end subroutine changeOrder 
 	
 	
