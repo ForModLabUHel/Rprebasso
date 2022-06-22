@@ -115,7 +115,7 @@ do ij = 1,maxYears
   enddo
   
   write(1,*) ij, age
-  write(2,*) multiOut(i,ij,1,layerX,1)
+  write(2,*) ij, age<=120.
   siteOrdX = real(siteOrder(:,ij),8)
   call changeOrder(siteOrdX,age, & 
 					siteOrdX,nSites,ageMitigScen)
