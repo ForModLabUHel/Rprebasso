@@ -1815,6 +1815,7 @@ END subroutine calRein
 	real(8), intent(inout) :: age(nSites)
 	integer i, nX
 		indices = PACK([(i, i=1,nSites)], age<=ageX)
+		write(2,*) indices
 		nX = size(indices)
 		newOrd(1:nX) = oldOrd(indices)
 		indices = PACK([(i, i=1,nSites)], age>ageX)
