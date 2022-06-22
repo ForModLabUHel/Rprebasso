@@ -1814,11 +1814,11 @@ END subroutine calRein
 	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
 	real(8), intent(inout) :: age(nSites)
 	integer i, nX
-		indices = PACK([(i, i=1,nSites)], age<=120.)
+		indices = PACK([(i, i=1,nSites)], age<=ageX)
 		nX = size(indices)
 		write(1,*) indices
 		newOrd(1:nX) = oldOrd(indices)
-		indices = PACK([(i, i=1,nSites)], age>120.)
+		indices = PACK([(i, i=1,nSites)], age>ageX)
 		newOrd((nX+1):nSites) = oldOrd(indices)
 	end subroutine changeOrder 
 	

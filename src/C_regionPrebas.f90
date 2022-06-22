@@ -111,7 +111,7 @@ do ij = 1,maxYears
    endif
    domSp = maxloc(multiOut(i,ij,13,1:jj,1))
    layerX = int(domSp(1))
-   age(i) = initVar(i,2,1)! multiOut(i,ij,7,layerX,1)
+   age(i) = multiOut(i,ij,7,layerX,1)
   enddo
   siteOrdX = real(siteOrder(:,ij),8)
   call changeOrder(siteOrdX,age, & 
@@ -878,7 +878,6 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-
   close(1)
   close(2)
   close(3)
