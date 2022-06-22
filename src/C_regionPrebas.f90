@@ -229,7 +229,8 @@ do ij = 1,maxYears
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
 		 multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
 	endif	
-	
+
+if(compHarv(1)==-10. .or. compHarv(1)==2.) then
  if(siteInfo(i,1) == 454702.) write(2,*) "remaining 1", ij, output(1,11,1,1),output(1,13,1,1),&
 	 output(1,37,1,1)
  if(siteInfo(i,1) == 454702.) write(2,*) "remaining 2", output(1,11,2,1), output(1,13,2,1), &
@@ -248,7 +249,7 @@ if(siteInfo(i,1) == 454702.) write(2,*) "thinned 4", output(1,11,4,2), output(1,
 	 output(1,30,4,2)
 	  ! if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned x", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), &
 	  ! multiOut(siteX,ij,30,ijj,2)
-
+endif
 	
 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(i)==1 .and. fertThin>0) then 
