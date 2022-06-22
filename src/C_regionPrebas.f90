@@ -77,7 +77,7 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
     ! open(1,file="test1.txt")
-    open(2,file="test2.txt")
+    ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
 
 ! write(2,*) "compHarv",compHarv
@@ -467,12 +467,12 @@ else
  jj=nLayers(siteX)
 endif 
 
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", ij, multiOut(siteX,ij,11,1,1), multiOut(siteX,ij,13,1,1),&
-	multiOut(siteX,ij,37,1,1)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 2", multiOut(siteX,ij,11,2,1), multiOut(siteX,ij,13,2,1), &
-	multiOut(siteX,ij,37,2,1)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,3,1), multiOut(siteX,ij,13,3,1), &
-	multiOut(siteX,ij,37,3,1)
+! if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 1", ij, multiOut(siteX,ij,11,1,1), multiOut(siteX,ij,13,1,1),&
+	! multiOut(siteX,ij,37,1,1)
+! if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 2", multiOut(siteX,ij,11,2,1), multiOut(siteX,ij,13,2,1), &
+	! multiOut(siteX,ij,37,2,1)
+! if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,3,1), multiOut(siteX,ij,13,3,1), &
+	! multiOut(siteX,ij,37,3,1)
 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
@@ -489,8 +489,8 @@ if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,
 	  multiOut(siteX,ij,17:23,ijj,2) = multiOut(siteX,ij,17:23,ijj,1) * thinFact
 	  multiOut(siteX,ij,26:29,ijj,2) = multiOut(siteX,ij,26:29,ijj,1) * thinFact
 	  
-	  if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned x", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), &
-	  multiOut(siteX,ij,30,ijj,2)
+	  ! if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned x", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), &
+	  ! multiOut(siteX,ij,30,ijj,2)
 
 	  !update biomasses and Volumes
 	  multiOut(siteX,ij,24:25,ijj,2) = multiOut(siteX,ij,24:25,ijj,1) * thinFact + &
@@ -537,8 +537,8 @@ if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,
  	  initVar(siteX,2,ijj) = multiOut(siteX,ij,7,ijj,1)
 	  initVar(siteX,3:6,ijj) = multiOut(siteX,ij,11:14,ijj,1)
 	  initVar(siteX,7,ijj) = multiOut(siteX,ij,16,ijj,1)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2)
-if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1)
+! if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2)
+! if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining", multiOut(siteX,ij,11,ijj,1), multiOut(siteX,ij,13,ijj,1)
 
      enddo !ijj layers loop
 	 
@@ -858,7 +858,7 @@ end do !end Year loop
   enddo
  enddo	
   ! close(1)
-  close(2)
+  ! close(2)
   ! close(3)
 soilCinOut = soilC
 soilCtotInOut = soilCtot
