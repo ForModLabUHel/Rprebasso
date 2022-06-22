@@ -478,8 +478,8 @@ regionPrebas <- function(multiSiteInit,
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
   compHarv <- c(compHarv,thinFact)
   if(ageHarvPrior > 0.){
-    sitesCl1 <- which(multiSiteInit$siteInfo[,3]<4)
-    sitesCl2 <- which(multiSiteInit$siteInfo[,3]>3)
+    sitesCl1 <- which(multiSiteInit$siteInfo[,3]<3.5)
+    sitesCl2 <- which(multiSiteInit$siteInfo[,3]>3.5)
     siteOrder1 <- matrix(sitesCl1,length(sitesCl1),multiSiteInit$maxYears)
     siteOrder1 <- apply(siteOrder1,2,sample,length(sitesCl1))
     siteOrder2 <- matrix(sitesCl2,length(sitesCl2),multiSiteInit$maxYears)
