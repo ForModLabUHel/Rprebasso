@@ -113,6 +113,8 @@ do ij = 1,maxYears
    layerX = int(domSp(1))
    age(i) = multiOut(i,ij,7,layerX,1)
   enddo
+  
+  write(1,*) ij, age
   siteOrdX = real(siteOrder(:,ij),8)
   call changeOrder(siteOrdX,age, & 
 					siteOrdX,nSites,ageMitigScen)
