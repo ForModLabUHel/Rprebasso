@@ -178,7 +178,7 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
- if(siteInfo(i,1) == 454702.) write(2,*) "siteInfo 1", year
+ if(siteInfo(1) == 454702.) write(2,*) "siteInfo 1", year
 
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
@@ -1482,7 +1482,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
  endif !end yassoRun if
  
- if(siteInfo(i,1) == 454702.) write(2,*) "siteInfo 2", year
+ if(siteInfo(1) == 454702.) write(2,*) "siteInfo 2", year
 enddo !end year loop
 
 !soil and harvested volume outputs
