@@ -117,7 +117,7 @@ do ij = 1,maxYears
   ! write(1,*) ij, age
   siteOrdX = real(siteOrder(:,ij),8)
   call changeOrder(siteOrdX,age, & 
-					siteOrdX,nSites,ageMitigScen)
+					siteOrdX,nSites,ageMitigScen,ij)
   siteOrder(:,ij) = int(siteOrdX)
  endif
  
