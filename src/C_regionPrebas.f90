@@ -77,8 +77,8 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
     ! open(1,file="test1.txt")
-    open(2,file="test2.txt")
-    ! open(3,file="test3.txt")
+    ! open(2,file="test2.txt")
+    open(3,file="test3.txt")
 
 ! write(2,*) "compHarv",compHarv
 !!inititialize A and biomasses
@@ -231,21 +231,21 @@ do ij = 1,maxYears
 	endif	
 
 if(compHarv(1)==-10. .or. compHarv(1)==2.) then
- if(siteInfo(i,1) == 454702.) write(2,*) "remaining 1", ij, output(1,11,1,1),output(1,13,1,1),&
+ if(siteInfo(i,1) == 454702.) write(3,*) "remaining 1", ij, output(1,11,1,1),output(1,13,1,1),&
 	 output(1,37,1,1)
- if(siteInfo(i,1) == 454702.) write(2,*) "remaining 2", output(1,11,2,1), output(1,13,2,1), &
+ if(siteInfo(i,1) == 454702.) write(3,*) "remaining 2", output(1,11,2,1), output(1,13,2,1), &
 	 output(1,37,2,1)
- if(siteInfo(i,1) == 454702.) write(2,*) "remaining 3", output(1,11,3,1), output(1,13,3,1), &
+ if(siteInfo(i,1) == 454702.) write(3,*) "remaining 3", output(1,11,3,1), output(1,13,3,1), &
 	 output(1,37,3,1)
-if(siteInfo(i,1) == 454702.) write(2,*) "remaining 4", output(1,11,4,1), output(1,13,4,1), &
+if(siteInfo(i,1) == 454702.) write(3,*) "remaining 4", output(1,11,4,1), output(1,13,4,1), &
 	 output(1,37,4,1)
- if(siteInfo(i,1) == 454702.) write(2,*) "thinned 1", ij, output(1,11,1,2), output(1,13,1,2),&
+ if(siteInfo(i,1) == 454702.) write(3,*) "thinned 1", ij, output(1,11,1,2), output(1,13,1,2),&
 	 output(1,30,1,2)
- if(siteInfo(i,1) == 454702.) write(2,*) "thinned 2", output(1,11,2,2), output(1,13,2,2), &
+ if(siteInfo(i,1) == 454702.) write(3,*) "thinned 2", output(1,11,2,2), output(1,13,2,2), &
 	 output(1,30,2,2)
- if(siteInfo(i,1) == 454702.) write(2,*) "thinned 3", output(1,11,3,2), output(1,13,3,2), &
+ if(siteInfo(i,1) == 454702.) write(3,*) "thinned 3", output(1,11,3,2), output(1,13,3,2), &
 	 output(1,30,3,2)
-if(siteInfo(i,1) == 454702.) write(2,*) "thinned 4", output(1,11,4,2), output(1,13,4,2), &
+if(siteInfo(i,1) == 454702.) write(3,*) "thinned 4", output(1,11,4,2), output(1,13,4,2), &
 	 output(1,30,4,2)
 	  ! if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned x", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), &
 	  ! multiOut(siteX,ij,30,ijj,2)
@@ -879,8 +879,8 @@ end do !end Year loop
   enddo
  enddo	
   ! close(1)
-  close(2)
-  ! close(3)
+  ! close(2)
+  close(3)
 soilCinOut = soilC
 soilCtotInOut = soilCtot
 
