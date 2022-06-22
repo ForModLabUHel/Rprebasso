@@ -26,7 +26,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6) 
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
- real (kind=8), intent(in) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
+ real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,9),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
@@ -77,7 +77,7 @@ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scen
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
     ! open(1,file="test1.txt")
-    ! open(2,file="test2.txt")
+    open(2,file="test2.txt")
     open(3,file="test3.txt")
 
 ! write(2,*) "compHarv",compHarv
@@ -879,7 +879,7 @@ end do !end Year loop
   enddo
  enddo	
   ! close(1)
-  ! close(2)
+  close(2)
   close(3)
 soilCinOut = soilC
 soilCtotInOut = soilCtot
