@@ -1816,6 +1816,7 @@ END subroutine calRein
 	integer i, nX
 		indices = PACK([(i, i=1,nSites)], age<=120.)
 		nX = size(indices)
+		write(2,*) indices
 		newOrd(1:nX) = oldOrd(indices)
 		indices = PACK([(i, i=1,nSites)], age>120.)
 		newOrd((nX+1):nSites) = oldOrd(indices)
