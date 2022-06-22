@@ -484,9 +484,7 @@ regionPrebas <- function(multiSiteInit,
     siteOrder2 <- replicate(multiSiteInit$maxYears,sample(sitesCl2))
     siteOrder <- rbind(siteOrder1,siteOrder2)
   }else if(all(is.na(siteOrder))){
-    siteOrder <- matrix(1:multiSiteInit$nSites,multiSiteInit$nSites,multiSiteInit$maxYears)
-    set.seed(NULL)
-    siteOrder <- apply(siteOrder,2,sample,multiSiteInit$nSites)
+    siteOrder <- replicate(multiSiteInit$maxYears,sample(1:multiSiteInit$nSites))
   }  
   ###initialize siteType
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
