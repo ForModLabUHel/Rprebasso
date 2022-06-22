@@ -230,22 +230,22 @@ do ij = 1,maxYears
 		 multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
 	endif	
 	
- if(siteInfo(i,1) == 454702.) write(2,*) "remaining 1", ij, output(i,ij,11,1,1), multiOut(i,ij,13,1,1),&
-	 multiOut(i,ij,37,1,1)
- if(siteInfo(i,1) == 454702.) write(2,*) "remaining 2", multiOut(i,ij,11,2,1), multiOut(i,ij,13,2,1), &
-	 multiOut(i,ij,37,2,1)
- if(siteInfo(i,1) == 454702.) write(2,*) "remaining 3", multiOut(i,ij,11,3,1), multiOut(i,ij,13,3,1), &
-	 multiOut(i,ij,37,3,1)
-if(siteInfo(i,1) == 454702.) write(2,*) "remaining 4", multiOut(i,ij,11,4,1), multiOut(i,ij,13,4,1), &
-	 multiOut(i,ij,37,4,1)
- if(siteInfo(i,1) == 454702.) write(2,*) "thinned 1", ij, output(i,ij,11,1,2), multiOut(i,ij,13,1,2),&
-	 multiOut(i,ij,30,1,2)
- if(siteInfo(i,1) == 454702.) write(2,*) "thinned 2", multiOut(i,ij,11,2,2), multiOut(i,ij,13,2,2), &
-	 multiOut(i,ij,30,2,2)
- if(siteInfo(i,1) == 454702.) write(2,*) "thinned 3", multiOut(i,ij,11,3,2), multiOut(i,ij,13,3,2), &
-	 multiOut(i,ij,30,3,2)
-if(siteInfo(i,1) == 454702.) write(2,*) "thinned 4", multiOut(i,ij,11,4,2), multiOut(i,ij,13,4,2), &
-	 multiOut(i,ij,30,4,2)
+ if(siteInfo(i,1) == 454702.) write(2,*) "remaining 1", ij, output(1,11,1,1),output(1,13,1,1),&
+	 output(1,37,1,1)
+ if(siteInfo(i,1) == 454702.) write(2,*) "remaining 2", output(1,11,2,1), output(1,13,2,1), &
+	 output(1,37,2,1)
+ if(siteInfo(i,1) == 454702.) write(2,*) "remaining 3", output(1,11,3,1), output(1,13,3,1), &
+	 output(1,37,3,1)
+if(siteInfo(i,1) == 454702.) write(2,*) "remaining 4", output(1,11,4,1), output(1,13,4,1), &
+	 output(1,37,4,1)
+ if(siteInfo(i,1) == 454702.) write(2,*) "thinned 1", ij, output(1,11,1,2), output(1,13,1,2),&
+	 output(1,30,1,2)
+ if(siteInfo(i,1) == 454702.) write(2,*) "thinned 2", output(1,11,2,2), output(1,13,2,2), &
+	 output(1,30,2,2)
+ if(siteInfo(i,1) == 454702.) write(2,*) "thinned 3", output(1,11,3,2), output(1,13,3,2), &
+	 output(1,30,3,2)
+if(siteInfo(i,1) == 454702.) write(2,*) "thinned 4", output(1,11,4,2), output(1,13,4,2), &
+	 output(1,30,4,2)
 	  ! if(siteInfo(siteX,1) == 454702.) write(2,*) "thinned x", multiOut(siteX,ij,11,ijj,2), multiOut(siteX,ij,13,ijj,2), &
 	  ! multiOut(siteX,ij,30,ijj,2)
 
