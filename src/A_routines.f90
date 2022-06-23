@@ -1816,8 +1816,12 @@ END subroutine calRein
 	real(8), intent(inout) :: age(nSites)
 	integer i, nX
 		indices1 = PACK([(i, i=1,nSites)], age<=ageX)
-		if(ij==1) write(1,*) indices1
+		if(ij==1) then
+		write(1,*) indices1
+		nX = 22212
+		else
 		nX = size(indices1)
+		endif
 		newOrd(1:nX) = oldOrd(indices1)
 		indices2 = PACK([(i, i=1,nSites)], age>ageX)
 		newOrd((nX+1):nSites) = oldOrd(indices2)
