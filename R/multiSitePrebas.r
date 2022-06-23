@@ -486,6 +486,17 @@ regionPrebas <- function(multiSiteInit,
   }else if(all(is.na(siteOrder))){
     siteOrder <- replicate(multiSiteInit$maxYears,sample(1:multiSiteInit$nSites))
   }  
+  # reorder first year of siteOreder according to age of the stands, 
+  # because in Fortran first year has a bug probably 
+  # in the PACK function
+if(ageHarvPrior>0){
+  domSp <- apply(multiSiteInit$multiInitVar[,5,],1,which.max)
+  agesX <- multiSiteInit$multiInitVar[,2,][cbind(1:multiSiteInit$nSites,domSp)]
+  newOrdX <- c(which(agesX[siteOrder[,1]] <= ageHarvPrior),
+               which(agesX[siteOrder[,1]] > ageHarvPrior))
+  siteOrder[,1] <- siteOrder[newOrdX,1]
+}  
+  
   ###initialize siteType
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
                                           dim=c(multiSiteInit$nSites,
