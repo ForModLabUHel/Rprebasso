@@ -101,7 +101,7 @@ do ij = 1,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
  
-ij(ij>1) then
+if(ij>1) then
  if(ageMitigScen > 0.) then
   do i = 1,nSites
    if(oldLayer==1) then
