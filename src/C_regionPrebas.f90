@@ -101,7 +101,7 @@ do ij = 1,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
  
-
+ij(ij>1) then
  if(ageMitigScen > 0.) then
   do i = 1,nSites
    if(oldLayer==1) then
@@ -117,10 +117,10 @@ do ij = 1,maxYears
   ! write(1,*) ij, age
   siteOrdX = real(siteOrder(:,ij),8)
   call changeOrder(siteOrdX,age, & 
-					siteOrdX,nSites,ageMitigScen,ij)
+					siteOrdX,nSites,ageMitigScen)
   siteOrder(:,ij) = int(siteOrdX)
  endif
- 
+endif 
  do iz = 1,nSites
  	i=siteOrder(iz,ij)
 	ClCutX = ClCut(i)
