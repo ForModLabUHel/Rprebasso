@@ -1952,13 +1952,13 @@ endsubroutine
 
 
 
-subroutine CUEcalc(ETS, st,r_r,W_RT,rm_ECM,litt_RT,exud)
+subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_ECM,litt_RT,exud)
 
 implicit none
 	real(8),intent(in) :: ETS, st,r_r,W_RT
-	real(8),intent(out) :: rm_ECM,litt_RT,exud
+	real(8),intent(out) :: rm_ECM,litt_RT,exud,r_RT
 	
-	real(8) :: rf, s_F, r_r, rho_M
+	real(8) :: r_F, s_F, rho_M,CN
 	!parameters
 	real(8) :: h_M, s_H, phi_M, ksi_M, gamma_M, r_M	
 
