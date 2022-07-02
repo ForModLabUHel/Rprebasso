@@ -1960,7 +1960,7 @@ implicit none
 	
 	real(8) :: r_F, s_F, rho_M,CN
 	!parameters
-	real(8) :: h_M, s_H, phi_M, ksi_M, gamma_M, r_M	
+	real(8) :: h_M, s_H, phi_M, ksi_M, gamma_M !, r_M	
 
 !initialise parameters
 h_M = 0.14d0 !extramatrical hyphal biomass parameter
@@ -1970,7 +1970,7 @@ ksi_M = 0.5d0 !rate of exudation
 gamma_M = 2.66d0 !apparent hyphal respiration rate 
 
 !!!!!!!!!! I do not find the value of r_M
-r_M	= 0.d0  !Maintenance respiration rate of fungal tips
+! r_M	= 0.d0  !Maintenance respiration rate of fungal tips
 !!!!!!!!!! I do not find the value of r_M
 
 call CNratio(CN, ETS, st)
@@ -1978,7 +1978,7 @@ call rhoMcalc(rho_M, CN)
 
 
 !	r_F=(∆_M+(1+c_H) h_M s_H+r_M+h_M r_H+ξ)   !original
-r_F = h_M * s_H + (1-phi_M) * ksi_M+ gamma_M + r_M		!assuming d_M = 0.
+r_F = h_M * s_H + (1-phi_M) * ksi_M+ gamma_M + r_r !r_M		!assuming d_M = 0.
 
 ! s_F=(ds_M+h_M * s_H+ksi_M) !original
 s_F=(h_M * s_H + ksi_M) !assuming ds_M = 0
