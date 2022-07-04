@@ -47,8 +47,3 @@ p4 = ggplot() + geom_point(aes(x=W_RT,y=exud))
 
 ggarrange(p1,p2,p3,p4)
 
-
-C:\HYAPP\rtools40v2
-Sys.setenv(PATH = paste("C:HYAPP/rtools40v2/usr/bin", Sys.getenv("PATH"), sep=";"))
-Sys.setenv(BINPREF = "C:/HYAPP/rtools40v2/mingw$(WIN)/bin/")
-                      C:\HYAPP\rtools40v2\mingw64\bin
