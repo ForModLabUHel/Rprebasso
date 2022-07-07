@@ -97,7 +97,7 @@ do i = 1,nSites
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
 		GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
-		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod) !energyCut)
+		fertThin,flagFert,nYearsFert,protect,mortMod,1) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
