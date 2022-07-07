@@ -25,7 +25,7 @@ implicit none
  real (kind=8), intent(inout) :: thinning(nThinning, 9) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp)
- real (kind=8), intent(inout) :: ECMmod
+ integer, intent(inout) :: ECMmod
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -712,12 +712,12 @@ if (N>0.) then
 			W_crh = stand(54)
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
-			write(1,*) ECMmod
+			! write(1,*) ECMmod
 			if(ECMmod==1) then !!!ECMmodelling
 				call CUEcalc(ETS, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij)) !!!ECMmodelling
-				write(1,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
+				! write(1,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots  !!!ECMmodelling
-				write(2,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
+				! write(2,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
 			else !!!ECMmodelling
 				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
 			endif
@@ -1485,7 +1485,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    endif
    !add W for all layer to W folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
    folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
-   write(3,*) exud(ij)
+   ! write(3,*) exud(ij)
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 

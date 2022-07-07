@@ -56,10 +56,10 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
 !!!!initialize run
 ! multiOut = 0.
 ! open(1,file="test1.txt")
-  open(1,file="test1.txt")
+  ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
   ! open(3,file="test3.txt")
- write(1,*) ECMmod,mortMod
+ ! write(1,*) ECMmod,mortMod
  ! write(2,*) tTapio
  ! close(1)
  ! close(2)
@@ -101,7 +101,7 @@ do i = 1,nSites
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
-close(1)
+! close(1)
 ! close(2)
 ! close(3)
 
