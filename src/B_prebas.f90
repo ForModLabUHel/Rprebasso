@@ -711,10 +711,10 @@ if (N>0.) then
 			W_crh = stand(54)
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
-			
+			write(1,*) ECMmod
 			if(ECMmod==1) then !!!ECMmodelling
 				call CUEcalc(ETS, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij)) !!!ECMmodelling
-				write(1,*) ECMmod,r_RT,rm_aut_roots,litt_RT,exud(ij)
+				write(1,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots  !!!ECMmodelling
 				write(2,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
 			else !!!ECMmodelling
