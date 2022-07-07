@@ -24,7 +24,8 @@ implicit none
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 9) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
- real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp), ECMmod
+ real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp),
+ real (kind=8), intent(inout) :: ECMmod
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -123,6 +124,7 @@ implicit none
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+ECMmod=1
 thinClx = 0.
 energyWood = 0.
 fbAWENH = 0.
