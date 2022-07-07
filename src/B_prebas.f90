@@ -124,7 +124,6 @@ implicit none
   ! open(2,file="test2.txt")
 
 !###initialize model###!
-ECMmod=1
 thinClx = 0.
 energyWood = 0.
 fbAWENH = 0.
