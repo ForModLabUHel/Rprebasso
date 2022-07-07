@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod)
 
 implicit none
 
@@ -24,7 +24,7 @@ implicit none
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 9) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
- real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp)
+ real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp), ECMmod
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -108,7 +108,9 @@ implicit none
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
 !variables for random mortality calculations
-real (kind=8) :: Nmort, BAmort
+ real (kind=8) :: Nmort, BAmort
+!!ECMmodelling
+ real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers)
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -534,6 +536,12 @@ do ij = 1 , nLayers
  param = pCrobas(:,species)
  sitetype=stand(3)
 
+!initialize ECMmodelling
+r_RT = 0.d0
+rm_aut_roots = 0.d0
+litt_RT = 0.d0
+exud(ij) = 0.d0
+
  par_cR=param(1)
  par_rhow=param(2)
  par_sla =param(3)
@@ -703,12 +711,18 @@ if (N>0.) then
 			W_crh = stand(54)
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
-			Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
+			
+			if(ECMmod==1) then !!!ECMmodelling
+				call CUEcalc(ETS, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij)) !!!ECMmodelling
+				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots  !!!ECMmodelling
+			else !!!ECMmodelling
+				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
+			endif
 			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
 			Respi_tot = gpp_sp - npp
 				 ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
-      S_fr  = S_fr + W_froot / par_vr	!fine root litter
+      S_fr  = S_fr + W_froot / par_vr + litt_RT	!fine root litter //  !! litt_RT from ECMmodelling
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
@@ -1466,6 +1480,9 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    if(GVrun==1 .and. ijj==1) then 
     folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
    endif
+   !add W for all layer to W folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
+   folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
+   
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 

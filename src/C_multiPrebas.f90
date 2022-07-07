@@ -9,7 +9,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		pAWEN,weatherYasso,litterSize,soilCtot, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
-		fertThin,flagFert,nYearsFert,protect,mortMod) !!energCut
+		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod) !!energCut
 
 implicit none
 
@@ -19,7 +19,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
- integer, intent(in) :: DOY(365),etmodel,mortMod
+ integer, intent(in) :: DOY(365),etmodel,mortMod, ECMmod
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,3,20)
  real (kind=8), intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
  real (kind=8), intent(inout) :: siteInfo(nSites,10),thdPer(nSites),limPer(nSites)

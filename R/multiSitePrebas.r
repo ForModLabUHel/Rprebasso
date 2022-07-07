@@ -40,7 +40,8 @@ InitMultiSite <- function(nYearsMS,
                           tTapioPar = tTapio,
                           GVrun = 1,
                           thinInt = -999.,
-                          mortMod = 1 #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
+                          mortMod = 1,#flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
+                          ECMmod=0 #flag for ECM modelling MAkela et al.2022
 ){  
   
   nSites <- length(nYearsMS)
@@ -363,7 +364,8 @@ InitMultiSite <- function(nYearsMS,
     GVrun=as.integer(GVrun),
     GVout=array(0.,dim = c(nSites,maxYears,5)),
     thinInt = thinInt,
-    mortMod = mortMod
+    mortMod = mortMod,
+    ECMmod = ECMmod
   )
   return(multiSiteInit)
 }
@@ -440,7 +442,8 @@ multiPrebas <- function(multiSiteInit,
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
-                     mortMod=as.integer(multiSiteInit$mortMod)
+                     mortMod=as.integer(multiSiteInit$mortMod),
+                     ECMmod=as.integer(multiSiteInit$ECMmod)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -571,7 +574,8 @@ if(ageHarvPrior>0){
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
-                     mortMod=as.integer(multiSiteInit$mortMod)
+                     mortMod=as.integer(multiSiteInit$mortMod),
+                     ECMmod=as.integer(multiSiteInit$ECMmod)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

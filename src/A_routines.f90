@@ -1935,7 +1935,7 @@ implicit none
  CN = int_CN + p_ETS * ETS + p_st * st
 endsubroutine	
 
-!!!!calculate ration of ECM biomass to fine root biomass (from Hagenbo et al. 2019)
+!!!!calculate ration of ECM biomass to fine root biomass (from Ostonen et al. 2011)
 !Note: parameters should be included as arguments inputs instead of being internally assigned
 subroutine rhoMcalc(rho_M, CN)
 implicit none
@@ -1952,11 +1952,11 @@ endsubroutine
 
 
 
-subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_ECM,litt_RT,exud)
+subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud)
 
 implicit none
 	real(8),intent(in) :: ETS, st,r_r,W_RT
-	real(8),intent(out) :: rm_ECM,litt_RT,exud,r_RT
+	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT
 	
 	real(8) :: r_F, s_F, rho_M,CN
 	!parameters
@@ -1988,9 +1988,10 @@ s_F=(h_M * s_H + ksi_M) !assuming ds_M = 0
 r_RT = (r_r+r_F * rho_M)/(1+rho_M)
 
 ! When calculating the related loss of C to the atmosphere, we need to subtract the losses from this, i.e., use 
-!rm_ECM maintenance respiration of ECM 
-! question: goes to the atmosfhere as Raut or Rh?
-rm_ECM = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M) * W_RT
+!rm_aut_roots  losses of C from roots & ECM to 
+! atmosphere, i.e., actual autotrophic maintenance respiration of roots + ECM (here 
+! respiration of ECM is regarded autotrophic because it comes from photosynthates
+rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M) * W_RT
 ! To Yasso as root litter (or later maybe special composition as hyphal litter)
 litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT
 ! To Yasso as sugar (W) exudates
