@@ -11,9 +11,6 @@ monthlyFluxes(modOut, weatherOption = 1)
 
 \item{weatherOption}{}
 }
-\value{
-
-}
 \description{
 monthlyFluxes
 }

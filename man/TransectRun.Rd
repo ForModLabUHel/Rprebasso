@@ -16,7 +16,8 @@ TransectRun(
   ClCut = 1,
   energyCut = 0,
   mortMod = 1,
-  GVrun = 1
+  GVrun = 1,
+  ECMmod = 0
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ TransectRun(
 \item{energyCut}{Energy cutting strategy will be applied if set to 1. Default value is 0.}
 
 \item{mortMod}{flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)}
+
+\item{ECMmod}{flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling}
 }
 \value{
 The output from multiPrebas()

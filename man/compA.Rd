@@ -9,9 +9,6 @@ compA(inputs)
 \arguments{
 \item{inputs}{}
 }
-\value{
-
-}
 \description{
 compA
 }
