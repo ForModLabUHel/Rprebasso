@@ -1991,7 +1991,7 @@ r_RT = (r_r+r_F * rho_M)/(1+rho_M)
 !rm_aut_roots  losses of C from roots & ECM to 
 ! atmosphere, i.e., actual autotrophic maintenance respiration of roots + ECM (here 
 ! respiration of ECM is regarded autotrophic because it comes from photosynthates
-rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M) * W_RT
+rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M) 
 ! To Yasso as root litter (or later maybe special composition as hyphal litter)
 litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT
 ! To Yasso as sugar (W) exudates
