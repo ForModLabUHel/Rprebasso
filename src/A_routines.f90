@@ -1996,7 +1996,6 @@ rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M)
 
 !normalise parameters according to P and ETS factors
 s_H = s_H * normFactETS
-ksi_M = ksi_M * normFactETS
 phi_M = phi_M * normFactETS
 rm_aut_roots = rm_aut_roots * normFactP
  
