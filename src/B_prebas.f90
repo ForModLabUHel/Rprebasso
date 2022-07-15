@@ -111,7 +111,8 @@ implicit none
 !variables for random mortality calculations
  real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
- real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers)
+ real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
+ real (kind=8) :: normFactP, normFactETS
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -653,7 +654,8 @@ if (N>0.) then
 !  par_mf = par_mf0 * p0 / p0_ref
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
-
+  normFactP = p0 / p0_ref
+  normFactETS = 1.d0/(1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
   
   par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
   theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
@@ -714,8 +716,9 @@ if (N>0.) then
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
 			! write(1,*) ECMmod
 			if(ECMmod==1) then !!!ECMmodelling
-				call CUEcalc(ETS, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij)) !!!ECMmodelling
+				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT) !!!ECMmodelling
 				! write(1,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
+				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
 				! write(2,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
 			else !!!ECMmodelling
@@ -1525,7 +1528,8 @@ enddo
  modOut(:,9,:,1) = modOut(:,9,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
  modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
 
-	modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
+	modOut(2:(nYears+1),45,:,1) = modOut(2:(nYears+1),45,:,1) + & !! this includes priming calculated earlier otherwise is 0.
+		modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
 		modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
 		modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
 	if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1

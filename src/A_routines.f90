@@ -1952,11 +1952,11 @@ endsubroutine
 
 
 
-subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud)
+subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,normFactP,normFactETS,P_RT)
 
 implicit none
-	real(8),intent(in) :: ETS, st,r_r,W_RT
-	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT
+	real(8),intent(in) :: ETS, st,r_r,W_RT, normFactP, normFactETS
+	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT,P_RT
 	
 	real(8) :: r_F, s_F, rho_M,CN
 	!parameters
@@ -1983,6 +1983,7 @@ r_F = h_M * s_H + (1-phi_M) * ksi_M+ gamma_M + r_r !r_M		!assuming d_M = 0.
 ! s_F=(ds_M+h_M * s_H+ksi_M) !original
 s_F=(h_M * s_H + ksi_M) !assuming ds_M = 0
 
+
 ! Here, r_RT is the apparent maintenance respiration rate of fine roots when C input to the fungi has been taken into account.
 !Fine root maintenance respiration is replaced with the following:
 r_RT = (r_r+r_F * rho_M)/(1+rho_M)
@@ -1991,12 +1992,20 @@ r_RT = (r_r+r_F * rho_M)/(1+rho_M)
 !rm_aut_roots  losses of C from roots & ECM to 
 ! atmosphere, i.e., actual autotrophic maintenance respiration of roots + ECM (here 
 ! respiration of ECM is regarded autotrophic because it comes from photosynthates
-rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M) 
+rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M)
+
+!normalise parameters according to P and ETS factors
+s_H = s_H * normFactETS
+ksi_M = ksi_M * normFactETS
+phi_M = phi_M * normFactETS
+rm_aut_roots = rm_aut_roots * normFactP
+ 
 ! To Yasso as root litter (or later maybe special composition as hyphal litter)
 litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT
 ! To Yasso as sugar (W) exudates
 exud = (rho_M *ksi_M)/(1+rho_M) * W_RT
 
+P_RT =  (rho_M *ksi_M*phi_M)/(1+rho_M) * W_RT
 
 end subroutine
 	
