@@ -112,7 +112,7 @@ implicit none
  real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
- real (kind=8) :: normFactP, normFactETS
+ real (kind=8) :: normFactP, normFactETS, Cost_m !!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -717,14 +717,14 @@ if (N>0.) then
 			! write(1,*) ECMmod
 			if(ECMmod==1) then !!!ECMmodelling
 				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT) !!!ECMmodelling
-				! write(1,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
 				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
-				! write(2,*) r_RT,rm_aut_roots,litt_RT,exud(ij)
-			else !!!ECMmodelling
-				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
+				Cost_m  = par_mf * wf_STKG + par_mw * W_wsap + r_RT * W_froot  !!!ECMmodelling
+			else !!! only consider fine root
+				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
+				Cost_m = Respi_m
 			endif
-			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
+			npp = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
 			Respi_tot = gpp_sp - npp
 				 ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
