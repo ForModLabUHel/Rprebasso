@@ -9,9 +9,9 @@ HSIhg(ageoldest, Pdec, Pspruce)
 \arguments{
 \item{ageoldest}{Age of the oldest layer}
 
-\item{Pdec}{Proportion of deciduous tress (%) of the total tree volume}
+\item{Pdec}{Proportion of deciduous tress (percentage) of the total tree volume}
 
-\item{Pspruce}{Proportion of spruce (%) of the total tree volume}
+\item{Pspruce}{Proportion of spruce (percentage) of the total tree volume}
 }
 \value{
 the habitat suitability index

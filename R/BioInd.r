@@ -44,8 +44,8 @@ HSIcaper <- function(Vpine,Vspruce,Nstems){
 #'  Biodiversity indicator for habitat suitability of The Hazel grouse (Bonasa bonasia)
 #'
 #' @param ageoldest Age of the oldest layer 
-#' @param Pdec Proportion of deciduous tress (%) of the total tree volume
-#' @param Pspruce Proportion of spruce (%) of the total tree volume
+#' @param Pdec Proportion of deciduous tress (percentage) of the total tree volume
+#' @param Pspruce Proportion of spruce (percentage) of the total tree volume
 #'
 #' @return the habitat suitability index
 #' @export
@@ -126,7 +126,7 @@ HSIlswo <- function(BArecddec,ageoldest) {
 #'
 #' @param ageoldest Age of the oldest layer
 #' @param BAtot Total basal area (m2/ha) 
-#' @param Pdec Proportion of deciduous tress (%) of the total tree volume
+#' @param Pdec Proportion of deciduous tress (percentage) of the total tree volume
 #'
 #' @return the habitat suitability index
 #' @export
@@ -156,7 +156,7 @@ HSIltt <- function(ageoldest,BAtot,Pdec){
 #'  Biodiversity indicator for habitat suitability of Long-tailed tit (Aegithalos caudatus)   
 #'
 #' @param Vspruce volume (m3/ha) of Spruce
-#' @param Pspruce Proportion of spruce (%) of the total tree volume
+#' @param Pspruce Proportion of spruce (percentage) of the total tree volume
 #' @param Vdec volume (m3/ha) of deciduous trees
 #'
 #' @return the habitat suitability index

@@ -11,7 +11,7 @@ HSIltt(ageoldest, BAtot, Pdec)
 
 \item{BAtot}{Total basal area (m2/ha)}
 
-\item{Pdec}{Proportion of deciduous tress (%) of the total tree volume}
+\item{Pdec}{Proportion of deciduous tress (percentage) of the total tree volume}
 }
 \value{
 the habitat suitability index

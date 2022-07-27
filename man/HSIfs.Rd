@@ -9,7 +9,7 @@ HSIfs(Vspruce, Pspruce, Vdec)
 \arguments{
 \item{Vspruce}{volume (m3/ha) of Spruce}
 
-\item{Pspruce}{Proportion of spruce (%) of the total tree volume}
+\item{Pspruce}{Proportion of spruce (percentage) of the total tree volume}
 
 \item{Vdec}{volume (m3/ha) of deciduous trees}
 }
