@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod)
 
 implicit none
 
@@ -25,7 +25,6 @@ implicit none
  real (kind=8), intent(inout) :: thinning(nThinning, 9) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp)
- integer, intent(inout) :: ECMmod
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -109,10 +108,7 @@ implicit none
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
 !variables for random mortality calculations
- real (kind=8) :: Nmort, BAmort
-!!ECMmodelling
- real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
- real (kind=8) :: normFactP, normFactETS, Cost_m !!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
+real (kind=8) :: Nmort, BAmort
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -538,12 +534,6 @@ do ij = 1 , nLayers
  param = pCrobas(:,species)
  sitetype=stand(3)
 
-!initialize ECMmodelling
-r_RT = 0.d0
-rm_aut_roots = 0.d0
-litt_RT = 0.d0
-exud(ij) = 0.d0
-
  par_cR=param(1)
  par_rhow=param(2)
  par_sla =param(3)
@@ -654,8 +644,7 @@ if (N>0.) then
 !  par_mf = par_mf0 * p0 / p0_ref
 !  par_mr = par_mr0 * p0 / p0_ref
 !  par_mw = par_mw0 * p0 / p0_ref
-  normFactP = p0 / p0_ref
-  normFactETS = 1.d0/(1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+
   
   par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
   theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
@@ -714,21 +703,12 @@ if (N>0.) then
 			W_crh = stand(54)
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
-			! write(1,*) ECMmod
-			if(ECMmod==1) then !!!ECMmodelling
-				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT) !!!ECMmodelling
-				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
-				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
-				Cost_m  = par_mf * wf_STKG + par_mw * W_wsap + r_RT * W_froot  !!!ECMmodelling
-			else !!! only consider fine root
-				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
-				Cost_m = Respi_m
-			endif
-			npp = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
+			Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
+			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
 			Respi_tot = gpp_sp - npp
 				 ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
-      S_fr  = S_fr + W_froot / par_vr + litt_RT	!fine root litter //  !! litt_RT from ECMmodelling
+      S_fr  = S_fr + W_froot / par_vr	!fine root litter
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
@@ -1486,9 +1466,6 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    if(GVrun==1 .and. ijj==1) then 
     folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
    endif
-   !add W for all layer to W folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
-   folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
-   ! write(3,*) exud(ij)
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 
@@ -1528,8 +1505,7 @@ enddo
  modOut(:,9,:,1) = modOut(:,9,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
  modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
 
-	modOut(2:(nYears+1),45,:,1) = modOut(2:(nYears+1),45,:,1) + & !! this includes priming calculated earlier otherwise is 0.
-		modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
+	modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
 		modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
 		modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
 	if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
