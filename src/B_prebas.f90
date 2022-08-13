@@ -715,20 +715,20 @@ if (N>0.) then
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
 			! write(1,*) ECMmod
-			if(ECMmod==1) then !!!ECMmodelling
-				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT) !!!ECMmodelling
-				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
-				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
-				Cost_m  = par_mf * wf_STKG + par_mw * W_wsap + r_RT * W_froot  !!!ECMmodelling
-			else !!! only consider fine root
+			! if(ECMmod==1) then !!!ECMmodelling
+				! call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT) !!!ECMmodelling
+				! modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
+				! Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
+				! Cost_m  = par_mf * wf_STKG + par_mw * W_wsap + r_RT * W_froot  !!!ECMmodelling
+			! else !!! only consider fine root
 				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
 				Cost_m = Respi_m
-			endif
+			! endif
 			npp = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
 			Respi_tot = gpp_sp - npp
 				 ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
-      S_fr  = S_fr + W_froot / par_vr + litt_RT	!fine root litter //  !! litt_RT from ECMmodelling
+      S_fr  = S_fr + W_froot / par_vr !+ litt_RT	!fine root litter //  !! litt_RT from ECMmodelling
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
@@ -1487,7 +1487,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
     folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
    endif
    !add W for all layer to W folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
-   folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
+   folAWENH(ijj,2) = folAWENH(ijj,2) !+ exud(ijj) !!!ECMmodelling
    ! write(3,*) exud(ij)
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
