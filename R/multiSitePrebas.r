@@ -238,7 +238,7 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,2,][which(multiInitVar[,2,]<1)] <- 1
     
     ####compute A
-    if(all(is.na(multiInitVar[,7,]))){
+    if(all(is.na(multiInitVar[,7,]))|all(multiInitVar[,7,]==0)){
       for(ikj in 1:maxNlayers){
         not0 <- which(multiInitVar[,3,ikj]>0)
         p_ksi <- pCROBAS[38,multiInitVar[not0,1,ikj]]
