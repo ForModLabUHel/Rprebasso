@@ -238,15 +238,17 @@ InitMultiSite <- function(nYearsMS,
     multiInitVar[,2,][which(multiInitVar[,2,]<1)] <- 1
     
     ####compute A
-    for(ikj in 1:maxNlayers){
-      not0 <- which(multiInitVar[,3,ikj]>0)
-      p_ksi <- pCROBAS[38,multiInitVar[not0,1,ikj]]
-      p_rhof <- pCROBAS[15,multiInitVar[not0,1,ikj]]
-      p_z <- pCROBAS[11,multiInitVar[not0,1,ikj]]
-      Lc <- multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj]
-      A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
-      multiInitVar[not0,7,ikj] <- A     
-    } 
+    if(all(is.na(multiInitVar[,7,]))){
+      for(ikj in 1:maxNlayers){
+        not0 <- which(multiInitVar[,3,ikj]>0)
+        p_ksi <- pCROBAS[38,multiInitVar[not0,1,ikj]]
+        p_rhof <- pCROBAS[15,multiInitVar[not0,1,ikj]]
+        p_z <- pCROBAS[11,multiInitVar[not0,1,ikj]]
+        Lc <- multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj]
+        A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
+        multiInitVar[not0,7,ikj] <- A     
+      } 
+    }
     LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
     if(any(LcCheck<0.)) return("check, some Lc is negative")
     # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
