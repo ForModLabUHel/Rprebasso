@@ -919,9 +919,6 @@ endif
      wf_STKG_old = wf_STKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
-if(STAND(1)==583.) then
-	write(1,*) BA,N
-endif
      Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
 	 if (thinning(countThinning,10) /= -999.) then
@@ -941,7 +938,9 @@ endif
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
 
-
+		if(isnan(stand(50)) stand(50) = 0
+		if(isnan(stand(53)) stand(53) = 0
+		if(isnan(stand(54)) stand(54) = 0
 	    W_bh = stand(53)
 		W_crh = stand(54)
 		wf_treeKG = par_rhof * A
@@ -961,6 +960,9 @@ endif
 		W_croot = W_crs + W_crh
 		W_branch = W_bs + W_bh
 		Wdb = Wdb * N/Nold
+if(STAND(1)==583.) then
+	write(1,*) BA,stand(53),stand(54),
+endif
 !! calculate litter including residuals from thinned trees
   !energyCut
 	S_fol = stand(26) + stand(33) - wf_STKG
