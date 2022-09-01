@@ -53,8 +53,8 @@ prebas <- function(nYears,
   
   ###proc thinnings##
   if(all(is.na(thinning))){
-    thinning=matrix(0,1,9)
-    thinning[,9] <- -999
+    thinning=matrix(0,1,10)
+    thinning[,9:10] <- -999
   } 
   thinning[is.na(thinning)] <- -999
   nThinning = max(1,nrow(thinning))

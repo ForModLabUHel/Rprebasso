@@ -22,7 +22,7 @@ implicit none
  integer, intent(in) :: DOY(365), etmodel 
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
- real (kind=8), intent(inout) :: thinning(nThinning, 9) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
+ real (kind=8), intent(inout) :: thinning(nThinning, 10) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(in) :: pCrobas(npar, nSp), pAWEN(12, nSp)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
@@ -924,8 +924,11 @@ endif
      N = BA/(pi*((D/2./100.)**2.)) ! N
      Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
-     A = stand(16) * B/stand(35)
-
+	 if (thinning(countThinning,10) /= -999.) then
+	   A = thinning(countThinning,10)
+	 else
+	   A = stand(16) * B/stand(35)
+	 endif
      ! Update dependent variables
 	 hb = par_betab * Lc**par_x
 	 gammaC = par_cR/stand(36)
