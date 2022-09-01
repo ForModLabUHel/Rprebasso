@@ -476,7 +476,6 @@ regionPrebas <- function(multiSiteInit,
                          startSimYear=1
 ){
   
-  if(all(is.na(yearXrpl))) yearXrpl <- rep(0.,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)

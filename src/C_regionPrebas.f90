@@ -107,6 +107,9 @@ if(startSimYear>1) then
 	initVar(i,7,1:nLayers(i)) = multiOut(i,(startSimYear-1),16,1:nLayers(i),1)
  enddo
  yearXrepl = multiOut(:,startSimYear,1,1,2)
+else
+ multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
+ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 endif
 
 do ij = startSimYear,maxYears
