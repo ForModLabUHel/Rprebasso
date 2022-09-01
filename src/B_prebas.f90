@@ -938,9 +938,9 @@ endif
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
 
-		if(isnan(stand(50)) stand(50) = 0
-		if(isnan(stand(53)) stand(53) = 0
-		if(isnan(stand(54)) stand(54) = 0
+		if(isnan(stand(50))) stand(50) = 0
+		if(isnan(stand(53))) stand(53) = 0
+		if(isnan(stand(54))) stand(54) = 0
 	    W_bh = stand(53)
 		W_crh = stand(54)
 		wf_treeKG = par_rhof * A
