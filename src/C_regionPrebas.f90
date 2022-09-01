@@ -9,7 +9,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
-		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,yearXrepl,startSimYear)
+		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,startSimYear)
 
 implicit none
 
@@ -23,7 +23,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer, intent(in) :: DOY(365),etmodel,mortMod
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
- real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6),yearXrepl(nSites)
+ real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7)
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
@@ -51,7 +51,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,10)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact	!!energCuts
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
- real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX
+ real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites)
  
 
 !!! fertilization parameters
@@ -63,7 +63,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 
 !!!!initialize run
 ! multiOut = 0.
-! yearXrepl = 0.
+yearXrepl = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 multiWood = 0.
@@ -106,6 +106,7 @@ if(startSimYear>1) then
 	initVar(i,3:6,1:nLayers(i)) = multiOut(i,(startSimYear-1),11:14,1:nLayers(i),1)
 	initVar(i,7,1:nLayers(i)) = multiOut(i,(startSimYear-1),16,1:nLayers(i),1)
  enddo
+ yearXrepl = multiOut(:,startSimYear,1,1,2)
 endif
 
 do ij = startSimYear,maxYears
@@ -851,6 +852,8 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
 
   !HarvLim(ij,1) = roundWood
   !HarvLim(ij,2) = energyWood
+  
+  	 multiOut(:,ij,1,1,2) = yearXrepl
 end do !end Year loop 
 
  do i = 1,nSites

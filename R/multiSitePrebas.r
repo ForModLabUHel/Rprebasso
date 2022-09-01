@@ -473,7 +473,6 @@ regionPrebas <- function(multiSiteInit,
                          fertThin = 0.,
                          nYearsFert = 20,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
-                         yearXrpl=NA,
                          startSimYear=1
 ){
   
@@ -577,7 +576,6 @@ if(ageHarvPrior>0){
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
                      mortMod=as.integer(multiSiteInit$mortMod),
-                     yearXrpl = as.matrix(yearXrpl),
                      startSimYear = as.integer(startSimYear)
   )
   class(prebas) <- "regionPrebas"
