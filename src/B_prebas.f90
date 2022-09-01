@@ -915,7 +915,7 @@ endif
 	 Hc=stand(14)
      Lc = H - Hc !Lc
      rc = Lc / (H-1.3) !crown ratio
-     Nold = N
+     Nold = max(N,1.)
      wf_STKG_old = wf_STKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
