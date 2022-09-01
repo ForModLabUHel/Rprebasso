@@ -860,7 +860,7 @@ else
 endif
 endif
 
-if(siteInfo[1]==583.) then
+if(siteInfo(1)==583.) then
 	write(1,*) thinning
 endif
   !Perform user defined thinning or defoliation events for this time period
