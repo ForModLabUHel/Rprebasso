@@ -860,6 +860,9 @@ else
 endif
 endif
 
+if(siteInfo[1]==583.) then
+	write(1,*) thinning
+endif
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
