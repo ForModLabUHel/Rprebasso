@@ -943,34 +943,34 @@ endif
 		if(isnan(stand(54))) stand(54) = 0
 	    W_bh = stand(53)
 		W_crh = stand(54)
-		wf_treeKG = par_rhof * A
-		wf_STKG = N * wf_treeKG
-		W_froot = par_rhor * A * N  !!to check  !!newX
-		W_wsap = par_rhow * A * N * (beta1 * H + beta2 * Hc) !!newX
-		W_c = par_rhow * A * N * Hc !sapwood stem below Crown
-		W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
-		W_bs =  par_rhow * A * N * betab * Lc !branches biomass
-        W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
+		wf_treeKG = max(par_rhof * A,0.)
+		wf_STKG = max(N * wf_treeKG,0.)
+		W_froot = max(par_rhor * A * N,0.)  !!to check  !!newX
+		W_wsap = max(par_rhow * A * N * (beta1 * H + beta2 * Hc),0.) !!newX
+		W_c = max(par_rhow * A * N * Hc,0.) !sapwood stem below Crown
+		W_s = max(par_rhow * A * N * par_betas * Lc,0.) !sapwood stem within crown
+		W_bs =  max(par_rhow * A * N * betab * Lc,0.) !branches biomass
+        W_crs = max(par_rhow * beta0 * A * H * N,0.) !W_stem * (beta0 - 1.)	!coarse root biomass
 		! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
-		Wsh = stand(50) * N/Nold !!this is not proportional to the size of the standing trees
-		W_stem = W_c + W_s + Wsh
-		W_crh = W_crh * N/Nold
-		W_bh = W_bh * N/Nold
-		V = W_stem / par_rhow
-		W_croot = W_crs + W_crh
-		W_branch = W_bs + W_bh
-		Wdb = Wdb * N/Nold
+		Wsh = max(stand(50) * N/Nold,0.) !!this is not proportional to the size of the standing trees
+		W_stem = max(W_c + W_s + Wsh,0.)
+		W_crh = max(W_crh * N/Nold,0.)
+		W_bh = max(W_bh * N/Nold,0.)
+		V = max(W_stem / par_rhow,0.)
+		W_croot = max(W_crs + W_crh,0.)
+		W_branch = max(W_bs + W_bh,0.)
+		Wdb = max(Wdb * N/Nold,0.)
 if(STAND(1)==583.) then
-	write(1,*) BA,stand(53),stand(54),Lc
+	write(1,*) stand
 endif
 !! calculate litter including residuals from thinned trees
   !energyCut
-	S_fol = stand(26) + stand(33) - wf_STKG
-    S_fr = stand(27) + stand(25) - W_froot
+	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
+    S_fr = max(0.,stand(27) + stand(25) - W_froot)
 	if(energyCut==1.) then
-	 energyWood(year,ij,2) = (stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
-					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio
-	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+	 energyWood(year,ij,2) = max(0.,(stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
+					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio)
+	 energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / par_rhow)
      S_branch = max(0.,stand(28) + (stand(24) - W_branch) * (1-energyRatio) + stand(51) - Wdb +&
 				(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) * 0.83 + &
 				(stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio))
