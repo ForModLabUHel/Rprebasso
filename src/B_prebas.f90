@@ -1031,7 +1031,9 @@ endif
 	stand(50) = Wsh
 	stand(51) = Wdb
     endif
-
+if(STAND(1)==583.) then
+	write(1,*) stand
+endif
 	countThinning = countThinning + 1
 
    End If
