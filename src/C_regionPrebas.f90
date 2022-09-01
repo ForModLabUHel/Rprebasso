@@ -9,7 +9,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
-		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod)
+		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,yearXrepl,startSimYear)
 
 implicit none
 
@@ -17,8 +17,8 @@ integer, parameter :: nVar=54,npar=47!, nSp=3
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,oldLayer
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
-integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers
-integer, intent(inout) :: siteOrder(nSites,maxYears)
+integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,startSimYear
+integer, intent(inout) :: siteOrder(nSites,maxYears),yearXrepl(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: DOY(365),etmodel,mortMod
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
@@ -50,7 +50,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,10)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact	!!energCuts
- integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species,layerX,domSp(1)
+ integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX
  
 
@@ -63,7 +63,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 
 !!!!initialize run
 ! multiOut = 0.
-yearX = 0.
+! yearXrepl = 0.
 soilC = soilCinOut
 soilCtot = soilCtotInOut
 multiWood = 0.
@@ -99,7 +99,16 @@ do i = 1,nSites
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
 enddo
 
-do ij = 1,maxYears
+if(startSimYear>1) then
+ do i = 1,nSites
+	initVar(i,1,1:nLayers(i)) = multiOut(i,(startSimYear-1),4,1:nLayers(i),1)
+	initVar(i,2,1:nLayers(i)) = multiOut(i,(startSimYear-1),7,1:nLayers(i),1)
+	initVar(i,3:6,1:nLayers(i)) = multiOut(i,(startSimYear-1),11:14,1:nLayers(i),1)
+	initVar(i,7,1:nLayers(i)) = multiOut(i,(startSimYear-1),16,1:nLayers(i),1)
+ enddo
+endif
+
+do ij = startSimYear,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
  
@@ -162,11 +171,11 @@ endif
 
 !!!
 	climID = siteInfo(i,2)
-	if(ij==int(yearX(i)))then
-	!if(ij==int(min(yearX(i),maxYears)))then
-	 ! initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearX(i)))
+	if(ij==int(yearXrepl(i,ij)))then
+	!if(ij==int(min(yearXrepl(i,ij),maxYears)))then
+	 ! initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearXrepl(i,ij)))
 	 initClearcut(i,5) = int(initClearcut(i,5))
-	 yearX(i) = 0
+	 yearXrepl(i,ij) = 0
 
 !if scenario = "oldLayer" do not consider the old layer
 	 if(oldLayer==1) then
@@ -276,7 +285,7 @@ if(oldLayer==1) then
 else
  jj=nLayers(i)
 endif
-	if(sum(output(1,11,1:jj,1))==0 .and. yearX(i) == 0) then
+	if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i,ij) == 0) then
 	 if((maxYears-ij)<10) then
  		Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25)
 	 else
@@ -284,7 +293,7 @@ endif
 	 endif
 	 !!!!update area of cuttings
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
-	 yearX(i) = Ainit + ij + 1
+	 yearXrepl(i,ij) = Ainit + ij + 1
 	 initClearcut(i,5) = Ainit
 	 if(ij==1) then
 	  relBA(i,1:jj) = initVar(i,5,1:jj)/sum(initVar(i,5,1:jj))
@@ -439,7 +448,7 @@ endif
 	 else
 	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
 	 endif
-	 yearX(siteX) = Ainit + ij + 1
+	 yearXrepl(siteX,ij) = Ainit + ij + 1
 	 initClearcut(siteX,5) = Ainit
 	 if(ij==1) then
 	  relBA(siteX,1:jj) = initVar(siteX,5,1:jj)/ &
@@ -698,7 +707,7 @@ endif
 	 else
 	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
 	 endif
-	 yearX(siteX) = Ainit + ij + 1
+	 yearXrepl(siteX,ij) = Ainit + ij + 1
 	 initClearcut(siteX,5) = Ainit
 	 if(ij==1) then
 	  relBA(siteX,1:nLayers(i)) = initVar(siteX,5,1:nLayers(i))/ &

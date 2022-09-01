@@ -472,9 +472,12 @@ regionPrebas <- function(multiSiteInit,
                          siteOrder=NA,
                          fertThin = 0.,
                          nYearsFert = 20,
-                         oldLayer=0 ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
+                         oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
+                         yearXrpl=NA,
+                         startSimYear=1
 ){
   
+  if(all(is.na(yearXrpl))) yearXrpl <- matrix(0.,multiSiteInit$nSites,multiSiteInit$maxYears)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
@@ -573,7 +576,9 @@ if(ageHarvPrior>0){
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
-                     mortMod=as.integer(multiSiteInit$mortMod)
+                     mortMod=as.integer(multiSiteInit$mortMod),
+                     yearXrpl = as.matrix(yearXrpl),
+                     startSimYear = as.integer(startSimYear)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
