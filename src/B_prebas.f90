@@ -961,7 +961,7 @@ endif
 		W_branch = W_bs + W_bh
 		Wdb = Wdb * N/Nold
 if(STAND(1)==583.) then
-	write(1,*) BA,stand(53),stand(54),
+	write(1,*) BA,stand(53),stand(54),Lc
 endif
 !! calculate litter including residuals from thinned trees
   !energyCut
