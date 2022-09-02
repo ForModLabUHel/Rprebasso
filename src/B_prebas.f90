@@ -915,7 +915,7 @@ endif
 	 Hc=stand(14)
      Lc = H - Hc !Lc
      rc = Lc / (H-1.3) !crown ratio
-     Nold = 1.!max(N,1.)
+     Nold = N
      wf_STKG_old = wf_STKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
@@ -960,9 +960,7 @@ endif
 		W_croot = max(W_crs + W_crh,0.)
 		W_branch = max(W_bs + W_bh,0.)
 		Wdb = max(Wdb * N/Nold,0.)
-if(STAND(1)==583.) then
-	write(1,*) stand
-endif
+
 !! calculate litter including residuals from thinned trees
   !energyCut
 	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
@@ -1031,9 +1029,7 @@ endif
 	stand(50) = Wsh
 	stand(51) = Wdb
     endif
-if(STAND(1)==583.) then
-	write(1,*) stand
-endif
+
 	countThinning = countThinning + 1
 
    End If
