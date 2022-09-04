@@ -603,7 +603,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                          compHarv,###flag for compensating harvest if harvest do not reach the desired levels
                          ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
                          ### compHarv=2 compensate harvest with thinnings
-                         thinFact, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
+                         thinFact=0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
                          #######compHarv[1]
                          ageHarvPrior = 0, ####flag used in the IBC-carbon runs of
                          ####the mitigation Scenario and biodiversity protection 
