@@ -595,12 +595,12 @@ if(ageHarvPrior>0){
 
 
 reStartRegionPrebas <- function(multiSiteInit,
-                         HarvLim,
+                         HarvLim = NA,
                          minDharv = 999.,
-                         cutAreas,  ### is a matrix: area of cuttings rows are years of simulations
+                         cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
                          ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
                          ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
-                         compHarv,###flag for compensating harvest if harvest do not reach the desired levels
+                         compHarv=0,###flag for compensating harvest if harvest do not reach the desired levels
                          ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
                          ### compHarv=2 compensate harvest with thinnings
                          thinFact=0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
