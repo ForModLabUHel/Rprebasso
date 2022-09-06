@@ -483,7 +483,9 @@ else
  jj=nLayers(i)
 endif 
 	if(ClCut(i) > 0. ) then
-	 maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
+	 ! maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
+	  maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI 
+				sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
 	else
 	 maxState(i) = 0.
 	endif
@@ -494,8 +496,7 @@ endif
    n = n + 1
    ops = maxloc(maxState)
    siteX = int(ops(1))
-   maxState(siteX)=0.
-	if(ClCut(siteX) > 0.) then
+	if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
      energyCutX = energyCuts(siteX)
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	  energyCutX = 0.
@@ -594,8 +595,9 @@ endif
 	endif
 
     endif !(maxState(i)>minDharv)
+	maxState(siteX)=0.
    enddo !end do while
- elseif(compHarv(1)==3.) then  !!!thin to compensate harvest limits
+ elseif(compHarv(1)==3.) then  !!!thin & clearcut to compensate harvest limits
    n = 0
   do while((n < nSites .and. roundWood < HarvLim(ij,1)) .and. &
 	cuttingArea(ij,2) < cuttingArea(ij,1))		
