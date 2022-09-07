@@ -459,10 +459,9 @@ if (year <= maxYearSite) then
 	siteType = modOut(year,3,layer,1) !siteInfo(3)
 
     call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
-		nVar,nPar,MeanLight,coeff,fAPARsite)
+		nVar,nPar,MeanLight,coeff,fAPARtrees)
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
-! fAPARsite=0.7
 
 !!calculate year of replanting after a clearcut
 !if scenario = "oldLayer" do not consider the old layer
