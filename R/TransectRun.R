@@ -25,7 +25,7 @@
 #' 
 TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100, pCROBAS = pCROB,
                         pPRELES= pPREL,AgeEffect = F, defaultThin = 1, ClCut = 1, energyCut = 0,
-                        mortMod=1,GVrun=1,ECMmod=0) {
+                        mortMod=1,GVrun=1) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
   if (is.na(SiteType)) {
@@ -139,8 +139,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     yassoRun = 1,
     energyCut = energyCut,
     mortMod=mortMod,
-    GVrun=GVrun,
-    ECMmod = ECMmod
+    GVrun=GVrun
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

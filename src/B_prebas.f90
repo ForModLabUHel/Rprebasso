@@ -54,7 +54,7 @@ implicit none
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
 
 !! Parameters internal to the model
- real (kind=8) :: prelesOut(16), fAPARsite, lastGVout(5)  !!!state of the GV at the last year
+ real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5)  !!!state of the GV at the last year
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
  real (kind=8), DIMENSION(nLayers) :: Lb, Lf, Lst
@@ -479,51 +479,47 @@ endif
 	endif
 	yearX = Ainit + year 
    endif
-   fAPARprel(:) = fAPARsite
-   fAPAR(year) = fAPARsite
-      
    
+ 
+     !!!ground vegetation
+   !!!fapar_gv compute fapar, biomasses and litter of gv with routine
+   if(gvRun==1) then
+    call fAPARgv(fAPARtrees, ETSmean, siteType, fAPARgvX, GVout(year,2), &
+         sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
+   else
+    fAPARgvX=0.
+	GVout(year,:) = 0.
+   endif
+
+!!!calculate site fAPAR and set fAPAR for preles calculations and store
+   fAPARsite = fAPARtrees + fAPARgvX
+   fAPARprel(:) = fAPARsite
+   fAPAR(year) = fAPARtrees  !store fAPAR trees
+   GVout(year,1) = fAPARgvX !store fAPAR GV
+ 	! if(fAPARsite>0.) then
+	 
+        
+  !run preles 
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
 		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
 
+  !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
    STAND_all(22,:) = prelesOut(2)  	!ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
    ! STAND_all(41,:) = prelesOut(16)  !summerSW 
+  
+  !store GPP
+   GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+   STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
+!initialize for next year  
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
    pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
-
-   STAND_all(10,:) = prelesOut(1)/1000. ! Photosynthesis in g C m-2 (converted to kg C m-2)
-
-
-   !!!ground vegetation
-   !!!fapar_gv compute fapar, biomasses and litter of gv with routine
-   if(gvRun==1) then
-	if(fAPARsite>0.) then
-    call fAPARgv(fAPARsite, ETSmean, siteType, GVout(year,1), GVout(year,2), &
-         sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4)) !reduced input output
-     GVout(year,3) = prelesOut(1) * GVout(year,1)/fAPARsite! Photosynthesis in g C m-2 
-     ! GVout(year,4) = GVout(year,3)*0.5 !where to put those two variables
-   	 ! STAND_all(26,1) = STAND_all(26,1) + GVout(year,2)	!add !!!ground vegetation to the 1st layer
-    elseif(fAPARsite==0.) then
-	 call fAPARgv(fAPARsite,ETSmean,siteType,GVout(year,1),GVout(year,2), &
-			sum(P0yX(:,1))/nYears,AWENgv,GVout(year,4)) !reduced input output
-     fAPARprel(:) = GVout(year,1)
-    !!!fapar_gv run preles for ground vegetation
-     call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
-		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
-		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
-		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-		etmodel)		!type of ET model
-      GVout(year,3) = prelesOut(1) ! Photosynthesis in g C m-2 
-      ! GVout(year,4) =  GVout(year,3)*0.5 
-	endif
-   endif
 
 endif
 !enddo !! end site loop
@@ -1523,8 +1519,8 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 if(GVrun==1) then 
  stand_all = modOut((nYears+1),:,:,1)
  call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
-	nVar,nPar,MeanLight,coeff,fAPARsite)
- call fAPARgv(fAPARsite, ETSmean, siteType, lastGVout(1), lastGVout(2), &
+	nVar,nPar,MeanLight,coeff,fAPARtrees)
+ call fAPARgv(fAPARtrees, ETSmean, siteType, lastGVout(1), lastGVout(2), &
          sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
      !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
  if(nYears > 1) then
