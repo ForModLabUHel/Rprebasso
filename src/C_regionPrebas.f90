@@ -21,7 +21,7 @@ integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,startSimYear
 integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
- integer, intent(in) :: DOY(365),etmodel,mortMod
+ integer, intent(in) :: DOY(365),etmodel,mortMod(nSites)
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP)
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
@@ -242,7 +242,7 @@ endif
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
-		fertThin,flagFert(i),nYearsFert,oldLayer,mortMod) !!energCuts
+		fertThin,flagFert(i),nYearsFert,oldLayer,mortMod(i)) !!energCuts
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
@@ -489,6 +489,7 @@ endif
 
 	if(ClCut(i) > 0. .and. multiOut(i,ij,7,layerX,1) > 50. .and. multiOut(i,ij,7,layerX,1) < 100.) then
 	 maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
+	! if(ClCut(i) > 0.) then
 	  ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI 
 				! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
 	else
@@ -770,7 +771,8 @@ endif
    ops = maxloc(maxState)
    siteX = int(ops(1))
    maxState(siteX)=0.
-	if(ClCut(siteX) > 0.) then
+   	if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
+	! if(ClCut(siteX) > 0.) then
      energyCutX = energyCuts(siteX)
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	  energyCutX = 0.
