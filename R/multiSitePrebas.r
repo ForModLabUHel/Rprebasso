@@ -43,8 +43,8 @@ InitMultiSite <- function(nYearsMS,
                           mortMod = 1 #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
 ){  
   
-  if(length(mortMod)==1) mortMod <- rep(mortMod,nSites)
   nSites <- length(nYearsMS)
+  if(length(mortMod)==1) mortMod <- rep(mortMod,nSites)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
