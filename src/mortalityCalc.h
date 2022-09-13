@@ -1,5 +1,5 @@
 !Reineke mortality model
-if (mortMod==1 .or. mortMod==3) then 
+if (mortMod==1. .or. mortMod==3.) then 
 	do ij = 1 , nLayers 		!loop Species
 
 	 STAND=STAND_all(:,ij)
@@ -196,8 +196,8 @@ endif
 
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
-if(mortMod==2 .or. mortMod==3) then
-  if(mortMod==2) then
+if(mortMod==2. .or. mortMod==3.) then
+  if(mortMod==2.) then
 	STAND_all(26,:) = 0.
 	STAND_all(27,:) = 0.
 	STAND_all(28,:) = 0.
@@ -336,7 +336,7 @@ if(mortMod==2 .or. mortMod==3) then
 		else
 		 dN = 0.	
 		endif
-		  if(mortMod==2 .and. mort == 888.) then
+		  if(mortMod==2. .and. mort == 888.) then
 			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
 			mort=0.
 			stand(40) = 0.

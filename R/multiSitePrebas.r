@@ -443,7 +443,7 @@ multiPrebas <- function(multiSiteInit,
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
-                     mortMod=as.integer(multiSiteInit$mortMod)
+                     mortMod=as.double(multiSiteInit$mortMod)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -575,7 +575,7 @@ if(ageHarvPrior>0){
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
-                     mortMod=as.integer(multiSiteInit$mortMod),
+                     mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear)
   )
   class(prebas) <- "regionPrebas"
@@ -716,7 +716,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
-                     mortMod=as.integer(multiSiteInit$mortMod),
+                     mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear)
   )
   class(prebas) <- "regionPrebas"
