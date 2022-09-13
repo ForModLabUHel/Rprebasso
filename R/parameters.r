@@ -1,5 +1,5 @@
 ###default initial state at plantation
-initSeedling.def <- c(1.5,0.5,0.0431969,0.,NA)
+initSeedling.def <- c(1.31,0.5,0.0431969,0.2,NA)
 names(initSeedling.def) <- c("H","dbh","BA","hc","Ac")
 
 ###default parameters
