@@ -483,7 +483,7 @@ if(oldLayer==1) then
 else
  jj=nLayers(i)
 endif 
-	if(ClCut(i) > 0. .and. mean(multiOut(i,ij,7,1:jj,1))>50. .and. mean(multiOut(i,ij,7,1:jj,1))<100.) then
+	if(ClCut(i) > 0. .and. sum(multiOut(i,ij,7,1:jj,1))/jj>50. .and. sum(multiOut(i,ij,7,1:jj,1))/jj<100.) then
 	 maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
 	  ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI 
 				! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
@@ -748,7 +748,7 @@ endif
 ! !!end!! use stand density index to order the forests
 
 !!start!! use stand volume to order the forests
-	if(ClCut(i) > 0. .and. mean(multiOut(i,ij,7,1:jj,1))>50. .and. mean(multiOut(i,ij,7,1:jj,1))<100.) then
+	if(ClCut(i) > 0. .and. sum(multiOut(i,ij,7,1:jj,1))/jj > 50. .and. sum(multiOut(i,ij,7,1:jj,1))/jj < 100.) then
 	 maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
 	  ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI 
 				! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
