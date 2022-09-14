@@ -502,7 +502,7 @@ endif
    n = n + 1
    ops = maxloc(maxState)
    siteX = int(ops(1))
-	if(maxState(siteX)>minDharv .and. ClCut(siteX) > 0.) then
+	if(maxState(siteX)>0. .and. ClCut(siteX) > 0.) then
      energyCutX = energyCuts(siteX)
 	 if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	  energyCutX = 0.
