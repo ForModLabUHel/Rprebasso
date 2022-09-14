@@ -32,7 +32,7 @@ prebas <- function(nYears,
                    limPer=0.5,
                    ftTapioPar = ftTapio,
                    tTapioPar = tTapio,
-                   GVrun = 1,
+                   GVrun = 1, ###flag for Ground vegetation model 1-> runs the GV model
                    thinInt=-999.,
                    fertThin=0.,
                    nYearsFert=20,
