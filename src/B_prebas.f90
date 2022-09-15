@@ -1315,7 +1315,7 @@ if(defaultThin == 1.) then
 
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
-    Hc = stand_all(14,ij)
+    Hc = min(stand_all(14,ij),0.9*H)
 	Wdb = stand_all(51,ij)
     Lc = H - Hc !Lc
     rc = Lc / (H-1.3) !crown ratio

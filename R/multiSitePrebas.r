@@ -44,7 +44,7 @@ InitMultiSite <- function(nYearsMS,
 ){  
   
   nSites <- length(nYearsMS)
-  if(length(mortMod)==1) mortMod <- rep(mortMod,nSites)
+  if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
