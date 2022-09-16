@@ -1313,9 +1313,9 @@ if(defaultThin == 1.) then
 		N = BA/(pi*((D/2./100.)**2.))
 	endif
 	
-	if(siteInfo(1)==719400.) then 
-		write(1,*) H, D, stand_all(11,ij), BA, stand_all(12,ij), stand_all(13,ij)
-	endif
+	! if(siteInfo(1)==719400.) then 
+		! write(1,*) H, D, stand_all(11,ij), BA, stand_all(12,ij), stand_all(13,ij)
+	! endif
 
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
