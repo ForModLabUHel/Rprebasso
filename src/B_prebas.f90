@@ -1312,10 +1312,18 @@ if(defaultThin == 1.) then
 		endif
 		N = BA/(pi*((D/2./100.)**2.))
 	endif
+	
+	if(siteInfo(1)==719400.) then 
+		write(1,*) H, D, stand_all(11,ij), BA, stand_all(12,ij), stand_all(13,ij)
+	endif
 
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
     Hc = min(stand_all(14,ij),0.9*H)
+	if(siteInfo(1)==719400.) then 
+	write(1,*) H, D, stand_all(11,ij), BA, stand_all(12,ij), stand_all(13,ij),Hc,stand_all(14,ij)
+	endif
+
 	Wdb = stand_all(51,ij)
     Lc = H - Hc !Lc
     rc = Lc / (H-1.3) !crown ratio
