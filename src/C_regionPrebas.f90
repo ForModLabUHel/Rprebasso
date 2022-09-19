@@ -488,7 +488,7 @@ else
  jj=nLayers(i)
 endif 
 
- domSp = maxloc(multiOut(siteX,ij,13,1:jj,1))
+ domSp = maxloc(multiOut(i,ij,13,1:jj,1))
  layerX = int(domSp(1))
 
 	if(ClCut(i) > 0. .and. multiOut(i,ij,7,layerX,1) > 50. .and. multiOut(i,ij,7,layerX,1) < 100.) then
