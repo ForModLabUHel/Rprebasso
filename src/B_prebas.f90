@@ -490,7 +490,7 @@ endif
 	GVout(year,:) = 0.
    endif
 
-! if(isnan(fAPARgvX)) fAPARgvX = 0.
+if(isnan(fAPARgvX)) fAPARgvX = 0.05
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
    fAPARsite = fAPARtrees + fAPARgvX
    fAPARprel(:) = fAPARsite
