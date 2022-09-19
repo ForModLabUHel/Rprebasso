@@ -1814,23 +1814,23 @@ END subroutine calRein
 	real(8),intent(in) :: ageX
 	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
 	real(8), intent(inout) :: age(nSites)
-	integer i, nX, indexX
+	integer i, nX, index1(nSites), index2(nSites),indexX,nY
 	
-	nx=1
+	nX=0
+	nY=0
+	
 	do i = 1, nSites
 	indexX = int(oldOrd(i))
 	 if(age(indexX) <= ageX) then
-	  newOrd(nx) = oldOrd(i)
-	  nx=nx+1
+	  nX=nX+1
+	  index1(nX) = oldOrd(i)
+	 else
+	  nY=nY+1
+	  index2(nY) = oldOrd(i)
 	 endif
 	enddo
-	do i = 1, nSites
-	indexX = int(oldOrd(i))
-	 if(age(indexX) > ageX) then
-	  newOrd(nx) = oldOrd(i)
-	  nx=nx+1
-	 endif
-	enddo
+	newOrd(1:nX) = oldOrd(index1(1:nX))
+	newOrd((nX+1):nSites) = oldOrd(index2(1:nY))
 	
 	!!!!old version 
 		! indices1 = PACK([(i, i=1,nSites)], age<=ageX)
