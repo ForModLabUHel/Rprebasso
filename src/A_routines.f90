@@ -1818,13 +1818,13 @@ END subroutine calRein
 	
 	nx=1
 	do i = 1, nSites
-	 if(age(int(oldOrd(i)) <= ageX) then
+	 if(age(int(oldOrd(i))) <= ageX) then
 	  newOrd(nx) = oldOrd(i)
 	  nx=nx+1
 	 endif
 	enddo
 	do i = 1, nSites
-	 if(age(int(oldOrd(i)) > ageX) then
+	 if(age(int(oldOrd(i))) > ageX) then
 	  newOrd(nx) = oldOrd(i)
 	  nx=nx+1
 	 endif
