@@ -1303,11 +1303,11 @@ if(defaultThin == 1.) then
 			D = stand_all(12,ij) * 0.9
 		else
 			if(par_sarShp==1.) then
-				H = stand_all(11,ij) *  (1.2147-0.2086 * (BA/ stand_all(13,ij)))
-				D = stand_all(12,ij) * (1.2192 -0.2173 * (BA/ stand_all(13,ij)))
+				H = stand_all(11,ij) *  (1.2147-0.2086 * min(1.,(BA/ stand_all(13,ij))))
+				D = stand_all(12,ij) * (1.2192 -0.2173 * min(1.,(BA/ stand_all(13,ij))))
 			else
-				H = stand_all(11,ij) *  (1.07386 -0.06553 * (BA/ stand_all(13,ij)))
-				D = stand_all(12,ij) * (1.1779 -0.1379 * (BA/ stand_all(13,ij)))
+				H = stand_all(11,ij) *  (1.07386 -0.06553 * min(1.,(BA/ stand_all(13,ij))))
+				D = stand_all(12,ij) * (1.1779 -0.1379 * min(1.,(BA/ stand_all(13,ij))))
 			endif
 		endif
 		N = BA/(pi*((D/2./100.)**2.))
