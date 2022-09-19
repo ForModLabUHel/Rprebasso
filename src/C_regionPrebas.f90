@@ -131,10 +131,10 @@ if(ij>1) then
   enddo
   
   ! write(1,*) ij, age
-  ! siteOrdX = real(siteOrder(:,ij),8)
-  ! call changeOrder(siteOrdX,age, & 
-					! siteOrdX,nSites,ageMitigScen)
-  ! siteOrder(:,ij) = int(siteOrdX)
+  siteOrdX = real(siteOrder(:,ij),8)
+  call changeOrder(siteOrdX,age, & 
+					siteOrdX,nSites,ageMitigScen)
+  siteOrder(:,ij) = int(siteOrdX)
  endif
 endif 
  do iz = 1,nSites
