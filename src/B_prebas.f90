@@ -483,12 +483,8 @@ endif
      !!!ground vegetation
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
    if(gvRun==1) then
-   if(siteInfo(1)==275300.) write(1,*) year, fAPARtrees,ETSmean,siteType, fAPARgvX,GVout(year,2), &
-		sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4)
     call fAPARgv(fAPARtrees, ETSmean, siteType, fAPARgvX, GVout(year,2), &
          sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
-   if(siteInfo(1)==275300.) write(2,*) year, fAPARtrees,ETSmean,siteType, fAPARgvX,GVout(year,2), &
-		sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4)
    else
     fAPARgvX=0.
 	GVout(year,:) = 0.
@@ -1236,7 +1232,7 @@ if(defaultThin == 1.) then
 		flagFert=1
 
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
-		modOut((year+1):(year+yearsFert),3,:,1) = siteType-1.
+		modOut((year+1):(year+yearsFert),3,:,1) = min(1.,siteType-1.)
 		call calcAlfar(modOut(year,3,:,:),initVar(1,:),pCrobas, &
 				nLayers,alfarFert,nSp,nYearsFert,npar)
 		! modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
@@ -1326,7 +1322,6 @@ if(defaultThin == 1.) then
     Nthd = max(0.,(Nold - N))
     Hc = min(stand_all(14,ij),0.9*H)
 	if(siteInfo(1)==719400.) then 
-	write(1,*) H, D, stand_all(11,ij), BA, stand_all(12,ij), stand_all(13,ij),Hc,stand_all(14,ij)
 	endif
 
 	Wdb = stand_all(51,ij)
