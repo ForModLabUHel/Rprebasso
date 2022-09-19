@@ -1814,17 +1814,19 @@ END subroutine calRein
 	real(8),intent(in) :: ageX
 	real(8),intent(inout) :: oldOrd(nSites),newOrd(nSites)
 	real(8), intent(inout) :: age(nSites)
-	integer i, nX
+	integer i, nX, indexX
 	
 	nx=1
 	do i = 1, nSites
-	 if(age(int(oldOrd(i))) <= ageX) then
+	indexX = int(oldOrd(i))
+	 if(age(indexX) <= ageX) then
 	  newOrd(nx) = oldOrd(i)
 	  nx=nx+1
 	 endif
 	enddo
 	do i = 1, nSites
-	 if(age(int(oldOrd(i))) > ageX) then
+	indexX = int(oldOrd(i))
+	 if(age(indexX) > ageX) then
 	  newOrd(nx) = oldOrd(i)
 	  nx=nx+1
 	 endif
