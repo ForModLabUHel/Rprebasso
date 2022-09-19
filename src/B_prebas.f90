@@ -314,7 +314,7 @@ do year = 1, (nYears)
  endif
 
 !calculate reneike and random mortality
-! include 'mortalityCalc.h'
+include 'mortalityCalc.h'
 
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
