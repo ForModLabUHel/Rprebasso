@@ -94,7 +94,6 @@ if (mortMod==1. .or. mortMod==3.) then
 	  ppow=1.6075
 
 	! Mortality - use Reineke from above
-	!      if((Reineke(siteNo) > par_kRein .OR. Light < par_cR) .and. siteThinning(siteNo) == 0) then !
 		 if(time==inttimes) then
 		  Rein = Reineke(ij) / par_kRein
 
