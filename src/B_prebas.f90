@@ -483,6 +483,10 @@ endif
      !!!ground vegetation
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
    if(gvRun==1) then
+
+if(isnan(siteType)) siteType = siteInfo(3)
+if(siteType==0.) siteType = siteInfo(3)
+
     call fAPARgv(fAPARtrees, ETSmean, siteType, fAPARgvX, GVout(year,2), &
          sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
    else
@@ -490,7 +494,8 @@ endif
 	GVout(year,:) = 0.
    endif
 
-if(isnan(fAPARgvX)) fAPARgvX = 0.05
+if(isnan(fAPARgvX)) fAPARgvX = 0.
+
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
    fAPARsite = fAPARtrees + fAPARgvX
    fAPARprel(:) = fAPARsite
