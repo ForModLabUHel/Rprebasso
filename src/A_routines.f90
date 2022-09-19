@@ -1829,8 +1829,8 @@ END subroutine calRein
 	  index2(nY) = oldOrd(i)
 	 endif
 	enddo
-	newOrd(1:nX) = oldOrd(index1(1:nX))
-	newOrd((nX+1):nSites) = oldOrd(index2(1:nY))
+	newOrd(1:nX) = index1(1:nX)
+	newOrd((nX+1):nSites) = index2(1:nY)
 	
 	!!!!old version 
 		! indices1 = PACK([(i, i=1,nSites)], age<=ageX)
