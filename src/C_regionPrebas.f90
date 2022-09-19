@@ -528,9 +528,9 @@ endif
 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
-	 multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
+	 multiOut(siteX,ij,37,1:jj,1) = multiOut(siteX,ij,37,1:jj,1) + &
 			multiOut(siteX,ij,30,1:jj,1)*harvRatio*thinFact
-	 multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:jj,1) + &
+	 multiOut(siteX,ij,38,1:jj,1) = multiOut(siteX,ij,38,1:jj,1) + &
 			multiOut(siteX,ij,31,1:jj,1)*harvRatio*thinFact
      !update state of the forests
 	 do ijj = 1, jj
