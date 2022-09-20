@@ -3,7 +3,7 @@ Type: Package
 Title: PRELES, YASSO and PREBAS models
 Version: 0.3.0
 Author: Francesco Minunno, Mikko Peltoniemi 
-Maintainer: Francesco Minunno <checcomi@gmail.com> and Mikko Peltoniemi <mikko.peltoniemi@metla.fi>
+Maintainer: Francesco Minunno <checcomi@gmail.com>
 Description: Implements PRELES,YASSO and PREBAS models to be called from R
 Imports: sm,  dplyr, plyr, data.table, Matrix, zoo, abind
 License: What license is it under?
