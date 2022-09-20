@@ -1530,6 +1530,7 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 !!!calculate state of GV at the last year
 if(GVrun==1) then 
  stand_all = modOut((nYears+1),:,:,1)
+ siteType = siteInfo(3)
  call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
 	nVar,nPar,MeanLight,coeff,fAPARtrees)
 	if(siteInfo(1)==3523.) write(1,*) fAPARtrees,ETSmean, siteType, sum(P0yX(:,1))/nYears
