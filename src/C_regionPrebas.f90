@@ -257,19 +257,19 @@ endif
 	endif	
 
 open(2,file="test2.txt")
-write(2,*) ij, iz, i
+write(2,*) ij, iz, i,"xx"
 close(2)
 	
 	!!!if fertilization at thinning is active,  increase siteType
-	if(flagFert(siteX)==0 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
+	! if(flagFert(siteX)==0 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
 
-		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(i,3)-1.)
-		call calcAlfar(multiOut(i,ij,3,1:nLayers(i),:),initVar(i,1,1:nLayers(i)),pCrobas, &
-				nLayers(i),alfarFert,allSP,nYearsFert,npar)
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
-		flagFert(i)=2
-	endif
+		! yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
+		! multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(i,3)-1.)
+		! call calcAlfar(multiOut(i,ij,3,1:nLayers(i),:),initVar(i,1,1:nLayers(i)),pCrobas, &
+				! nLayers(i),alfarFert,allSP,nYearsFert,npar)
+		! multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		! flagFert(i)=2
+	! endif
 
 open(2,file="test2.txt")
 write(2,*) ij, iz, i, "here1"
