@@ -1200,6 +1200,9 @@ if(par_rhow>0.)	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
   endif !!!end if oldLayer
  endif
 endif
+open(1,file="test1.txt")
+write(1,*) "I'm here 9"
+close(1)
 
 !!!!test for thinnings!!!!
  !!!!!!!for coniferous dominated stands!!!!!!
@@ -1486,6 +1489,9 @@ if(par_rhow > 0.) energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
   enddo
  endif !default thin
 endif
+open(1,file="test1.txt")
+write(1,*) "I'm here 11"
+close(1)
  
 outt(:,:,1) = STAND_all
 
@@ -1523,6 +1529,9 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
  endif !end yassoRun if
  
 enddo !end year loop
+open(1,file="test1.txt")
+write(1,*) "I'm here 12"
+close(1)
 
 !soil and harvested volume outputs
 modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
@@ -1553,6 +1562,10 @@ enddo
 	if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
 	
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
+
+open(1,file="test1.txt")
+write(1,*) "I'm here 13"
+close(1)
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 !!!calculate state of GV at the last year
@@ -1591,6 +1604,9 @@ endif
   enddo
  enddo
 
+open(1,file="test1.txt")
+write(1,*) "I'm here 14"
+close(1)
 
  output = modOut(2:(nYears+1),:,:,:)
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
@@ -1598,6 +1614,9 @@ endif
  soilCtotInOut = soilCtot(2:(nYears+1))
  output(:,1:2,1,2) = thinClx
 
+open(1,file="test1.txt")
+write(1,*) "I'm here 15"
+close(1)
 
 end subroutine
 
