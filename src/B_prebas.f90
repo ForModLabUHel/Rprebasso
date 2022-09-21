@@ -676,6 +676,9 @@ if (N>0.) then
   par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
   par_rhor = par_alfar * par_rhof !rho: pipe model parameter for fine roots
 
+open(1,file="test1.txt")
+write(1,*) "I'm here 5",ij
+close(1)
     ! -------------------------------------
     !GPP all STAND$species   UNITS: g C  /  m2
     ! -------------------------------------
@@ -826,6 +829,9 @@ endif
 		W_branch = W_bs + W_bh
 		W_croot = W_crs + W_crh
 		
+open(1,file="test1.txt")
+write(1,*) "I'm here 6",ij
+close(1)
   age = age + step
 
   STAND(2) = gammaC
@@ -876,6 +882,9 @@ else
 endif
 endif
 
+open(1,file="test1.txt")
+write(1,*) "I'm here 7",ij
+close(1)
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
@@ -1054,6 +1063,10 @@ if(par_rhow>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / par_rhow)
 	STAND_all(:,ij)=STAND
 end do !!!!end loop species
  end do !!!!end loop inttimes
+
+open(1,file="test1.txt")
+write(1,*) "I'm here 8"
+close(1)
 
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !!!!test for clearcut!!!!
