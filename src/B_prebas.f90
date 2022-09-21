@@ -175,9 +175,6 @@ ETSmean = sum(ETSy)/nYears
 
  enddo
 
-open(1,file="test1.txt")
-write(1,*) "startloop"
-close(1)
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
@@ -316,10 +313,6 @@ do year = 1, (nYears)
 	enddo
  endif
 
-
-open(1,file="test1.txt")
-write(1,*) "I'm here 1"
-close(1)
 !calculate reneike and random mortality
 include 'mortalityCalc.h'
 
@@ -486,10 +479,7 @@ endif
 	yearX = Ainit + year 
    endif
    
-open(1,file="test1.txt")
-write(1,*) "I'm here 2"
-close(1)
-
+ 
      !!!ground vegetation
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
    if(gvRun==1) then
@@ -513,9 +503,6 @@ close(1)
    GVout(year,1) = fAPARgvX !store fAPAR GV
  	! if(fAPARsite>0.) then
 	 
-open(1,file="test1.txt")
-write(1,*) "I'm here 3"
-close(1)
         
   !run preles 
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
@@ -541,9 +528,7 @@ close(1)
 
 endif
 !enddo !! end site loop
-open(1,file="test1.txt")
-write(1,*) "I'm here 4"
-close(1)
+
 do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
  species = int(stand(4))
@@ -676,9 +661,6 @@ if (N>0.) then
   par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
   par_rhor = par_alfar * par_rhof !rho: pipe model parameter for fine roots
 
-open(1,file="test1.txt")
-write(1,*) "I'm here 5",ij
-close(1)
     ! -------------------------------------
     !GPP all STAND$species   UNITS: g C  /  m2
     ! -------------------------------------
@@ -829,9 +811,6 @@ endif
 		W_branch = W_bs + W_bh
 		W_croot = W_crs + W_crh
 		
-open(1,file="test1.txt")
-write(1,*) "I'm here 6",ij
-close(1)
   age = age + step
 
   STAND(2) = gammaC
@@ -882,9 +861,6 @@ else
 endif
 endif
 
-open(1,file="test1.txt")
-write(1,*) "I'm here 7",ij
-close(1)
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
@@ -1064,10 +1040,6 @@ if(par_rhow>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / par_rhow)
 end do !!!!end loop species
  end do !!!!end loop inttimes
 
-open(1,file="test1.txt")
-write(1,*) "I'm here 8"
-close(1)
-
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !!!!test for clearcut!!!!
 	if(oldLayer==1) then
@@ -1200,9 +1172,6 @@ if(par_rhow>0.)	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
   endif !!!end if oldLayer
  endif
 endif
-open(1,file="test1.txt")
-write(1,*) "I'm here 9"
-close(1)
 
 !!!!test for thinnings!!!!
  !!!!!!!for coniferous dominated stands!!!!!!
@@ -1489,9 +1458,6 @@ if(par_rhow > 0.) energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
   enddo
  endif !default thin
 endif
-open(1,file="test1.txt")
-write(1,*) "I'm here 11"
-close(1)
  
 outt(:,:,1) = STAND_all
 
@@ -1529,9 +1495,6 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
  endif !end yassoRun if
  
 enddo !end year loop
-open(1,file="test1.txt")
-write(1,*) "I'm here 12"
-close(1)
 
 !soil and harvested volume outputs
 modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
@@ -1562,10 +1525,6 @@ enddo
 	if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
 	
 modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
-
-open(1,file="test1.txt")
-write(1,*) "I'm here 13"
-close(1)
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 !!!calculate state of GV at the last year
@@ -1604,19 +1563,12 @@ endif
   enddo
  enddo
 
-open(1,file="test1.txt")
-write(1,*) "I'm here 14"
-close(1)
 
  output = modOut(2:(nYears+1),:,:,:)
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
  soilCinOut = soilC(2:(nYears+1),:,:,:)
  soilCtotInOut = soilCtot(2:(nYears+1))
  output(:,1:2,1,2) = thinClx
-
-open(1,file="test1.txt")
-write(1,*) "I'm here 15"
-close(1)
 
 end subroutine
 
