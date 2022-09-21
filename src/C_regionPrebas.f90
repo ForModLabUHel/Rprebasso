@@ -116,7 +116,7 @@ endif
 do ij = startSimYear,maxYears
  roundWood = 0.
  energyWood = 0.	!!energCuts
-     open(2,file="test2.txt")
+     
 
 if(ij>1) then
  if(ageMitigScen > 0.) then
@@ -238,9 +238,6 @@ endif
 	mortModX = mortMod(1)
 	if(ClCut(i)==1) mortModX = mortMod(2)
 	
-	write(2,*) ij, iz, i
-  close(2)
-	
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
@@ -259,6 +256,9 @@ endif
 		 multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
 	endif	
 
+open(2,file="test2.txt")
+write(2,*) ij, iz, i
+close(2)
 	
 	!!!if fertilization at thinning is active,  increase siteType
 	if(flagFert(siteX)==0 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
@@ -271,6 +271,9 @@ endif
 		flagFert(i)=2
 	endif
 
+open(2,file="test2.txt")
+write(2,*) ij, iz, i, "here1"
+close(2)
 	! if clearcut occur initialize initVar and age
 !!calculate year of replanting after a clearcut
 !if scenario = "oldLayer" do not consider the old layer
@@ -320,6 +323,9 @@ endif
 	endif
  end do !iz i site loop
 
+open(2,file="test2.txt")
+write(2,*) ij, iz, i, "here2"
+close(2)
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by DBH 
  !or thin based on stand density index
 if(roundWood < HarvLim(ij,1) .and. compHarv(1)>0.5) then
@@ -354,6 +360,9 @@ endif
 	 if(fertThin > 0) then
 	  flagFert(siteX) = 0  
 	 endif
+open(2,file="test2.txt")
+write(2,*) ij, iz, i, "here3"
+close(2)
 
 !!if oldLayer scenario -> populate old layer with the dominant species and clearcut other layers
 if(oldLayer==1) then
@@ -463,10 +472,17 @@ endif
      initVar(siteX,3:7,1:jj) = 0.!output(1,11:14,:,1)  !!newX
     endif !(maxState(i)>minDharv)
    enddo !end do while
+open(2,file="test2.txt")
+write(2,*) ij, iz, i, "here4"
+close(2)
    
  elseif(compHarv(1)==2.) then  !!!thin to compansate harvest limits
    !Perform thinning to compensate harvest levels
    !calculate SDI
+   open(2,file="test2.txt")
+write(2,*) ij, iz, i, "here5"
+close(2)
+
   do i = 1, nSites
 !!start!! use stand volume to order the forests
 if(oldLayer==1) then
@@ -863,6 +879,10 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
   !HarvLim(ij,2) = energyWood
   
   	 multiOut(:,ij,1,1,2) = yearXrepl
+	    open(2,file="test2.txt")
+write(2,*) ij, iz, i, "hereEndloop"
+close(2)
+
 end do !end Year loop 
 
  do i = 1,nSites
@@ -906,6 +926,9 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
+   open(2,file="test2.txt")
+write(2,*) ij, iz, i, "here6"
+close(2)
   ! close(1)
   ! close(2)
   ! close(3)
