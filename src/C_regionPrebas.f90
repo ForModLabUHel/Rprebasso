@@ -114,6 +114,9 @@ else
 endif
 
 do ij = startSimYear,maxYears
+    open(1,file="test1.txt")
+	write(1,*) ij,"here1"
+	close(1)
  roundWood = 0.
  energyWood = 0.	!!energCuts
  
@@ -236,6 +239,10 @@ endif
  !!!##set mortality model for managed and unmanaged forests
 	mortModX = mortMod(1)
 	if(ClCut(i)==1) mortModX = mortMod(2)
+
+    ! open(1,file="test1.txt")
+	! write(1,*) ij,iz,i,"start"
+	! close(1)
 	
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -250,6 +257,10 @@ endif
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
+    ! open(1,file="test1.txt")
+	! write(1,*) ij,iz,i,"here1"
+	! close(1)
+
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
 		 multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
