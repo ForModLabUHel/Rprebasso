@@ -494,37 +494,45 @@ endif
 	GVout(year,:) = 0.
    endif
 
-! if(isnan(fAPARgvX)) fAPARgvX = 0.
+if(isnan(fAPARgvX)) fAPARgvX = 0.
 
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
    fAPARsite = fAPARtrees + fAPARgvX
-   fAPARprel(:) = 0.5!fAPARsite
+   fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARtrees  !store fAPAR trees
    GVout(year,1) = fAPARgvX !store fAPAR GV
  	! if(fAPARsite>0.) then
 	 
         
   !run preles 
-   call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
-		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
-		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
-		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-		etmodel)		!type of ET model
+   ! call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+		! dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		! dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		! dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
+		! etmodel)		!type of ET model
 
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
-   STAND_all(22,:) = prelesOut(2)  	!ET
+   STAND_all(22,:) = 800.!prelesOut(2)  	!ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
    ! STAND_all(41,:) = prelesOut(16)  !summerSW 
   
   !store GPP
-   GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
-   STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+   ! GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+GVout(year,3) = 1000. * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+   ! STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+STAND_all(10,:) = 1000./1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
 !initialize for next year  
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
    pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+
+
+   pars(24) = 10.;siteInfo(4) = 10.
+   pars(25) = 10.; siteInfo(5) = 10.
+   pars(26) = 10.; siteInfo(6) = 10.
+   pars(27) = 1.; siteInfo(7) = 1. !Sinit
 
 endif
 !enddo !! end site loop
