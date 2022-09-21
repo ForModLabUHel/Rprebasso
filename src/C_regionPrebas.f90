@@ -77,7 +77,7 @@ ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
-    open(1,file="test1.txt")
+    ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
 
@@ -236,8 +236,6 @@ endif
  !!!##set mortality model for managed and unmanaged forests
 	mortModX = mortMod(1)
 	if(ClCut(i)==1) mortModX = mortMod(2)
-	
-	write(1,*) ij, iz, i
 	
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -904,7 +902,7 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-  close(1)
+  ! close(1)
   ! close(2)
   ! close(3)
 soilCinOut = soilC
