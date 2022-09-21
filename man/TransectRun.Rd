@@ -13,11 +13,37 @@ TransectRun(
   pPRELES = pPREL,
   AgeEffect = F,
   defaultThin = 1,
+  multiThin = NA,
+  multiNthin = NA,
   ClCut = 1,
   energyCut = 0,
-  mortMod = 1,
   GVrun = 1,
-  ECMmod = 0
+  pHcMod = pHcM,
+  etmodel = 0,
+  pYASSO = pYAS,
+  pAWEN = parsAWEN,
+  multiInitClearCut = NA,
+  fixBAinitClarcut = 1,
+  initCLcutRatio = NA,
+  multiP0 = NA,
+  soilC = NA,
+  weatherYasso = NA,
+  litterSize = litterSizeDef,
+  soilCtot = NA,
+  inDclct = NA,
+  inAclct = NA,
+  yassoRun = 0,
+  smoothP0 = 1,
+  smoothETS = 1,
+  smoothYear = 5,
+  HcModV = 2,
+  tapioPars = pTapio,
+  thdPer = NA,
+  limPer = NA,
+  ftTapioPar = ftTapio,
+  tTapioPar = tTapio,
+  thinInt = -999,
+  mortMod = 1
 )
 }
 \arguments{
@@ -37,9 +63,13 @@ TransectRun(
 
 \item{defaultThin}{If defaultThin = 1 (default) Finnish standard management practices are applied (ref).}
 
+\item{multiThin}{A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.}
+
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
 \item{energyCut}{Energy cutting strategy will be applied if set to 1. Default value is 0.}
+
+\item{multiInitClearCut}{A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'}
 
 \item{mortMod}{flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)}
 
@@ -52,7 +82,33 @@ The output from multiPrebas()
 The simulations of pine or spruce or mixed forests at 7 selected points over a North-South transect. Start from seedlings!
 }
 \examples{
+# Qucik examples
 Pine.1 <- TransectRun(SiteType = 1, species = "Pine")
 plot(Pine.1$multiOut[1, , 30, 1, 1], type = "l")
+
+#' An example of initail sates
+InitStands<-matrix(c(1,NA,1.5,0.5,0.0431969,0.,0.),nrow = 7,ncol=7,byrow = T)
+Pine.i <-TransectRun(SiteType = 1, initVar = InitStands)
+plot(Pine.i$multiOut[1, , 30, 1, 1], type = "l")
+
+#An example of thinning
+thinnings<-array(0,c(7,2,10))
+thinnings[,,1]<- c(rep(20,7),rep(40,7)) #year from the start of the simulation
+thinnings[,,2]<- 1:7 #siteID
+thinnings[,,3]<- 1 #layer where thinnings are carried out
+thinnings[,,4]<- 1.1 #H
+thinnings[,,5]<- 1.1#D
+thinnings[,,6]<- 0.5#B
+thinnings[,,7]<- 1#Hc
+thinnings[,,8]<- 1 #if the stand variables (column 4:7) are provided as fraction of the actual model outputs
+thinnings[,,9:10] <- -999 #9 the stand density after thinning if its value is not -999.
+Pine.thin <-TransectRun(SiteType = 1, initVar = InitStands,multiThin = thinnings,multiNthin = rep(2,7))
+plot(Pine.thin$multiOut[1, , 30, 1, 1], type = "l")
+
+#An example of new settings for seedlings after a clear cut
+initClearcut<-c(1.5100000,0.8000000,0.0631969,0.2000000,NA) # H,dbh,BA,HC,AC
+afterClearCut <- matrix(initClearcut,7,5,byrow = T)
+Pine.newseed <-TransectRun(SiteType = 1, initVar = InitStands,multiThin = thinnings,multiNthin = rep(2,7),multiInitClearCut = afterClearCut)
+plot(Pine.newseed$multiOut[1, , 30, 1, 1], type = "l")
 
 }
