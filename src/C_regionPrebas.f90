@@ -238,7 +238,7 @@ endif
 	mortModX = mortMod(1)
 	if(ClCut(i)==1) mortModX = mortMod(2)
 	
-	write(1,*) ij, iz, i
+	write(2,*) ij, iz, i
   close(2)
 	
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&

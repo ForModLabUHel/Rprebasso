@@ -117,7 +117,7 @@ real (kind=8) :: Nmort, BAmort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
  real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
-  open(1,file="test1.txt")
+  ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
@@ -175,7 +175,9 @@ ETSmean = sum(ETSy)/nYears
 
  enddo
 
+open(1,file="test1.txt")
 write(1,*) "startloop"
+close(1)
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
@@ -314,7 +316,10 @@ do year = 1, (nYears)
 	enddo
  endif
 
+
+open(1,file="test1.txt")
 write(1,*) "I'm here 1"
+close(1)
 !calculate reneike and random mortality
 include 'mortalityCalc.h'
 
@@ -481,7 +486,10 @@ endif
 	yearX = Ainit + year 
    endif
    
- write(1,*) "I'm here 2"
+open(1,file="test1.txt")
+write(1,*) "I'm here 2"
+close(1)
+
      !!!ground vegetation
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
    if(gvRun==1) then
@@ -505,7 +513,10 @@ endif
    GVout(year,1) = fAPARgvX !store fAPAR GV
  	! if(fAPARsite>0.) then
 	 
-        write(1,*) "I'm here 3"
+open(1,file="test1.txt")
+write(1,*) "I'm here 3"
+close(1)
+        
   !run preles 
    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
@@ -530,7 +541,9 @@ endif
 
 endif
 !enddo !! end site loop
+open(1,file="test1.txt")
 write(1,*) "I'm here 4"
+close(1)
 do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
  species = int(stand(4))
@@ -1572,7 +1585,7 @@ endif
  soilCtotInOut = soilCtot(2:(nYears+1))
  output(:,1:2,1,2) = thinClx
 
-close(1)
+
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
