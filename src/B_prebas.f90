@@ -482,7 +482,7 @@ endif
  
      !!!ground vegetation
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
-   if(gvRun==1) then
+   ! if(gvRun==1) then
 
 ! if(isnan(siteType)) siteType = siteInfo(3)
 ! if(siteType==0.) siteType = siteInfo(3)
