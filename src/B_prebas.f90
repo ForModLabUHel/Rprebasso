@@ -487,8 +487,8 @@ endif
 ! if(isnan(siteType)) siteType = siteInfo(3)
 ! if(siteType==0.) siteType = siteInfo(3)
 
-    call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
-         sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
+    ! call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
+         ! sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
    else
     fAPARgvX=0.
 	GVout(year,:) = 0.
@@ -1540,9 +1540,9 @@ if(GVrun==1) then
  stand_all = modOut((nYears+1),:,:,1)
  call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
 	nVar,nPar,MeanLight,coeff,fAPARtrees)
- call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
-         sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
-     !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
+ ! call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
+         ! sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
+     ! !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
  if(nYears > 1) then
   GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
   GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
