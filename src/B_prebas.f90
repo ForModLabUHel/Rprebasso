@@ -486,6 +486,7 @@ endif
 
 ! if(isnan(siteType)) siteType = siteInfo(3)
 ! if(siteType==0.) siteType = siteInfo(3)
+if(isnan(fAPARtrees)) fAPARtrees=0.5
 
     call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
          sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
@@ -880,7 +881,7 @@ endif
      S_fr = W_froot + S_fr
 	 if(energyCut==1.) then
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-	  energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+if(par_rhow>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
       S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
 				W_stem* (1-harvRatio)* (1-energyRatio) + &
 				(0.3 * (1-energyRatio)+0.7) * W_croot *0.83))
@@ -969,7 +970,7 @@ endif
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = max(0.,(stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio)
-	 energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / par_rhow)
+if(par_rhow>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / par_rhow)
      S_branch = max(0.,stand(28) + (stand(24) - W_branch) * (1-energyRatio) + stand(51) - Wdb +&
 				(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) * 0.83 + &
 				(stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio))
@@ -1103,7 +1104,7 @@ if (ClCut == 1.) then
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
-	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+if(par_rhow > 0.) energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij)) * (1-energyRatio) + &
 		stand_all(51,ij) + (0.3 * (1-energyRatio)+0.7) * stand_all(32,ij) *0.83 + &
 		stand_all(31,ij)* (1-harvRatio) * (1-energyRatio)))
@@ -1139,7 +1140,7 @@ if (ClCut == 1.) then
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
-	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+if(par_rhow>0.)	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij)) * (1-energyRatio) + &
 		stand_all(51,ij) + (0.3 * (1-energyRatio)+0.7) * stand_all(32,ij) *0.83 + &
 		stand_all(31,ij)* (1-harvRatio) * (1-energyRatio)))
@@ -1393,7 +1394,7 @@ if(defaultThin == 1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) - W_branch + &
 		(stand_all(32,ij) - W_croot) * 0.3 + &
 	    (stand_all(31,ij) - W_stem) * (1-harvRatio)) * energyRatio
-	 energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
+if(par_rhow > 0.) energyWood(year,ij,1) = energyWood(year,ij,2) / par_rhow
 
      S_branch = max(0.,stand_all(28,ij) + (stand_all(24,ij) - W_branch) * (1-energyRatio) +&
 		stand_all(51,ij) - Wdb + &
@@ -1532,6 +1533,7 @@ if(GVrun==1) then
  stand_all = modOut((nYears+1),:,:,1)
  call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
 	nVar,nPar,MeanLight,coeff,fAPARtrees)
+if(isnan(fAPARtrees)) fAPARtrees=0.5
  call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
          sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
      !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
