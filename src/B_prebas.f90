@@ -1536,8 +1536,8 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 !!!calculate state of GV at the last year
 if(GVrun==1) then 
  stand_all = modOut((nYears+1),:,:,1)
- call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
-	nVar,nPar,MeanLight,coeff,fAPARtrees)
+ ! call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
+	! nVar,nPar,MeanLight,coeff,fAPARtrees)
  call fAPARgv(0.7, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
          sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
      !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
