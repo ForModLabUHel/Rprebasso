@@ -625,9 +625,9 @@ do ij = 1 , nLayers
   ! Cw = 2. * hb
 
   ! age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
-! if (N>0.) then
+if (N>0.) then
 
-! !!!!###here starts stand2 subroutine!!!!!!!!!!!#########
+!!!!###here starts stand2 subroutine!!!!!!!!!!!#########
   ! par_alfar = modOut(year,3,ij,2) * age_factor
   ! if (sitetype <= 1.) then
    ! par_alfar = par_alfar1 * age_factor
