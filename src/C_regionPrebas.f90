@@ -921,9 +921,9 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
-    ! open(1,file="test1.txt")
-	! write(1,*) i,nSites, "end"
-	! close(1)
+    open(1,file="test1.txt")
+	write(1,*) i,ij,ijj,nSites, "end"
+	close(1)
   ! close(1)
   ! close(2)
   ! close(3)
