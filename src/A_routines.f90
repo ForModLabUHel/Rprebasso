@@ -117,6 +117,7 @@ implicit none
  
  do i = 1,nclass
 	 species = int(stand_all(4,i))
+	 if(species==0) species=1
      param = pCrobas(:,species)
      qc(i) = 0.
 
