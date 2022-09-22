@@ -115,7 +115,7 @@ endif
 
 do ij = startSimYear,maxYears
     open(1,file="test1.txt")
-	write(1,*) ij "start"
+	write(1,*) ij, "start"
 	close(1)
  roundWood = 0.
  energyWood = 0.	!!energCuts
@@ -863,7 +863,7 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
   
   	 multiOut(:,ij,1,1,2) = yearXrepl
     open(1,file="test1.txt")
-	write(1,*) ij "end"
+	write(1,*) ij, "end"
 	close(1)
 end do !end Year loop 
 
