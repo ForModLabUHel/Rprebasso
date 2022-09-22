@@ -241,9 +241,9 @@ endif
 	if(ClCut(i)==1) mortModX = mortMod(2)
 	
 	! if(ij>11) then
-		! open(2,file="test2.txt")
-		! write(2,*) ij,i,iz, "before run"
-		! close(2)
+		open(2,file="test2.txt")
+		write(2,*) ij,i,iz, "before run"
+		close(2)
 	! endif
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
