@@ -458,10 +458,10 @@ if (year <= maxYearSite) then
 	layer = int(domSp(1))
 	siteType = modOut(year,3,layer,1) !siteInfo(3)
 
-    call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
-		nVar,nPar,MeanLight,coeff,fAPARtrees)
-   STAND_all(36,:) = MeanLight
-   STAND_all(23,:) = coeff
+    ! call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
+		! nVar,nPar,MeanLight,coeff,fAPARtrees)
+   ! STAND_all(36,:) = MeanLight
+   ! STAND_all(23,:) = coeff
 
 !!calculate year of replanting after a clearcut
 !if scenario = "oldLayer" do not consider the old layer
@@ -487,8 +487,8 @@ endif
 ! if(isnan(siteType)) siteType = siteInfo(3)
 ! if(siteType==0.) siteType = siteInfo(3)
 
-    call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
-         sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
+    ! call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
+         ! sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
    else
     fAPARgvX=0.
 	GVout(year,:) = 0.
@@ -497,7 +497,7 @@ endif
 ! if(isnan(fAPARgvX)) fAPARgvX = 0.
 
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
-   fAPARsite = fAPARtrees + fAPARgvX
+   fAPARsite = fAPARtrees !+ fAPARgvX
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARtrees  !store fAPAR trees
    GVout(year,1) = fAPARgvX !store fAPAR GV
