@@ -536,99 +536,99 @@ do ij = 1 , nLayers
  param = pCrobas(:,species)
  sitetype=stand(3)
 
- par_cR=param(1)
- par_rhow=param(2)
- par_sla =param(3)
- par_k =param(4)
- par_vf0 =param(5)
- par_vr0 =param(6)
- par_c=param(7)
- par_mf0=param(8)
- par_mr0=param(9)
- par_mw0=param(10)
- par_z=param(11)
- par_beta0=param(12)
- par_betab=param(13)
- par_betas = param(14)
- par_rhof2 = param(15)
- par_s1 = param(16)
- par_kRein = param(17)
- par_s0scale = param(18)
- par_x = param(19)
- par_aETS = param(20)
- par_alfar1 =param(21)
- par_alfar2 =param(22)
- par_alfar3 =param(23)
- par_alfar4 =param(24)
- par_alfar5 =param(25)
- par_sarShp = param(26) !Shape surface area of the crown: 1.= cone; 2.=ellipsoide
- par_S_branchMod = param(27) !model for branch litter model
- p0_ref = param(29)
- ETS_ref = param(30)
- par_thetaMax = param(31)
- par_H0max = param(32)
- par_gamma = param(33)
- par_kH = param(34)
- par_rhof1 = 0.!param(20)
- par_Cr2 = 0.!param(24)
- par_sla0 = param(39)
- par_tsla = param(40)
- par_zb = param(41)
- par_fAa = param(45)
- par_fAb = param(46)
- par_fAc = param(47)
-! do siteNo = 1, nSites  !start site loop
+ ! par_cR=param(1)
+ ! par_rhow=param(2)
+ ! par_sla =param(3)
+ ! par_k =param(4)
+ ! par_vf0 =param(5)
+ ! par_vr0 =param(6)
+ ! par_c=param(7)
+ ! par_mf0=param(8)
+ ! par_mr0=param(9)
+ ! par_mw0=param(10)
+ ! par_z=param(11)
+ ! par_beta0=param(12)
+ ! par_betab=param(13)
+ ! par_betas = param(14)
+ ! par_rhof2 = param(15)
+ ! par_s1 = param(16)
+ ! par_kRein = param(17)
+ ! par_s0scale = param(18)
+ ! par_x = param(19)
+ ! par_aETS = param(20)
+ ! par_alfar1 =param(21)
+ ! par_alfar2 =param(22)
+ ! par_alfar3 =param(23)
+ ! par_alfar4 =param(24)
+ ! par_alfar5 =param(25)
+ ! par_sarShp = param(26) !Shape surface area of the crown: 1.= cone; 2.=ellipsoide
+ ! par_S_branchMod = param(27) !model for branch litter model
+ ! p0_ref = param(29)
+ ! ETS_ref = param(30)
+ ! par_thetaMax = param(31)
+ ! par_H0max = param(32)
+ ! par_gamma = param(33)
+ ! par_kH = param(34)
+ ! par_rhof1 = 0.!param(20)
+ ! par_Cr2 = 0.!param(24)
+ ! par_sla0 = param(39)
+ ! par_tsla = param(40)
+ ! par_zb = param(41)
+ ! par_fAa = param(45)
+ ! par_fAb = param(46)
+ ! par_fAc = param(47)
+! ! do siteNo = 1, nSites  !start site loop
 
-if (year > maxYearSite) then
-  STAND(2) = 0. !!newX
-  STAND(8:21) = 0. !#!#
-  STAND(23:37) = 0. !#!#
-  STAND(42:44) = 0. !#!#
-  STAND(47:nVar) = 0. !#!#
-else
+! if (year > maxYearSite) then
+  ! STAND(2) = 0. !!newX
+  ! STAND(8:21) = 0. !#!#
+  ! STAND(23:37) = 0. !#!#
+  ! STAND(42:44) = 0. !#!#
+  ! STAND(47:nVar) = 0. !#!#
+! else
 
-! initialize site variables
-!  sitetype = STAND(3)
-  ! gammaC = STAND(2)
-  age = STAND(7)
-  p0 = STAND(6)/1000.	! convert    g C m-2    to    kg C m-2  !#!#
-  ETS = STAND(5)
-  H = STAND(11)
-  D = STAND(12)
-  BA = STAND(13)! * par_ops2
-  Hc = STAND(14)
-  Cw = STAND(15)
-  ! Lc = STAND(16)
-  N = STAND(17)
-  Lc = H - Hc
-  leff = STAND(19)
-  keff = STAND(20)
-  lproj = STAND(21)
-  p_eff_all = STAND(10)*P0yX(year, 2)/P0yX(year, 1) !!##!! 2 smoothing PHOTOSYNTHESIS
-  weight = STAND(23)
-  A = STAND(16)
-  dHc=stand(52)
-  S_fol = STAND(26)
-  S_fr = STAND(27)
-  S_branch = STAND(28)
-  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+! ! initialize site variables
+! !  sitetype = STAND(3)
+  ! ! gammaC = STAND(2)
+  ! age = STAND(7)
+  ! p0 = STAND(6)/1000.	! convert    g C m-2    to    kg C m-2  !#!#
+  ! ETS = STAND(5)
+  ! H = STAND(11)
+  ! D = STAND(12)
+  ! BA = STAND(13)! * par_ops2
+  ! Hc = STAND(14)
+  ! Cw = STAND(15)
+  ! ! Lc = STAND(16)
+  ! N = STAND(17)
+  ! Lc = H - Hc
+  ! leff = STAND(19)
+  ! keff = STAND(20)
+  ! lproj = STAND(21)
+  ! p_eff_all = STAND(10)*P0yX(year, 2)/P0yX(year, 1) !!##!! 2 smoothing PHOTOSYNTHESIS
+  ! weight = STAND(23)
+  ! A = STAND(16)
+  ! dHc=stand(52)
+  ! S_fol = STAND(26)
+  ! S_fr = STAND(27)
+  ! S_branch = STAND(28)
+  ! par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 
-  rc = Lc / (H-1.3) !crown ratio
-  B = BA / N
-  ! A = rc * B
+  ! rc = Lc / (H-1.3) !crown ratio
+  ! B = BA / N
+  ! ! A = rc * B
 
-  wf_STKG = STAND(33)
-  wf_treeKG = STAND(34)
-  ! B = STAND(35)
-  Light = STAND(36)
-  hb = par_betab * Lc ** par_x
-  Cw = 2. * hb
+  ! wf_STKG = STAND(33)
+  ! wf_treeKG = STAND(34)
+  ! ! B = STAND(35)
+  ! Light = STAND(36)
+  ! hb = par_betab * Lc ** par_x
+  ! Cw = 2. * hb
 
-  age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
-if (N>0.) then
+  ! age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
+! if (N>0.) then
 
-!!!!###here starts stand2 subroutine!!!!!!!!!!!#########
-  par_alfar = modOut(year,3,ij,2) * age_factor
+! !!!!###here starts stand2 subroutine!!!!!!!!!!!#########
+  ! par_alfar = modOut(year,3,ij,2) * age_factor
   ! if (sitetype <= 1.) then
    ! par_alfar = par_alfar1 * age_factor
   ! else if (sitetype==2.) then
