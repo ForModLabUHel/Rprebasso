@@ -1558,7 +1558,7 @@ endif
    D = modOut((year-1),12,ij,1)
    Vmort = modOut(year,42,ij,1)
    if(Vmort>0.)then
-    species = int(modOut(year,4,ij,1))
+    species = int(min(1.,(modOut(year,4,ij,1)))
     modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
 	do i=1,(nYears+1-year)
      modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * &
