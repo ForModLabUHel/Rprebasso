@@ -207,12 +207,14 @@ endif
       endif
 	  initVar(i,6,ijj) = initClearcut(i,4)
 	  ! initVar(i,8,ijj) = 0. !!newX
-	  initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initClearcut(i,1) -&
-		initClearcut(i,4))**pCrobas(11,species))!A = p_ksi/p_rhof * Lc^p_z
-	  do ki = 1,int(initClearcut(i,5)+1)
-	   multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
-	  enddo !ki
-	  call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1),multiOut(i,(ij-1),:,ijj,1))
+	  if(species>0) then
+	   initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initClearcut(i,1) -&
+		 initClearcut(i,4))**pCrobas(11,species))!A = p_ksi/p_rhof * Lc^p_z
+	   do ki = 1,int(initClearcut(i,5)+1)
+	    multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
+	   enddo !ki
+	   call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1),multiOut(i,(ij-1),:,ijj,1))
+	  endif
 	 enddo !ijj
 	endif
 
