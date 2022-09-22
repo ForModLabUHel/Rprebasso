@@ -511,30 +511,30 @@ endif
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
 
-  !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
-   STAND_all(22,:) = prelesOut(2)  	!ET
-   ! STAND_all(40,:) = prelesOut(15)  !aSW
-   ! STAND_all(41,:) = prelesOut(16)  !summerSW 
+  ! !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
+   ! STAND_all(22,:) = prelesOut(2)  	!ET
+   ! ! STAND_all(40,:) = prelesOut(15)  !aSW
+   ! ! STAND_all(41,:) = prelesOut(16)  !summerSW 
   
-  !store GPP
-   GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
-   STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+  ! !store GPP
+   ! GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+   ! STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
-!initialize for next year  
-   pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-   pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-   pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-   pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+! !initialize for next year  
+   ! pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+   ! pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+   ! pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+   ! pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
 endif
 !enddo !! end site loop
 
 do ij = 1 , nLayers
- STAND=STAND_all(:,ij)
- species = int(stand(4))
- if(species==0) species = 1
- param = pCrobas(:,species)
- sitetype=stand(3)
+ ! STAND=STAND_all(:,ij)
+ ! species = int(stand(4))
+ ! if(species==0) species = 1
+ ! param = pCrobas(:,species)
+ ! sitetype=stand(3)
 
  ! par_cR=param(1)
  ! par_rhow=param(2)
