@@ -868,6 +868,9 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
 end do !end Year loop 
 
  do i = 1,nSites
+    open(1,file="test1.txt")
+	write(1,*) i, "loop1"
+	close(1)
   do ij = startSimYear, maxYears 
     do ijj = 1,nLayers(i)
 	  ! multiOut(i,ij,38,ijj,1) = sum(multiOut(i,1:ij,30,ijj,2)) + &
@@ -908,6 +911,9 @@ end do !end Year loop
     enddo !ijj
   enddo
  enddo	
+    open(1,file="test1.txt")
+	write(1,*) i, "loop1"
+	close(1)
   ! close(1)
   ! close(2)
   ! close(3)
