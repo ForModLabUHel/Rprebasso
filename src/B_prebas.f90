@@ -647,217 +647,217 @@ if (N>0.) then
 !  par_mw = par_mw0 * p0 / p0_ref
 
   
-  par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
-  theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
+  ! par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
+  ! theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
 
-  mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
-  par_mr = par_mr0* p0 / p0_ref + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
-  par_mf = par_mf0* p0 / p0_ref !!newX
-  par_mw = par_mw0* p0 / p0_ref !!newX
+  ! mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
+  ! par_mr = par_mr0* p0 / p0_ref + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
+  ! par_mf = par_mf0* p0 / p0_ref !!newX
+  ! par_mw = par_mw0* p0 / p0_ref !!newX
 
-  par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
-  par_rhof = par_rhof1 * ETS + par_rhof2
-  par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-  par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
-  par_rhor = par_alfar * par_rhof !rho: pipe model parameter for fine roots
+  ! par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
+  ! par_rhof = par_rhof1 * ETS + par_rhof2
+  ! par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+  ! par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
+  ! par_rhor = par_alfar * par_rhof !rho: pipe model parameter for fine roots
 
-    ! -------------------------------------
-    !GPP all STAND$species   UNITS: g C  /  m2
-    ! -------------------------------------
-        p_eff = weight * p_eff_all
-		! gpp_sp = weight * STAND(10)
+    ! ! -------------------------------------
+    ! !GPP all STAND$species   UNITS: g C  /  m2
+    ! ! -------------------------------------
+        ! p_eff = weight * p_eff_all
+		! ! gpp_sp = weight * STAND(10)
 
-    if(wf_STKG > 0.) then
-!if(H < 10.) then
- !       s0 = min(0.35 * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
-!else
-        s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
-! endif
-    else
-        s0 = 0.
-    endif
-	gpp_sp = max(0.,(s0 - par_s1 * H) * wf_STKG / 10000.)
+    ! if(wf_STKG > 0.) then
+! !if(H < 10.) then
+ ! !       s0 = min(0.35 * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
+! !else
+        ! s0 = min(par_s0scale * P0 * par_k * par_sla, P_eff / wf_STKG * 10000.)
+! ! endif
+    ! else
+        ! s0 = 0.
+    ! endif
+	! gpp_sp = max(0.,(s0 - par_s1 * H) * wf_STKG / 10000.)
 	
-        !---------------------------------------
-        ! DYNAMIC GROWTH MODEL STARTS
-        !Updating the tree H, D, Hc and Cw for the next year, according to the method by Valentine & Makela (2005)
-        !Valentine & Makela 2005. Bridging process - based and empirical approaches to modeling tree growth.
-        ! HERE the units are kg / ha
-			gammaC = par_cR/Light
-            betab = hb/Lc
-			age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
-            beta0 = par_beta0 * age_factor
-            beta1 = (beta0 + betab + par_betas) !!newX
-            beta2 = 1. - betab - par_betas 		!!newX
-			betaC = (beta1 + gammaC * beta2) / par_betas
-			W_wsap = stand(47)
-            ! wf_treeKG = par_rhof * A  !!newX
-			! wf_STKG = N * wf_treeKG  !!newX
-			W_froot = stand(25)
-			W_c = stand(48) !sapwood stem below Crown
-			W_s = stand(49) !sapwood stem within crown
-			W_branch = stand(24) !branches biomass
-			W_croot = stand(32) !W_stem * (beta0 - 1.)	!coarse root biomass
-			Wsh = stand(50)
-			Wdb = stand(51)
-			W_bh = stand(53)
-			W_crh = stand(54)
-			W_bs =  par_rhow * A * N * betab * Lc
-			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
-			Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
-			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
-			Respi_tot = gpp_sp - npp
-				 ! ! litter fall in the absence of thinning
-      S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
-      S_fr  = S_fr + W_froot / par_vr	!fine root litter
-	  S_branch = max(0.,S_branch + Wdb/Tdb)
+        ! !---------------------------------------
+        ! ! DYNAMIC GROWTH MODEL STARTS
+        ! !Updating the tree H, D, Hc and Cw for the next year, according to the method by Valentine & Makela (2005)
+        ! !Valentine & Makela 2005. Bridging process - based and empirical approaches to modeling tree growth.
+        ! ! HERE the units are kg / ha
+			! gammaC = par_cR/Light
+            ! betab = hb/Lc
+			! age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
+            ! beta0 = par_beta0 * age_factor
+            ! beta1 = (beta0 + betab + par_betas) !!newX
+            ! beta2 = 1. - betab - par_betas 		!!newX
+			! betaC = (beta1 + gammaC * beta2) / par_betas
+			! W_wsap = stand(47)
+            ! ! wf_treeKG = par_rhof * A  !!newX
+			! ! wf_STKG = N * wf_treeKG  !!newX
+			! W_froot = stand(25)
+			! W_c = stand(48) !sapwood stem below Crown
+			! W_s = stand(49) !sapwood stem within crown
+			! W_branch = stand(24) !branches biomass
+			! W_croot = stand(32) !W_stem * (beta0 - 1.)	!coarse root biomass
+			! Wsh = stand(50)
+			! Wdb = stand(51)
+			! W_bh = stand(53)
+			! W_crh = stand(54)
+			! W_bs =  par_rhow * A * N * betab * Lc
+			! W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
+			! Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap  !!newX
+			! npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
+			! Respi_tot = gpp_sp - npp
+				 ! ! ! litter fall in the absence of thinning
+      ! S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
+      ! S_fr  = S_fr + W_froot / par_vr	!fine root litter
+	  ! S_branch = max(0.,S_branch + Wdb/Tdb)
 		
-	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
+	  ! ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
 			
-        !Height growth-----------------------
-		f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
-		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
-		dH = max(0.,((H-Hc) * f1/f2))
-		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
-		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
+        ! !Height growth-----------------------
+		! f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
+		! f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
+				! par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+		! dH = max(0.,((H-Hc) * f1/f2))
+		! Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
+		! Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
 		
-		if(f1 < 0.) then
-			dH = 0.
-			mort = 888.
-		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
-			gammaC = 1.
-			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
-			dH = max(0.,((H-Hc) * f1/f2))
-			mort = 888.
-		endif
+		! if(f1 < 0.) then
+			! dH = 0.
+			! mort = 888.
+		! elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
+			! gammaC = 1.
+			! f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
+				! par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+			! dH = max(0.,((H-Hc) * f1/f2))
+			! mort = 888.
+		! endif
 
   
- !-----------------------------------
-        !crown rise
-!         if(H - Hc > par_Cr2*100./sqrt(N)) then
-!        if(2.*hb > 100./sqrt(N) ) then
-        dHc = min(gammaC * dH,(H - Hc))
+ ! !-----------------------------------
+        ! !crown rise
+! !         if(H - Hc > par_Cr2*100./sqrt(N)) then
+! !        if(2.*hb > 100./sqrt(N) ) then
+        ! dHc = min(gammaC * dH,(H - Hc))
 		
-if(time==1)then
-      dHcCum = 0.
-      dHCum = 0.
-endif
-        dHcCum = dHcCum + dHc
-        dHCum = dHCum + dH
-!	    else
-!		dHc = 0  !CAN BE DIFFERENT FROM THE PAPER HARKONEN ET AL. 2013 CANADIAN JOURNAL, SEE THE EQUATION THERE
-!        endif
-        if(dHc < 0. )dHc = 0.
+! if(time==1)then
+      ! dHcCum = 0.
+      ! dHCum = 0.
+! endif
+        ! dHcCum = dHcCum + dHc
+        ! dHCum = dHCum + dH
+! !	    else
+! !		dHc = 0  !CAN BE DIFFERENT FROM THE PAPER HARKONEN ET AL. 2013 CANADIAN JOURNAL, SEE THE EQUATION THERE
+! !        endif
+        ! if(dHc < 0. )dHc = 0.
 
-            !----------------------------------
-            !New values for H, Hc and Lc
+            ! !----------------------------------
+            ! !New values for H, Hc and Lc
 
-       ! diameter growth
-            if(Lc > 0.) then
-                dA = max(0.,par_z*A*(dH-dHc)/Lc)
-!                dB = par_z * (A / Lc) * dH
-                dB = max(0.,par_z * A / Lc * dH + theta * A) !!!! v1
-            else
-                dA = 0.
-                dB = 0.
-            endif
+       ! ! diameter growth
+            ! if(Lc > 0.) then
+                ! dA = max(0.,par_z*A*(dH-dHc)/Lc)
+! !                dB = par_z * (A / Lc) * dH
+                ! dB = max(0.,par_z * A / Lc * dH + theta * A) !!!! v1
+            ! else
+                ! dA = 0.
+                ! dB = 0.
+            ! endif
             
-! Calculate change rates for non-living wood   - DECLARE dWsh etc...          
-            dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
-            dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
-            dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
-            dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
+! ! Calculate change rates for non-living wood   - DECLARE dWsh etc...          
+            ! dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
+            ! dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
+            ! dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
+            ! dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
 
-!!  Update state variables
-          H = H + step * dH
-          A = A + step * dA
-          B = B + step * dB
-		  Hc = Hc + step * dHc
+! !!  Update state variables
+          ! H = H + step * dH
+          ! A = A + step * dA
+          ! B = B + step * dB
+		  ! Hc = Hc + step * dHc
           
-          Wsh = Wsh + dWsh * step
-          W_bh = W_bh + dW_bh * step
-		  W_crh = W_crh + dW_crh * step
-		  Wdb = Wdb + dWdb * step
+          ! Wsh = Wsh + dWsh * step
+          ! W_bh = W_bh + dW_bh * step
+		  ! W_crh = W_crh + dW_crh * step
+		  ! Wdb = Wdb + dWdb * step
           
-! Update dependent variables
-      wf_treeKG = par_rhof * A
-      wf_STKG = N * wf_treeKG
-      BA = N * B
-      D = sqrt(B*4./pi)*100. ! * 100 converts meters in cm
-      Lc = H - Hc
-      rc = Lc / (H-1.3)
-      if(rc > 0.) B2 = A / rc
-      hb = par_betab * Lc**par_x
-      ! hb = betab * Lc!!!to check one cause of not matching npp because betab was computed before growth
+! ! Update dependent variables
+      ! wf_treeKG = par_rhof * A
+      ! wf_STKG = N * wf_treeKG
+      ! BA = N * B
+      ! D = sqrt(B*4./pi)*100. ! * 100 converts meters in cm
+      ! Lc = H - Hc
+      ! rc = Lc / (H-1.3)
+      ! if(rc > 0.) B2 = A / rc
+      ! hb = par_betab * Lc**par_x
+      ! ! hb = betab * Lc!!!to check one cause of not matching npp because betab was computed before growth
 
-! more dependent variables (not used in calculation)
-        betab = hb/Lc
-		age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
-        beta0 = par_beta0 * age_factor
-        beta1 = (beta0 + betab + par_betas) !!newX
-        beta2 = 1. - betab - par_betas 		!!newX
-		betaC = (beta1 + gammaC * beta2) / par_betas
-		W_froot = par_rhor * A * N  !!to check  !!newX
-		W_wsap = par_rhow * A * N * (beta1 * H + beta2 * Hc) !!newX
-		W_c = par_rhow * A * N * Hc !sapwood stem below Crown
-		W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
-		W_bs =  par_rhow * A * N * betab * Lc !branches biomass
-        W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root sapwood biomass
-		! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
-		W_stem = W_c + W_s + Wsh
-		V = W_stem / par_rhow
-		W_branch = W_bs + W_bh
-		W_croot = W_crs + W_crh
+! ! more dependent variables (not used in calculation)
+        ! betab = hb/Lc
+		! age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
+        ! beta0 = par_beta0 * age_factor
+        ! beta1 = (beta0 + betab + par_betas) !!newX
+        ! beta2 = 1. - betab - par_betas 		!!newX
+		! betaC = (beta1 + gammaC * beta2) / par_betas
+		! W_froot = par_rhor * A * N  !!to check  !!newX
+		! W_wsap = par_rhow * A * N * (beta1 * H + beta2 * Hc) !!newX
+		! W_c = par_rhow * A * N * Hc !sapwood stem below Crown
+		! W_s = par_rhow * A * N * par_betas * Lc !sapwood stem within crown
+		! W_bs =  par_rhow * A * N * betab * Lc !branches biomass
+        ! W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root sapwood biomass
+		! ! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
+		! W_stem = W_c + W_s + Wsh
+		! V = W_stem / par_rhow
+		! W_branch = W_bs + W_bh
+		! W_croot = W_crs + W_crh
 		
-  age = age + step
+  ! age = age + step
 
-  STAND(2) = gammaC
-  STAND(40) = mort
-  STAND(41) = dH
-  STAND(7) = age !#!#
-  STAND(18) = npp
-  !STAND(8) = Respi_m /10000.
-  STAND(9) = Respi_tot
-  STAND(11) = H
-  STAND(12) = D
-  STAND(13) = BA
-  STAND(14) = Hc
-  STAND(15) = Cw
-  STAND(16) = A
-  STAND(17) = N
-  STAND(24) = W_branch
-  STAND(25) = W_froot
-  STAND(26) = S_fol
-  STAND(27) = S_fr
-  STAND(28) = S_branch
-  ! STAND(29) = S_wood
-  STAND(30) = V
-  STAND(31) = W_stem
-  STAND(32) = W_croot
-  STAND(33) = wf_STKG
-  STAND(34) = wf_treeKG
-  STAND(35) = B
-  STAND(36) = Light
-  ! STAND(42) = Vold* min(1.,-dN*step/Nold)
-  STAND(44) = gpp_sp
-  STAND(47) = W_wsap
-  STAND(48) = W_c
-  STAND(49) = W_s
-  STAND(50) = Wsh
-  STAND(53) = W_bh
-  STAND(54) = W_crh
-  STAND(51) = Wdb
-  STAND(52) = dHc
-  ! stand(22) = theta
-else
-  STAND(2) = 0. !!newX
-  STAND(8:21) = 0. !#!#
-  STAND(23:37) = 0. !#!#
-  STAND(42:44) = 0. !#!#
-  STAND(47:nVar) = 0. !#!#
-  STAND(7) = STAND(7) + step
+  ! STAND(2) = gammaC
+  ! STAND(40) = mort
+  ! STAND(41) = dH
+  ! STAND(7) = age !#!#
+  ! STAND(18) = npp
+  ! !STAND(8) = Respi_m /10000.
+  ! STAND(9) = Respi_tot
+  ! STAND(11) = H
+  ! STAND(12) = D
+  ! STAND(13) = BA
+  ! STAND(14) = Hc
+  ! STAND(15) = Cw
+  ! STAND(16) = A
+  ! STAND(17) = N
+  ! STAND(24) = W_branch
+  ! STAND(25) = W_froot
+  ! STAND(26) = S_fol
+  ! STAND(27) = S_fr
+  ! STAND(28) = S_branch
+  ! ! STAND(29) = S_wood
+  ! STAND(30) = V
+  ! STAND(31) = W_stem
+  ! STAND(32) = W_croot
+  ! STAND(33) = wf_STKG
+  ! STAND(34) = wf_treeKG
+  ! STAND(35) = B
+  ! STAND(36) = Light
+  ! ! STAND(42) = Vold* min(1.,-dN*step/Nold)
+  ! STAND(44) = gpp_sp
+  ! STAND(47) = W_wsap
+  ! STAND(48) = W_c
+  ! STAND(49) = W_s
+  ! STAND(50) = Wsh
+  ! STAND(53) = W_bh
+  ! STAND(54) = W_crh
+  ! STAND(51) = Wdb
+  ! STAND(52) = dHc
+  ! ! stand(22) = theta
+! else
+  ! STAND(2) = 0. !!newX
+  ! STAND(8:21) = 0. !#!#
+  ! STAND(23:37) = 0. !#!#
+  ! STAND(42:44) = 0. !#!#
+  ! STAND(47:nVar) = 0. !#!#
+  ! STAND(7) = STAND(7) + step
 endif
 endif
 
