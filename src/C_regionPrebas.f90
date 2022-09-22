@@ -240,6 +240,11 @@ endif
 	mortModX = mortMod(1)
 	if(ClCut(i)==1) mortModX = mortMod(2)
 	
+	! if(ij>11) then
+		! open(2,file="test2.txt")
+		! write(2,*) ij,i,iz, "before run"
+		! close(2)
+	! endif
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
@@ -253,6 +258,11 @@ endif
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
+	! if(ij>11) then
+		! open(2,file="test2.txt")
+		! write(2,*) ij,i,iz, "after run"
+		! close(2)
+	! endif
 	if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
 	 	 multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
 		 multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
@@ -869,7 +879,7 @@ end do !end Year loop
 
  do i = 1,nSites
     open(1,file="test1.txt")
-	write(1,*) i, "loop1"
+	write(1,*) i, "of", nSites,"loop1"
 	close(1)
   do ij = startSimYear, maxYears 
     do ijj = 1,nLayers(i)
@@ -912,7 +922,7 @@ end do !end Year loop
   enddo
  enddo	
     open(1,file="test1.txt")
-	write(1,*) i, "end"
+	write(1,*) i,nSites, "end"
 	close(1)
   ! close(1)
   ! close(2)
