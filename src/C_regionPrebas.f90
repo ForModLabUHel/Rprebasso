@@ -331,7 +331,7 @@ endif
 		! roundWood = roundWood + sum(output(1,37,1:nLayers(i),1))* areas(i)
 		! energyWood = energyWood + sum(wood(1,1:nLayers(i),1))* areas(i)   !!energCuts !!!we are looking at volumes	
 	! endif
- ! end do !iz i site loop
+ end do !iz i site loop
 
  ! !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by DBH 
  ! !or thin based on stand density index

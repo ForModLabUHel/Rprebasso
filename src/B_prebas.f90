@@ -450,84 +450,84 @@ end do !!!!!!!end loop layers
 !!!calculate species weight for photosynthesis
 !do siteNo = 1, nSites
 
-if (year <= maxYearSite) then
-	nSpec = nSp
-	ll = nLayers
+! if (year <= maxYearSite) then
+	! nSpec = nSp
+	! ll = nLayers
 	
-	domSp = maxloc(STAND_all(13,:))
-	layer = int(domSp(1))
-	siteType = modOut(year,3,layer,1) !siteInfo(3)
+	! domSp = maxloc(STAND_all(13,:))
+	! layer = int(domSp(1))
+	! siteType = modOut(year,3,layer,1) !siteInfo(3)
 
-    call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
-		nVar,nPar,MeanLight,coeff,fAPARtrees)
-   STAND_all(36,:) = MeanLight
-   STAND_all(23,:) = coeff
+    ! call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
+		! nVar,nPar,MeanLight,coeff,fAPARtrees)
+   ! STAND_all(36,:) = MeanLight
+   ! STAND_all(23,:) = coeff
 
-!!calculate year of replanting after a clearcut
-!if scenario = "oldLayer" do not consider the old layer
-if(oldLayer==1) then
- ij=max((nLayers-1),1)
-else
- ij=nLayers
-endif
-   if(sum(modOut(year,11,1:ij,1)) == 0. .and. yearX == 0) then
-	if((nYears-year)<10) then
-			Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25 + 2.0)!! + 2.0 to account for the delay between planting and clearcut
-	else
-			Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10.) + 2.25 + 2.0)!! + 2.0 to account for the delay between planting and clearcut
-	endif
-	yearX = Ainit + year 
-   endif
+! !!calculate year of replanting after a clearcut
+! !if scenario = "oldLayer" do not consider the old layer
+! if(oldLayer==1) then
+ ! ij=max((nLayers-1),1)
+! else
+ ! ij=nLayers
+! endif
+   ! if(sum(modOut(year,11,1:ij,1)) == 0. .and. yearX == 0) then
+	! if((nYears-year)<10) then
+			! Ainit = nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25 + 2.0)!! + 2.0 to account for the delay between planting and clearcut
+	! else
+			! Ainit = nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10.) + 2.25 + 2.0)!! + 2.0 to account for the delay between planting and clearcut
+	! endif
+	! yearX = Ainit + year 
+   ! endif
    
  
-     !!!ground vegetation
-   !!!fapar_gv compute fapar, biomasses and litter of gv with routine
-   if(gvRun==1) then
+     ! !!!ground vegetation
+   ! !!!fapar_gv compute fapar, biomasses and litter of gv with routine
+   ! if(gvRun==1) then
 
-! if(isnan(siteType)) siteType = siteInfo(3)
-! if(siteType==0.) siteType = siteInfo(3)
+! ! if(isnan(siteType)) siteType = siteInfo(3)
+! ! if(siteType==0.) siteType = siteInfo(3)
 
-    call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
-         sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
-   else
-    fAPARgvX=0.
-	GVout(year,:) = 0.
-   endif
+    ! call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), fAPARgvX, GVout(year,2), &
+         ! sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
+   ! else
+    ! fAPARgvX=0.
+	! GVout(year,:) = 0.
+   ! endif
 
-! if(isnan(fAPARgvX)) fAPARgvX = 0.
+! ! if(isnan(fAPARgvX)) fAPARgvX = 0.
 
-!!!calculate site fAPAR and set fAPAR for preles calculations and store
-   fAPARsite = fAPARtrees + fAPARgvX
-   fAPARprel(:) = fAPARsite
-   fAPAR(year) = fAPARtrees  !store fAPAR trees
-   GVout(year,1) = fAPARgvX !store fAPAR GV
- 	! if(fAPARsite>0.) then
+! !!!calculate site fAPAR and set fAPAR for preles calculations and store
+   ! fAPARsite = fAPARtrees + fAPARgvX
+   ! fAPARprel(:) = fAPARsite
+   ! fAPAR(year) = fAPARtrees  !store fAPAR trees
+   ! GVout(year,1) = fAPARgvX !store fAPAR GV
+ 	! ! if(fAPARsite>0.) then
 	 
         
-  !run preles 
-   call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
-		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
-		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
-		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-		etmodel)		!type of ET model
+  ! !run preles 
+   ! call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+		! dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		! dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		! dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
+		! etmodel)		!type of ET model
 
-  !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
-   STAND_all(22,:) = prelesOut(2)  	!ET
-   ! STAND_all(40,:) = prelesOut(15)  !aSW
-   ! STAND_all(41,:) = prelesOut(16)  !summerSW 
+  ! !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
+   ! STAND_all(22,:) = prelesOut(2)  	!ET
+   ! ! STAND_all(40,:) = prelesOut(15)  !aSW
+   ! ! STAND_all(41,:) = prelesOut(16)  !summerSW 
   
-  !store GPP
-   GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
-   STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+  ! !store GPP
+   ! GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+   ! STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
-!initialize for next year  
-   pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-   pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-   pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-   pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+! !initialize for next year  
+   ! pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+   ! pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+   ! pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+   ! pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
-endif
-!enddo !! end site loop
+! endif
+! !enddo !! end site loop
 
 ! do ij = 1 , nLayers
  ! STAND=STAND_all(:,ij)
@@ -1040,7 +1040,7 @@ endif
 
 	! STAND_all(:,ij)=STAND
 ! end do !!!!end loop species
- ! end do !!!!end loop inttimes
+ end do !!!!end loop inttimes
 
 ! !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 ! !!!!test for clearcut!!!!
@@ -1501,7 +1501,7 @@ endif
  
 enddo !end year loop
 
-!soil and harvested volume outputs
+! !soil and harvested volume outputs
 ! modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
 ! modOut(:,38,:,1) = modOut(:,31,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
 
