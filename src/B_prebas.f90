@@ -971,7 +971,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	species = int(stand(4))
 	 energyWood(year,ij,2) = max(0.,(stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio)
-if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species)
+if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species))
      S_branch = max(0.,stand(28) + (stand(24) - W_branch) * (1-energyRatio) + stand(51) - Wdb +&
 				(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) * 0.83 + &
 				(stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio))
