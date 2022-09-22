@@ -242,7 +242,7 @@ endif
 	
 	! if(ij>11) then
 		! open(2,file="test2.txt")
-		write(*,*) ij,i,iz, "before run"
+		! write(*,*) ij,i,iz, "before run"
 		! close(2)
 	! endif
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
