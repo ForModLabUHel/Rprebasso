@@ -860,7 +860,7 @@ if (N>0.) then
   ! STAND(47:nVar) = 0. !#!#
   ! STAND(7) = STAND(7) + step
 endif
-endif
+! endif
 
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
