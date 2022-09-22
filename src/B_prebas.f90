@@ -532,6 +532,7 @@ endif
 do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
  species = int(stand(4))
+ if(species==0) species = 1
  param = pCrobas(:,species)
  sitetype=stand(3)
 
