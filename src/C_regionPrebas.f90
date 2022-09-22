@@ -523,7 +523,7 @@ endif
 	! multiOut(siteX,ij,37,3,1)
 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
-     multiOut(siteX,ij,1,1,2) = 4. !!!flag for thinning compensation
+     multiOut(siteX,ij,2,1,2) = 4. !!!flag for thinning compensation
 	 multiOut(siteX,ij,37,1:jj,1) = multiOut(siteX,ij,37,1:jj,1) + &
 			multiOut(siteX,ij,30,1:jj,1)*harvRatio*thinFact
 	 multiOut(siteX,ij,38,1:jj,1) = multiOut(siteX,ij,38,1:jj,1) + &
