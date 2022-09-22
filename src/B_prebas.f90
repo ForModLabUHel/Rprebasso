@@ -504,30 +504,30 @@ endif
  	! if(fAPARsite>0.) then
 	 
         
-  ! !run preles 
-   ! call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
-		! dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
-		! dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
-		! dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-		! etmodel)		!type of ET model
+  !run preles 
+   call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
+		etmodel)		!type of ET model
 
-  ! !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
-   ! STAND_all(22,:) = prelesOut(2)  	!ET
-   ! ! STAND_all(40,:) = prelesOut(15)  !aSW
-   ! ! STAND_all(41,:) = prelesOut(16)  !summerSW 
+  !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
+   STAND_all(22,:) = prelesOut(2)  	!ET
+   ! STAND_all(40,:) = prelesOut(15)  !aSW
+   ! STAND_all(41,:) = prelesOut(16)  !summerSW 
   
-  ! !store GPP
-   ! GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
-   ! STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+  !store GPP
+   GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+   STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
-! !initialize for next year  
-   ! pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-   ! pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-   ! pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-   ! pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+!initialize for next year  
+   pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+   pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+   pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+   pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
-! endif
-! !enddo !! end site loop
+endif
+!enddo !! end site loop
 
 ! do ij = 1 , nLayers
  ! STAND=STAND_all(:,ij)
@@ -1501,7 +1501,7 @@ endif
  
 enddo !end year loop
 
-! !soil and harvested volume outputs
+!soil and harvested volume outputs
 ! modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
 ! modOut(:,38,:,1) = modOut(:,31,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
 
