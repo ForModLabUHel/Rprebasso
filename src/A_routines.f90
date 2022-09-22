@@ -116,7 +116,7 @@ implicit none
  qcTOT = 0.
  
  do i = 1,nclass
-	 species = int(stand_all(4,i))
+	 species = int(max(1.,stand_all(4,i))) !!!test
      param = pCrobas(:,species)
      qc(i) = 0.
 
