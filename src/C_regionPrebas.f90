@@ -912,7 +912,7 @@ end do !end Year loop
   enddo
  enddo	
     open(1,file="test1.txt")
-	write(1,*) i, "loop1"
+	write(1,*) i, "end"
 	close(1)
   ! close(1)
   ! close(2)
