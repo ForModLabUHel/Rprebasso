@@ -1471,110 +1471,110 @@ modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
- if(oldLayer==1) then 
-	modOut((year+1),:,nLayers,:) = outt(:,nLayers,:) 
- endif
-!!!!run Yasso
- if(yassoRun==1.) then
-  do ijj = 1, nLayers
-   Lst(ijj) = outt(29,ijj,1)
-   Lb(ijj) =  outt(28,ijj,1)
-   Lf(ijj) = outt(26,ijj,1)+outt(27,ijj,1)
+ ! if(oldLayer==1) then 
+	! modOut((year+1),:,nLayers,:) = outt(:,nLayers,:) 
+ ! endif
+! !!!!run Yasso
+ ! if(yassoRun==1.) then
+  ! do ijj = 1, nLayers
+   ! Lst(ijj) = outt(29,ijj,1)
+   ! Lb(ijj) =  outt(28,ijj,1)
+   ! Lf(ijj) = outt(26,ijj,1)+outt(27,ijj,1)
 
-   species = int(max(modOut((year+1),4,ijj,1),1.))
-   call compAWENH(Lf(ijj),folAWENH(ijj,:),pAWEN(1:4,species))   !!!awen partitioning foliage
-   if(GVrun==1 .and. ijj==1) then 
-    folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
-   endif
-   call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
-   call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
+   ! species = int(max(modOut((year+1),4,ijj,1),1.))
+   ! call compAWENH(Lf(ijj),folAWENH(ijj,:),pAWEN(1:4,species))   !!!awen partitioning foliage
+   ! if(GVrun==1 .and. ijj==1) then 
+    ! folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
+   ! endif
+   ! call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
+   ! call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 
-   call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,1,ijj),stAWENH(ijj,:),litterSize(1,species), &
-	leac,soilC((year+1),:,1,ijj),0.)
-   call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,2,ijj),fbAWENH(ijj,:),litterSize(2,species), &
-	leac,soilC((year+1),:,2,ijj),0.)
-   call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,3,ijj),folAWENH(ijj,:),litterSize(3,species), &
-	leac,soilC((year+1),:,3,ijj),0.)
-  enddo
+   ! call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,1,ijj),stAWENH(ijj,:),litterSize(1,species), &
+	! leac,soilC((year+1),:,1,ijj),0.)
+   ! call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,2,ijj),fbAWENH(ijj,:),litterSize(2,species), &
+	! leac,soilC((year+1),:,2,ijj),0.)
+   ! call mod5c(pYasso,t,weatherYasso(year,:),soilC((year),:,3,ijj),folAWENH(ijj,:),litterSize(3,species), &
+	! leac,soilC((year+1),:,3,ijj),0.)
+  ! enddo
 
-  soilCtot(year+1) = sum(soilC(year+1,:,:,:))
- endif !end yassoRun if
+  ! soilCtot(year+1) = sum(soilC(year+1,:,:,:))
+ ! endif !end yassoRun if
  
-enddo !end year loop
+! enddo !end year loop
 
-!soil and harvested volume outputs
-modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
-modOut(:,38,:,1) = modOut(:,31,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
+! !soil and harvested volume outputs
+! modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
+! modOut(:,38,:,1) = modOut(:,31,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
 
-do year = 1,(nYears+1)
-  do ijj = 1, nLayers
-	! modOut(year,38,ijj,1) = sum(modOut(1:year,30,ijj,2)) + &
-		! sum(modOut(1:year,42,ijj,1)) + modOut(year,30,ijj,1)
-	modOut(year,39,ijj,1) = sum(soilC(year,:,:,ijj))
-	! modOut(year,38,ijj,1) = pCrobas(2,int(modOut(year,4,ijj,1))) * modOut(year,37,ijj,1)
-	if(year > 1.5) then
-	!compute gross growth
-	  modOut(year,43,ijj,1) = modOut(year,30,ijj,1) - modOut((year-1),30,ijj,1) + &
-				modOut(year,42,ijj,1) + modOut(year,37,ijj,1)/harvRatio
-	endif
-  enddo
-enddo
+! do year = 1,(nYears+1)
+  ! do ijj = 1, nLayers
+	! ! modOut(year,38,ijj,1) = sum(modOut(1:year,30,ijj,2)) + &
+		! ! sum(modOut(1:year,42,ijj,1)) + modOut(year,30,ijj,1)
+	! modOut(year,39,ijj,1) = sum(soilC(year,:,:,ijj))
+	! ! modOut(year,38,ijj,1) = pCrobas(2,int(modOut(year,4,ijj,1))) * modOut(year,37,ijj,1)
+	! if(year > 1.5) then
+	! !compute gross growth
+	  ! modOut(year,43,ijj,1) = modOut(year,30,ijj,1) - modOut((year-1),30,ijj,1) + &
+				! modOut(year,42,ijj,1) + modOut(year,37,ijj,1)/harvRatio
+	! endif
+  ! enddo
+! enddo
 
-!compute fluxes in g C m−2 y−1
- modOut(:,44,:,1) = modOut(:,44,:,1)*1000. !*1000 coverts units to g C m−2 y−1
- modOut(:,9,:,1) = modOut(:,9,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
- modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
+! !compute fluxes in g C m−2 y−1
+ ! modOut(:,44,:,1) = modOut(:,44,:,1)*1000. !*1000 coverts units to g C m−2 y−1
+ ! modOut(:,9,:,1) = modOut(:,9,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
+ ! modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
 
-	modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
-		modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
-		modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
-	if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
+	! modOut(2:(nYears+1),45,:,1) = modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
+		! modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
+		! modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
+	! if(GVrun==1) modOut(2:(nYears+1),45,1,1) = modOut(2:(nYears+1),45,1,1) + GVout(:,2)/10.  !/10 coverts units to g C m−2 y−1
 	
-modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
+! modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1) 
 
-!!!!ground vegetation Add Npp ground vegetation to the NEE first layer
-!!!calculate state of GV at the last year
-if(GVrun==1) then 
- stand_all = modOut((nYears+1),:,:,1)
- call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
-	nVar,nPar,MeanLight,coeff,fAPARtrees)
- call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
-         sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
-     !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
- if(nYears > 1) then
-  GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
-  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
-  GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
-  GVout(nYears,4) = lastGVout(4)
- else  !!!when nYears ==1 in the region multi prebas
-  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
-  GVout(nYears,4) = lastGVout(4)
- endif
- modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
-endif
-!!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
- do year = 2,(nYears +1)
-  do ij = 1,nLayers
-   D = modOut((year-1),12,ij,1)
-   Vmort = modOut(year,42,ij,1)
-   if(Vmort>0.)then
-    species = int(modOut(year,4,ij,1))
-    modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
-	do i=1,(nYears+1-year)
-     modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * &
-       exp(-exp(pCrobas(35,species) + pCrobas(36,species)*i +  &
-                 pCrobas(37,species)*D + pCrobas(44,species))) 
-	enddo
-   endif
-  enddo
- enddo
+! !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
+! !!!calculate state of GV at the last year
+! if(GVrun==1) then 
+ ! stand_all = modOut((nYears+1),:,:,1)
+ ! call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
+	! nVar,nPar,MeanLight,coeff,fAPARtrees)
+ ! call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
+         ! sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
+     ! !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
+ ! if(nYears > 1) then
+  ! GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
+  ! GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  ! GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
+  ! GVout(nYears,4) = lastGVout(4)
+ ! else  !!!when nYears ==1 in the region multi prebas
+  ! GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  ! GVout(nYears,4) = lastGVout(4)
+ ! endif
+ ! modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
+! endif
+! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
+ ! do year = 2,(nYears +1)
+  ! do ij = 1,nLayers
+   ! D = modOut((year-1),12,ij,1)
+   ! Vmort = modOut(year,42,ij,1)
+   ! if(Vmort>0.)then
+    ! species = int(modOut(year,4,ij,1))
+    ! modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
+	! do i=1,(nYears+1-year)
+     ! modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * &
+       ! exp(-exp(pCrobas(35,species) + pCrobas(36,species)*i +  &
+                 ! pCrobas(37,species)*D + pCrobas(44,species))) 
+	! enddo
+   ! endif
+  ! enddo
+ ! enddo
 
 
- output = modOut(2:(nYears+1),:,:,:)
- output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
- soilCinOut = soilC(2:(nYears+1),:,:,:)
- soilCtotInOut = soilCtot(2:(nYears+1))
- output(:,1:2,1,2) = thinClx
+ ! output = modOut(2:(nYears+1),:,:,:)
+ ! output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
+ ! soilCinOut = soilC(2:(nYears+1),:,:,:)
+ ! soilCtotInOut = soilCtot(2:(nYears+1))
+ ! output(:,1:2,1,2) = thinClx
 
 end subroutine
 
