@@ -90,11 +90,13 @@ do i = 1,nSites
 		multiOut(i,1,(/24,25,30,31,32,33,47,48,49,50,51,54/),ijj,1)=0.
 	else		
 		species = int(initVar(i,1,ijj))
+		if(species>0) then
 		if(initVar(i,7,ijj)==0. .and. initVar(i,5,ijj) > 0.) then
 			initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
 				initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 		endif
 		call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
+		endif
 	endif
  enddo
  relBA(i,1:nLayers(i)) = initVar(i,5,1:nLayers(i))/sum(initVar(i,5,1:nLayers(i)))
