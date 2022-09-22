@@ -880,7 +880,7 @@ endif
      S_fr = W_froot + S_fr
 	 if(energyCut==1.) then
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-	  species <- int(stand(4))
+	  species = int(stand(4))
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
       S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
 				W_stem* (1-harvRatio)* (1-energyRatio) + &
@@ -968,7 +968,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
     S_fr = max(0.,stand(27) + stand(25) - W_froot)
 	if(energyCut==1.) then
-	species <- int(stand(4))
+	species = int(stand(4))
 	 energyWood(year,ij,2) = max(0.,(stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio)
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species)
@@ -1105,7 +1105,7 @@ if (ClCut == 1.) then
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
-	species <- int(stand_all(4,ij))
+	species = int(stand_all(4,ij))
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij)) * (1-energyRatio) + &
 		stand_all(51,ij) + (0.3 * (1-energyRatio)+0.7) * stand_all(32,ij) *0.83 + &
@@ -1142,7 +1142,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
-species <- int(stand_all(4,ij))
+species = int(stand_all(4,ij))
 if(pCrobas(2,species)>0.)	 energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij)) * (1-energyRatio) + &
 		stand_all(51,ij) + (0.3 * (1-energyRatio)+0.7) * stand_all(32,ij) *0.83 + &
@@ -1397,7 +1397,7 @@ if(defaultThin == 1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) - W_branch + &
 		(stand_all(32,ij) - W_croot) * 0.3 + &
 	    (stand_all(31,ij) - W_stem) * (1-harvRatio)) * energyRatio
-	species <- int(stand_all(4,ij))
+	species = int(stand_all(4,ij))
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 
      S_branch = max(0.,stand_all(28,ij) + (stand_all(24,ij) - W_branch) * (1-energyRatio) +&
