@@ -497,7 +497,7 @@ endif
 ! if(isnan(fAPARgvX)) fAPARgvX = 0.
 
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
-   fAPARsite = fAPARtrees !+ fAPARgvX
+   fAPARsite = 0.7!fAPARtrees !+ fAPARgvX
    fAPARprel(:) = fAPARsite
    fAPAR(year) = fAPARtrees  !store fAPAR trees
    GVout(year,1) = fAPARgvX !store fAPAR GV
