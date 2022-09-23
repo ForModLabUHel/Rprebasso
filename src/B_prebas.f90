@@ -1539,10 +1539,8 @@ if(GVrun==1) then
  call Ffotos2(stand_all,nLayers,nSp,pCrobas,&
 	nVar,nPar,MeanLight,coeff,fAPARtrees)
 	
- ! call fAPARgv(0.7, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
-         ! sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
-		 
-	! fAPARsite=fAPARtrees +lastGVout(1)
+ call fAPARgv(0.7, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
+         sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
      lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
  ! if(nYears > 1) then
   ! GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
@@ -1552,7 +1550,7 @@ if(GVrun==1) then
  ! else  !!!when nYears ==1 in the region multi prebas
   ! GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
   ! GVout(nYears,4) = lastGVout(4)
- ! endif
+ endif
  modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
 endif
 ! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
