@@ -1548,9 +1548,9 @@ call fAPARgv(fAPARtrees, ETSmean, 3., lastGVout(1), lastGVout(2), &
   GVout(nYears,4) = lastGVout(4)
  else  !!!when nYears ==1 in the region multi prebas
   
-  if(isnan(lastGVout(4))) then
-	   write(1,*) siteInfo(1), lastGVout
-  close(1)
+  ! if(isnan(lastGVout(4))) then
+	   ! write(1,*) siteInfo(1), lastGVout
+  ! close(1)
   endif
   GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
   ! if(isnan(GVout(nYears,5))) then
