@@ -1552,6 +1552,9 @@ if(GVrun==1) then
 	   write(1,*) siteInfo(1), lastGVout)
   close(1)
   GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  ! if(isnan(GVout(nYears,5))) then
+	   ! write(1,*) siteInfo(1), lastGVout)
+  ! close(1)
   GVout(nYears,4) = lastGVout(4)
  endif
  modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
