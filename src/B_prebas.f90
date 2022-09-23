@@ -187,7 +187,7 @@ do year = 1, (nYears)
 	  Ainit = int(Ainit)
 	  totBA = sum(modOut((year-Ainit-1), 13, :, 1)) ! BA structure before clearcut, used for estimating spec. proportions at initialization if fixBAratio is = 0 (1 is for user defined)
    do ijj = 1, nLayers
-     species = int(modOut(year, 4, ijj, 1))  ! read species
+     species = int(max(1.,modOut(year, 4, ijj, 1)))  ! read species
 	 if (fixBAinitClarcut==1) then
 	  modOut(year,13,ijj,1) = initClearcut(3) * initCLcutRatio(ijj)
 	 else
@@ -319,7 +319,7 @@ include 'mortalityCalc.h'
 
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
- species = int(stand(4))
+ species = int(max(1.,stand(4)))
  param = pCrobas(:,species)
  sitetype=STAND(3)
 
@@ -532,7 +532,7 @@ endif
 
 do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
- species = int(stand(4))
+ species = int(max(1.,stand(4)))
  param = pCrobas(:,species)
  sitetype=stand(3)
 
@@ -881,7 +881,7 @@ endif
      S_fr = W_froot + S_fr
 	 if(energyCut==1.) then
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-	  species = int(stand(4))
+	  species = int(max(1.,stand(4)))
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
       S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
 				W_stem* (1-harvRatio)* (1-energyRatio) + &
@@ -969,7 +969,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
     S_fr = max(0.,stand(27) + stand(25) - W_froot)
 	if(energyCut==1.) then
-	species = int(stand(4))
+	species = int(max(1.,stand(4)))
 	 energyWood(year,ij,2) = max(0.,(stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
 					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio)
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species))
@@ -1053,7 +1053,7 @@ end do !!!!end loop species
  domSp = maxloc(STAND_all(13,1:ll))
  layer = int(domSp(1))
 if (ClCut == 1.) then
-	species = int(stand_all(4,layer))
+	species = int(max(1.,stand_all(4,layer)))
 	D_clearcut = inDclct(species)
 	A_clearcut = inAclct(species)
 	D = stand_all(12,layer)
@@ -1106,7 +1106,7 @@ if (ClCut == 1.) then
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
-	species = int(stand_all(4,ij))
+	species = int(max(1.,stand_all(4,ij)))
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij)) * (1-energyRatio) + &
 		stand_all(51,ij) + (0.3 * (1-energyRatio)+0.7) * stand_all(32,ij) *0.83 + &
@@ -1143,7 +1143,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
 					stand_all(32,ij)*0.3 + stand_all(31,ij) * (1-harvRatio)) * energyRatio
-species = int(stand_all(4,ij))
+species = int(max(1.,stand_all(4,ij)))
 if(pCrobas(2,species)>0.)	 energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 	 S_branch = max(0.,(stand_all(28,ij) + (stand_all(24,ij)) * (1-energyRatio) + &
 		stand_all(51,ij) + (0.3 * (1-energyRatio)+0.7) * stand_all(32,ij) *0.83 + &
@@ -1194,7 +1194,7 @@ if(defaultThin == 1.) then
  layer = int(domSp(1))
  siteType = modOut(year,3,layer,1) !siteInfo(3)
  H = stand_all(11,layer)
- species = int(stand_all(4,layer))
+ species = int(max(1.,stand_all(4,layer)))
 
  ! counting the dominant height of the dominant species
  Hdom = pCrobas(42,species)*exp(-1/max((H-1.3),0.001))+pCrobas(43,species)*H
@@ -1257,7 +1257,7 @@ if(defaultThin == 1.) then
 
    if(stand_all(17,ij)>0.) then
     STAND_tot = stand_all(:,ij)
-	species = int(stand_all(4,ij))
+	species = int(max(1.,stand_all(4,ij)))
     param = pCrobas(:,species)
     par_cR=param(1)
     par_rhow=param(2)
@@ -1398,7 +1398,7 @@ if(defaultThin == 1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) - W_branch + &
 		(stand_all(32,ij) - W_croot) * 0.3 + &
 	    (stand_all(31,ij) - W_stem) * (1-harvRatio)) * energyRatio
-	species = int(stand_all(4,ij))
+	species = int(max(1.,stand_all(4,ij)))
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 
      S_branch = max(0.,stand_all(28,ij) + (stand_all(24,ij) - W_branch) * (1-energyRatio) +&
@@ -1481,7 +1481,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    Lb(ijj) =  outt(28,ijj,1)
    Lf(ijj) = outt(26,ijj,1)+outt(27,ijj,1)
 
-   species = int(modOut((year+1),4,ijj,1))
+   species = int(max(1.,modOut((year+1),4,ijj,1)))
    call compAWENH(Lf(ijj),folAWENH(ijj,:),pAWEN(1:4,species))   !!!awen partitioning foliage
    if(GVrun==1 .and. ijj==1) then 
     folAWENH(ijj,1:4) = folAWENH(ijj,1:4) + AWENgv			 !!!add AWEN gv to 1st layer
@@ -1534,30 +1534,30 @@ modOut(:,46,:,1) = modOut(:,44,:,1) - modOut(:,9,:,1) - modOut(:,45,:,1)
 
 !!!!ground vegetation Add Npp ground vegetation to the NEE first layer
 !!!calculate state of GV at the last year
-if(GVrun==1) then 
- stand_all = modOut((nYears+1),:,:,1)
- call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
-	nVar,nPar,MeanLight,coeff,fAPARtrees)
-call fAPARgv(fAPARtrees, ETSmean, 3., lastGVout(1), lastGVout(2), &
-         sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
-     !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
- if(nYears > 1) then
-  GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
-  GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
-  GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
-  GVout(nYears,4) = lastGVout(4)
- else  !!!when nYears ==1 in the region multi prebas
+! if(GVrun==1) then 
+ ! stand_all = modOut((nYears+1),:,:,1)
+ ! call Ffotos2(stand_all,nLayers,nSpec,pCrobas,&
+	! nVar,nPar,MeanLight,coeff,fAPARtrees)
+! call fAPARgv(fAPARtrees, ETSmean, 3., lastGVout(1), lastGVout(2), &
+         ! sum(P0yX(:,1))/nYears, AWENgv,lastGVout(4)) !reduced input output
+     ! !lastGVout(3) = prelesOut(1) * GVout(year,1)/fAPARsite!
+ ! if(nYears > 1) then
+  ! GVout(1:(nYears-1),5) = GVout(2:(nYears),4)/10.d0 - GVout(1:(nYears-1),4)/10.d0 + GVout(1:(nYears-1),2)/10.d0
+  ! GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  ! GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
+  ! GVout(nYears,4) = lastGVout(4)
+ ! else  !!!when nYears ==1 in the region multi prebas
   
-  ! if(isnan(lastGVout(4))) then
-	   ! write(1,*) siteInfo(1), lastGVout
-  ! close(1)
-  ! endif
-  ! GVout(nYears,5) = (lastGVout(4) - GVout((nYears),4) + GVout((nYears),2))/10.
-  ! if(isnan(GVout(nYears,5))) then
-	   ! write(1,*) siteInfo(1), lastGVout)
-  ! close(1)
-  GVout(nYears,4) = lastGVout(4)
- endif
+  ! ! if(isnan(lastGVout(4))) then
+	   ! ! write(1,*) siteInfo(1), lastGVout
+  ! ! close(1)
+  ! ! endif
+  ! ! GVout(nYears,5) = (lastGVout(4) - GVout((nYears),4) + GVout((nYears),2))/10.
+  ! ! if(isnan(GVout(nYears,5))) then
+	   ! ! write(1,*) siteInfo(1), lastGVout)
+  ! ! close(1)
+  ! GVout(nYears,4) = lastGVout(4)
+ ! endif
  modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
 endif
 !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
@@ -1566,7 +1566,7 @@ endif
    D = modOut((year-1),12,ij,1)
    Vmort = modOut(year,42,ij,1)
    if(Vmort>0.)then
-    species = int(modOut(year,4,ij,1))
+    species = int(max(1.,modOut(year,4,ij,1)))
     modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
 	do i=1,(nYears+1-year)
      modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * &
