@@ -736,11 +736,13 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     multiOut = array(0,dim=dims)
     multiOut[,,,1:(maxNlayers-1),] = multiSiteInit$multiOut
     multiSiteInit$multiOut <- multiOut
+    multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
     ###add layer for old layer in initial state
     dims=dim(multiSiteInit$multiInitVar);dims[3] <- maxNlayers
     multiInitVar = array(0,dim=dims)
     multiInitVar[,,1:(maxNlayers-1)] = multiSiteInit$multiInitVar
     multiSiteInit$multiInitVar <- multiInitVar
+    multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
     ###add layer
     multiSiteInit$nLayers = multiSiteInit$nLayers + 1
     ###add layer to nLayers in siteInfo
