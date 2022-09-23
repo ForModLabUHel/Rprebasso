@@ -655,7 +655,8 @@ reStartRegionPrebas <- function(multiSiteInit,
              length(siteXs),multiSiteInit$maxYears)
   }
   
-  if(oldLayer==1){
+  if(FALSE){
+  # if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
   prebas <- .Fortran("regionPrebas",
