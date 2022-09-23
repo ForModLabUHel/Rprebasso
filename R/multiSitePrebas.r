@@ -392,6 +392,11 @@ multiPrebas <- function(multiSiteInit,
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
+
+  ####avoid species = 0  replace with species 1 when layer is empty
+  multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
+  multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
+
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -517,6 +522,11 @@ if(ageHarvPrior>0){
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
+
+  ####avoid species = 0  replace with species 1 when layer is empty
+  multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
+  multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
+
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
@@ -659,6 +669,10 @@ reStartRegionPrebas <- function(multiSiteInit,
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
+  ####avoid species = 0  replace with species 1 when layer is empty
+  multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
+  multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
+  
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
