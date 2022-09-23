@@ -1547,7 +1547,7 @@ if(GVrun==1) then
   GVout(1:(nYears-1),4) = GVout(2:(nYears),4)
   GVout(nYears,4) = lastGVout(4)
  else  !!!when nYears ==1 in the region multi prebas
-  ! GVout(nYears,5) = lastGVout(4)/10.d0 - GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
+  GVout(nYears,5) = lastGVout(4)/10.d0 !- GVout((nYears),4)/10.d0 + GVout((nYears),2)/10.d0
   GVout(nYears,4) = lastGVout(4)
  endif
  modOut(:,46,1,1) = modOut(:,46,1,1) + GVout(:,5)
