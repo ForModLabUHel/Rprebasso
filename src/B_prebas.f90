@@ -121,6 +121,7 @@ real (kind=8) :: Nmort, BAmort
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+lastGVout = 0.
 thinClx = 0.
 energyWood = 0.
 fbAWENH = 0.
