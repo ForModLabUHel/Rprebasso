@@ -241,8 +241,8 @@ endif
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
  
  !!!##set mortality model for managed and unmanaged forests
-	if(ClCut(i) > 0.5) mortModX = mortMod(1) !!mortality model to be used in the managed forests
-	if(ClCut(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
+	mortModX = mortMod(1) !!mortality model to be used in the managed forests
+	if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
 	
 	! if(ij>11) then
 		! open(2,file="test2.txt")
