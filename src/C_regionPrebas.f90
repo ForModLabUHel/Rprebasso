@@ -242,7 +242,7 @@ endif
  
  !!!##set mortality model for managed and unmanaged forests
 	mortModX = mortMod(1)
-	if(ClCut(i)==1) mortModX = mortMod(2)
+	if(ClCut(i)==1.) mortModX = mortMod(2)
 	
 	! if(ij>11) then
 		! open(2,file="test2.txt")
