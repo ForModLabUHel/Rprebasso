@@ -13,7 +13,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=54,npar=47!, nSp=3
+integer, parameter :: nVar=54,npar=49!, nSp=3
 real (kind=8), parameter :: pi = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,oldLayer
@@ -52,7 +52,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,10)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact	!!energCuts
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
- real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX
+ real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
  
 
 !!! fertilization parameters
@@ -893,15 +893,19 @@ end do !end Year loop
 !!!!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!
 	   if (ij==1) D = multiOut(i,ij,12,ijj,1)
 	   if (ij>1) D = multiOut(i,(ij-1),12,ijj,1)
-	   Vmort = multiOut(i,ij,42,ijj,1)
-	   if(Vmort>0. .and. ij < maxYears)then
-		species = int(multiOut(i,ij,4,ijj,1))
-		multiOut(i,ij,8,ijj,1) = Vmort + multiOut(i,ij,8,ijj,1)
-		do ki=1,(maxYears-ij)
-		 multiOut(i,(ij+ki),8,ijj,1) = multiOut(i,(ij+ki),8,ijj,1) + Vmort * & 
-		   exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ki + &
-					 pCrobas(37,species)*D + pCrobas(44,species)))
-		enddo
+	   species = int(max(1.,multiOut(i,ij,4,ijj,1)))
+	    if(D > pCrobas(48,species)) then   !!!pCrobas(48,species) minimum DBH of dead trees to be included in the deadwood calculations
+		   Vmort = multiOut(i,ij,42,ijj,1)
+		   if(Vmort>0. .and. ij < maxYears)then
+			multiOut(i,ij,8,ijj,1) = Vmort + multiOut(i,ij,8,ijj,1)
+			do ki=1,(maxYears-ij)
+			 perVmort = exp(-exp(pCrobas(35,species) + pCrobas(36,species)*ki + &
+						 pCrobas(37,species)*D + pCrobas(44,species)))
+			 if(perVmort>pCrobas(49,species)) then !pCrobas(49,species) is the minimum percentage of Vmort for lower values the deadWood volume disapears
+			  multiOut(i,(ij+ki),8,ijj,1) = multiOut(i,(ij+ki),8,ijj,1) + Vmort * perVmort 
+			 endif  
+			enddo
+		endif
 	   endif
 		
 	! !!!calculate deadWood using Gompetz function (Makinen et al. 2006)!!!!

@@ -14,7 +14,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=47, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=49, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -102,7 +102,7 @@ implicit none
  real (kind=8) :: p_eff, par_alfar, p, gpp_sp
  real (kind=8) :: s0,par_s0scale,par_sla0,par_tsla
  real (kind=8) :: age_factor,par_fAa,par_fAb,par_fAc ! Changes in fine root allocation for young seedlings, affecting beta0 and alfar 
- real (kind=8) :: weight, dNp,dNb,dNs
+ real (kind=8) :: weight, dNp,dNb,dNs,perVmort
  real (kind=8) :: W_wsap, respi_m, respi_tot, V_scrown, V_bole, V, Vold
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
@@ -1565,18 +1565,19 @@ endif
   do ij = 1,nLayers
    D = modOut((year-1),12,ij,1)
    Vmort = modOut(year,42,ij,1)
-   if(Vmort>0.)then
     species = int(max(1.,modOut(year,4,ij,1)))
-    modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
-	do i=1,(nYears+1-year)
-     modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * &
-       exp(-exp(pCrobas(35,species) + pCrobas(36,species)*i +  &
-                 pCrobas(37,species)*D + pCrobas(44,species))) 
-	enddo
+	if(Vmort>0. .and. D>pCrobas(48,species))then
+     modOut(year,8,ij,1) = Vmort + modOut(year,8,ij,1)
+	 do i=1,(nYears+1-year)
+	  perVmort = exp(-exp(pCrobas(35,species) + pCrobas(36,species)*i +  &
+                 pCrobas(37,species)*D + pCrobas(44,species)))
+	  if(perVmort > pCrobas(49,species)) then
+       modOut((year+i),8,ij,1) = modOut((year+i),8,ij,1) + Vmort * perVmort
+      endif  
+	 enddo
    endif
   enddo
  enddo
-
 
  output = modOut(2:(nYears+1),:,:,:)
  output(:,5:6,:,:) = modOut(1:(nYears),5:6,:,:)
