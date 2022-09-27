@@ -707,13 +707,15 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
           }
           # V <- modOutX[siteX,year,30,ij]
           Vmort <- modOutX[siteX,year,2,ij]
-          if(Vmort>0){
+          species <- modOutX[siteX,year,3,ij]
+          if(Vmort>0 & D>pCrobas[48,species]){
             # D <- modOutX[siteX,year,12,ij,1]
-            species <- modOutX[siteX,year,3,ij]
+            perVmort <- exp(-exp(pCrobas[35,species] + pCrobas[36,species]*(1:(nYearsX-year)) + 
+                                   pCrobas[37,species]*D + pCrobas[44,species]))
+            perVmort[which(perVmort<pCrobas[49,species])] <- 0
             deadWV[siteX,year,ij] = Vmort + deadWV[siteX,year,ij]
-            deadWV[siteX,(year+1):nYearsX,ij] = deadWV[siteX,(year+1):  nYearsX,ij] + Vmort *
-              exp(-exp(pCrobas[35,species] + pCrobas[36,species]*(1:(nYearsX-year)) + 
-                         pCrobas[37,species]*D + pCrobas[44,species])) 
+            deadWV[siteX,(year+1):nYearsX,ij] = deadWV[siteX,(year+1):nYearsX,ij] +
+              Vmort *perVmort
           }
         }
       }
