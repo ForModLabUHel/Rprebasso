@@ -181,7 +181,7 @@ prebas <- function(nYears,
   biomasses[which(is.na(biomasses))] <- 0.
   output[1,c(33,25,47:49,24,32,50,51,31,30,54),,1] <- biomasses
   # print(biomasses)
-  initVar <- initVar[1:7,]
+  initVar <- as.matrix(initVar[1:7,])
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
   
   ###initialize siteType and alfar parameter
