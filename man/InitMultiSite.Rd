@@ -18,7 +18,7 @@ InitMultiSite(nYearsMS, pCROBAS = pCROB, pHcMod = pHcM, pPRELES = pPREL, etmodel
 %%     ~~Describe \code{nYears} here~~
 }
   \item{pCROBAS}{
-  (47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). print(pCROB) to see the parameter values and names. 
+  (47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), Norway spruce(in Germany), and holm oak (Quercus ilex). print(pCROB) to see the parameter values and names. 
 %%     ~~Describe \code{pCROBAS} here~~
 }
 
@@ -39,7 +39,7 @@ InitMultiSite(nYearsMS, pCROBAS = pCROB, pHcMod = pHcM, pPRELES = pPREL, etmodel
 }
 
 \item{pAWEN}{
-  (12 x nSpecies matrix) Matrix of parameter sets for partitioning tree organs (foliage, branch and woody) in AWEN pools. Columns referes to different species. Note that the columns of pAWEN must correspond to the species of pPRELES. Default pAWEN = parsAWEN are for 1: Scots pine (pisy), 2: Norway Spruce (piab), 3: Silver birch (beal), 4: European beech (fasy), 5: Maritime pine (pipi), 6: Blue gum (eugl), 7: Black locust (rops), 8: Poplar(popu), 9: Eucalyptus grandis x Eucalyptus urophylla (eugrur), 10:Norway spruce in Germany(piab(DE)). 
+  (12 x nSpecies matrix) Matrix of parameter sets for partitioning tree organs (foliage, branch and woody) in AWEN pools. Columns referes to different species. Note that the columns of pAWEN must correspond to the species of pPRELES. Default pAWEN = parsAWEN are for 1: Scots pine (pisy), 2: Norway Spruce (piab), 3: Silver birch (beal), 4: European beech (fasy), 5: Maritime pine (pipi), 6: Blue gum (eugl), 7: Black locust (rops), 8: Poplar(popu), 9: Eucalyptus grandis x Eucalyptus urophylla (eugrur), 10:Norway spruce in Germany(piab(DE)),11:Quercus ilex (quil). 
 }
 
 \item{siteInfo}{%%     ~~Describe \code{siteInfo} here~~

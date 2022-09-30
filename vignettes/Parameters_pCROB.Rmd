@@ -34,6 +34,7 @@ colnames(pCROB)
 |8                  | Poplar         | _Populus_ spp. |
 |9                  | Hybrid eucalyptus | _Eucalyptus grandis_ x _Eucalyptus urophylla_ |
 |10                 | Norway spruce (in Germany) | _Picea abies_ |
+|11                 | Holm oak | _Quercus ilex _ |
 
 | No. of the row|  Parameter |  Meaning |
 |:-----|:---|:-------------------|
