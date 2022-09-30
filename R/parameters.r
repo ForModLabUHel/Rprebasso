@@ -3,8 +3,8 @@ initSeedling.def <- c(1.31,0.5,0.0431969,0.2,NA)
 names(initSeedling.def) <- c("H","dbh","BA","hc","Ac")
 
 ###default parameters
-speciesNam <- c("pisy","piab","beal","fasy","pipi","eugl","rops",'popu','eugrur','piab(DE)')
-pCROB <- matrix(NA,49,10,dimnames = list(NULL,speciesNam))
+speciesNam <- c("pisy","piab","beal","fasy","pipi","eugl","rops",'popu','eugrur','piab(DE)','quil')
+pCROB <- matrix(NA,49,11,dimnames = list(NULL,speciesNam))
 rownames(pCROB) <-  c("cR","rhow","sla","k","vf","vr","c","mf","mr","mw",
                       "z","beta0","betab","betas","rhof2","s1","kRein","s0scale","x","aETS",
                       "alfar1","alfar2","alfar3","alfar4","alfar5","sarShp","S_branchMod","conifers=1 or decidous=2","p0_ref","ETS_ref",
@@ -94,6 +94,11 @@ pCROB[,10] <- c(0.10526535,193.6178231,20.35997692,0.252108283,8.899772817,1.700
                 -2.948,0.059,-0.03,0.044022402,20.02536,0,1.085732672,4.1263,0.9428,0.912,1,2.5,0.8,
                 0.0,0.0) # Picea abies in Germany
 
+pCROB[,11] <- c(0.05,400,26,0.33,2.5,0.25,0.25,0.45,0.45,0.020088308,2,1.1,0.5,0.3,150,0.0117,
+                600,0.291132061,0.714362708,0.022261418,0.1,0.13,0.16,0.19,0.21,1,2,1,1.5,2855,
+                0.023087644,20.44251845,0.156912624,0.00064042,-2.948,0.059,-0.03,0.035899753,
+                26,0,1,2.7801,0.9395,1.191,1,2.5,0.8,0,0) # Quercus ilex in Spain (Literature-based/guessed)
+
 pPREL = c(413.000000, 0.450000, 0.118000, 3.000000, 0.745700, 10.930000, -3.063000, 17.720000,
           -0.102700, 0.036730, 0.777900, 0.500000, -0.364000, 0.271500, 0.835100, 0.073480,
           0.999600, 0.442800, 1.200000, 0.330000, 4.970496, 0.000000, 0.000000, 160.000000,
@@ -125,7 +130,7 @@ pYAS = c(4.897147e-01, 4.913873e+00, 2.419735e-01, 9.487642e-02, 4.362893e-01, 2
          -7.913602e-05, 3.518549e-02, -2.089906e-04, -1.808920e+00, -1.172547e+00, -1.253595e+01,
          4.596472e-03, 1.302583e-03, -4.389227e-01, 1.267467e+00, 2.569142e-01)
 
-parsAWEN <- matrix(NA,12,10,dimnames = list(NULL,speciesNam))
+parsAWEN <- matrix(NA,12,11,dimnames = list(NULL,speciesNam))
 parsAWEN[,1] <- c(0.518000,0.177300,0.088700,0.216000,0.474660,0.019012,0.078308,
                   0.430248,0.670000,0.022500,0.007500,0.285000)
 parsAWEN[,2] <- c(0.482600,0.131700,0.065800,0.319900,0.474660,0.019012,
@@ -150,8 +155,10 @@ parsAWEN[,9] <- c(0.360000,0.281200,0.098800,0.260000,
                   0.750000,0.030000,0.000000,0.220000)
 parsAWEN[,10] <- c(0.482600,0.131700,0.065800,0.319900,0.474660,0.019012,
                   0.078308,0.430248,0.665000,0.017500,0.002500,0.305000)
+parsAWEN[,11] <- c(0.407900,0.198000,0.099000,0.295100,0.474660,0.019012,
+                  0.078308,0.430248,0.715000,0.015000,0.000000,0.275000)  
 
-pHcM <- matrix(NA,7,10,dimnames = list(NULL,speciesNam))
+pHcM <- matrix(NA,7,11,dimnames = list(NULL,speciesNam))
 ###parameters Hcmodel pisy
 pHcM[,1] <- c(1.4628,-0.256007,0.017293,-0.089891,0.213387,-0.079094,-0.062191)
 ###parameters Hcmodel piab
@@ -172,9 +179,11 @@ pHcM[1:3,8] <- c(0.04237,-0.13308,0.31382)
 pHcM[1:5,9] <- c(-1.067271, -0.017684, 0.07708,	-0.619978,0.045046)
 ###parameters Hcmodel piab(DE)
 pHcM[,10] <- c(2.896205,-0.166704,0.046865,-0.056031,-1.238669,-0.418347,0.)
+###parameters Hcmodel quil (copy from eugl, since they are both evergreen)
+pHcM[1:5,11] <- c(-1.067271, -0.017684, 0.07708,	-0.619978,0.045046)
 
-litterSizeDef <- matrix(0.,3,10,dimnames = list(NULL,speciesNam))
-litterSizeDef[1,] <- c(10,10,5,10,10,7,7,7,7,10)
+litterSizeDef <- matrix(0.,3,11,dimnames = list(NULL,speciesNam))
+litterSizeDef[1,] <- c(10,10,5,10,10,7,7,7,7,10,7)
 litterSizeDef[2,] <- 2
 
 ClCut_birch <- matrix(NA,2,4)
