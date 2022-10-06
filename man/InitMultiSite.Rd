@@ -58,7 +58,7 @@ If initVar is not provided the model is initialized from plantation using defaul
 }
 
 \item{multiThin }{
-  A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.
+  A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999;colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999.
 }
 
 \item{multiNthin}{?}
@@ -191,7 +191,7 @@ Hc. 1: use the version of based on ksi parameter, 2: use the empirical model. (R
   13."BA" Layer basal area (m-2 ha-1) \cr
   14."Hc_base" Base of crown height (m) \cr
   15."Cw" Crorn width (m) \cr
-  16."Lc" Length of the crown (m) \cr
+  16."A" Sapwood area of average tree at crown base (m2) \cr
   17."N" Layer density \cr
   18."npp" net primary production (gC m-2 y-1) \cr
   19."leff" Effective leaf area \cr
@@ -210,7 +210,7 @@ Hc. 1: use the version of based on ksi parameter, 2: use the empirical model. (R
   32."W_croot" Course root Biomass (kgC ha-1) \cr
   33."wf_STKG" Foliage biomass (kgC ha-1) \cr
   34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) \cr
-  35."B_tree" Basal area of average tree (m2 ha-1) \cr
+  35."B_tree" Basal area of average tree (m2) \cr
   36."Light" light interseption \cr
   37."Vharvested" harvested volume (m3 ha-1) \cr
   38."Wharvested" haversted biomass (kgC ha-1) \cr
