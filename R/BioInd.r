@@ -234,3 +234,24 @@ calBAspec <- function(prebout,speciesID){
   }
   return(BAspec)
 }
+
+#' calBADspec function 
+#' @Description 
+#'  Computed the Basal Area of died trees of a given specie of tree by it SpecieID
+#'
+#' @param SpecieID ID number of the layer for the specie
+#' @param Prebasoutput route or variable to the data needed
+#'
+#' @return the Basal area for the Specie given
+#' @export
+#'
+#' @examples
+calBADspec <- function(prebout,speciesID){
+  speciesLoc <- which(prebout[4,,1]==speciesID)
+  if (!is.null(speciesLoc)){
+    BAspec <- sum(prebout[51,speciesLoc,1],na.rm=T)
+  }else {
+    BAspec = 0
+  }
+  return(BAspec)
+}
