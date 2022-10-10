@@ -25,9 +25,9 @@ calBioIndices <- function(modOut){
     ageoldest = apply(modOut$multiOut[,,7,,1],1:2,max,na.rm=T)
     Nstems = apply(modOut$multiOut[,,17,,1],1:2,sum,na.rm=T)
     BAtot = apply(modOut$multiOut[,,13,,1],1:2,sum,na.rm=T)
-    BAmortTot = (Vtot/VtotDead)*BAtot
+    BAmortTot = (Vtot/VtotDead)*BAtot; BAmortTot[which(is.na(BAmortTot))]=0
     BAdec = apply(modOut$multiOut,1:2,calBAspec,speciesID=3)
-    BAdecMort = apply(modOut$multiOut,1:2,calBADspec,speciesID=3)
+    BAdecMort = apply(modOut$multiOut,1:2,calBADspec,speciesID=3); BAdecMort[which(is.na(BAdecMort))]=0
     ###Computing the indices
     HSIcaperRun <- matrix(mapply(HSIcaper,Vpine,Vspruce,Nstems),modOut$nSites,modOut$nYears)
     HSIhgRun <- matrix(mapply(HSIhg,ageoldest,Pdec,Pspruce),modOut$nSites,modOut$nYears)
@@ -56,9 +56,9 @@ calBioIndices <- function(modOut){
     Pdec[which(is.na(Pdec))] <- 0
     Nstems = apply(PREBASout$output[,17,,1],1,sum,na.rm=T)
     BAtot = apply(PREBASout$output[,13,,1],1,sum,na.rm=T)
-    BAmortTot = (Vtot/VtotDead)*BAtot
+    BAmortTot = (Vtot/VtotDead)*BAtot; BAmortTot[which(is.na(BAmortTot))]=0
     BAdec = apply(PREBASout$output,1,calBAspec,speciesID=3)
-    BAdecMort = apply(modOut$multiOut,1:2,calBADspec,speciesID=3)
+    BAdecMort = apply(modOut$multiOut,1:2,calBADspec,speciesID=3); BAdecMort[which(is.na(BAdecMort))]=0
     HSIcaperRun <- mapply(HSIcaper,Vpine,Vspruce,Nstems)
     HSIhgRun <- mapply(HSIhg,ageoldest,Pdec,Pspruce)
     #HSIttwoRun <- mapply(HSIttwo,BAtot,Vtot)
