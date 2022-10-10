@@ -128,7 +128,7 @@ HcModDef[[4]] <-function(inputs){
 } 
 
 ###default HCmodel for eugl and eugrur
-HcModDef[[6]] <- HcModDef[[9]] <-function(inputs){ 
+HcModDef[[6]] <- HcModDef[[9]] <- HcModDef[[11]]<-function(inputs){ 
   pValues=inputs[1:7]
   H=inputs[8]
   D=inputs[9]

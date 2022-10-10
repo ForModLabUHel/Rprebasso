@@ -48,7 +48,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
 %%     ~~Describe \code{initVar} here~~
 }
   \item{thinning}{
-  A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999. (see examples)
+  A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
 %%     ~~Describe \code{thinning} here~~
 }
   \item{initClearcut}{
@@ -139,7 +139,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   13."BA" Layer basal area (m-2 ha-1) \cr
   14."Hc_base" Layer Base of crown height (m) \cr
   15."Cw" Crown width (m) \cr
-  16."Lc" Length of the crown (m) \cr
+  16."A" Sapwood area of average tree at crown base (m2) \cr
   17."N" Layer density \cr
   18."npp" net primary production (gC m-2 y-1) \cr
   19."leff" Effective leaf area \cr
@@ -158,7 +158,7 @@ prebas(nYears, pCROBAS = pCROB, pPRELES = pPREL, etmodel = 0, pYASSO = pYAS, pAW
   32."W_croot" Course root Biomass (kgC ha-1) \cr
   33."wf_STKG" Foliage biomass (kgC ha-1) \cr
   34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) \cr
-  35."B_tree" Basal area of average tree (m2 ha-1) \cr
+  35."B_tree" Basal area of average tree (m2) \cr
   36."Light" The proportion of light that has not been intercepted by canopy (meanlight)  \cr
   37."VroundWood" harvested round wood volume (m3 ha-1) \cr
   38."WroundWood" haversted round wood biomass (kgC ha-1) \cr
