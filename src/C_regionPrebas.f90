@@ -446,7 +446,8 @@ endif
 	  multiOut(siteX,ij,10:17,ijj,1) = 0.
 	  multiOut(siteX,ij,19:21,ijj,1) = 0.
 	  multiOut(siteX,ij,2,ijj,1) = 0. !!newX
-      multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
+      multiOut(siteX,ij,23:25,ijj,1) = 0. !#!#
+      multiOut(siteX,ij,30:36,ijj,1) = 0. !#!#
       multiOut(siteX,ij,43,ijj,1) = 0.
 	  multiOut(siteX,ij,47:nVar,ijj,1) = 0.
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
@@ -713,7 +714,8 @@ endif
 	  multiOut(siteX,ij,10:17,ijj,1) = 0.
 	  multiOut(siteX,ij,19:21,ijj,1) = 0.
 	  multiOut(siteX,ij,2,ijj,1) = 0. !!newX
-      multiOut(siteX,ij,23:36,ijj,1) = 0. !#!#
+      multiOut(siteX,ij,23:25,ijj,1) = 0. !#!#
+      multiOut(siteX,ij,30:36,ijj,1) = 0. !#!#
       multiOut(siteX,ij,43,ijj,1) = 0.
 	  multiOut(siteX,ij,47:nVar,ijj,1) = 0.
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
