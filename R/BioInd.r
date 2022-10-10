@@ -278,6 +278,6 @@ calBADspec <- function(prebout,speciesID){
     Vspec = 1
     Vdeadspec = 1
   }
-  BAspecMort = (Vdeadspec/Vspec)*Baspec
+  BAspecMort = (Vdeadspec/Vspec)*BAspec
   return(BAspecMort)
 }
