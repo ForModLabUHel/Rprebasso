@@ -214,6 +214,27 @@ calVspec <- function(prebout,speciesID){
   return(Vtot)
 }
 
+#' calVdeadSpec function 
+#' @Description 
+#'  Computed the Volume of a given specie of tree by it SpecieID
+#'
+#' @param SpecieID ID number of the layer for the specie
+#' @param Prebasoutput route or variable to the data needed
+#'
+#' @return the volume for the specie given
+#' @export
+#'
+#' @examples
+calVdeadSpec <- function(prebout,speciesID){
+  speciesLoc <- which(prebout[4,,1]==speciesID)
+  if (!is.null(speciesLoc)){
+    Vtot <- sum(prebout[42,speciesLoc,1],na.rm=T)
+  }else {
+    Vtot = 0
+  }
+  return(Vtot)
+}
+
 #' calBAspec function 
 #' @Description 
 #'  Computed the Basal Area of a given specie of tree by it SpecieID
@@ -233,4 +254,30 @@ calBAspec <- function(prebout,speciesID){
     BAspec = 0
   }
   return(BAspec)
+}
+
+#' calBADspec function 
+#' @Description 
+#'  Computed the Basal Area of died trees of a given specie of tree by it SpecieID
+#'
+#' @param SpecieID ID number of the layer for the specie
+#' @param Prebasoutput route or variable to the data needed
+#'
+#' @return the Basal area for the Specie given
+#' @export
+#'
+#' @examples
+calBADspec <- function(prebout,speciesID){
+  speciesLoc <- which(prebout[4,,1]==speciesID)
+  if (!is.null(speciesLoc)){
+    BAspec <- sum(prebout[13,speciesLoc,1],na.rm=T)
+    Vspec <- sum(prebout[30,speciesLoc,1],na.rm=T)
+    Vdeadspec <- sum(prebout[40,speciesLoc,1],na.rm=T)
+  }else {
+    BAspec = 0
+    Vspec = 1
+    Vdeadspec = 1
+  }
+  BAspecMort = (Vdeadspec/Vspec)*BAspec
+  return(BAspecMort)
 }
