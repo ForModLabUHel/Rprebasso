@@ -3,7 +3,7 @@
 # 4. HSI Lesser-spotted woodpecker 5. HSI Long-tailed tit 
 # 6. HSI Siberian flying squirrel 7. Resource availability (not yet available)
 #List of other function in this file
-# 1. calVspec 2. calBAspec
+# 1. calVspec 2. calBAspec 3. calVdeadSpec 4. calBADspec
 
 #' Habitat suitability for the Capercaillie
 #' @Description 
@@ -180,7 +180,7 @@ HSIfs <- function(Vspruce,Pspruce,Vdec) {
   #eq
   HSIfsint = Wsprucevol*Wsprucep*Wdec
   return(HSIfsint)
-}
+}##Add poc from Hurme et al., 2007 ??
 
 #HSIresav <- function(sunny,BA,diameter,s,r) {
 #  if (sunny == 1) {
@@ -216,7 +216,7 @@ calVspec <- function(prebout,speciesID){
 
 #' calVdeadSpec function 
 #' @Description 
-#'  Computed the Volume of a given specie of tree by it SpecieID
+#'  Computed the Dead wood volume of a given specie of tree by it SpecieID
 #'
 #' @param SpecieID ID number of the layer for the specie
 #' @param Prebasoutput route or variable to the data needed
@@ -228,7 +228,7 @@ calVspec <- function(prebout,speciesID){
 calVdeadSpec <- function(prebout,speciesID){
   speciesLoc <- which(prebout[4,,1]==speciesID)
   if (!is.null(speciesLoc)){
-    Vtot <- sum(prebout[42,speciesLoc,1],na.rm=T)
+    Vtot <- sum(prebout[8,speciesLoc,1],na.rm=T)
   }else {
     Vtot = 0
   }
@@ -272,7 +272,7 @@ calBADspec <- function(prebout,speciesID){
   if (!is.null(speciesLoc)){
     BAspec <- sum(prebout[13,speciesLoc,1],na.rm=T)
     Vspec <- sum(prebout[30,speciesLoc,1],na.rm=T)
-    Vdeadspec <- sum(prebout[40,speciesLoc,1],na.rm=T)
+    Vdeadspec <- sum(prebout[8,speciesLoc,1],na.rm=T)
   }else {
     BAspec = 0
     Vspec = 1

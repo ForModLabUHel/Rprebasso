@@ -18,7 +18,7 @@ calBioIndices <- function(modOut){
     Vdec = apply(modOut$multiOut,1:2,calVspec,speciesID=3)
     VdecDead = apply(modOut$multiOut,1:2,calVdeadSpec,speciesID=3)
     Vtot = apply(modOut$multiOut[,,30,,1],1:2,sum,na.rm=T)
-    VtotDead= apply(modOut$multiOut[,,42,,1],1:2,sum,na.rm=T)
+    VtotDead= apply(modOut$multiOut[,,8,,1],1:2,sum,na.rm=T)
     Ppine = Vpine * 100 / Vtot; Ppine[which(is.na(Ppine))]=0
     Pspruce = Vspruce / Vtot *100; Pspruce[which(is.na(Pspruce))]=0
     Pdec = Vdec / Vtot *100; Pdec[which(is.na(Pdec))]=0
@@ -46,7 +46,7 @@ calBioIndices <- function(modOut){
     Vdec = apply(PREBASout$output,1,calVspec,speciesID=3)
     VdecDead = apply(modOut$multiOut,1:2,calVdeadSpec,speciesID=3)
     Vtot = apply(PREBASout$output[,30,,1],1,sum,na.rm=T)
-    VtotDead= apply(modOut$multiOut[,,42,,1],1:2,sum,na.rm=T)
+    VtotDead= apply(modOut$multiOut[,,8,,1],1:2,sum,na.rm=T)
     Ppine = Vpine / Vtot *100 
     Pspruce = Vspruce / Vtot *100
     Pdec = Vdec / Vtot *100
@@ -71,3 +71,4 @@ calBioIndices <- function(modOut){
   }
   return(list(HSIcaper=HSIcaperRun,HSIhg=HSIhgRun,HSIttwo=HSIttwoRun,HSIlswo=HSIlswoRun,HSIltt=HSIlttRun,HSIfs=HSIfsRun))
 }
+## TODO: Add a second way, by option in the funcion calBioIndices(option), 0 = default (BA deciduous recently died), 1= total BA recently died
