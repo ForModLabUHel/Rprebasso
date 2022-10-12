@@ -166,16 +166,16 @@ HSIltt <- function(ageoldest,BAtot,Pdec){
 HSIfs <- function(Vspruce,Pspruce,Vdec) {
   #wsprucevol
   if (Vspruce <= 140) Wsprucevol = 0
-  else if (Vspruce <= 175) Wsprucevol = 0.028*(Vspruce-4)
+  else if (Vspruce <= 175) Wsprucevol = 0.028*Vspruce-4
   else if (Vspruce > 175) Wsprucevol = 1
   #wsprucep
   if (is.nan(Pspruce)) Wsprucep = 0
   else if (Pspruce <= 50) Wsprucep = 0
-  else if (Pspruce <= 60) Wsprucep = 0.1*(Pspruce-5)
+  else if (Pspruce <= 60) Wsprucep = 0.1*Pspruce-5
   else if (Pspruce > 60) Wsprucep = 1
   #wdec
   if (Vdec <= 12) Wdec = 0
-  else if (Vdec <= 15) Wdec = 0.33*(Vdec-4)
+  else if (Vdec <= 15) Wdec = 0.33*Vdec-4
   else if (Vdec > 15) Wdec = 1
   #eq
   HSIfsint = Wsprucevol*Wsprucep*Wdec
