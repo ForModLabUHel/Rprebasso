@@ -71,3 +71,4 @@ calBioIndices <- function(modOut){
   }
   return(list(HSIcaper=HSIcaperRun,HSIhg=HSIhgRun,HSIttwo=HSIttwoRun,HSIlswo=HSIlswoRun,HSIltt=HSIlttRun,HSIfs=HSIfsRun))
 }
+## TODO: Add a second way, by option in the funcion calBioIndices(option), 0 = default (BA deciduous recently died), 1= total BA recently died
