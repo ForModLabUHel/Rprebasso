@@ -180,7 +180,7 @@ HSIfs <- function(Vspruce,Pspruce,Vdec) {
   #eq
   HSIfsint = Wsprucevol*Wsprucep*Wdec
   return(HSIfsint)
-}
+}##Add poc from Hurme et al., 2007 ??
 
 #HSIresav <- function(sunny,BA,diameter,s,r) {
 #  if (sunny == 1) {
