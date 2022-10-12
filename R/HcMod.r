@@ -74,7 +74,7 @@ HcModDef[[1]] <- HcModDef[[5]]<- function(inputs){
                     pValues[4]*H+pValues[5]*D.aver/H.aver+pValues[6]*log(BA_sp+1)+
                     pValues[7]*log(BA.other+1)))
   
-  return(pmim(Hc_sim,0.95*H,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
 ###default HcModel for piab FI and DE
