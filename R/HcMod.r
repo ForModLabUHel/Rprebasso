@@ -74,7 +74,7 @@ HcModDef[[1]] <- HcModDef[[5]]<- function(inputs){
                     pValues[4]*H+pValues[5]*D.aver/H.aver+pValues[6]*log(BA_sp+1)+
                     pValues[7]*log(BA.other+1)))
   
-  return(pmax(Hc_sim,0.,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
 ###default HcModel for piab FI and DE
@@ -92,7 +92,7 @@ HcModDef[[2]]<- HcModDef[[10]] <- function(inputs){
   Hc_sim=H/(1+exp(pValues[1]+pValues[2]*D/H+pValues[3]*D+pValues[4]*H.aver+
                     pValues[5]*BA_sp/BA_tot+pValues[6]*log(BA_sp+1)))
   
-  return(pmax(Hc_sim,0.,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
 ###default HcModel for beal
@@ -110,7 +110,7 @@ HcModDef[[3]] <- function(inputs){
   Hc_sim=H/(1+exp(pValues[1]+pValues[2]*N_tot/1000+pValues[3]*D/H+
                     pValues[4]*H.aver+pValues[5]*log(BA_sp+1)+pValues[6]*log(BA.other+1)))
   
-  return(pmax(Hc_sim,0.,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
 ###default HCmodel for fasy
@@ -124,7 +124,7 @@ HcModDef[[4]] <-function(inputs){
   N_tot = inputs[13]
   Hc_sim <-  H/(1+exp(pValues[1]+pValues[2]*N_tot/1000+
                         pValues[3]*log(BA_tot)+pValues[4]*D/H+pValues[5]*log(H)))
-  return(pmax(Hc_sim,0.,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
 ###default HCmodel for eugl and eugrur
@@ -138,7 +138,7 @@ HcModDef[[6]] <- HcModDef[[9]] <- HcModDef[[11]]<-function(inputs){
   N_tot = inputs[13]
   Hc_sim <- H*exp(pValues[1]+pValues[2]*N_tot/1000+
                     pValues[3]*log(BA_tot)+pValues[4]*D/H +pValues[5]*H)
-  return(pmax(Hc_sim,0.,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
 ###default HCmodel for robs and popu
@@ -150,5 +150,5 @@ HcModDef[[7]] <- HcModDef[[8]] <-function(inputs){
   BA_sp=inputs[11]
   BA_tot=inputs[12]
   Hc_sim <- H/(1+exp(pValues[1]-pValues[2]*log(BA_tot)+pValues[3]*D/H))
-  return(pmax(Hc_sim,0.,na.rm = T)) 
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
