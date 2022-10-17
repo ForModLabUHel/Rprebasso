@@ -179,6 +179,12 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
 
+!!!reset annual litterfall
+s_fol = 0.
+S_fr = 0.
+S_branch = 0.
+S_wood = 0.
+
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
