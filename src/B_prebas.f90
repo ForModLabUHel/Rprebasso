@@ -117,7 +117,7 @@ real (kind=8) :: Nmort, BAmort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
  real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
-  ! open(1,file="test1.txt")
+  open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
@@ -178,14 +178,6 @@ ETSmean = sum(ETSy)/nYears
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
-
-!!!reset annual litterfall
-stand_all(26:29,:) = 0.
-stand(26:29) = 0.
-s_fol = 0.
-S_fr = 0.
-S_branch = 0.
-S_wood = 0.
 
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
@@ -395,7 +387,7 @@ do ij = 1 , nLayers 		!loop Species
   V = stand(30)
   ! mort = stand(40)
   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
-  
+
  if (N>0.) then
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
@@ -543,6 +535,15 @@ do ij = 1 , nLayers
  species = int(max(1.,stand(4)))
  param = pCrobas(:,species)
  sitetype=stand(3)
+ 
+   !!!reset annual litterfall
+stand_all(26:29,ij) = 0.
+stand(26:29) = 0.
+s_fol = 0.
+S_fr = 0.
+S_branch = 0.
+S_wood = 0.
+
 
  par_cR=param(1)
  par_rhow=param(2)
@@ -616,7 +617,12 @@ else
   weight = STAND(23)
   A = STAND(16)
   dHc=stand(52)
+  write(1,*) year
+  write(1,*) S_fol,"start"
+  
   S_fol = STAND(26)
+  
+  write(1,*) S_fol,"line620"
   S_fr = STAND(27)
   S_branch = STAND(28)
   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
@@ -718,6 +724,7 @@ if (N>0.) then
 			Respi_tot = gpp_sp - npp
 				 ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf	!foliage litterfall
+	  write(1,*) S_fol,"line725"
       S_fr  = S_fr + W_froot / par_vr	!fine root litter
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
@@ -886,6 +893,7 @@ endif
  !! calculate litter including residuals from thinned trees
   !energyCut
 	 S_fol = wf_STKG + S_fol
+	 write(1,*) S_fol,"line895"
      S_fr = W_froot + S_fr
 	 if(energyCut==1.) then
 	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
@@ -975,6 +983,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 !! calculate litter including residuals from thinned trees
   !energyCut
 	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
+	write(1,*) S_fol,"985"
     S_fr = max(0.,stand(27) + stand(25) - W_froot)
 	if(energyCut==1.) then
 	species = int(max(1.,stand(4)))
@@ -1110,6 +1119,7 @@ if (ClCut == 1.) then
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
+	write(1,*) S_fol,"line1121"
     S_fr = stand_all(25,ij) + stand_all(27,ij)
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
@@ -1147,6 +1157,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
+	write(1,*) S_fol,"line1158"
     S_fr = stand_all(25,ij) + stand_all(27,ij)
 	if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) + &
@@ -1401,6 +1412,7 @@ if(defaultThin == 1.) then
 !! calculate litter including residuals from thinned trees
   !energyCut
     S_fol = stand_all(26,ij) + stand_all(33,ij) - wf_STKG
+	write(1,*) S_fol,"line1414"
     S_fr = stand_all(27,ij) + stand_all(25,ij) - W_froot
     if(energyCut==1.) then
 	 energyWood(year,ij,2) = energyWood(year,ij,2) + (stand_all(24,ij) - W_branch + &
@@ -1593,7 +1605,7 @@ endif
  soilCinOut = soilC(2:(nYears+1),:,:,:)
  soilCtotInOut = soilCtot(2:(nYears+1))
  output(:,1:2,1,2) = thinClx
-
+close(1)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
