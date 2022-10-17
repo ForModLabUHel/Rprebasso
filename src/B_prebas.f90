@@ -180,6 +180,7 @@ ETSmean = sum(ETSy)/nYears
 do year = 1, (nYears)
 
 !!!reset annual litterfall
+stand(26:29) = 0.
 s_fol = 0.
 S_fr = 0.
 S_branch = 0.
