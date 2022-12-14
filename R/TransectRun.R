@@ -82,7 +82,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         tTapioPar = tTapio,
                         thinInt = -999.,
                         mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-                        ECMmod = 1
+                        ECMmod = 0
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
