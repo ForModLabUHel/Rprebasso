@@ -41,8 +41,9 @@ InitMultiSite <- function(nYearsMS,
                           GVrun = 1,
                           thinInt = -999.,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-                          ECMmod=0 #flag for ECM modelling MAkela et al.2022
-){  
+                          ECMmod=0, #flag for ECM modelling MAkela et al.2022
+                          pECMmod = parsECMmod
+                          ){  
   
   nSites <- length(nYearsMS)
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
@@ -368,7 +369,8 @@ InitMultiSite <- function(nYearsMS,
     GVout=array(0.,dim = c(nSites,maxYears,5)),
     thinInt = thinInt,
     mortMod = mortMod,
-    ECMmod = ECMmod
+    ECMmod = ECMmod,
+    pECMmod = pECMmod
   )
   return(multiSiteInit)
 }
@@ -451,7 +453,8 @@ multiPrebas <- function(multiSiteInit,
                      nYearsFert = as.integer(nYearsFert),
                      oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
-                     ECMmod=as.integer(multiSiteInit$ECMmod)
+                     ECMmod=as.integer(multiSiteInit$ECMmod),
+                     pECMmod=as.double(multiSiteInit$pECMmod)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -590,7 +593,8 @@ if(ageHarvPrior>0){
                      oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear),
-                     ECMmod=as.integer(multiSiteInit$ECMmod)
+                     ECMmod=as.integer(multiSiteInit$ECMmod),
+                     pECMmod=as.double(multiSiteInit$pECMmod)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -737,7 +741,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear),
-                     ECMmod=as.integer(multiSiteInit$ECMmod)
+                     ECMmod=as.integer(multiSiteInit$ECMmod),
+                     pECMmod=as.double(multiSiteInit$pECMmod)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

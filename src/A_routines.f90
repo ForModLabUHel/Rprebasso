@@ -1953,13 +1953,18 @@ end subroutine
 	
 	!!!!calculate C:N based on ets and site type 
 !Note: parameters should be included as arguments inputs instead of being internally assigned
-subroutine CNratio(CN, ETS, st)
+subroutine CNratio(CN, ETS, st,pars)
 implicit none
 
-	real(8),intent(in) :: ETS, st
+	real(8),intent(in) :: ETS, st, pars(3)
 	real(8),intent(out) :: CN
 	!parameters
-	real(8) :: int_CN = 43.274740d0, p_ETS = -0.020020d0, p_st = 3.389821d0
+	real(8) :: int_CN, p_ETS, p_st
+	
+	!init parameters
+	int_CN = pars(1)
+	p_ETS = pars(2)
+	p_st = pars(3)
 
  !calculate CN ratio
  CN = int_CN + p_ETS * ETS + p_st * st
@@ -1967,13 +1972,19 @@ endsubroutine
 
 !!!!calculate ration of ECM biomass to fine root biomass (from Ostonen et al. 2011)
 !Note: parameters should be included as arguments inputs instead of being internally assigned
-subroutine rhoMcalc(rho_M, CN)
+subroutine rhoMcalc(rho_M, CN,pars)
 implicit none
 
-	real(8),intent(in) :: CN
+	real(8),intent(in) :: CN, pars(4)
 	real(8),intent(out) :: rho_M
 	!parameters
-	real(8) :: p1 = 0.02788d0, p2 = 0.4239, p3 = -0.3023d0, p4 = -26.14d0
+	real(8) :: p1, p2, p3, p4
+	
+	!init parameters
+	p1 = pars(1)
+	p2 = pars(2)	
+	p3 = pars(3)	
+	p4 = pars(4)	
 
  !calculate rho_M
  rho_M = p1 + p2 / (1.d0 + exp(p3*(CN+p4)))
@@ -1982,10 +1993,10 @@ endsubroutine
 
 
 
-subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,normFactP,normFactETS,P_RT)
+subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,normFactP,normFactETS,P_RT,pars)
 
 implicit none
-	real(8),intent(in) :: ETS, st,r_r,W_RT, normFactP, normFactETS
+	real(8),intent(in) :: ETS, st,r_r,W_RT, normFactP, normFactETS, pars(12)
 	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT,P_RT
 
 	real(8) :: r_F, s_F, rho_M,CN
@@ -1993,18 +2004,18 @@ implicit none
 	real(8) :: h_M, s_H, phi_M, ksi_M, gamma_M !, r_M	
 
 !initialise parameters
-h_M = 0.14d0 !extramatrical hyphal biomass parameter
-s_H = 2.d0 !hyphae specific turnover rate
-phi_M = 1.d0 !priming paramter 
-ksi_M = 0.5d0 !rate of exudation
-gamma_M = 2.66d0 !apparent hyphal respiration rate 
+h_M = pars(1) !extramatrical hyphal biomass parameter
+s_H = pars(2) !hyphae specific turnover rate
+phi_M = pars(3) !priming paramter 
+ksi_M = pars(4) !rate of exudation
+gamma_M = pars(5) !apparent hyphal respiration rate 
 
 !!!!!!!!!! I do not find the value of r_M
 ! r_M	= 0.d0  !Maintenance respiration rate of fungal tips
 !!!!!!!!!! I do not find the value of r_M
 
-call CNratio(CN, ETS, st)
-call rhoMcalc(rho_M, CN)
+call CNratio(CN, ETS, st,pars(6:8))
+call rhoMcalc(rho_M, CN,pars(9:12))
 
 
 !	r_F=(∆_M+(1+c_H) h_M s_H+r_M+h_M r_H+ξ)   !original
