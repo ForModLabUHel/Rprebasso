@@ -37,7 +37,10 @@ prebas <- function(nYears,
                    fertThin=0.,
                    nYearsFert=20,
                    protect=0,
-                   mortMod=1){
+                   mortMod=1,
+                   ECMmod=0, #flag for ECM modelling MAkela et al.2022
+                   pECMmod=parsECMmod
+              ){
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -236,7 +239,9 @@ prebas <- function(nYears,
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
                      protect = as.integer(protect),
-                     mortMod = as.integer(mortMod)
+                     mortMod = as.integer(mortMod),
+                     ECMmod = as.integer(ECMmod),
+                     pECMmod = as.numeric(pECMmod)
                      )
   class(prebas) <- "prebas"
   return(prebas)

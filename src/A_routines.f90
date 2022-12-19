@@ -1951,6 +1951,104 @@ subroutine randMort(age,d,ba,N,rBApine,rBAbrd,slope,pSize,pMort,perBAmort,step,b
 end subroutine
 	
 	
+	!!!!calculate C:N based on ets and site type 
+!Note: parameters should be included as arguments inputs instead of being internally assigned
+subroutine CNratio(CN, ETS, st,pars)
+implicit none
+
+	real(8),intent(in) :: ETS, st, pars(3)
+	real(8),intent(out) :: CN
+	!parameters
+	real(8) :: int_CN, p_ETS, p_st
+	
+	!init parameters
+	int_CN = pars(1)
+	p_ETS = pars(2)
+	p_st = pars(3)
+
+ !calculate CN ratio
+ CN = int_CN + p_ETS * ETS + p_st * st
+endsubroutine	
+
+!!!!calculate ration of ECM biomass to fine root biomass (from Ostonen et al. 2011)
+!Note: parameters should be included as arguments inputs instead of being internally assigned
+subroutine rhoMcalc(rho_M, CN,pars)
+implicit none
+
+	real(8),intent(in) :: CN, pars(4)
+	real(8),intent(out) :: rho_M
+	!parameters
+	real(8) :: p1, p2, p3, p4
+	
+	!init parameters
+	p1 = pars(1)
+	p2 = pars(2)	
+	p3 = pars(3)	
+	p4 = pars(4)	
+
+ !calculate rho_M
+ rho_M = p1 + p2 / (1.d0 + exp(p3*(CN+p4)))
+
+endsubroutine
+
+
+
+subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,normFactP,normFactETS,P_RT,pars)
+
+implicit none
+	real(8),intent(in) :: ETS, st,r_r,W_RT, normFactP, normFactETS, pars(12)
+	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT,P_RT
+
+	real(8) :: r_F, s_F, rho_M,CN
+	!parameters
+	real(8) :: h_M, s_H, phi_M, ksi_M, gamma_M !, r_M	
+
+!initialise parameters
+h_M = pars(1) !extramatrical hyphal biomass parameter
+s_H = pars(2) !hyphae specific turnover rate
+phi_M = pars(3) !priming paramter 
+ksi_M = pars(4) !rate of exudation
+gamma_M = pars(5) !apparent hyphal respiration rate 
+
+!!!!!!!!!! I do not find the value of r_M
+! r_M	= 0.d0  !Maintenance respiration rate of fungal tips
+!!!!!!!!!! I do not find the value of r_M
+
+call CNratio(CN, ETS, st,pars(6:8))
+call rhoMcalc(rho_M, CN,pars(9:12))
+
+
+!	r_F=(∆_M+(1+c_H) h_M s_H+r_M+h_M r_H+ξ)   !original
+r_F = h_M * s_H + (1-phi_M) * ksi_M+ gamma_M + r_r !r_M		!assuming d_M = 0.
+
+! s_F=(ds_M+h_M * s_H+ksi_M) !original
+s_F=(h_M * s_H + ksi_M) !assuming ds_M = 0
+
+
+! Here, r_RT is the apparent maintenance respiration rate of fine roots when C input to the fungi has been taken into account.
+!Fine root maintenance respiration is replaced with the following:
+r_RT = (r_r+r_F * rho_M)/(1+rho_M)
+
+! When calculating the related loss of C to the atmosphere, we need to subtract the losses from this, i.e., use 
+!rm_aut_roots  losses of C from roots & ECM to 
+! atmosphere, i.e., actual autotrophic maintenance respiration of roots + ECM (here 
+! respiration of ECM is regarded autotrophic because it comes from photosynthates
+rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M)
+
+!normalise parameters according to P and ETS factors
+s_H = s_H * normFactETS
+phi_M = phi_M * normFactETS
+rm_aut_roots = rm_aut_roots * normFactP
+
+! To Yasso as root litter (or later maybe special composition as hyphal litter)
+litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT
+! To Yasso as sugar (W) exudates
+exud = (rho_M *ksi_M)/(1+rho_M) * W_RT
+
+P_RT =  (rho_M *ksi_M*phi_M)/(1+rho_M) * W_RT
+
+end subroutine
+
 ! subroutine test(ciao,species)
 	
 	! implicit none

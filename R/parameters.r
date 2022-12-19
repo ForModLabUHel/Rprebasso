@@ -119,6 +119,9 @@ pPRELESpipi<-c(991,0.337,0.04,3,0.783982507431094,5.40766132920764,-8.7289391919
                0.098397649465536,0.999515961301202,0.195616291162648,1.2,0.33,6.16,0,0,200,
                0,0,0,-999,-999,-999) # Pinus pinaster Maritime pine, Multi-site calibration, siteID FR-LBr	and IT-SRo
 
+####default ECM model parameters
+parsECMmod <- c(0.14, 2, 1, 0.5, 2.66, 43.27474, -0.02002, 3.389821, 0.02788, 0.4239, -0.3023, -26.14)
+names(parsECMmod) <- c("h_M","s_H","phi_M","ksi_M","gamma_M","int_CN","p_ETS","p_st","p1_rhoMcalc","p2_rhoMcalc","p3_rhoMcalc","p4_rhoMcalc")
 
 pYAS = c(4.897147e-01, 4.913873e+00, 2.419735e-01, 9.487642e-02, 4.362893e-01, 2.499740e-01,
          9.151269e-01, 9.925823e-01, 8.385374e-02, 1.147678e-02, 6.083150e-04, 4.761282e-04,
