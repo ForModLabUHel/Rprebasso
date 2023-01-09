@@ -669,6 +669,7 @@ if (N>0.) then
   theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
 
   mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
+  if(ECMmod==1) mrFact = 0.
   par_mr = par_mr0* p0 / p0_ref + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
   par_mf = par_mf0* p0 / p0_ref !!newX
   par_mw = par_mw0* p0 / p0_ref !!newX
@@ -726,6 +727,8 @@ if (N>0.) then
 
 			! ECM modelling
 			if(ECMmod==1) then !!!ECMmodelling
+			    normFactETS = (ETS-ETS_ref)/ETS_ref
+				normFactP = p0 / p0_ref
 				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
 				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
