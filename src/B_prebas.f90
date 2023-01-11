@@ -111,7 +111,7 @@ implicit none
 real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
- real (kind=8) :: normFactP, normFactETS, Cost_m !!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
+ real (kind=8) :: normFactP, Cost_m !normFactETS,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -727,9 +727,10 @@ if (N>0.) then
 
 			! ECM modelling
 			if(ECMmod==1) then !!!ECMmodelling
-			    normFactETS = (ETS-ETS_ref)/ETS_ref
+			    ! normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
 				normFactP = p0 / p0_ref
-				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
+				! call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
+				call CUEcalc(ETS, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,P_RT,pECMmod) !!!ECMmodelling
 				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
 				Cost_m  = par_mf * wf_STKG + par_mw * W_wsap + r_RT * W_froot  !!!ECMmodelling
@@ -1564,7 +1565,7 @@ enddo
  modOut(:,9,:,1) = modOut(:,9,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
  modOut(:,18,:,1) = modOut(:,18,:,1)*1000.    !*1000 coverts units to g C m−2 y−1
 
-	modOut(2:(nYears+1),45,:,1) = modOut(2:(nYears+1),45,:,1) + & !! this includes priming calculated earlier otherwise is 0.
+	modOut(2:(nYears+1),45,:,1) = modOut(2:(nYears+1),45,:,1) + & !! this includes priming (P_RT) calculated earlier otherwise is 0.
 		modOut(1:(nYears),39,:,1)/10. - modOut(2:(nYears+1),39,:,1)/10. + &	!/10 coverts units to g C m−2 y−1
 		modOut(2:(nYears+1),26,:,1)/10. + modOut(2:(nYears+1),27,:,1)/10. + &
 		modOut(2:(nYears+1),28,:,1)/10. + modOut(2:(nYears+1),29,:,1)/10.
