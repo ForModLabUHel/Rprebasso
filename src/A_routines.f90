@@ -2042,7 +2042,7 @@ rm_aut_roots = (r_r+(r_F-s_F) * rho_M)/(1 + rho_M)
 rm_aut_roots = rm_aut_roots * normFactP
 
 ! To Yasso as root litter (or later maybe special composition as hyphal litter)
-litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT
+litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT * normFactP
 ! To Yasso as sugar (W) exudates
 exud = (rho_M *ksi_M)/(1+rho_M) * W_RT * normFactP
 
