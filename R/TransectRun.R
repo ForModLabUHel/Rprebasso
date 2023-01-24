@@ -15,6 +15,7 @@
 #' @param mortMod flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)
 #' @param ECMmod flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling
 #' @param multiInitClearCut A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'
+#' @param ETSstart A vector of initial average ETS, it should be based on historical data. if NULL it will be calculated using the first 10 years of the simulation weather inputs
 #' 
 #' @importFrom plyr aaply
 #'
@@ -82,7 +83,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         tTapioPar = tTapio,
                         thinInt = -999.,
                         mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-                        ECMmod = 0
+                        ECMmod = 0,
+                        ETSstart=NULL
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -224,9 +226,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     tTapioPar = tTapioPar,
     thinInt = thinInt,
     mortMod = mortMod,#flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-    ECMmod=ECMmod
+    ECMmod=ECMmod,
+    ETSstart = ETSstart
   )
-  initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
+  initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
   TransectOut <- multiPrebas(initPrebas)
   return(TransectOut)
 }

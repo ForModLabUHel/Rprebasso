@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart)
 
 implicit none
 
@@ -47,7 +47,7 @@ implicit none
  integer, intent(in) :: gvRun !!! flag for including ground vegetation
  real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
- real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
+ real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers), ETSstart ! initCLcutRatio sets the initial layer compositions after clearcut.
  real (kind=8), intent(inout) :: siteInfo(10)
  real (kind=8), intent(inout) :: output(nYears, nVar, nLayers, 2), energyWood(nYears, nLayers, 2) ! last dimension: 1 is for stand and 2 is for harvested sum of wood.
  real (kind=8), intent(inout) :: soilCinOut(nYears, 5, 3, nLayers), soilCtotInOut(nYears) ! dimensions: nyears, AWENH, woody/fineWoody/foliage, layers
@@ -145,7 +145,8 @@ pars(27) = siteInfo(7) !Sinit
 Ainit = initClearcut(5)
 P0yX = P0y
 Reineke(:) = 0.
-ETSmean = sum(ETSy)/nYears
+! ETSmean = sum(ETSy)/nYears
+ETSmean = ETSstart !initialise ETSmean using the starting value
 
 ! Fill in model output structure with initial values and ids.
  modOut(:,1,:,1) = siteInfo(1)  !! assign siteID 
@@ -181,6 +182,10 @@ ETSmean = sum(ETSy)/nYears
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
+
+!!!update ETSmean using actual year data
+ETS = modOut(year,5,1,1)
+ETSmean = ETSmean + (ETS-ETSmean)/20.
 
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
@@ -385,7 +390,7 @@ do ij = 1 , nLayers 		!loop Species
   Cw = 2. * hb
   STAND(15) = Cw
   ! STAND(16) = LC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ETS = STAND(5) !!##!!2
+  !ETS = STAND(5) !!##!!2
   Light = STAND(36)
   V = stand(30)
   ! mort = stand(40)
@@ -1542,6 +1547,8 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
  
 enddo !end year loop
 
+!update ETSstart
+ETSstart = ETSmean
 !soil and harvested volume outputs
 modOut(:,37,:,1) = modOut(:,30,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 
 modOut(:,38,:,1) = modOut(:,31,:,2) * harvRatio!! harvRatio takes into account the residuals left in the soil 

@@ -39,7 +39,8 @@ prebas <- function(nYears,
                    protect=0,
                    mortMod=1,
                    ECMmod=0, #flag for ECM modelling MAkela et al.2022
-                   pECMmod=parsECMmod
+                   pECMmod=parsECMmod,
+                   ETSstart=NULL
               ){
   
   ###process weather###
@@ -89,6 +90,10 @@ prebas <- function(nYears,
   ETS <- pmax(0,Temp,na.rm=T)
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
   if(smoothETS==1. & nYears>1) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,smoothYear)
+  ###initialize ETSstart
+  if(is.null(ETSstart)) ETSstart <- mean(ETS[1:min(10,nYears)])
+  ETSmean <- ETSstart
+  ETSthres <- 1000
   
   ###if P0 is not provided use preles to compute P0
   if(is.na(P0)){
@@ -103,7 +108,6 @@ prebas <- function(nYears,
     for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
   } 
   
-  ETSthres <- 1000; ETSmean <- mean(ETS)
   
   ####process clearcut
   if(any(!is.na(c(inDclct,inAclct)))){
@@ -149,8 +153,7 @@ prebas <- function(nYears,
   } 
   
   # print(initVar)
-  xx <- min(10,nYears)
-  Ainit = 6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25
+  Ainit = 6 + 2*siteInfo[3] - 0.005*(ETSmean) + 2.25
   if(is.na(initClearcut[5])) initClearcut[5] <- Ainit
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
      initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))

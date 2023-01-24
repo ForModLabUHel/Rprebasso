@@ -42,7 +42,8 @@ InitMultiSite <- function(nYearsMS,
                           thinInt = -999.,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
                           ECMmod=0, #flag for ECM modelling MAkela et al.2022
-                          pECMmod = parsECMmod
+                          pECMmod = parsECMmod,
+                          ETSstart = NULL
                           ){  
   
   nSites <- length(nYearsMS)
@@ -135,15 +136,18 @@ InitMultiSite <- function(nYearsMS,
     # multiInitClearCut[sitesClimID,5] <- replace(multiInitClearCut[sitesClimID,5],
     #                                             which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
-  xx <- min(10,nYearsX)
+  ###initialize ETSstart
+  if(is.null(ETSstart)) ETSstart <- apply(multiETS[,1:min(10,nYearsX)],1,mean)
+  ETSthres <- 1000
+  ETSmean <- ETSstart
+
   Ainits <- multiInitClearCut[,5]
   for(xd in 1:nSites){
     if(is.na(Ainits[xd])) {
-      Ainits[xd] = round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],1:xx]) + 2.25)
+      Ainits[xd] = round(6 + 2* siteInfo[xd,3] - 0.005*ETSmean[xd] + 2.25)
       multiInitClearCut[xd,5] = 999.
     }
   } 
-  ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
   } 
@@ -370,7 +374,8 @@ InitMultiSite <- function(nYearsMS,
     thinInt = thinInt,
     mortMod = mortMod,
     ECMmod = ECMmod,
-    pECMmod = pECMmod
+    pECMmod = pECMmod,
+    ETSstart = ETSstart
   )
   return(multiSiteInit)
 }
@@ -454,7 +459,8 @@ multiPrebas <- function(multiSiteInit,
                      oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
-                     pECMmod=as.double(multiSiteInit$pECMmod)
+                     pECMmod=as.double(multiSiteInit$pECMmod),
+                     ETSstart=as.double(multiSiteInit$ETSstart)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -594,7 +600,8 @@ if(ageHarvPrior>0){
                      mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
-                     pECMmod=as.double(multiSiteInit$pECMmod)
+                     pECMmod=as.double(multiSiteInit$pECMmod),
+                     ETSstart=as.double(multiSiteInit$ETSstart)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -742,7 +749,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
-                     pECMmod=as.double(multiSiteInit$pECMmod)
+                     pECMmod=as.double(multiSiteInit$pECMmod),
+                     ETSstart=as.double(multiSiteInit$ETSstart)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
