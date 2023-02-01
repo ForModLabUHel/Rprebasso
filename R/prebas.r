@@ -40,8 +40,10 @@ prebas <- function(nYears,
                    mortMod=1,
                    ECMmod=0, #flag for ECM modelling MAkela et al.2022
                    pECMmod=parsECMmod,
-                   ETSstart=NULL
+                   ETSstart=NULL,
+                   pCN_alfar=NULL
               ){
+  
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -70,7 +72,7 @@ prebas <- function(nYears,
     }
   nSp = ncol(pCROBAS)
   if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118) ###default values for nspecies and site type = 3
-                                  
+  
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
   }
@@ -156,8 +158,8 @@ prebas <- function(nYears,
   Ainit = 6 + 2*siteInfo[3] - 0.005*(ETSmean) + 2.25
   if(is.na(initClearcut[5])) initClearcut[5] <- Ainit
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
-     initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))
-    }
+    initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))
+  }
   # print(initVar)
   
   ####process weather PRELES (!!to check 365/366 days per year)
@@ -181,20 +183,38 @@ prebas <- function(nYears,
     weatherYasso[,2] = aPrecip(Precip,nYears)
   }
   
+  ###calculate ETSmean based on a moving average window
+  ETSx <- c(ETSstart,ETS)
+  ETSmean <- ETSx[1:nYears]
+  for(i in 2:nYears) ETSmean[i] = ETSmean[i-1] + (ETSx[i]-ETSmean[i-1])/20.
+  output[,5,,2] <- ETSmean
+  
+  ###initialize siteType and alfar parameter
+  if(is.null(pCN_alfar)){
+    output[,3,,1] <- siteInfo[3]
+    for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
+  }else{
+    pCROBAS[21:22,] <- pCN_alfar
+    pCROBAS[23,] <- -999
+    CNratioSites <- CNratio(ETSmean,output[,3,1,1],pars=pECMmod[6:8])
+    for(ijj in 1:nLayers){
+      output[,3,ijj,2] <-  pCROBAS[21,initVar[1,ijj]]* exp(pCROBAS[22,initVar[1,ijj]]*CNratioSites) 
+    }
+  }
+  
   ###init biomasses
-  if(nLayers==1)initVarX <- matrix(c(initVar,siteInfo[3]),8,1)
-  if(nLayers>1) initVarX <- rbind(initVar,siteInfo[3])
+  if(nLayers==1)initVarX <- matrix(c(initVar,siteInfo[3],output[1,3,1,2]),9,1)
+  if(nLayers>1){
+    initVarX <- rbind(initVar,siteInfo[3])
+    initVarX <- rbind(initVarX,output[1,3,,2])
+  } 
   biomasses <- initBiomasses(pCROBAS,as.matrix(initVarX))
   biomasses[which(is.na(biomasses))] <- 0.
   output[1,c(33,25,47:49,24,32,50,51,31,30,54),,1] <- biomasses
   # print(biomasses)
   initVar <- as.matrix(initVar[1:7,])
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
-  
-  ###initialize siteType and alfar parameter
-  output[,3,,1] <- siteInfo[3]
-  for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
-  
+
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -244,8 +264,9 @@ prebas <- function(nYears,
                      protect = as.integer(protect),
                      mortMod = as.integer(mortMod),
                      ECMmod = as.integer(ECMmod),
-                     pECMmod = as.numeric(pECMmod)
-                     )
+                     pECMmod = as.numeric(pECMmod),
+                     ETSstart = as.double(ETSstart)
+  )
   class(prebas) <- "prebas"
   return(prebas)
 }

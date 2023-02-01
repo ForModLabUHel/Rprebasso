@@ -1,8 +1,8 @@
-subroutine initBiomasses(pCrobas,initVar,siteType,biomasses) 
+subroutine initBiomasses(pCrobas,initVar,siteType,biomasses,par_alfar0) 
 	implicit none
     integer, parameter :: nVar=54, npar=47
 	real (kind=8), parameter :: pi = 3.1415927
-	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
+	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType,par_alfar0
 	real (kind=8), intent(inout) :: biomasses(nvar)
 	real (kind=8) :: par_betab, par_x, par_beta0, par_betas, par_mf, par_mr
 	real (kind=8) :: par_mw, par_alfar, par_c, par_rhof, par_rhor , par_rhow
@@ -42,7 +42,7 @@ subroutine initBiomasses(pCrobas,initVar,siteType,biomasses)
   Lc = h - hc
   
   age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - h)/par_fAc)))/par_fAa
-  par_alfar = pCrobas(int(20+min(siteType,5.))) * age_factor
+  par_alfar = par_alfar0 * age_factor
   par_rhor = par_alfar * par_rhof
   beta0 = par_beta0 * age_factor
   

@@ -15,6 +15,7 @@ initialAgeSeedl <- function(SiteType,ETS){
 #'
 #' @param pCro matrix of CROBAS parameters where each column correspond to a different species
 #' @param initVarX initial state of the forests.
+#' @param par_alfar0 first year value of alfar (alfar changes every year if based on CN).  
 #'
 #' @return the biomasses at initialization 
 #' @export
@@ -23,6 +24,7 @@ initialAgeSeedl <- function(SiteType,ETS){
 initBiomasses <- function(pCro,initVarX){
   initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
   siteType <- initVarX[8,1]
+  par_alfar0 <- initVarX[9,]
   layerXs <- which(initVarX[1,] %in% 1:ncol(pCROB))
   ##set parameters
   par_betab <- pCro[13,initVarX[1,layerXs]]
@@ -49,7 +51,7 @@ initBiomasses <- function(pCro,initVarX){
   
   ### Fine root allocation of early growth  
   age_factor <-  (1. - (1- pCro[44,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[45,initVarX[1,layerXs]])/ pCro[46,initVarX[1,layerXs]])))/ pCro[44,initVarX[1,layerXs]] 
-  par_alfar <- pCro[20+pmin(siteType,5),initVarX[1,layerXs]]* age_factor
+  par_alfar <- par_alfar0[layerXs] * age_factor
   par_rhor <- par_alfar * par_rhof
   beta0 <- par_beta0 * age_factor
   

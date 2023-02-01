@@ -96,7 +96,7 @@ do i = 1,nSites
 			initVar(i,7,ijj) = pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
 				initVar(i,6,ijj))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc^p_z
 		endif
-		call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1))
+		call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1),multiOut(i,1,3,ijj,2))
 		endif
 	endif
  enddo
@@ -214,7 +214,8 @@ endif
 	   do ki = 1,int(initClearcut(i,5)+1)
 	    multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	   enddo !ki
-	   call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1),multiOut(i,(ij-1),:,ijj,1))
+	   call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1), &
+				multiOut(i,(ij-1),:,ijj,1),multiOut(i,ij,3,ijj,2))
 	  endif
 	 enddo !ijj
 	endif

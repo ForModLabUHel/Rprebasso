@@ -141,7 +141,7 @@ InitMultiSite <- function(nYearsMS,
   if(is.null(ETSstart)) ETSstart <- apply(multiETS[,1:min(10,nYearsX)],1,mean)
   ETSthres <- 1000
   ETSmean <- ETSstart
-
+  
   Ainits <- multiInitClearCut[,5]
   for(xd in 1:nSites){
     if(is.na(Ainits[xd])) {
@@ -305,9 +305,35 @@ InitMultiSite <- function(nYearsMS,
   #   litterSize[1,] <- c(30,30,10)
   #   # siteInfo <- siteInfo[,-c(4,5)]
   # }
+  ###initAlfar used in the initBiomass calculations
+  #initialize alfar
+  if(is.null(pCN_alfar)){
+    for(ijj in 1:maxNlayers){
+      multiOut[,1,3,ijj,1] <- siteInfo[,3]
+      siteXs <- which(multiInitVar[,1,ijj] %in% 1:ncol(pCROBAS))
+      multiOut[siteXs,,3,ijj,2] =
+        matrix(pCROBAS[cbind((20+pmin(siteInfo[,3],5))[siteXs],
+                             multiInitVar[siteXs,1,ijj])],
+               length(siteXs),maxYears)
+    }
+  }else{
+    pCROBAS[21:22,] <- pCN_alfar
+    pCROBAS[23,] <- -999
+    for(ijj in 1:maxNlayers){
+      multiOut[,1,3,ijj,1] <- siteInfo[,3]
+      siteXs <- which(multiInitVar[,1,ijj] %in% 1:ncol(pCROBAS))
+      alfar_p1 <- pCN_alfar[1,multiInitVar[siteXs,1,ijj]]
+      alfar_p2 <- pCN_alfar[2,multiInitVar[siteXs,1,ijj]]
+      CNratioSites <- CNratio(ETSstart[siteXs],
+                              multiOut[siteXs,1,3,ijj,1]
+                              ,pars=pECMmod[6:8])
+      multiOut[siteXs,1,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
+  }
   
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
+  initVarX <- abind(initVarX,matrix(multiOut[,1,3,,2],nSites,maxNlayers),along=2)
   biomasses <- array(apply(initVarX,1,initBiomasses,pCro=pCROBAS),dim=c(12,maxNlayers,nSites))
   biomasses <- aperm(biomasses,c(3,1,2))
   biomasses[which(is.na(biomasses))] <- 0
