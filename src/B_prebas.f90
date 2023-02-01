@@ -675,9 +675,10 @@ if (N>0.) then
 
   mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
   if(ECMmod==1) mrFact = 0.
-  par_mr = par_mr0* p0 / p0_ref + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
-  par_mf = par_mf0* p0 / p0_ref !!newX
-  par_mw = par_mw0* p0 / p0_ref !!newX
+
+par_mr = par_mr0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) * mrFact / par_vr0 
+par_mf = par_mf0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
