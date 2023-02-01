@@ -16,6 +16,8 @@
 #' @param ECMmod flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling
 #' @param multiInitClearCut A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'
 #' @param ETSstart A vector of initial average ETS, it should be based on historical data. if NULL it will be calculated using the first 10 years of the simulation weather inputs
+#' @param pCN_alfar Matrix of parameters (columns are species)for alfar calculations based on CN ratio. Use parsCN_alfar as default values
+#' @param fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
 #' 
 #' @importFrom plyr aaply
 #'
@@ -84,7 +86,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         thinInt = -999.,
                         mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
                         ECMmod = 0,
-                        ETSstart=NULL
+                        ETSstart=NULL,
+                        pCN_alfar = NULL,
+                        fertThin=0
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -129,51 +133,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
   }
 
-  path.par <-
-    system.file("transect", "PARtran.csv", package = "Rprebasso")
-  path.tair <-
-    system.file("transect", "TAirtran.csv", package = "Rprebasso")
-  path.precip <-
-    system.file("transect", "Preciptran.csv", package = "Rprebasso")
-  path.vpd <-
-    system.file("transect", "VPDtran.csv", package = "Rprebasso")
-  path.co2 <-
-    system.file("transect", "CO2tran.csv", package = "Rprebasso")
-
-  PARtran <- as.matrix(read.csv(
-    file = path.par,
-    header = T,
-    row.names = 1
-  ))
-
-  Preciptran <- as.matrix(
-    read.csv(
-      file = path.precip,
-      header = T,
-      row.names = 1
-    )
-  )
-  VPDtran <- as.matrix(
-    read.csv(
-      file = path.vpd,
-      header = T,
-      row.names = 1
-    )
-  )
-  TAirtran <- as.matrix(
-    read.csv(
-      file = path.tair,
-      header = T,
-      row.names = 1
-    )
-  )
-  CO2tran <- as.matrix(
-    read.csv(
-      file = path.co2,
-      header = T,
-      row.names = 1
-    )
-  )
+  path.weatherTran <-
+    system.file("transect", "weatherTran.rda", package = "Rprebasso")
+  load(file = path.weatherTran)
 
   nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
 
@@ -227,9 +189,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     thinInt = thinInt,
     mortMod = mortMod,#flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
     ECMmod=ECMmod,
-    ETSstart = ETSstart
+    ETSstart = ETSstart,
+    pCN_alfar = pCN_alfar
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
-  TransectOut <- multiPrebas(initPrebas)
+  TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
   return(TransectOut)
 }

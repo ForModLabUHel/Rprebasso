@@ -61,6 +61,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
  real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites), siteOrdX(nSites)
+real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
 
 !!!!initialize run
 ! multiOut = 0.
@@ -278,9 +279,8 @@ endif
 
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
 		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(i,3)-1.)
-		call calcAlfar(multiOut(i,ij,3,1:nLayers(i),:),initVar(i,1,1:nLayers(i)),pCrobas, &
-				nLayers(i),alfarFert,allSP,nYearsFert,npar)
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		call calcAlfarFert(multiOut(i,(ij+1):(ij+yearsFert),3,:,:),multiOut(i,(ij+1):(ij+yearsFert),5,1,1), & 
+			multiOut(i,ij,4,:,1), pCrobas,nLayers(i),allSP,yearsFert,npar, siteInfo(i,3),deltaSiteTypeFert,pECMmod(6:8))
 		flagFert(i)=2
 	endif
 
@@ -602,9 +602,9 @@ endif
 	if(flagFert(siteX)==0 .and. fertThin>0 .and. siteInfo(siteX,3)>3. .and. siteInfo(siteX,3)<6.) then 
 		yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
 		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
-		call calcAlfar(multiOut(siteX,ij,3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
-				nLayers(siteX),alfarFert,allSP,nYearsFert,npar)
-		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		call calcAlfarFert(multiOut(siteX,(ij+1):(ij+yearsFert),3,:,:),multiOut(siteX,(ij+1):(ij+yearsFert),5,1,1), & 
+		multiOut(siteX,ij,4,:,1), pCrobas,nLayers(siteX),allSP,yearsFert,npar, siteInfo(siteX,3),deltaSiteTypeFert,pECMmod(6:8))
+
 		flagFert(siteX)=2
 	endif
 
@@ -864,9 +864,8 @@ endif
 
 		yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
 		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
-		call calcAlfar(multiOut(siteX,ij,3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
-				nLayers(siteX),alfarFert,allSP,nYearsFert,npar)
-		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		call calcAlfarFert(multiOut(siteX,(ij+1):(ij+yearsFert),3,:,:),multiOut(siteX,(ij+1):(ij+yearsFert),5,1,1), & 
+			multiOut(siteX,ij,4,:,1), pCrobas,nLayers(siteX),allSP,yearsFert,npar, siteInfo(siteX,3),deltaSiteTypeFert,pECMmod(6:8))
 		flagFert(siteX)=2
 	endif
 

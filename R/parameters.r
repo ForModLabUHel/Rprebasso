@@ -158,6 +158,12 @@ parsAWEN[,10] <- c(0.482600,0.131700,0.065800,0.319900,0.474660,0.019012,
 parsAWEN[,11] <- c(0.407900,0.198000,0.099000,0.295100,0.474660,0.019012,
                   0.078308,0.430248,0.715000,0.015000,0.000000,0.275000)  
 
+parsCN_alfar <- matrix(NA,2,11,dimnames = list(NULL,speciesNam))
+parsCN_alfar[,1] <- c(0.1678,0.03297)
+parsCN_alfar[,2] <- c(0.07022,0.03581)
+parsCN_alfar[1,3:11] <- 0.1678
+parsCN_alfar[2,3:11] <- 0.03297
+
 pHcM <- matrix(NA,7,11,dimnames = list(NULL,speciesNam))
 ###parameters Hcmodel pisy
 pHcM[,1] <- c(1.4628,-0.256007,0.017293,-0.089891,0.213387,-0.079094,-0.062191)

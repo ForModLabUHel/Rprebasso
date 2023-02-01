@@ -1870,28 +1870,52 @@ subroutine testOption(a,b,c,valX1,valX2,valX3)
 end subroutine testOption 
 
 
-subroutine calcAlfar(siteTAlpha,species,pCrobas,nLayers,alfar,nSp,nYearsFert,npar)
+subroutine calcAlfarFert(siteTAlpha,ETS,species,pCrobas,nLayers,nSp,nYearsFert,npar,siteTypeOrig,deltaSiteTypeFert,parsCN)
 	implicit none
 	integer, intent(in) :: nLayers,nSp,nYearsFert,npar
-	real(8),intent(inout) :: siteTAlpha(nLayers,2),pCrobas(npar,nSp)
-	real(8),intent(inout) :: alfar(nYearsFert,nLayers),species(nLayers)
+	real(8),intent(inout) :: siteTAlpha(nYearsFert,nLayers,2),pCrobas(npar,nSp), siteTypeOrig,deltaSiteTypeFert
+	real(8),intent(inout) :: species(nLayers),ETS(nYearsFert),parsCN(3)
 	! integer,intent(inout) :: year!,ind(3,2)
-	integer :: i
-	real(8):: alfarUnfert(nLayers), alfarFert(nLayers),slope,interc
+	integer :: i,it
+	real(8):: alfarUnfert(nLayers), alfarFert(nLayers),slope,interc,SiteTypeFert,siteType(nYearsFert,nLayers),CN
 	
     ! ind(:,1) = int(max(20+min(modOut(1,year,3,:,1),5.)-1.,21.))
 	! ind(:,2) = int(modOut(1,year,4,:,1))
+	
 	do i = 1,nLayers
-		alfarUnfert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.),21.)),int(max(species(i),1.)))
-		alfarFert(i) = pCrobas(int(max(20+min(siteTAlpha(i,1),5.)-1.,21.)),int(max(species(i),1.)))
-		! write(*,*) i,siteTAlpha(i,1),species(i),alfarFert(i), alfarUnfert(i)
-		alfar(1:(nYearsFert/2),i) = alfarFert(i)
-		slope = (alfarUnfert(i) - alfarFert(i))/(nYearsFert/2+1.-0.)
-		interc = alfarFert(i) - slope*1.
-		alfar((nYearsFert/2+1):nYearsFert,i) = slope*(/2.,3.,4.,5.,6.,7.,8.,9.,10.,11./) + interc
+	    if(pCrobas(23,int(max(species(i),1.))) == -999.) then	
+        
+     		SiteTypeFert = max(1.,(siteTypeOrig - deltaSiteTypeFert))
+			
+			! 1. fill new sitetype: first 10 years siteType orginal +1 then remaining 10 years linearly goes down
+			siteTAlpha(1:(nYearsFert/2),i,1) = SiteTypeFert
+			slope = (siteTypeOrig - SiteTypeFert)/(nYearsFert/2.d0-0.d0)
+			interc = SiteTypeFert! - slope*1.
+			do it = 1,nYearsFert/2
+			 siteTAlpha((nYearsFert/2+it),i,1) = slope*(it) + interc
+			enddo
+			! 2. for each year and each layer calculate alfar usingCN ratio
+			do it = 1,nYearsFert
+				call CNratio(CN, ETS(it), siteTAlpha(it,i,1),parsCN)
+			    siteTAlpha(it,i,2) = pCrobas(21,int(max(species(i),1.))) * exp(pCrobas(22,int(max(species(i),1.)))*CN)
+			enddo
+			
+		else 
+		
+			alfarUnfert(i) = pCrobas(int(max(20+min(siteTAlpha(1,i,1),5.),21.)),int(max(species(i),1.)))
+			alfarFert(i) = pCrobas(int(max(20+min(siteTAlpha(1,i,1),5.)-1.,21.)),int(max(species(i),1.)))
+			! write(*,*) i,siteTAlpha(i,1),species(i),alfarFert(i), alfarUnfert(i)
+			siteTAlpha(1:(nYearsFert/2),i,2) = alfarFert(i)
+			slope = (alfarUnfert(i) - alfarFert(i))/(nYearsFert/2.d0-0.d0)
+			interc = alfarFert(i)! - slope*1.
+			do it = 1,nYearsFert/2
+				siteTAlpha((nYearsFert/2+it),i,2) = slope*(it) + interc
+			enddo
+		endif
 	enddo
+	! write(1,*) slope,interc,siteTAlpha(1:(nYearsFert),1,1)
 	! alfar = pCrobas(max(int(20+min(modOut(year,3,:,1),5)),21),int(initVar(1,:)))
-end subroutine calcAlfar	
+end subroutine calcAlfarFert	
 	
 
 !!!random mortality calculations based on Siilipehto et 2020	
@@ -2062,3 +2086,21 @@ end subroutine
 	! if(species(1) /= species(1)) species(1)=999
 	
 ! end subroutine test
+
+
+!!new routine to calculate alfar based on CNratio
+subroutine calcAlfarCN(alfar0, ETS, st, parsCN,parsAlfar,nSp)
+
+	implicit none
+
+		integer :: nSp
+		real(8),intent(in) :: ETS, st, parsCN(3),parsAlfar(2,nSp)
+		real(8),intent(out) :: alfar0(nSP)
+		real(8) :: CN
+		
+		!init parameters
+	call CNratio(CN, ETS, st,parsCN)
+	alfar0 = parsAlfar(1,:) * exp(parsAlfar(2,:)*CN)
+
+endsubroutine	
+

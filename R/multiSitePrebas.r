@@ -43,7 +43,8 @@ InitMultiSite <- function(nYearsMS,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
                           ECMmod=0, #flag for ECM modelling MAkela et al.2022
                           pECMmod = parsECMmod,
-                          ETSstart = NULL
+                          ETSstart = NULL,
+                          pCN_alfar=NULL ##parameters for calculating alfar from CN ratio
                           ){  
   
   nSites <- length(nYearsMS)
@@ -375,7 +376,8 @@ InitMultiSite <- function(nYearsMS,
     mortMod = mortMod,
     ECMmod = ECMmod,
     pECMmod = pECMmod,
-    ETSstart = ETSstart
+    ETSstart = ETSstart,
+    pCN_alfar = pCN_alfar 
   )
   return(multiSiteInit)
 }
@@ -389,13 +391,39 @@ multiPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
-  
+
+  ###calculate ETSmean based on a moving average window
+  ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
+  ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+    multiSiteInit$multiOut[,,5,ijj,2] <- ETSmean
+  }
+
+  #initialize alfar
+  if(is.null(multiSiteInit$pCN_alfar)){
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] =
       matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
                                          multiSiteInit$multiInitVar[siteXs,1,ijj])],
              length(siteXs),multiSiteInit$maxYears)
+    }
+  }else{
+    multiSiteInit$pCROBAS[21:22,] <- multiSiteInit$pCN_alfar
+    multiSiteInit$pCROBAS[23,] <- -999
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      alfar_p1 <- 
+        matrix(multiSiteInit$pCN_alfar[1,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      alfar_p2 <- 
+        matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      CNratioSites <- CNratio(ETSmean[siteXs,],
+                              multiSiteInit$multiOut[siteXs,,3,ijj,1]
+                              ,pars=multiSiteInit$pECMmod[6:8])
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
   }
   
   if(oldLayer==1){
@@ -518,17 +546,43 @@ if(ageHarvPrior>0){
   siteOrder[,1] <- siteOrder[newOrdX,1]
 }  
   
-  ###initialize siteType
+  ###initialize siteType & alfar
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  ###calculate ETSmean based on a moving average window
+  ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
+  ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
-                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
-             length(siteXs),multiSiteInit$maxYears)
+    multiSiteInit$multiOut[,,5,ijj,2] <- ETSmean
+  }
+  
+  #initialize alfar
+  if(is.null(multiSiteInit$pCN_alfar)){
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+        matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
+                                           multiSiteInit$multiInitVar[siteXs,1,ijj])],
+               length(siteXs),multiSiteInit$maxYears)
+    }
+  }else{
+    multiSiteInit$pCROBAS[21:22,] <- multiSiteInit$pCN_alfar
+    multiSiteInit$pCROBAS[23,] <- -999
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      alfar_p1 <- 
+        matrix(multiSiteInit$pCN_alfar[1,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      alfar_p2 <- 
+        matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      CNratioSites <- CNratio(ETSmean[siteXs,],
+                              multiSiteInit$multiOut[siteXs,,3,ijj,1]
+                              ,pars=multiSiteInit$pECMmod[6:8])
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
   }
   
   if(oldLayer==1){
@@ -672,13 +726,40 @@ reStartRegionPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  ###calculate ETSmean based on a moving average window
+  ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
+  ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
-                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
-             length(siteXs),multiSiteInit$maxYears)
+    multiSiteInit$multiOut[,,5,ijj,2] <- ETSmean
   }
+  
+  #initialize alfar
+  if(is.null(multiSiteInit$pCN_alfar)){
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+        matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
+                                           multiSiteInit$multiInitVar[siteXs,1,ijj])],
+               length(siteXs),multiSiteInit$maxYears)
+    }
+  }else{
+    multiSiteInit$pCROBAS[21:22,] <- multiSiteInit$pCN_alfar
+    multiSiteInit$pCROBAS[23,] <- -999
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      alfar_p1 <- 
+        matrix(multiSiteInit$pCN_alfar[1,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      alfar_p2 <- 
+        matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      CNratioSites <- CNratio(ETSmean[siteXs,],
+                              multiSiteInit$multiOut[siteXs,,3,ijj,1]
+                              ,pars=multiSiteInit$pECMmod[6:8])
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
+  }
+  
   
   # if(FALSE){
   if(oldLayer==1){

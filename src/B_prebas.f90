@@ -112,7 +112,7 @@ real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m !normFactP,normFactETS,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
-
+real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
@@ -1282,9 +1282,10 @@ if(defaultThin == 1.) then
 
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = max(1.,siteType-1.)
-		call calcAlfar(modOut(year,3,:,:),initVar(1,:),pCrobas, &
-				nLayers,alfarFert,nSp,nYearsFert,npar)
-		! modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		! call calcAlfarFert(modOut(year,3,:,:),initVar(1,:),pCrobas, &
+				! nLayers,alfarFert,nSp,nYearsFert,npar)
+		call calcAlfarFert(modOut((year+1):(year+yearsFert),3,:,:),modOut((year+1):(year+yearsFert),5,1,1), & 
+		modOut(year,4,:,1), pCrobas,nLayers,nSp,yearsFert,npar, siteInfo(3),deltaSiteTypeFert,pECMmod(6:8))
 	endif
 !!!end fertilization at thinning
 
@@ -1545,6 +1546,8 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
  endif !end yassoRun if
  
+modOut(year+1,5,1,2) = ETSmean
+
 enddo !end year loop
 
 !update ETSstart
