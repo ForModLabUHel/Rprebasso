@@ -127,52 +127,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
   }
 
-  path.par <-
-    system.file("transect", "PARtran.csv", package = "Rprebasso")
-  path.tair <-
-    system.file("transect", "TAirtran.csv", package = "Rprebasso")
-  path.precip <-
-    system.file("transect", "Preciptran.csv", package = "Rprebasso")
-  path.vpd <-
-    system.file("transect", "VPDtran.csv", package = "Rprebasso")
-  path.co2 <-
-    system.file("transect", "CO2tran.csv", package = "Rprebasso")
-
-  PARtran <- as.matrix(read.csv(
-    file = path.par,
-    header = T,
-    row.names = 1
-  ))
-
-  Preciptran <- as.matrix(
-    read.csv(
-      file = path.precip,
-      header = T,
-      row.names = 1
-    )
-  )
-  VPDtran <- as.matrix(
-    read.csv(
-      file = path.vpd,
-      header = T,
-      row.names = 1
-    )
-  )
-  TAirtran <- as.matrix(
-    read.csv(
-      file = path.tair,
-      header = T,
-      row.names = 1
-    )
-  )
-  CO2tran <- as.matrix(
-    read.csv(
-      file = path.co2,
-      header = T,
-      row.names = 1
-    )
-  )
-
+  path.weatherTran <-
+    system.file("transect", "weatherTran.rda", package = "Rprebasso")
+  load(file = path.weatherTran)
+  
+  
   nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
 
   if (AgeEffect == T) {
