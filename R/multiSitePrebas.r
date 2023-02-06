@@ -422,7 +422,10 @@ multiPrebas <- function(multiSiteInit,
   ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
   ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    multiSiteInit$multiOut[,,5,ijj,2] <- ETSmean
+    for(ijx in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- ETSmean[ijx,]
+    }
   }
 
   #initialize alfar
@@ -581,7 +584,10 @@ if(ageHarvPrior>0){
   ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
   ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    multiSiteInit$multiOut[,,5,ijj,2] <- ETSmean
+    for(ijx in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- ETSmean[ijx,]
+    }
   }
   
   #initialize alfar
@@ -756,7 +762,10 @@ reStartRegionPrebas <- function(multiSiteInit,
   ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
   ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    multiSiteInit$multiOut[,,5,ijj,2] <- ETSmean
+    for(ijx in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- ETSmean[ijx,]
+    }
   }
   
   #initialize alfar
