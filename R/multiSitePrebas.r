@@ -448,7 +448,7 @@ multiPrebas <- function(multiSiteInit,
       alfar_p2 <- 
         matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
                length(siteXs),multiSiteInit$maxYears)
-      CNratioSites <- CNratio(ETSmean[siteXs,],
+      CNratioSites <- CNratio(ETSmean[multiSiteInit$siteInfo[siteXs,2],],
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
@@ -610,7 +610,7 @@ if(ageHarvPrior>0){
       alfar_p2 <- 
         matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
                length(siteXs),multiSiteInit$maxYears)
-      CNratioSites <- CNratio(ETSmean[siteXs,],
+      CNratioSites <- CNratio(ETSmean[multiSiteInit$siteInfo[siteXs,2],],
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
@@ -788,7 +788,7 @@ reStartRegionPrebas <- function(multiSiteInit,
       alfar_p2 <- 
         matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
                length(siteXs),multiSiteInit$maxYears)
-      CNratioSites <- CNratio(ETSmean[siteXs,],
+      CNratioSites <- CNratio(ETSmean[multiSiteInit$siteInfo[siteXs,2],],
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
