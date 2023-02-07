@@ -123,6 +123,7 @@ InitMultiSite <- function(nYearsMS,
   # if (length(PREBASversion) == 1) PREBASversion=as.double(rep(PREBASversion,nSites))
   # 
   ###process ETS
+  ETSstartX <- rep(NA,nClimID)
   multiETS <- matrix(NA,nClimID,maxYears)
   for(climID in 1:nClimID){
     nYearsX <- max(nYearsMS[which(climIDs==climID)])
@@ -130,6 +131,8 @@ InitMultiSite <- function(nYearsMS,
     ETS <- pmax(0,Temp,na.rm=T)
     ETS <- matrix(ETS,365,nYearsX); ETS <- colSums(ETS)
     multiETS[climID,(1:nYearsX)] <- ETS
+    ###initialize ETSstart
+    ETSstartX[climID] <- mean(multiETS[climID,1:min(10,nYearsX)],na.rm=T)
     
     # xx <- min(10,nYearsX)
     # Ainit = 6 - 0.005*mean(ETS[1:xx]) + 2.25 ## need to add 2*sitetype
@@ -138,10 +141,10 @@ InitMultiSite <- function(nYearsMS,
     #                                             which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
   ###initialize ETSstart
-  if(is.null(ETSstart)) ETSstart <- apply(multiETS[,1:min(10,nYearsX)],1,mean)
+  if(is.null(ETSstart)) ETSstart <- ETSstartX
   ETSthres <- 1000
   ETSmean <- ETSstart
-  
+
   Ainits <- multiInitClearCut[,5]
   for(xd in 1:nSites){
     if(is.na(Ainits[xd])) {
