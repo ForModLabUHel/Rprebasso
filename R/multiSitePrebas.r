@@ -424,7 +424,7 @@ multiPrebas <- function(multiSiteInit,
   for(ijj in 1:multiSiteInit$maxNlayers){
     for(ijx in 1:multiSiteInit$nClimID){
       siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
-      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(steXs))
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(siteXs))
     }
   }
 
@@ -586,7 +586,7 @@ if(ageHarvPrior>0){
   for(ijj in 1:multiSiteInit$maxNlayers){
     for(ijx in 1:multiSiteInit$nClimID){
       siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
-      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(steXs))
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(siteXs))
     }
   }
   
@@ -764,7 +764,7 @@ reStartRegionPrebas <- function(multiSiteInit,
   for(ijj in 1:multiSiteInit$maxNlayers){
     for(ijx in 1:multiSiteInit$nClimID){
       siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
-      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(steXs))
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(siteXs))
     }
   }
   
