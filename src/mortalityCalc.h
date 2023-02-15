@@ -108,7 +108,7 @@ if (mortMod==1. .or. mortMod==3.) then
 			mort = 0.
 			stand(40) = 0.
 		  endif
-write(1,*) mortMod, "reineke" dN, "layer",ij
+write(1,*) mortMod, "reineke", dN, "layer",ij
 
 		  Vold = stand(30)
 		  Nold = stand(17)
@@ -344,7 +344,7 @@ if(mortMod==2. .or. mortMod==3.) then
 			stand(40) = 0.
 		  endif
 
-write(1,*) mortMod, "rand" dN, "layer",ij
+write(1,*) mortMod, "rand", dN, "layer",ij
 	!!!update variables
 		  N = max(0.0, N + step*dN)
 
