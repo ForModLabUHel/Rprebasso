@@ -198,7 +198,7 @@ endif
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
 if(mortMod==2. .or. mortMod==3.) then
-write(1,*) mortMod, "reineke"
+write(1,*) mortMod, "rand"
   if(mortMod==2.) then
 	STAND_all(26,:) = 0.
 	STAND_all(27,:) = 0.
