@@ -1,6 +1,8 @@
 !Reineke mortality model
+
 if (mortMod==1. .or. mortMod==3.) then 
-	do ij = 1 , nLayers 		!loop Species
+ 	do ij = 1 , nLayers 		!loop Species
+     dN=0.d0
 
 	 STAND=STAND_all(:,ij)
 	 species = int(stand(4))
@@ -75,7 +77,7 @@ if (mortMod==1. .or. mortMod==3.) then
 	  ETS = STAND(5) !!##!!2
 	  Light = STAND(36)
 	  V = stand(30)
-	  mort = stand(40)
+	  mort = stand(41)
 	  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 	  
 	 if (N>0.) then
@@ -102,10 +104,10 @@ if (mortMod==1. .or. mortMod==3.) then
 		  else
 			   dN = 0.
 		  endif
-		  if(mort == 888.) then
+		  if(mort == 0.) then
 			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort = 0.
-			stand(40) = 0.
+!			mort = 0.
+!			stand(40) = 0.
 		  endif
 
 		  Vold = stand(30)
@@ -195,7 +197,9 @@ endif
 
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
+! if(.FALSE.) then
 if(mortMod==2. .or. mortMod==3.) then
+
   if(mortMod==2.) then
 	STAND_all(26,:) = 0.
 	STAND_all(27,:) = 0.
@@ -210,13 +214,10 @@ if(mortMod==2. .or. mortMod==3.) then
   BAmort = 0.d0
   pMort = 0.d0
   perBAmort = 0.d0
-  dN=0.d0
   indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==1.)
   rPine = sum(STAND_all(13,indices))/BA_tot
-  ! write(1,*) indices, rPine
   indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==3.)
   rBirch = sum(STAND_all(13,indices))/BA_tot
-  ! write(1,*) indices, rBirch
    call randMort( & !!!returns the basal area after mortality rescaled to ha
 	 sum(STAND_all(7,:)*BAr), & !BA weighted age
 	 sum(STAND_all(12,:)*BAr), & !BA weighted dbh
@@ -232,7 +233,7 @@ if(mortMod==2. .or. mortMod==3.) then
 	 BAmort)
 	 
 	do ij = 1 , nLayers 		!loop Species
-
+dN=0.d0
 	 STAND=STAND_all(:,ij)
 	 species = int(stand(4))
 	 param = pCrobas(:,species)
@@ -306,7 +307,7 @@ if(mortMod==2. .or. mortMod==3.) then
 	  ETS = STAND(5) !!##!!2
 	  Light = STAND(36)
 	  V = stand(30)
-	  mort = stand(40)
+	  mort = stand(41)
 	  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 	  
 	 if (N>0.) then
@@ -335,10 +336,10 @@ if(mortMod==2. .or. mortMod==3.) then
 		else
 		 dN = 0.	
 		endif
-		  if(mortMod==2. .and. mort == 888.) then
+		  if(mortMod==2. .and. mort == 0.) then
 			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort=0.
-			stand(40) = 0.
+	!		mort=0.
+	!		stand(40) = 0.
 		  endif
 
 	!!!update variables
@@ -423,3 +424,4 @@ if(mortMod==2. .or. mortMod==3.) then
 	end do !!!!!!!end loop layers
 	
 endif
+! endif
