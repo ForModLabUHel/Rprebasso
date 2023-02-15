@@ -55,7 +55,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
 
 !!!!initialize run
 ! multiOut = 0.
-! open(1,file="test1.txt")
+open(1,file="test1.txt")
  ! open(1,file="ftTapioMsite.txt")
  ! open(2,file="tTapioMsite.txt")
  ! write(1,*) ftTapio
@@ -87,8 +87,8 @@ do i = 1,nSites
 	ClCutX = ClCut(i)
 	
 	!!!##set mortality model for managed and unmanaged forests
-	mortModX = mortMod(1)
-	if(ClCut(i)==1) mortModX = mortMod(2)
+	mortModX = mortMod(1) !!mortality model to be used in the managed forests
+	if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
 	
 	thinningX = thinning(i,:,:)
 	! nYears(i) = nYears(i)
@@ -105,7 +105,7 @@ do i = 1,nSites
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
-! close(1)
+close(1)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -1,5 +1,7 @@
 !Reineke mortality model
+write(1,*) mortMod
 if (mortMod==1. .or. mortMod==3.) then 
+write(1,*) mortMod, "reineke"
 	do ij = 1 , nLayers 		!loop Species
 
 	 STAND=STAND_all(:,ij)
@@ -196,6 +198,7 @@ endif
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
 if(mortMod==2. .or. mortMod==3.) then
+write(1,*) mortMod, "reineke"
   if(mortMod==2.) then
 	STAND_all(26,:) = 0.
 	STAND_all(27,:) = 0.
