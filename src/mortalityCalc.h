@@ -1,5 +1,5 @@
 !Reineke mortality model
-write(1,*) mortMod
+
 if (mortMod==1. .or. mortMod==3.) then 
  	do ij = 1 , nLayers 		!loop Species
      dN=0.d0
@@ -77,7 +77,7 @@ if (mortMod==1. .or. mortMod==3.) then
 	  ETS = STAND(5) !!##!!2
 	  Light = STAND(36)
 	  V = stand(30)
-	  mort = stand(40)
+	  mort = stand(41)
 	  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 	  
 	 if (N>0.) then
@@ -104,12 +104,11 @@ if (mortMod==1. .or. mortMod==3.) then
 		  else
 			   dN = 0.
 		  endif
-		  if(mort == 888.) then
+		  if(mort == 0.) then
 			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort = 0.
-			stand(40) = 0.
+!			mort = 0.
+!			stand(40) = 0.
 		  endif
-write(1,*) mortMod, "reineke", dN, "layer",ij
 
 		  Vold = stand(30)
 		  Nold = stand(17)
@@ -217,10 +216,8 @@ if(mortMod==2. .or. mortMod==3.) then
   perBAmort = 0.d0
   indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==1.)
   rPine = sum(STAND_all(13,indices))/BA_tot
-  ! write(1,*) indices, rPine
   indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==3.)
   rBirch = sum(STAND_all(13,indices))/BA_tot
-  ! write(1,*) indices, rBirch
    call randMort( & !!!returns the basal area after mortality rescaled to ha
 	 sum(STAND_all(7,:)*BAr), & !BA weighted age
 	 sum(STAND_all(12,:)*BAr), & !BA weighted dbh
@@ -310,7 +307,7 @@ dN=0.d0
 	  ETS = STAND(5) !!##!!2
 	  Light = STAND(36)
 	  V = stand(30)
-	  mort = stand(40)
+	  mort = stand(41)
 	  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 	  
 	 if (N>0.) then
@@ -339,13 +336,12 @@ dN=0.d0
 		else
 		 dN = 0.	
 		endif
-		  if(mortMod==2. .and. mort == 888.) then
+		  if(mortMod==2. .and. mort == 0.) then
 			dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
-			mort=0.
-			stand(40) = 0.
+	!		mort=0.
+	!		stand(40) = 0.
 		  endif
 
-write(1,*) mortMod, "rand", dN, "layer",ij
 	!!!update variables
 		  N = max(0.0, N + step*dN)
 
