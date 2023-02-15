@@ -215,7 +215,6 @@ if(mortMod==2. .or. mortMod==3.) then
   BAmort = 0.d0
   pMort = 0.d0
   perBAmort = 0.d0
-  dN=0.d0
   indices = PACK([(ll, ll=1,nLayers)], STAND_all(4,:)==1.)
   rPine = sum(STAND_all(13,indices))/BA_tot
   ! write(1,*) indices, rPine
@@ -237,7 +236,7 @@ if(mortMod==2. .or. mortMod==3.) then
 	 BAmort)
 	 
 	do ij = 1 , nLayers 		!loop Species
-
+dN=0.d0
 	 STAND=STAND_all(:,ij)
 	 species = int(stand(4))
 	 param = pCrobas(:,species)
