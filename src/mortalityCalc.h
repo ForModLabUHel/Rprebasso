@@ -198,7 +198,7 @@ endif
 
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
-if(.FALSE.) then
+! if(.FALSE.) then
 if(mortMod==2. .or. mortMod==3.) then
 
   if(mortMod==2.) then
@@ -429,4 +429,4 @@ write(1,*) mortMod, "rand", dN, "layer",ij
 	end do !!!!!!!end loop layers
 	
 endif
-endif
+! endif
