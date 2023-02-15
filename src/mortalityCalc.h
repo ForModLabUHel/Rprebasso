@@ -1,7 +1,8 @@
 !Reineke mortality model
 write(1,*) mortMod
 if (mortMod==1. .or. mortMod==3.) then 
-	do ij = 1 , nLayers 		!loop Species
+ 	do ij = 1 , nLayers 		!loop Species
+     dN=0.d0
 
 	 STAND=STAND_all(:,ij)
 	 species = int(stand(4))
