@@ -87,8 +87,8 @@ do i = 1,nSites
 	ClCutX = ClCut(i)
 	
 	!!!##set mortality model for managed and unmanaged forests
-	mortModX = mortMod(1)
-	if(ClCut(i)==1) mortModX = mortMod(2)
+	mortModX = mortMod(1) !!mortality model to be used in the managed forests
+	if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
 	
 	thinningX = thinning(i,:,:)
 	! nYears(i) = nYears(i)
