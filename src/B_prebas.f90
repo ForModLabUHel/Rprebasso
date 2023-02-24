@@ -98,7 +98,7 @@ implicit none
  real (kind=8) :: lproj, leff, laPer_sar, keff, slc
  real (kind=8) :: hb, A, B2, beta0, beta1,beta2, betab !,betas
  real (kind=8) :: c,dHc,dH,dLc,g0,g1,g2,g3,g4,g5
- real (kind=8) :: npp, p_eff_all, gammaC, betaC, W_c, W_s, Wdb, Wsh
+ real (kind=8) :: npp, p_eff_all, gammaC, betaC, W_c, W_s, Wdb, Wsh,nppCost
  real (kind=8) :: p_eff, par_alfar, p, gpp_sp
  real (kind=8) :: s0,par_s0scale,par_sla0,par_tsla
  real (kind=8) :: age_factor,par_fAa,par_fAb,par_fAc ! Changes in fine root allocation for young seedlings, affecting beta0 and alfar 
@@ -736,7 +736,8 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 			    ! normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
 				! normFactP = p0 / p0_ref
 				! call CUEcalc(ETSmean, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
-				call CUEcalc(ETSmean, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,pECMmod) !!!ECMmodelling
+				call CUEcalc(ETSmean, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,normFactETS,pECMmod) !!!ECMmodelling
+
 				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
 				Cost_m  = par_mf * wf_STKG + par_mw * W_wsap + r_RT * W_froot  !!!ECMmodelling
@@ -744,7 +745,8 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
 				Cost_m = Respi_m
 			endif
-			npp = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
+			nppCost = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
+			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
 			
 			
 			Respi_tot = gpp_sp - npp
@@ -756,7 +758,7 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
 			
         !Height growth-----------------------
-		f1 = npp*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
+		f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
 		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
 				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
 		dH = max(0.,((H-Hc) * f1/f2))
