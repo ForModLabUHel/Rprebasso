@@ -111,7 +111,7 @@ implicit none
 real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
- real (kind=8) :: Cost_m !normFactP,normFactETS,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
+ real (kind=8) :: Cost_m,normFactETS !normFactP,normFactETS,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -728,7 +728,7 @@ if (N>0.) then
 
 			! ECM modelling
 			if(ECMmod==1) then !!!ECMmodelling
-			    ! normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
+			    normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
 				! normFactP = p0 / p0_ref
 				! call CUEcalc(ETSmean, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
 				call CUEcalc(ETSmean, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,normFactETS,pECMmod) !!!ECMmodelling
