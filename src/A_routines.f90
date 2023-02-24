@@ -1993,11 +1993,10 @@ endsubroutine
 
 
 
-! subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,normFactP,normFactETS,P_RT,pars)
-subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,P_RT,pars)
+subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,P_RT,normFactETS,pars)
 
 implicit none
-	real(8),intent(in) :: ETS, st,r_r,W_RT, pars(12)!, normFactETS
+	real(8),intent(in) :: ETS, st,r_r,W_RT, pars(12), normFactETS
 	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT,P_RT
 
 	real(8) :: r_F, s_F, rho_M,CN
@@ -2006,10 +2005,10 @@ implicit none
 
 !initialise parameters
 h_M = pars(1) !extramatrical hyphal biomass parameter
-s_H = pars(2) !hyphae specific turnover rate
-phi_M = pars(3) !priming paramter 
-ksi_M = pars(4) !rate of exudation
-gamma_M = pars(5) !apparent hyphal respiration rate 
+s_H = pars(2) * normFactETS !hyphae specific turnover rate
+phi_M = pars(3) !priming parameter 
+ksi_M = pars(4) * normFactETS !rate of exudation
+gamma_M = pars(5) * normFactETS !apparent hyphal respiration rate 
 
 !!!!!!!!!! I do not find the value of r_M
 ! r_M	= 0.d0  !Maintenance respiration rate of fungal tips
@@ -2047,6 +2046,8 @@ litt_RT = (rho_M * h_M * s_H)/(1+rho_M) * W_RT
 exud = (rho_M *ksi_M)/(1+rho_M) * W_RT
 
 P_RT =  (rho_M *ksi_M*phi_M)/(1+rho_M) * W_RT
+
+ write(1,*)ETS, st, CN, rho_M, r_F, s_F, r_RT,rm_aut_roots, litt_rt, exud, P_RT
 
 end subroutine
 
