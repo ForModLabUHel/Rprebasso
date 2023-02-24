@@ -670,8 +670,9 @@ if (N>0.) then
 !  par_mw = par_mw0 * p0 / p0_ref
 
   
-  par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
-  theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
+  ! par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
+  ! theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
+  theta = par_thetaMax
 
   mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
   if(ECMmod==1) mrFact = 0.
