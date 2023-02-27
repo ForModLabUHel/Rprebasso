@@ -155,7 +155,7 @@ prebas <- function(nYears,
   } 
   
   # print(initVar)
-  Ainit = 6 + 2*siteInfo[3] - 0.005*(ETSmean) + 2.25
+  Ainit = max((6 + 2*siteInfo[3] - 0.005*(ETSmean) + 2.25+2),2)
   if(is.na(initClearcut[5])) initClearcut[5] <- Ainit
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
     initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))

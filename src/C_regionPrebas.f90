@@ -251,6 +251,7 @@ endif
 		! write(*,*) ij,i,iz, "before run"
 		! close(2)
 	! endif
+	output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
@@ -294,7 +295,7 @@ else
  jj=nLayers(i)
 endif
 	if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
-	 Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSstart(climID) + 2.25 + 2.0)
+	 Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSstart(climID) + 2.25 + 2.0),2)
 	 ! if((maxYears-ij)<10) then
  		! Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0) !! + 2.0 to account for the delay between planting and clearcut
 	 ! else
@@ -455,7 +456,7 @@ endif
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
      enddo
-	 Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSstart(climID) + 2.25)
+	 Ainit = max(nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSstart(climID) + 2.25+2.),2)
 	 ! if((maxYears-ij)<10) then
 	  ! Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25)
 	 ! else
@@ -724,7 +725,7 @@ endif
     ! multiOut(siteX,ij,38,ijj,1) = sum(multiOut(siteX,1:ij,30,ijj,2)) + &
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
      enddo
-	 Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSstart(climID) + 2.25)
+	 Ainit = max(nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSstart(climID) + 2.25+2.),2)
 	 ! if((maxYears-ij)<10) then
 	  ! Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25)
 	 ! else
