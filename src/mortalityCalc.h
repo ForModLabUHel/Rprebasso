@@ -96,7 +96,8 @@ if (mortMod==1. .or. mortMod==3.) then
 	  ppow=1.6075
 
 	! Mortality - use Reineke from above
-		 if(time==inttimes) then
+		 !if(time==inttimes) then
+		 if(.true.) then
 		  Rein = Reineke(ij) / par_kRein
 
 		  if(Rein > 1.) then
@@ -326,7 +327,8 @@ dN=0.d0
 	  ppow=1.6075
 
 	! Mortality - use random model from siilipehto et al. 2020
-		 if(time==inttimes) then
+		 !if(time==inttimes) then
+		 if(.true.) then
 		!report BA and N to ha using the relative BA
 		
 		 Vold = stand(30)
