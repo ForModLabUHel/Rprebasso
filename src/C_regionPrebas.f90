@@ -295,9 +295,9 @@ else
 endif
 	if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
 	 if((maxYears-ij)<10) then
- 		Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0) !! + 2.0 to account for the delay between planting and clearcut
+ 		Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),1.) !! + 2.0 to account for the delay between planting and clearcut
 	 else
- 		Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0) !! + 2.0 to account for the delay between planting and clearcut
+ 		Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),1.) !! + 2.0 to account for the delay between planting and clearcut
 	 endif
 	 !!!!update area of cuttings
 	 cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
@@ -455,9 +455,9 @@ endif
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
      enddo
 	 if((maxYears-ij)<10) then
-	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25)
+	  Ainit = max(nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),1.)
 	 else
-	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
+	  Ainit = max(nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),1.)
 	 endif
 	 yearXrepl(siteX) = Ainit + ij + 1.
 	 initClearcut(siteX,5) = Ainit
@@ -723,9 +723,9 @@ endif
 		! sum(multiOut(siteX,1:ij,42,ijj,1)) + multiOut(siteX,ij,30,ijj,1)
      enddo
 	 if((maxYears-ij)<10) then
-	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25)
+	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),1.)
 	 else
-	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25)
+	  Ainit = nint(6 + 2*siteInfo(siteX,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),1.)
 	 endif
 	 yearXrepl(siteX) = Ainit + ij + 1.
 	 initClearcut(siteX,5) = Ainit
