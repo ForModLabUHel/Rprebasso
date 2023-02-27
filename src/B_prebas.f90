@@ -317,8 +317,8 @@ do year = 1, (nYears)
 	enddo
  endif
 
-! !calculate reneike and random mortality
 ! include 'mortalityCalc.h'
+calculate reneike and random mortality
 
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
@@ -1080,8 +1080,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
 end do !!!!end loop species
  end do !!!!end loop inttimes
 
-!calculate reneike and random mortality
-include 'mortalityCalc.h'
+! !calculate reneike and random mortality
+! include 'mortalityCalc.h'
 
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
 !!!!test for clearcut!!!!
