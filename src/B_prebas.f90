@@ -322,8 +322,8 @@ ETSmean = ETSmean + (ETS-ETSmean)/20.
 	enddo
  endif
 
-!calculate reneike and random mortality
-include 'mortalityCalc.h'
+! !calculate reneike and random mortality
+! include 'mortalityCalc.h'
 
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
@@ -1509,6 +1509,9 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
  endif !default thin
 endif
  
+ !calculate reneike and random mortality
+ include 'mortalityCalc.h'
+
 outt(:,:,1) = STAND_all
 
 modOut((year+1),2,:,:) = outt(2,:,:)
@@ -1550,6 +1553,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
  endif !end yassoRun if
  
+
 modOut(year+1,5,1,2) = ETSmean
 
 enddo !end year loop
