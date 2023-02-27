@@ -476,9 +476,9 @@ else
 endif
    if(sum(modOut(year,11,1:ij,1)) == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
-			Ainit = max(nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25 + 2.0),1)!! + 2.0 to account for the delay between planting and clearcut
+			Ainit = max(nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25 + 2.0),2)!! + 2.0 to account for the delay between planting and clearcut
 	else
-			Ainit = max(nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10.) + 2.25 + 2.0),1)!! + 2.0 to account for the delay between planting and clearcut
+			Ainit = max(nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10.) + 2.25 + 2.0),2)!! + 2.0 to account for the delay between planting and clearcut
 	endif
 	yearX = Ainit + year 
    endif
