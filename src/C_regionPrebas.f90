@@ -249,6 +249,7 @@ endif
 		! write(*,*) ij,i,iz, "before run"
 		! close(2)
 	! endif
+	output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
