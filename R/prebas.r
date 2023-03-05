@@ -1,3 +1,56 @@
+#' @title prebas model function
+#' @description function to run the PREBAS model for a single site!
+#'
+#' @param nYears number of years of the simulations
+#' @param pCROBAS (49 x nSpecies(11) matrix) Matrix of parameter sets of CROBAS growth model, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany), Quercus Ilex. Default is pCROB, print(pCROB) to see the parameter values and names.
+#' @param pHcMod  (7 x nSpecies(11) matrix) Matrix of parameter sets Height of the crown base model.
+#' @param pPRELES A vector of PRELES parameter. Default is the boreal forest version pPREL.  
+#' @param pYASSO A vector of YASSO parameters. Default is global pYAS
+#' @param pAWEN (12 x nSpecies(11) matrix) Matrix of parameter sets for litterfal decomposition in YASSO pools. Default is parsAWEN
+#' @param etmodel Evapotranspiration model for PRELES. Default etmodel = 0. Possible values -1, 0, 1, 2
+#' @param siteInfo vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3,160,0,0,20,413.,0.45,0.118), i.e. siteType = 3. 
+#' @param thinning A matrix with thinnig inputs. Rows correspond to a thinning event. Dimensions: #Thinnings x 10. The rows, nThin, is the number of thinnings. For the columns: column 1 is year from the start of the simulation when the thinnig occur; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 are stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999.; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
+#' @param initClearcut 
+#' @param fixBAinitClarcut 
+#' @param initCLcutRatio 
+#' @param PAR 
+#' @param TAir 
+#' @param VPD 
+#' @param Precip 
+#' @param CO2 
+#' @param P0 
+#' @param initVar 
+#' @param soilC 
+#' @param weatherYasso 
+#' @param litterSize 
+#' @param soilCtot 
+#' @param defaultThin 
+#' @param ClCut 
+#' @param energyCut 
+#' @param inDclct 
+#' @param inAclct 
+#' @param yassoRun 
+#' @param smoothP0 
+#' @param smoothETS 
+#' @param smoothYear 
+#' @param tapioPars 
+#' @param thdPer 
+#' @param limPer 
+#' @param ftTapioPar 
+#' @param tTapioPar 
+#' @param GVrun 
+#' @param thinInt 
+#' @param fertThin 
+#' @param nYearsFert 
+#' @param protect 
+#' @param mortMod 
+#' @param ECMmod 
+#' @param pECMmod 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 prebas <- function(nYears,
                    pCROBAS = pCROB,
                    pHcMod = pHcM,

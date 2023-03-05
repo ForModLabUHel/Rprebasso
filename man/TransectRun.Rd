@@ -43,7 +43,8 @@ TransectRun(
   ftTapioPar = ftTapio,
   tTapioPar = tTapio,
   thinInt = -999,
-  mortMod = 1
+  mortMod = 1,
+  ECMmod = 0
 )
 }
 \arguments{
