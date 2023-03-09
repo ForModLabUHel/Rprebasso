@@ -46,6 +46,8 @@
 #' @param mortMod 
 #' @param ECMmod 
 #' @param pECMmod 
+#' @param pPRELESgv preles parameters for ground vegetation (only runs if layerPRELES==1, other wise 1 parameter set is used for the whole ecosystem)
+#' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
 #'
 #' @return
 #' @export
@@ -92,7 +94,9 @@ prebas <- function(nYears,
                    protect=0,
                    mortMod=1,
                    ECMmod=0, #flag for ECM modelling MAkela et al.2022
-                   pECMmod=parsECMmod
+                   pECMmod=parsECMmod,
+                   pPRELESgv = pPREL,
+                   layerPRELES = 0
               ){
   
   ###process weather###
@@ -143,19 +147,6 @@ prebas <- function(nYears,
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
   if(smoothETS==1. & nYears>1) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,smoothYear)
   
-  ###if P0 is not provided use preles to compute P0
-  if(is.na(P0)){
-    P0 <- PRELES(DOY=rep(1:365,nYears),
-                 PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
-                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES)$GPP
-    P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
-  }
-  P0 <- matrix(P0,nYears,2)
-  if(smoothP0==1.& nYears>1){
-    P0[1,2] <- P0[1,1]
-    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
-  } 
-  
   ETSthres <- 1000; ETSmean <- mean(ETS)
   
   ####process clearcut
@@ -188,7 +179,28 @@ prebas <- function(nYears,
     initVar[5,] <- initClearcut[3]/nLayers; initVar[6,] <- initClearcut[4]
   }
   
+  ###set PRELES parameters
+  if(layerPRELES==0){
+    if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
+    pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
+  }
+    
+  ###if P0 is not provided use preles to compute P0
+  domSp <- initVar[1,which.max(initVar[5,])]
+  pPRELESx <- pPRELES[,domSp]
+  if(is.na(P0)){
+    P0 <- PRELES(DOY=rep(1:365,nYears),
+                 PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
+                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELESx)$GPP
+    P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
+  }
+  P0 <- matrix(P0,nYears,2)
+  if(smoothP0==1.& nYears>1){
+    P0[1,2] <- P0[1,1]
+    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
+  } 
   
+    
   ####if Height of the crown base is not available use model
   initVar <- findHcNAs(initVar,pHcMod)
   # initialize A
@@ -294,7 +306,9 @@ prebas <- function(nYears,
                      protect = as.integer(protect),
                      mortMod = as.integer(mortMod),
                      ECMmod = as.integer(ECMmod),
-                     pECMmod = as.numeric(pECMmod)
+                     pECMmod = as.numeric(pECMmod),
+                     pPRELESgv = as.double(pPRELESgv),
+                     layerPRELES = as.integer(layerPRELES)
                      )
   class(prebas) <- "prebas"
   return(prebas)

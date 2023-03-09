@@ -44,7 +44,9 @@ TransectRun(
   tTapioPar = tTapio,
   thinInt = -999,
   mortMod = 1,
-  ECMmod = 0
+  ECMmod = 0,
+  pPRELESgv = pPREL,
+  layerPRELES = 0
 )
 }
 \arguments{
@@ -66,15 +68,71 @@ TransectRun(
 
 \item{multiThin}{A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.}
 
+\item{multiNthin}{}
+
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
 \item{energyCut}{Energy cutting strategy will be applied if set to 1. Default value is 0.}
 
+\item{GVrun}{}
+
+\item{pHcMod}{}
+
+\item{etmodel}{}
+
+\item{pYASSO}{}
+
+\item{pAWEN}{}
+
 \item{multiInitClearCut}{A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'}
+
+\item{fixBAinitClarcut}{}
+
+\item{initCLcutRatio}{}
+
+\item{multiP0}{}
+
+\item{soilC}{}
+
+\item{weatherYasso}{}
+
+\item{litterSize}{}
+
+\item{soilCtot}{}
+
+\item{inDclct}{}
+
+\item{inAclct}{}
+
+\item{yassoRun}{}
+
+\item{smoothP0}{}
+
+\item{smoothETS}{}
+
+\item{smoothYear}{}
+
+\item{HcModV}{}
+
+\item{tapioPars}{}
+
+\item{thdPer}{}
+
+\item{limPer}{}
+
+\item{ftTapioPar}{}
+
+\item{tTapioPar}{}
+
+\item{thinInt}{}
 
 \item{mortMod}{flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)}
 
 \item{ECMmod}{flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling}
+
+\item{pPRELESgv}{}
+
+\item{layerPRELES}{}
 }
 \value{
 The output from multiPrebas()

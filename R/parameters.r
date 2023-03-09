@@ -119,6 +119,19 @@ pPRELESpipi<-c(991,0.337,0.04,3,0.783982507431094,5.40766132920764,-8.7289391919
                0.098397649465536,0.999515961301202,0.195616291162648,1.2,0.33,6.16,0,0,200,
                0,0,0,-999,-999,-999) # Pinus pinaster Maritime pine, Multi-site calibration, siteID FR-LBr	and IT-SRo
 
+####prepare preles parameters default values matrix for the species in pCROB
+pPRELESall <- matrix(NA, nrow = length(pPREL),ncol(pCROB))
+colnames(pPRELESall) <- colnames(pCROB)
+pPRELESall[,1:3] <- pPREL #boreal species
+pPRELESall[,4] <- pPRELESfasy
+pPRELESall[,5] <- pPRELESpipi
+pPRELESall[,6] <- pPRELESeugl
+pPRELESall[,7] <- pPRELES.Df.DBF
+pPRELESall[,8] <- pPRELES.Df.DBF
+pPRELESall[,9] <- pPRELESeugl
+pPRELESall[,10] <- pPRELESpiabDE
+pPRELESall[,11] <- pPRELES.Df.DBF
+
 ####default ECM model parameters
 parsECMmod <- c(0.14, 2, 1, 0.5, 2.66, 43.27474, -0.02002, 3.389821, 0.02788, 0.4239, -0.3023, -26.14)
 names(parsECMmod) <- c("h_M","s_H","phi_M","ksi_M","gamma_M","int_CN","p_ETS","p_st","p1_rhoMcalc","p2_rhoMcalc","p3_rhoMcalc","p4_rhoMcalc")

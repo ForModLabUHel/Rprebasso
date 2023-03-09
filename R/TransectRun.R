@@ -15,6 +15,34 @@
 #' @param mortMod flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)
 #' @param ECMmod flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling
 #' @param multiInitClearCut A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'
+#' @param multiNthin 
+#' @param GVrun 
+#' @param pHcMod 
+#' @param etmodel 
+#' @param pYASSO 
+#' @param pAWEN 
+#' @param fixBAinitClarcut 
+#' @param initCLcutRatio 
+#' @param multiP0 
+#' @param soilC 
+#' @param weatherYasso 
+#' @param litterSize 
+#' @param soilCtot 
+#' @param inDclct 
+#' @param inAclct 
+#' @param yassoRun 
+#' @param smoothP0 
+#' @param smoothETS 
+#' @param smoothYear 
+#' @param HcModV 
+#' @param tapioPars 
+#' @param thdPer 
+#' @param limPer 
+#' @param ftTapioPar 
+#' @param tTapioPar 
+#' @param thinInt 
+#' @param pPRELESgv 
+#' @param layerPRELES 
 #' 
 #' @importFrom plyr aaply
 #'
@@ -82,7 +110,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         tTapioPar = tTapio,
                         thinInt = -999.,
                         mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-                        ECMmod = 0
+                        ECMmod = 0,
+                        pPRELESgv = pPREL,
+                        layerPRELES = 0
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -183,7 +213,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     tTapioPar = tTapioPar,
     thinInt = thinInt,
     mortMod = mortMod,#flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-    ECMmod=ECMmod
+    ECMmod=ECMmod,
+    pPRELESgv=pPRELESgv,
+    layerPRELES=layerPRELES
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

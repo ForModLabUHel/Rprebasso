@@ -49,27 +49,29 @@ prebas(
   protect = 0,
   mortMod = 1,
   ECMmod = 0,
-  pECMmod = parsECMmod
+  pECMmod = parsECMmod,
+  pPRELESgv = pPREL,
+  layerPRELES = 0
 )
 }
 \arguments{
 \item{nYears}{number of years of the simulations}
 
-\item{pCROBAS}{}
+\item{pCROBAS}{(49 x nSpecies(11) matrix) Matrix of parameter sets of CROBAS growth model, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany), Quercus Ilex. Default is pCROB, print(pCROB) to see the parameter values and names.}
 
-\item{pHcMod}{}
+\item{pHcMod}{(7 x nSpecies(11) matrix) Matrix of parameter sets Height of the crown base model.}
 
-\item{pPRELES}{}
+\item{pPRELES}{A vector of PRELES parameter. Default is the boreal forest version pPREL.}
 
-\item{pYASSO}{}
+\item{pYASSO}{A vector of YASSO parameters. Default is global pYAS}
 
-\item{pAWEN}{}
+\item{pAWEN}{(12 x nSpecies(11) matrix) Matrix of parameter sets for litterfal decomposition in YASSO pools. Default is parsAWEN}
 
-\item{etmodel}{}
+\item{etmodel}{Evapotranspiration model for PRELES. Default etmodel = 0. Possible values -1, 0, 1, 2}
 
-\item{siteInfo}{}
+\item{siteInfo}{vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3,160,0,0,20,413.,0.45,0.118), i.e. siteType = 3.}
 
-\item{thinning}{}
+\item{thinning}{A matrix with thinnig inputs. Rows correspond to a thinning event. Dimensions: #Thinnings x 10. The rows, nThin, is the number of thinnings. For the columns: column 1 is year from the start of the simulation when the thinnig occur; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 are stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999.; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
 
 \item{initClearcut}{}
 
@@ -142,6 +144,10 @@ prebas(
 \item{ECMmod}{}
 
 \item{pECMmod}{}
+
+\item{pPRELESgv}{preles parameters for ground vegetation (only runs if layerPRELES==1, other wise 1 parameter set is used for the whole ecosystem)}
+
+\item{layerPRELES}{flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest}
 }
 \description{
 function to run the PREBAS model for a single site!
