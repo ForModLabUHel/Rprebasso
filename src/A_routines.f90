@@ -2075,18 +2075,6 @@ P_RT =  (rho_M *ksi_M*phi_M)/(1+rho_M) * W_RT
 
 end subroutine
 
-! subroutine test(ciao,species)
-	
-	! implicit none
-	! integer, intent(inout) :: ciao(4)
-	! real(8) :: species(1)
-	! species(1) = 0
-	! ciao(2) = 1/species(1)
-	! species = maxloc(ciao)
-	
-	! if(species(1) /= species(1)) species(1)=999
-	
-! end subroutine test
 
 
 !!new routine to calculate alfar based on CNratio
@@ -2105,3 +2093,117 @@ subroutine calcAlfarCN(alfar0, ETS, st, parsCN,parsAlfar,nSp)
 
 endsubroutine	
 
+
+! calculate climate dependence on decomposition based on YASSO equations
+SUBROUTINE fTyasso(theta,climate,fTaweNH)
+IMPLICIT NONE
+    !********************************************* &
+    ! GENERAL DESCRIPTION FOR ALL THE MEASUREMENTS
+    !********************************************* &
+    ! returns the model prediction xt for the given parameters
+    ! 1-16 matrix A entries: 4*alpha, 12*p
+
+    ! 17-21 Leaching parameters: w1,...,w5 IGNORED IN THIS FUNCTION
+
+    ! 22-23 Temperature-dependence parameters for AWE fractions: beta_1, beta_2
+
+    ! 24-25 Temperature-dependence parameters for N fraction: beta_N1, beta_N2
+
+    ! 26-27 Temperature-dependence parameters for H fraction: beta_H1, beta_H2
+
+    ! 28-30 Precipitation-dependence parameters for AWE, N and H fraction: gamma, gamma_N, gamma_H
+
+    ! 31-32 Humus decomposition parameters: p_H, alpha_H (Note the order!)
+
+    ! 33-35 Woody parameters: theta_1, theta_2, r
+
+    REAL (kind=8),DIMENSION(35),INTENT(IN) :: theta ! parameters
+    REAL (kind=8),DIMENSION(3),INTENT(IN) :: climate ! climatic conditions
+    REAL (kind=8),DIMENSION(3),INTENT(out) :: fTaweNH ! climate dependence on decomposition 
+
+    INTEGER :: i
+    REAL (kind=8),PARAMETER :: pi = 3.141592653589793
+    REAL (kind=8) :: tem,temN,temH
+    REAL (kind=8),DIMENSION(5) :: te
+    REAL (kind=8),DIMENSION(5) :: z1,z2
+    REAL (kind=8),PARAMETER :: tol = 1E-12
+    LOGICAL :: ss_pred = .FALSE.
+
+    !#########################################################################
+    ! Compute the coefficient matrix A for the differential equation
+
+    ! temperature annual cycle approximation
+    te(1) = climate(1)+4*climate(3)*(1/SQRT(2.0)-1)/pi
+    te(2) = climate(1)-4*climate(3)/SQRT(2.0)/pi
+    te(3) = climate(1)+4*climate(3)*(1-1/SQRT(2.0))/pi
+    te(4) = climate(1)+4*climate(3)/SQRT(2.0)/pi
+
+    tem = 0.0
+    temN = 0.0
+    temH = 0.0
+    DO i = 1,4 ! Average temperature dependence
+        tem = tem+EXP(theta(22)*te(i)+theta(23)*te(i)**2.0)/4.0 ! Gaussian
+        temN = temN+EXP(theta(24)*te(i)+theta(25)*te(i)**2.0)/4.0
+        temH = temH+EXP(theta(26)*te(i)+theta(27)*te(i)**2.0)/4.0
+    END DO
+
+    ! Precipitation dependence
+    tem = tem*(1.0-EXP(theta(28)*climate(2)/1000.0))
+    temN = temN*(1.0-EXP(theta(29)*climate(2)/1000.0))
+    temH = temH*(1.0-EXP(theta(30)*climate(2)/1000.0))
+
+fTaweNH(1) = tem
+fTaweNH(2) = temN
+fTaweNH(3) = temH
+
+    END SUBROUTINE
+
+
+
+ !     call Nitrogen(Gf,Gr,Gw,Nup,Ndem,nitpar)
+ !!!!calculate Nitrogen demand Ndem and uptake Nup
+!Note: parameters should be included as arguments inputs instead of being internally assigned
+! Gf, Gr, Gw stand level growth rates of foliage, fine roots, wood by layer (kg C / ha / yr)
+! Wrtot stand level biomass of fine roots of all layers (kg C / ha)
+! st site type
+! ETS long-term mean ETS
+! Wr stand level biomass of fine roots of current layer (kg C / ha)
+! Nup N uptake by current layer
+subroutine Nitrogen(Gf,Gr,Gw,Wr,Wrtot,st, ETS, CN, Nup,Ndem,nitpar, pars)
+implicit none
+
+	real(8),intent(in) :: Gf, Gr, Gw, Wr, Wrtot, st, ETS, nitpar(8), pars(12)
+	real(8),intent(out) :: Nup, Ndem
+	!parameters
+	real(8) :: nf, nr, nw, ff, fr, fw, Umax, kN, CN
+	
+	!init parameters
+	! nf = nitpar(1)
+	! nr = nitpar(2)	
+	! nw = nitpar(3)
+    ! ff = nitpar(4)
+	! fr = nitpar(5)
+	! fw = nitpar(6)
+	! Umax = nitpar(7)	
+	! kN = nitpar(8)
+	! 
+
+call CNratio(CN, ETS, st,pars(6:8))	
+	nf = (1.6725 - 0.012 * CN) / 50.
+	nr = 0.8 * nf	
+	nw = 0.2 * nf
+    ff = 0.7
+	fr = 0.7
+	fw = 0.0
+	Umax = 30	
+	kN = 0.001
+
+ !calculate Ndem
+ Ndem = nf * (1.0 - ff) * Gf + nr * (1.0 - fr) * Gr + nw * (1.0 - fw) * Gw
+ if (Wrtot.gt.0.) then
+	Nup = Umax * (1.0 - exp(-kN * Wrtot)) * Wr / Wrtot
+else
+	Nup = 0.
+endif
+
+endsubroutine

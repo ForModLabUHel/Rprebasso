@@ -112,7 +112,9 @@ real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
-real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
+ real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8)
+
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
 !v1 version definitions
@@ -813,6 +815,15 @@ endif
             dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
             dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
             dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
+
+! determine N demand and N uptake
+		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH + wf_STKG / par_vf
+		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH + W_froot / par_vr
+		dWw = N * par_rhow * (dA * (beta1 * H + beta2 * Hc) + A * (beta1 * dH + beta2 * dHc))
+		Sb = N * par_rhow * A *(par_z + 1) * betab * dHc
+		Sc = N * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
+		St = N * beta0 * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
+		Gw = dWw + Sb + Sc + St + theta * W_wsap
 
 !!  Update state variables
           H = H + step * dH
