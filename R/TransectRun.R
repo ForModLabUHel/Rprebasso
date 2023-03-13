@@ -139,6 +139,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     path.weatherTran <-
       system.file("transect", "weatherTran.rda", package = "Rprebasso")
     load(file = path.weatherTran)
+    nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
     PAR = do.call(cbind, replicate(nRep, PARtran, simplify = FALSE))
     TAir = do.call(cbind, replicate(nRep, TAirtran, simplify = FALSE))
     VPD = do.call(cbind, replicate(nRep, VPDtran, simplify = FALSE))
@@ -152,8 +153,6 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     CO2 = weatherInput$CO2
   }
   
-  nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
-
   if (AgeEffect == T) {
     pCROBAS[45, ] <- 0.3
   }
