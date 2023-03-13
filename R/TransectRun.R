@@ -25,6 +25,7 @@
 #' @param initCLcutRatio 
 #' @param multiP0 
 #' @param soilC 
+#' @param weatherInput ##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations
 #' @param weatherYasso 
 #' @param litterSize 
 #' @param soilCtot 
@@ -93,6 +94,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                         multiP0=NA,
                         soilC = NA,
+                        weatherInput=NULL,
                         weatherYasso = NA,
                         litterSize = litterSizeDef,
                         soilCtot = NA,
@@ -157,15 +159,26 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
   }
 
-  path.weatherTran <-
-    system.file("transect", "weatherTran.rda", package = "Rprebasso")
-  load(file = path.weatherTran)
-  
-  
   nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
 
   if (AgeEffect == T) {
     pCROBAS[45, ] <- 0.3
+  }
+  if(is.null(weatherInput)){
+    path.weatherTran <-
+      system.file("transect", "weatherTran.rda", package = "Rprebasso")
+    load(file = path.weatherTran)
+    PAR = do.call(cbind, replicate(nRep, PARtran, simplify = FALSE))
+    TAir = do.call(cbind, replicate(nRep, TAirtran, simplify = FALSE))
+    VPD = do.call(cbind, replicate(nRep, VPDtran, simplify = FALSE))
+    Precip = do.call(cbind, replicate(nRep, Preciptran, simplify = FALSE))
+    CO2 = do.call(cbind, replicate(nRep, CO2tran, simplify = FALSE))
+  }else{
+    PAR = weatherInput$PAR
+    TAir = weatherInput$TAir
+    VPD = weatherInput$VPD
+    Precip = weatherInput$Precip
+    CO2 = weatherInput$CO2
   }
 
   initPrebas <- InitMultiSite(
