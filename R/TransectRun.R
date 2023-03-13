@@ -18,7 +18,8 @@
 #' @param ETSstart A vector of initial average ETS, it should be based on historical data. if NULL it will be calculated using the first 10 years of the simulation weather inputs
 #' @param pCN_alfar Matrix of parameters (columns are species)for alfar calculations based on CN ratio. Use parsCN_alfar as default values
 #' @param fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
-#' 
+#' @param weatherInput ##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations
+#'
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
@@ -68,6 +69,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                         multiP0=NA,
                         soilC = NA,
+                        weatherInput=NULL,
                         weatherYasso = NA,
                         litterSize = litterSizeDef,
                         soilCtot = NA,
@@ -133,10 +135,23 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
   }
 
-  path.weatherTran <-
-    system.file("transect", "weatherTran.rda", package = "Rprebasso")
-  load(file = path.weatherTran)
-
+  if(is.null(weatherInput)){
+    path.weatherTran <-
+      system.file("transect", "weatherTran.rda", package = "Rprebasso")
+    load(file = path.weatherTran)
+    PAR = do.call(cbind, replicate(nRep, PARtran, simplify = FALSE))
+    TAir = do.call(cbind, replicate(nRep, TAirtran, simplify = FALSE))
+    VPD = do.call(cbind, replicate(nRep, VPDtran, simplify = FALSE))
+    Precip = do.call(cbind, replicate(nRep, Preciptran, simplify = FALSE))
+    CO2 = do.call(cbind, replicate(nRep, CO2tran, simplify = FALSE))
+  }else{
+    PAR = weatherInput$PAR
+    TAir = weatherInput$TAir
+    VPD = weatherInput$VPD
+    Precip = weatherInput$Precip
+    CO2 = weatherInput$CO2
+  }
+  
   nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
 
   if (AgeEffect == T) {
@@ -149,11 +164,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     pCROBAS = pCROBAS,
     pPRELES = pPRELES,
     multiInitVar = as.array(initVar),
-    PAR = do.call(cbind, replicate(nRep, PARtran, simplify = FALSE)),
-    TAir = do.call(cbind, replicate(nRep, TAirtran, simplify = FALSE)),
-    VPD = do.call(cbind, replicate(nRep, VPDtran, simplify = FALSE)),
-    Precip = do.call(cbind, replicate(nRep, Preciptran, simplify = FALSE)),
-    CO2 = do.call(cbind, replicate(nRep, CO2tran, simplify = FALSE)),
+    PAR = PAR,
+    TAir = TAir,
+    VPD = VPD,
+    Precip = Precip,
+    CO2 = CO2,
     # litterSize = litterSize,
     # pAWEN = parsAWEN,
     defaultThin = defaultThin,
