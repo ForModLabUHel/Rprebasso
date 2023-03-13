@@ -159,8 +159,6 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
   }
 
-  nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
-
   if (AgeEffect == T) {
     pCROBAS[45, ] <- 0.3
   }
@@ -168,6 +166,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     path.weatherTran <-
       system.file("transect", "weatherTran.rda", package = "Rprebasso")
     load(file = path.weatherTran)
+    nRep <- ceiling(nYears / (dim(PARtran)[2] / 365))
     PAR = do.call(cbind, replicate(nRep, PARtran, simplify = FALSE))
     TAir = do.call(cbind, replicate(nRep, TAirtran, simplify = FALSE))
     VPD = do.call(cbind, replicate(nRep, VPDtran, simplify = FALSE))
