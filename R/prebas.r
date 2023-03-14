@@ -1,3 +1,57 @@
+#' Title
+#'
+#' @param nYears 
+#' @param pCROBAS 
+#' @param pHcMod 
+#' @param pPRELES 
+#' @param pYASSO 
+#' @param pAWEN 
+#' @param etmodel 
+#' @param siteInfo 
+#' @param thinning A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
+#' @param initClearcut 
+#' @param fixBAinitClarcut 
+#' @param initCLcutRatio 
+#' @param PAR 
+#' @param TAir 
+#' @param VPD 
+#' @param Precip 
+#' @param CO2 
+#' @param P0 
+#' @param initVar 
+#' @param soilC 
+#' @param weatherYasso 
+#' @param litterSize 
+#' @param soilCtot 
+#' @param defaultThin 
+#' @param ClCut 
+#' @param energyCut 
+#' @param inDclct 
+#' @param inAclct 
+#' @param yassoRun 
+#' @param smoothP0 
+#' @param smoothETS 
+#' @param smoothYear 
+#' @param tapioPars 
+#' @param thdPer 
+#' @param limPer 
+#' @param ftTapioPar 
+#' @param tTapioPar 
+#' @param GVrun 
+#' @param thinInt 
+#' @param fertThin 
+#' @param nYearsFert 
+#' @param protect 
+#' @param mortMod 
+#' @param ECMmod 
+#' @param pECMmod 
+#' @param ETSstart 
+#' @param pCN_alfar 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 prebas <- function(nYears,
                    pCROBAS = pCROB,
                    pHcMod = pHcM,
