@@ -90,7 +90,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         ECMmod = 0,
                         ETSstart=NULL,
                         pCN_alfar = NULL,
-                        fertThin=0
+                        fertThin=0,
+                        latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203)
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)

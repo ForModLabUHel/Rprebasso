@@ -95,9 +95,15 @@ prebas <- function(nYears,
                    ECMmod=0, #flag for ECM modelling MAkela et al.2022
                    pECMmod=parsECMmod,
                    ETSstart=NULL,
-                   pCN_alfar=NULL
+                   pCN_alfar=NULL,
+                   latitude = NULL
               ){
   
+  if(is.null(latitude) & ECMmod==1){
+    stop("you need to provide the latitudes of the site")
+  }else{
+    latitude <- 999
+  }
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -319,7 +325,8 @@ prebas <- function(nYears,
                      mortMod = as.integer(mortMod),
                      ECMmod = as.integer(ECMmod),
                      pECMmod = as.numeric(pECMmod),
-                     ETSstart = as.double(ETSstart)
+                     ETSstart = as.double(ETSstart),
+                     latitude = as.double(latitude)
   )
   class(prebas) <- "prebas"
   return(prebas)

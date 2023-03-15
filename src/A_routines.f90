@@ -1870,11 +1870,11 @@ subroutine testOption(a,b,c,valX1,valX2,valX3)
 end subroutine testOption 
 
 
-subroutine calcAlfarFert(siteTAlpha,ETS,species,pCrobas,nLayers,nSp,nYearsFert,npar,siteTypeOrig,deltaSiteTypeFert,parsCN)
+subroutine calcAlfarFert(siteTAlpha,latitude,species,pCrobas,nLayers,nSp,nYearsFert,npar,siteTypeOrig,deltaSiteTypeFert,parsCN)
 	implicit none
 	integer, intent(in) :: nLayers,nSp,nYearsFert,npar
 	real(8),intent(inout) :: siteTAlpha(nYearsFert,nLayers,2),pCrobas(npar,nSp), siteTypeOrig,deltaSiteTypeFert
-	real(8),intent(inout) :: species(nLayers),ETS(nYearsFert),parsCN(3)
+	real(8),intent(inout) :: species(nLayers),latitude,parsCN(3)
 	! integer,intent(inout) :: year!,ind(3,2)
 	integer :: i,it
 	real(8):: alfarUnfert(nLayers), alfarFert(nLayers),slope,interc,SiteTypeFert,siteType(nYearsFert,nLayers),CN
@@ -1896,7 +1896,7 @@ subroutine calcAlfarFert(siteTAlpha,ETS,species,pCrobas,nLayers,nSp,nYearsFert,n
 			enddo
 			! 2. for each year and each layer calculate alfar usingCN ratio
 			do it = 1,nYearsFert
-				call CNratio(CN, ETS(it), siteTAlpha(it,i,1),parsCN)
+				call CNratio(CN, latitude, siteTAlpha(it,i,1),parsCN)
 			    siteTAlpha(it,i,2) = pCrobas(21,int(max(species(i),1.))) * exp(pCrobas(22,int(max(species(i),1.)))*CN)
 			enddo
 			
@@ -1977,21 +1977,21 @@ end subroutine
 	
 	!!!!calculate C:N based on ets and site type 
 !Note: parameters should be included as arguments inputs instead of being internally assigned
-subroutine CNratio(CN, ETS, st,pars)
+subroutine CNratio(CN, latitude, st,pars)
 implicit none
 
-	real(8),intent(in) :: ETS, st, pars(3)
+	real(8),intent(in) :: latitude, st, pars(3)
 	real(8),intent(out) :: CN
 	!parameters
-	real(8) :: int_CN, p_ETS, p_st
+	real(8) :: int_CN, p_lat, p_st
 	
 	!init parameters
 	int_CN = pars(1)
-	p_ETS = pars(2)
+	p_lat = pars(2)
 	p_st = pars(3)
 
  !calculate CN ratio
- CN = int_CN + p_ETS * ETS + p_st * st
+ CN = int_CN + p_lat * latitude + p_st * st
 endsubroutine	
 
 !!!!calculate ration of ECM biomass to fine root biomass (from Ostonen et al. 2011)
@@ -2017,10 +2017,10 @@ endsubroutine
 
 
 
-subroutine CUEcalc(ETS, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,P_RT,normFactETS,pars)
+subroutine CUEcalc(latitude, st,r_r,W_RT,r_RT,rm_aut_roots,litt_RT,exud,P_RT,normFactETS,pars)
 
 implicit none
-	real(8),intent(in) :: ETS, st,r_r,W_RT, pars(12), normFactETS
+	real(8),intent(in) :: latitude, st,r_r,W_RT, pars(12), normFactETS
 	real(8),intent(out) :: rm_aut_roots,litt_RT,exud,r_RT,P_RT
 
 	real(8) :: r_F, s_F, rho_M,CN
@@ -2038,7 +2038,7 @@ gamma_M = pars(5) * normFactETS !apparent hyphal respiration rate
 ! r_M	= 0.d0  !Maintenance respiration rate of fungal tips
 !!!!!!!!!! I do not find the value of r_M
 
-call CNratio(CN, ETS, st,pars(6:8))
+call CNratio(CN, latitude, st,pars(6:8))
 call rhoMcalc(rho_M, CN,pars(9:12))
 
 
@@ -2078,17 +2078,17 @@ end subroutine
 
 
 !!new routine to calculate alfar based on CNratio
-subroutine calcAlfarCN(alfar0, ETS, st, parsCN,parsAlfar,nSp)
+subroutine calcAlfarCN(alfar0, latitude, st, parsCN,parsAlfar,nSp)
 
 	implicit none
 
 		integer :: nSp
-		real(8),intent(in) :: ETS, st, parsCN(3),parsAlfar(2,nSp)
+		real(8),intent(in) :: latitude, st, parsCN(3),parsAlfar(2,nSp)
 		real(8),intent(out) :: alfar0(nSP)
 		real(8) :: CN
 		
 		!init parameters
-	call CNratio(CN, ETS, st,parsCN)
+	call CNratio(CN, latitude, st,parsCN)
 	alfar0 = parsAlfar(1,:) * exp(parsAlfar(2,:)*CN)
 
 endsubroutine	
@@ -2169,10 +2169,10 @@ fTaweNH(3) = temH
 ! ETS long-term mean ETS
 ! Wr stand level biomass of fine roots of current layer (kg C / ha)
 ! Nup N uptake by current layer
-subroutine Nitrogen(Gf,Gr,Gw,Wr,Wrtot,st, ETS, CN, Nup,Ndem,nitpar, pars)
+subroutine Nitrogen(Gf,Gr,Gw,Wr,Wrtot,st, latitude, CN, Nup,Ndem,nitpar, pars)
 implicit none
 
-	real(8),intent(in) :: Gf, Gr, Gw, Wr, Wrtot, st, ETS, nitpar(8), pars(12)
+	real(8),intent(in) :: Gf, Gr, Gw, Wr, Wrtot, st, latitude, nitpar(8), pars(12)
 	real(8),intent(out) :: Nup, Ndem
 	!parameters
 	real(8) :: nf, nr, nw, ff, fr, fw, Umax, kN, CN
@@ -2188,7 +2188,7 @@ implicit none
 	! kN = nitpar(8)
 	! 
 
-call CNratio(CN, ETS, st,pars(6:8))	
+call CNratio(CN, latitude, st,pars(6:8))	
 	nf = (1.6725 - 0.012 * CN) / 50.
 	nr = 0.8 * nf	
 	nw = 0.2 * nf

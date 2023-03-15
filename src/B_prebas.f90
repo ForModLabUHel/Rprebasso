@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude)
 
 implicit none
 
@@ -24,7 +24,7 @@ implicit none
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 10) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
- real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
+ real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -739,7 +739,7 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 			    normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
 				! normFactP = p0 / p0_ref
 				! call CUEcalc(ETSmean, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
-				call CUEcalc(ETSmean, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,normFactETS,pECMmod) !!!ECMmodelling
+				call CUEcalc(latitude, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,normFactETS,pECMmod) !!!ECMmodelling
 
 				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
@@ -1299,7 +1299,7 @@ if(defaultThin == 1.) then
 		modOut((year+1):(year+yearsFert),3,:,1) = max(1.,siteType-1.)
 		! call calcAlfarFert(modOut(year,3,:,:),initVar(1,:),pCrobas, &
 				! nLayers,alfarFert,nSp,nYearsFert,npar)
-		call calcAlfarFert(modOut((year+1):(year+yearsFert),3,:,:),modOut((year+1):(year+yearsFert),5,1,1), & 
+		call calcAlfarFert(modOut((year+1):(year+yearsFert),3,:,:),latitude,5,1,1), & 
 		modOut(year,4,:,1), pCrobas,nLayers,nSp,yearsFert,npar, siteInfo(3),deltaSiteTypeFert,pECMmod(6:8))
 	endif
 !!!end fertilization at thinning
@@ -1386,8 +1386,6 @@ if(defaultThin == 1.) then
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
     Hc = min(stand_all(14,ij),0.9*H)
-	if(siteInfo(1)==719400.) then 
-	endif
 
 	Wdb = stand_all(51,ij)
     Lc = H - Hc !Lc

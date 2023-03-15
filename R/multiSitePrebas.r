@@ -44,10 +44,19 @@ InitMultiSite <- function(nYearsMS,
                           ECMmod=0, #flag for ECM modelling MAkela et al.2022
                           pECMmod = parsECMmod,
                           ETSstart = NULL,
-                          pCN_alfar=NULL ##parameters for calculating alfar from CN ratio
+                          pCN_alfar=NULL,##parameters for calculating alfar from CN ratio
+                          latitude=NULL #vector of latitudes of sites
                           ){  
   
+  
   nSites <- length(nYearsMS)
+  
+  if(is.null(latitude) & ECMmod==1){
+    stop("you need to provide the latitudes of the sites")
+  }else{
+    latitude <- rep(999,nSites)
+  }
+  
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
@@ -406,7 +415,8 @@ InitMultiSite <- function(nYearsMS,
     ECMmod = ECMmod,
     pECMmod = pECMmod,
     ETSstart = ETSstart,
-    pCN_alfar = pCN_alfar 
+    pCN_alfar = pCN_alfar,
+    latitude = latitude
   )
   return(multiSiteInit)
 }
@@ -520,7 +530,8 @@ multiPrebas <- function(multiSiteInit,
                      mortMod=as.double(multiSiteInit$mortMod),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     ETSstart=as.double(multiSiteInit$ETSstart)
+                     ETSstart=as.double(multiSiteInit$ETSstart),
+                     latitude=as.double(multiSiteInit$latitude)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -690,7 +701,8 @@ if(ageHarvPrior>0){
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     ETSstart=as.double(multiSiteInit$ETSstart)
+                     ETSstart=as.double(multiSiteInit$ETSstart),
+                     latitude=as.double(multiSiteInit$latitude)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -869,7 +881,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     ETSstart=as.double(multiSiteInit$ETSstart)
+                     ETSstart=as.double(multiSiteInit$ETSstart),
+                     latitude=as.double(multiSiteInit$latitude)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
