@@ -9,7 +9,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		pAWEN,weatherYasso,litterSize,soilCtot, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
-		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod,pECMmod,ETSstart) !!energCut
+		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod,pECMmod,ETSstart,latitude) !!energCut
 
 implicit none
 

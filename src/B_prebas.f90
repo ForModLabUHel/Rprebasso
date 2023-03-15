@@ -1299,8 +1299,8 @@ if(defaultThin == 1.) then
 		modOut((year+1):(year+yearsFert),3,:,1) = max(1.,siteType-1.)
 		! call calcAlfarFert(modOut(year,3,:,:),initVar(1,:),pCrobas, &
 				! nLayers,alfarFert,nSp,nYearsFert,npar)
-		call calcAlfarFert(modOut((year+1):(year+yearsFert),3,:,:),latitude,5,1,1), & 
-		modOut(year,4,:,1), pCrobas,nLayers,nSp,yearsFert,npar, siteInfo(3),deltaSiteTypeFert,pECMmod(6:8))
+		call calcAlfarFert(modOut((year+1):(year+yearsFert),3,:,:),latitude, modOut(year,4,:,1),& 
+		  pCrobas,nLayers,nSp,yearsFert,npar, siteInfo(3),deltaSiteTypeFert,pECMmod(6:8))
 	endif
 !!!end fertilization at thinning
 

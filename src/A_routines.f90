@@ -2071,8 +2071,6 @@ exud = (rho_M *ksi_M)/(1+rho_M) * W_RT
 
 P_RT =  (rho_M *ksi_M*phi_M)/(1+rho_M) * W_RT
 
- write(1,*)ETS, st, CN, rho_M, r_F, s_F, r_RT,rm_aut_roots, litt_rt, exud, P_RT
-
 end subroutine
 
 

@@ -205,7 +205,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     mortMod = mortMod,#flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
     ECMmod=ECMmod,
     ETSstart = ETSstart,
-    pCN_alfar = pCN_alfar
+    pCN_alfar = pCN_alfar,
+    latitude = latitude
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
   TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
