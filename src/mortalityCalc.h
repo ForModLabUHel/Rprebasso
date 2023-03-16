@@ -149,10 +149,10 @@ if (mortMod==1. .or. mortMod==3.) then
 				wf_STKG = wf_STKG * N/Nold
 	  STAND(24) = W_branch
 	  STAND(25) = W_froot
-	  STAND(26) = S_fol
-	  STAND(27) = S_fr
-	  STAND(28) = S_branch
-	  STAND(29) = S_wood
+	  STAND(26) = S_fol + STAND(26)
+	  STAND(27) = S_fr + STAND(27)
+	  STAND(28) = S_branch + STAND(28)
+	  STAND(29) = S_wood + STAND(29)
 	  STAND(31) = W_stem
 	  STAND(32) = W_croot
 	  STAND(42) = Vold - V
@@ -164,11 +164,11 @@ if (mortMod==1. .or. mortMod==3.) then
 	  STAND(54) = W_crh
 	  STAND(51) = Wdb
 
-		  else
-	  STAND(26) = 0.
-	  STAND(27) = 0.
-	  STAND(28) = 0.
-	  STAND(29) = 0.
+!		  else
+!	  STAND(26) = 0.
+!	  STAND(27) = 0.
+!	  STAND(28) = 0.
+!	  STAND(29) = 0.
 	  STAND(42) = 0.
 		  endif
 		 endif
@@ -183,12 +183,12 @@ if (mortMod==1. .or. mortMod==3.) then
 	  STAND(34) = wf_treeKG
 	  STAND(35) = B
 	  STAND(30) = V
-	 else
-	  STAND(2) = 0. !#!#
-	  STAND(8:21) = 0. !#!#
-	  STAND(23:37) = 0. !#!#
-	  STAND(42:44) = 0. !#!#
-	  STAND(47:nVar) = 0. !#!#
+!	 else
+!	  STAND(2) = 0. !#!#
+!	  STAND(8:21) = 0. !#!#
+!	  STAND(23:37) = 0. !#!#
+!	  STAND(42:44) = 0. !#!#
+!	  STAND(47:nVar) = 0. !#!#
 	 endif
 	endif
 
@@ -202,10 +202,10 @@ endif
 if(mortMod==2. .or. mortMod==3.) then
 
   if(mortMod==2.) then
-	STAND_all(26,:) = 0.
-	STAND_all(27,:) = 0.
-	STAND_all(28,:) = 0.
-	STAND_all(29,:) = 0.
+!	STAND_all(26,:) = 0.
+!	STAND_all(27,:) = 0.
+!	STAND_all(28,:) = 0.
+!	STAND_all(29,:) = 0.
 	STAND_all(42,:) = 0.
   endif
   
@@ -394,12 +394,12 @@ dN=0.d0
 	  STAND(54) = W_crh
 	  STAND(51) = Wdb
 
-		  else
-	  STAND(26) = STAND(26)
-	  STAND(27) = STAND(27)
-	  STAND(28) = STAND(28)
-	  STAND(29) = STAND(29)
-	  STAND(42) = STAND(42)
+!		  else
+!	  STAND(26) = STAND(26)
+!	  STAND(27) = STAND(27)
+!	  STAND(28) = STAND(28)
+!	  STAND(29) = STAND(29)
+!	  STAND(42) = STAND(42)
 		  endif
 		 endif
 	  
@@ -413,12 +413,12 @@ dN=0.d0
 	  STAND(34) = wf_treeKG
 	  STAND(35) = B
 	  STAND(30) = V
-	 else
-	  STAND(2) = 0. !#!#
-	  STAND(8:21) = 0. !#!#
-	  STAND(23:37) = 0. !#!#
-	  STAND(42:44) = 0. !#!#
-	  STAND(47:nVar) = 0. !#!#
+!	 else
+!	  STAND(2) = 0. !#!#
+!	  STAND(8:21) = 0. !#!#
+!	  STAND(23:37) = 0. !#!#
+!	  STAND(42:44) = 0. !#!#
+!	  STAND(47:nVar) = 0. !#!#
 	 endif
 	endif
 
