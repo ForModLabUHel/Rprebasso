@@ -2121,7 +2121,7 @@ IMPLICIT NONE
 
     INTEGER :: i
     REAL (kind=8),PARAMETER :: pi = 3.141592653589793
-    REAL (kind=8) :: tem,temN,temH
+    REAL (kind=8) :: tem,temN,temH, temA
     REAL (kind=8),DIMENSION(5) :: te
     REAL (kind=8),DIMENSION(5) :: z1,z2
     REAL (kind=8),PARAMETER :: tol = 1E-12
