@@ -2117,7 +2117,7 @@ IMPLICIT NONE
 
     REAL (kind=8),DIMENSION(35),INTENT(IN) :: theta ! parameters
     REAL (kind=8),DIMENSION(3),INTENT(IN) :: climate ! climatic conditions
-    REAL (kind=8),DIMENSION(3),INTENT(out) :: fTaweNH ! climate dependence on decomposition 
+    REAL (kind=8),DIMENSION(4),INTENT(out) :: fTaweNH ! climate dependence on decomposition 
 
     INTEGER :: i
     REAL (kind=8),PARAMETER :: pi = 3.141592653589793
@@ -2139,20 +2139,24 @@ IMPLICIT NONE
     tem = 0.0
     temN = 0.0
     temH = 0.0
+	temA = 0.0
     DO i = 1,4 ! Average temperature dependence
         tem = tem+EXP(theta(22)*te(i)+theta(23)*te(i)**2.0)/4.0 ! Gaussian
         temN = temN+EXP(theta(24)*te(i)+theta(25)*te(i)**2.0)/4.0
         temH = temH+EXP(theta(26)*te(i)+theta(27)*te(i)**2.0)/4.0
+		temA = temA+EXP(0.059*te(i)+0.001*te(i)**2.0)/4.0
     END DO
 
     ! Precipitation dependence
     tem = tem*(1.0-EXP(theta(28)*climate(2)/1000.0))
     temN = temN*(1.0-EXP(theta(29)*climate(2)/1000.0))
     temH = temH*(1.0-EXP(theta(30)*climate(2)/1000.0))
+    temA = temA*(1.0-EXP(-1.85*climate(2)/1000.0))	
 
 fTaweNH(1) = tem
 fTaweNH(2) = temN
 fTaweNH(3) = temH
+fTaweNH(4) = temA
 
     END SUBROUTINE
 
@@ -2193,7 +2197,7 @@ call CNratio(CN, latitude, st,pars(6:8))
     ff = 0.7
 	fr = 0.7
 	fw = 0.0
-	Umax = 30	
+	Umax = 1.	
 	kN = 0.001
 
  !calculate Ndem
