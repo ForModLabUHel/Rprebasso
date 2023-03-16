@@ -54,7 +54,7 @@ InitMultiSite <- function(nYearsMS,
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the sites")
   }else{
-    latitude <- rep(999,nSites)
+    if(is.null(latitude)) latitude = rep(999,nSites)
   }
   
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
@@ -336,7 +336,7 @@ InitMultiSite <- function(nYearsMS,
       siteXs <- which(multiInitVar[,1,ijj] %in% 1:ncol(pCROBAS))
       alfar_p1 <- pCN_alfar[1,multiInitVar[siteXs,1,ijj]]
       alfar_p2 <- pCN_alfar[2,multiInitVar[siteXs,1,ijj]]
-      CNratioSites <- CNratio(ETSstart[siteXs],
+      CNratioSites <- CNratio(latitude[siteXs],
                               multiOut[siteXs,1,3,ijj,1]
                               ,pars=pECMmod[6:8])
       multiOut[siteXs,1,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
@@ -461,7 +461,7 @@ multiPrebas <- function(multiSiteInit,
       alfar_p2 <- 
         matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
                length(siteXs),multiSiteInit$maxYears)
-      CNratioSites <- CNratio(ETSmean[multiSiteInit$siteInfo[siteXs,2],],
+      CNratioSites <- CNratio(multiSiteInit$latitude[siteXs],
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
@@ -624,7 +624,7 @@ if(ageHarvPrior>0){
       alfar_p2 <- 
         matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
                length(siteXs),multiSiteInit$maxYears)
-      CNratioSites <- CNratio(ETSmean[multiSiteInit$siteInfo[siteXs,2],],
+      CNratioSites <- CNratio(multiSiteInit$latitude[siteXs],
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
@@ -803,7 +803,7 @@ reStartRegionPrebas <- function(multiSiteInit,
       alfar_p2 <- 
         matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
                length(siteXs),multiSiteInit$maxYears)
-      CNratioSites <- CNratio(ETSmean[multiSiteInit$siteInfo[siteXs,2],],
+      CNratioSites <- CNratio(multiSiteInit$latitude[siteXs],
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 

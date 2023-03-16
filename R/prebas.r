@@ -102,7 +102,7 @@ prebas <- function(nYears,
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the site")
   }else{
-    latitude <- 999
+    if(is.null(latitude)) latitude <- 999
   }
   
   ###process weather###
@@ -256,7 +256,7 @@ prebas <- function(nYears,
   }else{
     pCROBAS[21:22,] <- pCN_alfar
     pCROBAS[23,] <- -999
-    CNratioSites <- CNratio(ETSmean,output[,3,1,1],pars=pECMmod[6:8])
+    CNratioSites <- CNratio(latitude,output[,3,1,1],pars=pECMmod[6:8])
     for(ijj in 1:nLayers){
       output[,3,ijj,2] <-  pCROBAS[21,initVar[1,ijj]]* exp(pCROBAS[22,initVar[1,ijj]]*CNratioSites) 
     }
