@@ -113,7 +113,7 @@ real (kind=8) :: Nmort, BAmort
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8)
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4)
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -824,6 +824,14 @@ endif
 		Sc = N * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		St = N * beta0 * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		Gw = dWw + Sb + Sc + St + theta * W_wsap
+
+		
+      call Nitrogen(Gf,Gr,Gw,W_froot,W_froot, siteType, ETSmean, CN, Nup,Ndem,nitpar, pECMmod)
+	  	  write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup, Ndem 
+		  
+	  call fTyasso(pYasso,weatherYasso,fTaweNH)
+	  write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
+
 
 !!  Update state variables
           H = H + step * dH
