@@ -50,7 +50,7 @@ initBiomasses <- function(pCro,initVarX){
   Lc <- h - hc
   
   ### Fine root allocation of early growth  
-  age_factor <-  (1. - (1- pCro[44,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[45,initVarX[1,layerXs]])/ pCro[46,initVarX[1,layerXs]])))/ pCro[44,initVarX[1,layerXs]] 
+  age_factor <-  (1. - (1- pCro[45,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[46,initVarX[1,layerXs]])/ pCro[47,initVarX[1,layerXs]])))/ pCro[45,initVarX[1,layerXs]] 
   par_alfar <- par_alfar0[layerXs] * age_factor
   par_rhor <- par_alfar * par_rhof
   beta0 <- par_beta0 * age_factor

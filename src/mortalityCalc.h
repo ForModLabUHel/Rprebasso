@@ -201,13 +201,13 @@ endif
 ! if(.FALSE.) then
 if(mortMod==2. .or. mortMod==3.) then
 
-!  if(mortMod==2.) then
+  if(mortMod==2.) then
 !	STAND_all(26,:) = 0.
 !	STAND_all(27,:) = 0.
 !	STAND_all(28,:) = 0.
 !	STAND_all(29,:) = 0.
-!	STAND_all(42,:) = 0.
-!  endif
+	STAND_all(42,:) = 0.
+  endif
   
 ! ! calculate relative basal area to be used in the mortality calculations
   BA_tot = sum(STAND_all(13,:))
