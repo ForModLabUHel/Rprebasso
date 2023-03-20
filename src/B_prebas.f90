@@ -511,13 +511,14 @@ if (year <= maxYearSite) then
 
 	 pars(1:23) = pPRELES(1:23,1)
      pars(28:30) = pPRELES(28:30,1)
-
+write(1,*) fAPARprel
   !run preles 
      call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
 		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
 		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
+write(1,*) prelesOut
 
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)  	!ET
