@@ -828,7 +828,7 @@ endif
 		
 
       call Nitrogen(Gf,Gr,Gw,W_froot,W_froot, siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
-	  	  write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, latitude, CN, p0, par_alfar, Nup, Ndem 
+	  	  write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup, Ndem 
 		  
 	  call fTyasso(pYasso,weatherYasso(nYears,:),fTaweNH)
 	  write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
