@@ -78,8 +78,8 @@ InitMultiSite <- function(nYearsMS,
   varNam <- getVarNam()
   nVar <- length(varNam)
   
-  nClimID <- length(unique(climIDs))
-  if(!all((1:nClimID) %in% climIDs) | length(climIDs) != nSites) warning("check consistency between weather inputs and climIDs")
+  nClimID <- nrow(PAR)
+  if(!all(climIDs %in% (1:nClimID)) | length(climIDs) != nSites) warning("check consistency between weather inputs and climIDs")
   if(nClimID == 1){
     nClimID = 2
     climIDs[1] <- 2
