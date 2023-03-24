@@ -43,11 +43,20 @@ InitMultiSite <- function(nYearsMS,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
                           ECMmod=0, #flag for ECM modelling MAkela et al.2022
                           pECMmod = parsECMmod,
-                          pPRELESgv = pPREL,
-                          layerPRELES = 0
-){  
+                          ETSstart = NULL,
+                          pCN_alfar=NULL,##parameters for calculating alfar from CN ratio
+                          latitude=NULL #vector of latitudes of sites
+                          ){  
+  
   
   nSites <- length(nYearsMS)
+  
+  if(is.null(latitude) & ECMmod==1){
+    stop("you need to provide the latitudes of the sites")
+  }else{
+    if(is.null(latitude)) latitude = rep(999,nSites)
+  }
+  
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
@@ -123,6 +132,7 @@ InitMultiSite <- function(nYearsMS,
   # if (length(PREBASversion) == 1) PREBASversion=as.double(rep(PREBASversion,nSites))
   # 
   ###process ETS
+  ETSstartX <- rep(NA,nClimID)
   multiETS <- matrix(NA,nClimID,maxYears)
   for(climID in 1:nClimID){
     nYearsX <- max(nYearsMS[which(climIDs==climID)])
@@ -130,6 +140,8 @@ InitMultiSite <- function(nYearsMS,
     ETS <- pmax(0,Temp,na.rm=T)
     ETS <- matrix(ETS,365,nYearsX); ETS <- colSums(ETS)
     multiETS[climID,(1:nYearsX)] <- ETS
+    ###initialize ETSstart
+    ETSstartX[climID] <- mean(multiETS[climID,1:min(10,nYearsX)],na.rm=T)
     
     # xx <- min(10,nYearsX)
     # Ainit = 6 - 0.005*mean(ETS[1:xx]) + 2.25 ## need to add 2*sitetype
@@ -137,15 +149,18 @@ InitMultiSite <- function(nYearsMS,
     # multiInitClearCut[sitesClimID,5] <- replace(multiInitClearCut[sitesClimID,5],
     #                                             which(is.na(multiInitClearCut[sitesClimID,5])),round(Ainit))
   }
-  xx <- min(10,nYearsX)
+  ###initialize ETSstart
+  if(is.null(ETSstart)) ETSstart <- ETSstartX
+  ETSthres <- 1000
+  ETSmean <- ETSstart
+
   Ainits <- multiInitClearCut[,5]
   for(xd in 1:nSites){
     if(is.na(Ainits[xd])) {
-      Ainits[xd] = max(round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],1:xx]) + 2.25+2),2)
+      Ainits[xd] = max(round(6 + 2* siteInfo[xd,3] - 0.005*ETSmean[xd] + 2.25+2),2)
       multiInitClearCut[xd,5] = 999.
     }
   } 
-  ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
   } 
@@ -193,7 +208,30 @@ InitMultiSite <- function(nYearsMS,
     multiweather[i,(1:nYearsX),,] <- weatherPreles
   }
   
-  if(all(is.na(multiInitVar))){
+  ### compute P0
+  ###if P0 is not provided use preles to compute P0
+  if(all(is.na(multiP0))){
+    multiP0 <- array(NA,dim=c(nClimID,maxYears,2))
+    for(climID in 1:nClimID){
+      nYearsX <- max(nYearsMS[which(climIDs==climID)])
+      P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
+                   TAir=TAir[climID,1:(365*nYearsX)],VPD=VPD[climID,1:(365*nYearsX)],
+                   Precip=Precip[climID,1:(365*nYearsX)],CO2=rep(380,(365*nYearsX)),
+                   fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
+      P0 <- matrix(P0,365,nYearsX)
+      multiP0[climID,(1:nYearsX),1] <- colSums(P0)
+    }
+    if(smoothP0==1 & maxYears > 1){
+      multiP0[,1,2] <- multiP0[,1,1]
+      for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,smoothYear)
+      # multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
+    } else{
+      multiP0[,,2] <- multiP0[,,1]
+    }
+  }
+  multiP0[which(is.na(multiP0))] <- 0.
+  
+  if (all(is.na(multiInitVar))){
     multiInitVar <- array(NA,dim=c(nSites,7,maxNlayers))
     multiInitVar[,1,] <- rep(1:maxNlayers,each=nSites)
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
@@ -273,57 +311,41 @@ InitMultiSite <- function(nYearsMS,
   }
   initCLcutRatio[which(is.na(initCLcutRatio))] <- 0.
   
-  
-  ###set PRELES parameters
-  if(layerPRELES==0){
-    if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
-    pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
-  }
-  if(layerPRELES==1){
-    if(ncol(pPRELES) != ncol(pCROBAS)) stop("check consistency in species column between pPRELES and pCROBAS")
-  }
-  
-  ###use the most common species to calculate P0
-  if(maxNlayers > 1){
-    domSp <- multiInitVar[,1,][matrix(c(1:nSites,apply(multiInitVar[,5,],1,which.max)),ncol=2)]
-  }else{
-    domSp <- multiInitVar[,1,1]
-  }
-  domSp <- as.numeric(names(which.max(table(domSp))))
-  pPRELESx <- pPRELES[,domSp]
-  
-  ### compute P0
-  ###if P0 is not provided use preles to compute P0
-  if(all(is.na(multiP0))){
-    multiP0 <- array(NA,dim=c(nClimID,maxYears,2))
-    for(climID in 1:nClimID){
-      nYearsX <- max(nYearsMS[which(climIDs==climID)])
-      P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
-                   TAir=TAir[climID,1:(365*nYearsX)],VPD=VPD[climID,1:(365*nYearsX)],
-                   Precip=Precip[climID,1:(365*nYearsX)],CO2=rep(380,(365*nYearsX)),
-                   fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELESx)$GPP
-      P0 <- matrix(P0,365,nYearsX)
-      multiP0[climID,(1:nYearsX),1] <- colSums(P0)
-    }
-    if(smoothP0==1 & maxYears > 1){
-      multiP0[,1,2] <- multiP0[,1,1]
-      for(i in 2:maxYears) multiP0[,i,2] <- multiP0[,(i-1),2] + (multiP0[,i,1]-multiP0[,(i-1),2])/min(i,smoothYear)
-      # multiP0[,,2] <- matrix(rowMeans(multiP0[,,1]),nClimID,maxYears,byrow = F)
-    } else{
-      multiP0[,,2] <- multiP0[,,1]
-    }
-  }
-  multiP0[which(is.na(multiP0))] <- 0.
-  
   # if(all(is.na(litterSize))){
   #   litterSize <- matrix(0,3,allSp)
   #   litterSize[2,] <- 2
   #   litterSize[1,] <- c(30,30,10)
   #   # siteInfo <- siteInfo[,-c(4,5)]
   # }
+  ###initAlfar used in the initBiomass calculations
+  #initialize alfar
+  if(is.null(pCN_alfar)){
+    for(ijj in 1:maxNlayers){
+      multiOut[,1,3,ijj,1] <- siteInfo[,3]
+      siteXs <- which(multiInitVar[,1,ijj] %in% 1:ncol(pCROBAS))
+      multiOut[siteXs,,3,ijj,2] =
+        matrix(pCROBAS[cbind((20+pmin(siteInfo[,3],5))[siteXs],
+                             multiInitVar[siteXs,1,ijj])],
+               length(siteXs),maxYears)
+    }
+  }else{
+    pCROBAS[21:22,] <- pCN_alfar
+    pCROBAS[23,] <- -999
+    for(ijj in 1:maxNlayers){
+      multiOut[,1,3,ijj,1] <- siteInfo[,3]
+      siteXs <- which(multiInitVar[,1,ijj] %in% 1:ncol(pCROBAS))
+      alfar_p1 <- pCN_alfar[1,multiInitVar[siteXs,1,ijj]]
+      alfar_p2 <- pCN_alfar[2,multiInitVar[siteXs,1,ijj]]
+      CNratioSites <- CNratio(latitude[siteXs],
+                              multiOut[siteXs,1,3,ijj,1]
+                              ,pars=pECMmod[6:8])
+      multiOut[siteXs,1,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
+  }
   
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
+  initVarX <- abind(initVarX,matrix(multiOut[,1,3,,2],nSites,maxNlayers),along=2)
   biomasses <- array(apply(initVarX,1,initBiomasses,pCro=pCROBAS),dim=c(12,maxNlayers,nSites))
   biomasses <- aperm(biomasses,c(3,1,2))
   biomasses[which(is.na(biomasses))] <- 0
@@ -392,8 +414,9 @@ InitMultiSite <- function(nYearsMS,
     mortMod = mortMod,
     ECMmod = ECMmod,
     pECMmod = pECMmod,
-    pPRELESgv = pPRELESgv,
-    layerPRELES = layerPRELES
+    ETSstart = ETSstart,
+    pCN_alfar = pCN_alfar,
+    latitude = latitude
   )
   return(multiSiteInit)
 }
@@ -407,23 +430,52 @@ multiPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
-  
+
+  ###calculate ETSmean based on a moving average window
+  ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
+  ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+    for(ijx in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(siteXs))
+    }
+  }
+
+  #initialize alfar
+  if(is.null(multiSiteInit$pCN_alfar)){
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] =
       matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
                                          multiSiteInit$multiInitVar[siteXs,1,ijj])],
              length(siteXs),multiSiteInit$maxYears)
+    }
+  }else{
+    multiSiteInit$pCROBAS[21:22,] <- multiSiteInit$pCN_alfar
+    multiSiteInit$pCROBAS[23,] <- -999
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      alfar_p1 <- 
+        matrix(multiSiteInit$pCN_alfar[1,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      alfar_p2 <- 
+        matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      CNratioSites <- CNratio(multiSiteInit$latitude[siteXs],
+                              multiSiteInit$multiOut[siteXs,,3,ijj,1]
+                              ,pars=multiSiteInit$pECMmod[6:8])
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
   }
   
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
-  
+
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
-  
+
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -447,7 +499,7 @@ multiPrebas <- function(multiSiteInit,
                      multiInitVar=as.array(multiSiteInit$multiInitVar),
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
-                     pPRELES=as.matrix(multiSiteInit$pPRELES),
+                     pPRELES=as.double(multiSiteInit$pPRELES),
                      etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
                      pYASSO=as.double(multiSiteInit$pYASSO),
@@ -478,8 +530,8 @@ multiPrebas <- function(multiSiteInit,
                      mortMod=as.double(multiSiteInit$mortMod),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     pPRELESgv = as.double(multiSiteInit$pPRELESgv),
-                     layerPRELES = as.integer(multiSiteInit$layerPRELES)
+                     ETSstart=as.double(multiSiteInit$ETSstart),
+                     latitude=as.double(multiSiteInit$latitude)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -529,35 +581,64 @@ regionPrebas <- function(multiSiteInit,
   # reorder first year of siteOreder according to age of the stands, 
   # because in Fortran first year has a bug probably 
   # in the PACK function
-  if(ageHarvPrior>0){
-    domSp <- apply(multiSiteInit$multiInitVar[,5,],1,which.max)
-    agesX <- multiSiteInit$multiInitVar[,2,][cbind(1:multiSiteInit$nSites,domSp)]
-    newOrdX <- c(which(agesX[siteOrder[,1]] <= ageHarvPrior),
-                 which(agesX[siteOrder[,1]] > ageHarvPrior))
-    siteOrder[,1] <- siteOrder[newOrdX,1]
-  }  
+if(ageHarvPrior>0){
+  domSp <- apply(multiSiteInit$multiInitVar[,5,],1,which.max)
+  agesX <- multiSiteInit$multiInitVar[,2,][cbind(1:multiSiteInit$nSites,domSp)]
+  newOrdX <- c(which(agesX[siteOrder[,1]] <= ageHarvPrior),
+               which(agesX[siteOrder[,1]] > ageHarvPrior))
+  siteOrder[,1] <- siteOrder[newOrdX,1]
+}  
   
-  ###initialize siteType
+  ###initialize siteType & alfar
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  ###calculate ETSmean based on a moving average window
+  ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
+  ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
-                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
-             length(siteXs),multiSiteInit$maxYears)
+    for(ijx in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(siteXs))
+    }
+  }
+  
+  #initialize alfar
+  if(is.null(multiSiteInit$pCN_alfar)){
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+        matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
+                                           multiSiteInit$multiInitVar[siteXs,1,ijj])],
+               length(siteXs),multiSiteInit$maxYears)
+    }
+  }else{
+    multiSiteInit$pCROBAS[21:22,] <- multiSiteInit$pCN_alfar
+    multiSiteInit$pCROBAS[23,] <- -999
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      alfar_p1 <- 
+        matrix(multiSiteInit$pCN_alfar[1,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      alfar_p2 <- 
+        matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      CNratioSites <- CNratio(multiSiteInit$latitude[siteXs],
+                              multiSiteInit$multiOut[siteXs,,3,ijj,1]
+                              ,pars=multiSiteInit$pECMmod[6:8])
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
   }
   
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
-  
+
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
-  
+
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
@@ -585,7 +666,7 @@ regionPrebas <- function(multiSiteInit,
                      multiInitVar=as.array(multiSiteInit$multiInitVar),
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
-                     pPRELES=as.matrix(multiSiteInit$pPRELES),
+                     pPRELES=as.double(multiSiteInit$pPRELES),
                      etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
                      pYASSO=as.double(multiSiteInit$pYASSO),
@@ -620,8 +701,8 @@ regionPrebas <- function(multiSiteInit,
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     pPRELESgv = as.double(multiSiteInit$pPRELESgv),
-                     layerPRELES = as.integer(multiSiteInit$layerPRELES)
+                     ETSstart=as.double(multiSiteInit$ETSstart),
+                     latitude=as.double(multiSiteInit$latitude)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -641,26 +722,26 @@ regionPrebas <- function(multiSiteInit,
 
 
 reStartRegionPrebas <- function(multiSiteInit,
-                                HarvLim = NA,
-                                minDharv = 999.,
-                                cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
-                                ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
-                                ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
-                                compHarv=0,###flag for compensating harvest if harvest do not reach the desired levels
-                                ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
-                                ### compHarv=2 compensate harvest with thinnings
-                                thinFact=0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
-                                #######compHarv[1]
-                                ageHarvPrior = 0, ####flag used in the IBC-carbon runs of
-                                ####the mitigation Scenario and biodiversity protection 
-                                ####scenario (protect). If higher then 0. the scenarios is activated and
-                                #####the sites are ordered according to the siteType and
-                                ###priority is given to the sites where age is lower then ageHarvPrior
-                                siteOrder=NA,
-                                fertThin = 0.,
-                                nYearsFert = 20,
-                                oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
-                                startSimYear
+                         HarvLim = NA,
+                         minDharv = 999.,
+                         cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
+                         ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
+                         ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
+                         compHarv=0,###flag for compensating harvest if harvest do not reach the desired levels
+                         ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
+                         ### compHarv=2 compensate harvest with thinnings
+                         thinFact=0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
+                         #######compHarv[1]
+                         ageHarvPrior = 0, ####flag used in the IBC-carbon runs of
+                         ####the mitigation Scenario and biodiversity protection 
+                         ####scenario (protect). If higher then 0. the scenarios is activated and
+                         #####the sites are ordered according to the siteType and
+                         ###priority is given to the sites where age is lower then ageHarvPrior
+                         siteOrder=NA,
+                         fertThin = 0.,
+                         nYearsFert = 20,
+                         oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
+                         startSimYear
 ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -692,13 +773,43 @@ reStartRegionPrebas <- function(multiSiteInit,
                                           dim=c(multiSiteInit$nSites,
                                                 multiSiteInit$maxYears,
                                                 multiSiteInit$maxNlayers))
+  ###calculate ETSmean based on a moving average window
+  ETSx <- cbind(multiSiteInit$ETSstart,multiSiteInit$ETSy)
+  ETSmean <- t(apply(ETSx,1,calETSmean))
   for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
-                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
-             length(siteXs),multiSiteInit$maxYears)
+    for(ijx in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijx)
+      multiSiteInit$multiOut[siteXs,,5,ijj,2] <- rep(ETSmean[ijx,],each=length(siteXs))
+    }
   }
+  
+  #initialize alfar
+  if(is.null(multiSiteInit$pCN_alfar)){
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] =
+        matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
+                                           multiSiteInit$multiInitVar[siteXs,1,ijj])],
+               length(siteXs),multiSiteInit$maxYears)
+    }
+  }else{
+    multiSiteInit$pCROBAS[21:22,] <- multiSiteInit$pCN_alfar
+    multiSiteInit$pCROBAS[23,] <- -999
+    for(ijj in 1:multiSiteInit$maxNlayers){
+      siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
+      alfar_p1 <- 
+        matrix(multiSiteInit$pCN_alfar[1,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      alfar_p2 <- 
+        matrix(multiSiteInit$pCN_alfar[2,multiSiteInit$multiInitVar[siteXs,1,ijj]],
+               length(siteXs),multiSiteInit$maxYears)
+      CNratioSites <- CNratio(multiSiteInit$latitude[siteXs],
+                              multiSiteInit$multiOut[siteXs,,3,ijj,1]
+                              ,pars=multiSiteInit$pECMmod[6:8])
+      multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
+  }
+  
   
   # if(FALSE){
   if(oldLayer==1){
@@ -735,7 +846,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      multiInitVar=as.array(multiSiteInit$multiInitVar),
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
-                     pPRELES=as.matrix(multiSiteInit$pPRELES),
+                     pPRELES=as.double(multiSiteInit$pPRELES),
                      etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
                      pYASSO=as.double(multiSiteInit$pYASSO),
@@ -770,8 +881,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     pPRELESgv = as.double(multiSiteInit$pPRELESgv),
-                     layerPRELES = as.integer(multiSiteInit$layerPRELES)
+                     ETSstart=as.double(multiSiteInit$ETSstart),
+                     latitude=as.double(multiSiteInit$latitude)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -786,3 +897,4 @@ reStartRegionPrebas <- function(multiSiteInit,
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   return(prebas)
 }
+
