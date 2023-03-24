@@ -766,3 +766,10 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(multiSiteInit)
   }
   
+  calETSmean <- function(ETSy,k=20){
+    ETSmean <- ETSy
+    nYears <- length(ETSmean)
+    for(i in 2:nYears) ETSmean[i] = ETSmean[i-1] + (ETSy[i]-ETSmean[i-1])/20.
+    return(ETSmean[2:nYears])
+  }
+  

@@ -2125,3 +2125,16 @@ fTaweNH(2) = temN
 fTaweNH(3) = temH
 
     END SUBROUTINE
+
+
+
+
+! subroutine test(ciao,length)
+	
+	! implicit none
+	! integer, intent(inout) :: ciao(4)
+	! integer :: length
+	
+	! length = size(ciao)
+	
+! end subroutine test
