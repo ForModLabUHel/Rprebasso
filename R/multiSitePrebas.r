@@ -45,7 +45,7 @@ InitMultiSite <- function(nYearsMS,
                           pECMmod = parsECMmod,
                           pPRELESgv = pPREL,
                           layerPRELES = 0
-                          ){  
+){  
   
   nSites <- length(nYearsMS)
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
@@ -273,7 +273,7 @@ InitMultiSite <- function(nYearsMS,
   }
   initCLcutRatio[which(is.na(initCLcutRatio))] <- 0.
   
-
+  
   ###set PRELES parameters
   if(layerPRELES==0){
     if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
@@ -314,7 +314,7 @@ InitMultiSite <- function(nYearsMS,
     }
   }
   multiP0[which(is.na(multiP0))] <- 0.
-
+  
   # if(all(is.na(litterSize))){
   #   litterSize <- matrix(0,3,allSp)
   #   litterSize[2,] <- 2
@@ -419,11 +419,11 @@ multiPrebas <- function(multiSiteInit,
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
-
+  
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
-
+  
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -529,13 +529,13 @@ regionPrebas <- function(multiSiteInit,
   # reorder first year of siteOreder according to age of the stands, 
   # because in Fortran first year has a bug probably 
   # in the PACK function
-if(ageHarvPrior>0){
-  domSp <- apply(multiSiteInit$multiInitVar[,5,],1,which.max)
-  agesX <- multiSiteInit$multiInitVar[,2,][cbind(1:multiSiteInit$nSites,domSp)]
-  newOrdX <- c(which(agesX[siteOrder[,1]] <= ageHarvPrior),
-               which(agesX[siteOrder[,1]] > ageHarvPrior))
-  siteOrder[,1] <- siteOrder[newOrdX,1]
-}  
+  if(ageHarvPrior>0){
+    domSp <- apply(multiSiteInit$multiInitVar[,5,],1,which.max)
+    agesX <- multiSiteInit$multiInitVar[,2,][cbind(1:multiSiteInit$nSites,domSp)]
+    newOrdX <- c(which(agesX[siteOrder[,1]] <= ageHarvPrior),
+                 which(agesX[siteOrder[,1]] > ageHarvPrior))
+    siteOrder[,1] <- siteOrder[newOrdX,1]
+  }  
   
   ###initialize siteType
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
@@ -553,11 +553,11 @@ if(ageHarvPrior>0){
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
-
+  
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
-
+  
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
@@ -641,26 +641,26 @@ if(ageHarvPrior>0){
 
 
 reStartRegionPrebas <- function(multiSiteInit,
-                         HarvLim = NA,
-                         minDharv = 999.,
-                         cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
-                         ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
-                         ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
-                         compHarv=0,###flag for compensating harvest if harvest do not reach the desired levels
-                         ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
-                         ### compHarv=2 compensate harvest with thinnings
-                         thinFact=0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
-                         #######compHarv[1]
-                         ageHarvPrior = 0, ####flag used in the IBC-carbon runs of
-                         ####the mitigation Scenario and biodiversity protection 
-                         ####scenario (protect). If higher then 0. the scenarios is activated and
-                         #####the sites are ordered according to the siteType and
-                         ###priority is given to the sites where age is lower then ageHarvPrior
-                         siteOrder=NA,
-                         fertThin = 0.,
-                         nYearsFert = 20,
-                         oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
-                         startSimYear
+                                HarvLim = NA,
+                                minDharv = 999.,
+                                cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
+                                ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
+                                ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
+                                compHarv=0,###flag for compensating harvest if harvest do not reach the desired levels
+                                ####compHarv=0 -> no compensation, compHarv=1 compensate harvest with clearcut
+                                ### compHarv=2 compensate harvest with thinnings
+                                thinFact=0.25, ####if compHarv = 2 -> thinFact is the percentage of thinning to compansate harvest
+                                #######compHarv[1]
+                                ageHarvPrior = 0, ####flag used in the IBC-carbon runs of
+                                ####the mitigation Scenario and biodiversity protection 
+                                ####scenario (protect). If higher then 0. the scenarios is activated and
+                                #####the sites are ordered according to the siteType and
+                                ###priority is given to the sites where age is lower then ageHarvPrior
+                                siteOrder=NA,
+                                fertThin = 0.,
+                                nYearsFert = 20,
+                                oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
+                                startSimYear
 ){
   
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -786,4 +786,3 @@ reStartRegionPrebas <- function(multiSiteInit,
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   return(prebas)
 }
-
