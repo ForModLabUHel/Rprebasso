@@ -765,4 +765,3 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     return(multiSiteInit)
   }
-  
