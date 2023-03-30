@@ -675,14 +675,17 @@ if (N>0.) then
   ! par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
   ! theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
   theta = par_thetaMax
+  normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
+  normFactP0 = p0 / p0_ref
 
   mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
   if(ECMmod==1) mrFact = 0.
 
-par_mr = par_mr0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) * mrFact / par_vr0 
-par_mf = par_mf0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-
+  par_mr = par_mr0* normFactP0 + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
+  par_mf = par_mf0* normFactP0
+  par_mw = par_mw0* normFactP0
+  
+  
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
