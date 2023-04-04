@@ -43,8 +43,9 @@ InitMultiSite <- function(nYearsMS,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
                           ECMmod=0, #flag for ECM modelling MAkela et al.2022
                           pECMmod = parsECMmod,
-                          pPRELESgv = pPREL,
-                          layerPRELES = 0
+                          layerPRELES = 0,
+                          LUEtrees = pLUEtrees,
+                          LUEgv = pLUEgv
                           ){  
   
   nSites <- length(nYearsMS)
@@ -274,24 +275,24 @@ InitMultiSite <- function(nYearsMS,
   initCLcutRatio[which(is.na(initCLcutRatio))] <- 0.
   
 
-  ###set PRELES parameters
-  if(layerPRELES==0){
-    if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
-    pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
-  }
-  if(layerPRELES==1){
-    if(ncol(pPRELES) != ncol(pCROBAS)) stop("check consistency in species column between pPRELES and pCROBAS")
-  }
-  
-  ###use the most common species to calculate P0
-  if(maxNlayers > 1){
-    domSp <- multiInitVar[,1,][matrix(c(1:nSites,apply(multiInitVar[,5,],1,which.max)),ncol=2)]
-  }else{
-    domSp <- multiInitVar[,1,1]
-  }
-  domSp <- as.numeric(names(which.max(table(domSp))))
-  pPRELESx <- pPRELES[,domSp]
-  
+  # ###set PRELES parameters
+  # if(layerPRELES==0){
+  #   if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
+  #   pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
+  # }
+  # if(layerPRELES==1){
+  #   if(ncol(pPRELES) != ncol(pCROBAS)) stop("check consistency in species column between pPRELES and pCROBAS")
+  # }
+  # 
+  # ###use the most common species to calculate P0
+  # if(maxNlayers > 1){
+  #   domSp <- multiInitVar[,1,][matrix(c(1:nSites,apply(multiInitVar[,5,],1,which.max)),ncol=2)]
+  # }else{
+  #   domSp <- multiInitVar[,1,1]
+  # }
+  # domSp <- as.numeric(names(which.max(table(domSp))))
+  # pPRELESx <- pPRELES[,domSp]
+  # 
   ### compute P0
   ###if P0 is not provided use preles to compute P0
   if(all(is.na(multiP0))){
@@ -301,7 +302,7 @@ InitMultiSite <- function(nYearsMS,
       P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
                    TAir=TAir[climID,1:(365*nYearsX)],VPD=VPD[climID,1:(365*nYearsX)],
                    Precip=Precip[climID,1:(365*nYearsX)],CO2=CO2[climID,1:(365*nYearsX)],
-                   fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELESx)$GPP
+                   fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
       P0 <- matrix(P0,365,nYearsX)
       multiP0[climID,(1:nYearsX),1] <- colSums(P0)
     }
@@ -392,8 +393,9 @@ InitMultiSite <- function(nYearsMS,
     mortMod = mortMod,
     ECMmod = ECMmod,
     pECMmod = pECMmod,
-    pPRELESgv = pPRELESgv,
-    layerPRELES = layerPRELES
+    layerPRELES = layerPRELES,
+    LUEtrees = LUEtrees,
+    LUEgv = LUEgv
   )
   return(multiSiteInit)
 }
@@ -478,8 +480,9 @@ multiPrebas <- function(multiSiteInit,
                      mortMod=as.double(multiSiteInit$mortMod),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     pPRELESgv = as.double(multiSiteInit$pPRELESgv),
-                     layerPRELES = as.integer(multiSiteInit$layerPRELES)
+                     layerPRELES = as.integer(multiSiteInit$layerPRELES),
+                     LUEtrees = as.double(multiSiteInit$LUEtrees),
+                     LUEgv = as.double(multiSiteInit$LUEgv)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -620,8 +623,9 @@ if(ageHarvPrior>0){
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     pPRELESgv = as.double(multiSiteInit$pPRELESgv),
-                     layerPRELES = as.integer(multiSiteInit$layerPRELES)
+                     layerPRELES = as.integer(multiSiteInit$layerPRELES),
+                     LUEtrees = as.double(multiSiteInit$LUEtrees),
+                     LUEgv = as.double(multiSiteInit$LUEgv)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -770,8 +774,9 @@ reStartRegionPrebas <- function(multiSiteInit,
                      startSimYear = as.integer(startSimYear),
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
-                     pPRELESgv = as.double(multiSiteInit$pPRELESgv),
-                     layerPRELES = as.integer(multiSiteInit$layerPRELES)
+                     layerPRELES = as.integer(multiSiteInit$layerPRELES),
+                     LUEtrees = as.double(multiSiteInit$LUEtrees),
+                     LUEgv = as.double(multiSiteInit$LUEgv)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

@@ -10,7 +10,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
 	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod, & 
-	 pPRELESgv,layerPRELES)
+	 layerPRELES,LUEtrees,LUEgv)
 
 implicit none
 
@@ -21,7 +21,8 @@ implicit none
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
  integer, intent(in) :: DOY(365), etmodel, ECMmod
- real (kind=8), intent(inout) :: pPRELESgv(30), pPRELES(30,nSp), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
+ real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
+ real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 10) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
@@ -56,6 +57,7 @@ implicit none
 
 !! Parameters internal to the model
  real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5)  !!!state of the GV at the last year
+ real (kind=8) :: fAPARlayers(1+nLayers), LUElayers(1+nLayers),LUEsite
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
  real (kind=8), DIMENSION(nLayers) :: Lb, Lf, Lst
@@ -507,10 +509,10 @@ if (year <= maxYearSite) then
    GVout(year,1) = fAPARgvX !store fAPAR GV
  	! if(fAPARsite>0.) then
 
-   if(layerPRELES == 0) then
+	 pars(1:23) = pPRELES(1:23)
+     pars(28:30) = pPRELES(28:30)
 
-	 pars(1:23) = pPRELES(1:23,1)
-     pars(28:30) = pPRELES(28:30,1)
+   if(layerPRELES == 0) then
 
   !run preles 
      call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
@@ -536,85 +538,38 @@ if (year <= maxYearSite) then
    endif
    
    if(layerPRELES == 1) then
-   
-   STAND_all(10,:) = 0. !set to 0. trees gpp at the begginning of the year
-   GVout(year,3) = 0. !set to 0. GV gpp at the begginning of the year
-   STAND_all(22,:) = 0. !set to 0. ET at the begginning of the year
-   ! dailyPRELES = 0. !set to 0. daily output
-   ! dailyPRELESnoStored(200,1) = 0.
-   
-   do dayx = 1,365
-    do ij = 1 , nLayers
-	 !###initialize pararmeters
-     species = int(STAND_all(13,ij))
-	 pars(1:23) = pPRELES(1:23,species)
-     pars(28:30) = pPRELES(28:30,species)
-
-	 fAPARprel(:) = fAPARtrees * coeff(ij)
-     
-  ! !run preles for each tree layer
-  	! dailyPRELESnoStored((dayx*year),1), &  !daily GPP
-	! dailyPRELESnoStored((dayx*year),2), &  !daily ET
-	! dailyPRELESnoStored((dayx*year),3), &  !daily SW
-    call preles(weatherPRELES(year,dayx,:),DOY(dayx),fAPARtrees * coeff(ij),prelesOut, pars, &
-		dailyPRELESnoStored(dayx+(year-1)*365,1), &  !daily GPP
-		dailyPRELES(200,2), &  !daily ET
-		dailyPRELES(200,3), &  !daily SW
+    fAPARlayers(1:nLayers) = fAPARtrees * coeff
+	fAPARlayers(1+nLayers) = fAPARgvX
+    LUElayers(1:nLayers) = LUEtrees(int(STAND_all(4,:)))
+	LUElayers(1 + nLayers) = LUEgv !!fill for GV
+	LUEsite = sum(fAPARlayers * LUElayers)/fAPARsite
+	pars(5) = LUEsite
+    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
-
-	 STAND_all(10,ij) = STAND_all(10,ij) + prelesOut(1)/1000. !* fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
-     !!update daily output
-	 dailyPRELES(dayx+(year-1)*365,1) = dailyPRELES(dayx+(year-1)*365,1) + dailyPRELESnoStored(dayx+(year-1)*365,1)
-	enddo !!!end layer loop
-	
-	!!!!run gvmodel
-	if(gvRun==1) then
-	 pars(1:23) = pPRELESgv(1:23)
-     pars(28:30) = pPRELESgv(28:30)
-
-     call preles(weatherPRELES(year,dayx,:),DOY(dayx),fAPARgvX,prelesOut, pars, &
-		dailyPRELESnoStored(dayx+(year-1)*365,1), &  !daily GPP
-		dailyPRELES(200,2), &  !daily ET
-		dailyPRELES(200,3), &  !daily SW
-		etmodel)		!type of ET model
-     
-     GVout(year,3) = GVout(year,3) + prelesOut(1) ! GV Photosynthesis in g C m-2 
-	 
-	 dailyPRELES(dayx+(year-1)*365,1) = dailyPRELES(dayx+(year-1)*365,1) + dailyPRELESnoStored(dayx+(year-1)*365,1)
-
-	endif
-
-!!!!run PRELES wtih total fAPAR for calculating the water balance at daily time step
-	 pars(1:23) = pPRELES(1:23,layer)
-     pars(28:30) = pPRELES(28:30,layer)
-
-     ! call preles(weatherPRELES(year,dayx,:),DOY(dayx),fAPARsite,prelesOut, pars, &
-		! dailyPRELESnoStored((dayx*year),1), &  !daily GPP
-		! dailyPRELES((dayx*year),2), &  !daily ET
-		! dailyPRELES((dayx*year),3), &  !daily SW
-		! etmodel)		!type of ET model
-     call preles(weatherPRELES(year,dayx,:),DOY(dayx),fAPARsite,prelesOut, pars, &
-		dailyPRELESnoStored(dayx+(year-1)*365,1), &  !daily GPP
-		dailyPRELESnoStored(200,2), &  !daily ET
-		dailyPRELESnoStored(200,3), &  !daily SW
-		etmodel)		!type of ET model
-
 
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
-     STAND_all(22,:) = STAND_all(22,:) + prelesOut(2)  	!ET
-	 dailyPRELES(dayx+(year-1)*365,2) = dailyPRELESnoStored(200,2)
-	 dailyPRELES(dayx+(year-1)*365,3) = dailyPRELESnoStored(200,3)
-   ! ! STAND_all(40,:) = prelesOut(15)  !aSW
-   ! ! STAND_all(41,:) = prelesOut(16)  !summerSW 
-  
-! !initialize for next day /year 
-    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-    pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+    STAND_all(22,:) = prelesOut(2)  	!ET
+   ! STAND_all(40,:) = prelesOut(15)  !aSW
+   ! STAND_all(41,:) = prelesOut(16)  !summerSW 
+  !store GPP
+    GVout(year,3) = prelesOut(1) * fAPARlayers(1+nLayers)/fAPARsite * &
+						LUElayers(1+nLayers)/LUEsite !!!GV photosynthesis
+						
+     STAND_all(10,:) = prelesOut(1)/1000. * fAPARlayers(1:nLayers)/fAPARsite * &
+							LUElayers(1:nLayers)/LUEsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
-   enddo !end daly loop
+
+!initialize for next year  
+     pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+     pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+     pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+     pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+
    endif
+
 endif
 !enddo !! end site loop
 

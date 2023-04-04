@@ -10,7 +10,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
 		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,startSimYear,ECMmod,pECMmod, & 
-		pPRELESgv,layerPRELES)
+		layerPRELES,LUEtrees,LUEgv)
 
 implicit none
 
@@ -23,7 +23,7 @@ integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,startSimYear
 integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: DOY(365),etmodel, ECMmod
- real (kind=8), intent(in) :: pPRELESgv(30),pPRELES(30,allSP),pCrobas(npar,allSP),pECMmod(12)
+ real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
@@ -31,6 +31,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,10),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
+ real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
@@ -260,7 +261,7 @@ endif
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
-		fertThin,flagFert(i),nYearsFert,oldLayer,mortModX,ECMmod,pECMmod,pPRELESgv,layerPRELES) !!energCuts
+		fertThin,flagFert(i),nYearsFert,oldLayer,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv) !!energCuts
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations

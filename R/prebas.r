@@ -46,8 +46,9 @@
 #' @param mortMod 
 #' @param ECMmod 
 #' @param pECMmod 
-#' @param pPRELESgv preles parameters for ground vegetation (only runs if layerPRELES==1, other wise 1 parameter set is used for the whole ecosystem)
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
+#' @param LUEtrees light use efficiency parameters for tree species
+#' @param LUEgv light use efficiency parameter for ground vegetation
 #'
 #' @return
 #' @export
@@ -95,8 +96,9 @@ prebas <- function(nYears,
                    mortMod=1,
                    ECMmod=0, #flag for ECM modelling MAkela et al.2022
                    pECMmod=parsECMmod,
-                   pPRELESgv = pPREL,
-                   layerPRELES = 0
+                   layerPRELES = 0,
+                   LUEtrees = pLUEtrees,
+                   LUEgv = pLUEgv
               ){
   
   ###process weather###
@@ -180,18 +182,18 @@ prebas <- function(nYears,
   }
   
   ###set PRELES parameters
-  if(layerPRELES==0){
-    if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
-    pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
-  }
+  # if(layerPRELES==0){
+  #   if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
+  #   pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
+  # }
     
   ###if P0 is not provided use preles to compute P0
-  domSp <- initVar[1,which.max(initVar[5,])]
-  pPRELESx <- pPRELES[,domSp]
+  # domSp <- initVar[1,which.max(initVar[5,])]
+  # pPRELESx <- pPRELES[,domSp]
   if(is.na(P0)){
     P0 <- PRELES(DOY=rep(1:365,nYears),
                  PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
-                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELESx)$GPP
+                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES)$GPP
     P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
   }
   P0 <- matrix(P0,nYears,2)
@@ -307,8 +309,9 @@ prebas <- function(nYears,
                      mortMod = as.integer(mortMod),
                      ECMmod = as.integer(ECMmod),
                      pECMmod = as.numeric(pECMmod),
-                     pPRELESgv = as.double(pPRELESgv),
-                     layerPRELES = as.integer(layerPRELES)
+                     layerPRELES = as.integer(layerPRELES),
+                     LUEtrees = as.double(LUEtrees),
+                     LUEgv = as.double(LUEgv)
                      )
   class(prebas) <- "prebas"
   return(prebas)

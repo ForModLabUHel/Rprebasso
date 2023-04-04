@@ -10,7 +10,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
 		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod,pECMmod,& 
-		pPRELESgv,layerPRELES)
+		layerPRELES,LUEtrees,LUEgv)
 
 implicit none
 
@@ -21,11 +21,12 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: DOY(365),etmodel,ECMmod,layerPRELES
- real (kind=8), intent(in) :: pPRELESgv(30),pPRELES(30,allSP),pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
+ real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7),mortMod(2)
  real (kind=8), intent(inout) :: siteInfo(nSites,10),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,10),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
+ real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
@@ -102,7 +103,7 @@ do i = 1,nSites
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
 		GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
-		fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,pPRELESgv,layerPRELES) !energyCut)
+		fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv) !energyCut)
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
