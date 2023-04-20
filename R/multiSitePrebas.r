@@ -6,11 +6,11 @@ InitMultiSite <- function(nYearsMS,
                           pYASSO =pYAS,
                           pAWEN = parsAWEN,
                           siteInfo = NA,
-                          multiInitVar = NA, ###A numeric vector with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches the default values = c(1.5,0.5,0.0431969,0.,0.) and is automatically computed using air temperature.
+                          multiInitVar = NA, 
                           multiThin = NA,
                           multiNthin = NA,
-                          multiInitClearCut = NA,
-                          fixBAinitClarcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
+                          multiInitClearCut = NA, ###A matrix (rows are sites columns are the variables) with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches measurable size. If NA the default values from initSeedling.def are used Ainit and is automatically computed using air temperature.
+                          fixBAinitClarcut = 1.,  ###if 1, when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year 
                           initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                           areas = NA,
                           PAR,

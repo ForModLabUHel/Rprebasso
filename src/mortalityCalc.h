@@ -5,6 +5,7 @@ if (mortMod==1. .or. mortMod==3.) then
      dN=0.d0
 
 	 STAND=STAND_all(:,ij)
+  STAND(42) = 0.
 	 species = int(stand(4))
 	 param = pCrobas(:,species)
 	 sitetype=STAND(3)
@@ -169,7 +170,6 @@ if (mortMod==1. .or. mortMod==3.) then
 !	  STAND(27) = 0.
 !	  STAND(28) = 0.
 !	  STAND(29) = 0.
-	  STAND(42) = 0.
 		  endif
 		 endif
 	  
