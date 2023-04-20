@@ -6,7 +6,7 @@ InitMultiSite <- function(nYearsMS,
                           pYASSO =pYAS,
                           pAWEN = parsAWEN,
                           siteInfo = NA,
-                          multiInitVar = NA,
+                          multiInitVar = NA, ###A numeric vector with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches the default values = c(1.5,0.5,0.0431969,0.,0.) and is automatically computed using air temperature.
                           multiThin = NA,
                           multiNthin = NA,
                           multiInitClearCut = NA,
