@@ -1,3 +1,58 @@
+#' Title
+#'
+#' @param nYearsMS 
+#' @param pCROBAS 
+#' @param pHcMod 
+#' @param pPRELES 
+#' @param etmodel 
+#' @param pYASSO 
+#' @param pAWEN 
+#' @param siteInfo 
+#' @param multiInitVar 
+#' @param multiThin 
+#' @param multiNthin 
+#' @param multiInitClearCut 
+#' @param fixBAinitClarcut 
+#' @param initCLcutRatio 
+#' @param areas 
+#' @param PAR 
+#' @param TAir 
+#' @param VPD 
+#' @param Precip 
+#' @param CO2 
+#' @param multiP0 
+#' @param soilC 
+#' @param weatherYasso 
+#' @param litterSize 
+#' @param soilCtot 
+#' @param defaultThin 
+#' @param ClCut 
+#' @param energyCut 
+#' @param inDclct 
+#' @param inAclct 
+#' @param yassoRun 
+#' @param smoothP0 
+#' @param smoothETS 
+#' @param smoothYear 
+#' @param HcModV 
+#' @param tapioPars 
+#' @param thdPer 
+#' @param limPer 
+#' @param ftTapioPar 
+#' @param tTapioPar 
+#' @param GVrun 
+#' @param thinInt 
+#' @param mortMod 
+#' @param ECMmod 
+#' @param pECMmod 
+#' @param layerPRELES 
+#' @param LUEtrees 
+#' @param LUEgv 
+#'
+#' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
+#' @export
+#'
+#' @examples
 InitMultiSite <- function(nYearsMS,
                           pCROBAS = pCROB,
                           pHcMod = pHcM,
@@ -400,6 +455,17 @@ InitMultiSite <- function(nYearsMS,
   return(multiSiteInit)
 }
 
+#' Title
+#'
+#' @param multiSiteInit 
+#' @param fertThin 
+#' @param nYearsFert 
+#' @param oldLayer 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 multiPrebas <- function(multiSiteInit,
                         fertThin = 0,
                         nYearsFert = 20,
@@ -493,6 +559,25 @@ multiPrebas <- function(multiSiteInit,
 }
 
 
+#' Title
+#'
+#' @param multiSiteInit 
+#' @param HarvLim 
+#' @param minDharv 
+#' @param cutAreas 
+#' @param compHarv 
+#' @param thinFact 
+#' @param ageHarvPrior 
+#' @param siteOrder 
+#' @param fertThin 
+#' @param nYearsFert 
+#' @param oldLayer 
+#' @param startSimYear 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
@@ -644,6 +729,25 @@ if(ageHarvPrior>0){
 
 
 
+#' Title
+#'
+#' @param multiSiteInit 
+#' @param HarvLim 
+#' @param minDharv 
+#' @param cutAreas 
+#' @param compHarv 
+#' @param thinFact 
+#' @param ageHarvPrior 
+#' @param siteOrder 
+#' @param fertThin 
+#' @param nYearsFert 
+#' @param oldLayer 
+#' @param startSimYear 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 reStartRegionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
