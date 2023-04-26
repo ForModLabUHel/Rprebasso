@@ -11,46 +11,108 @@
 #' @param siteInfo vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3,160,0,0,20,413.,0.45,0.118), i.e. siteType = 3. 
 #' @param thinning A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
 #' @param initClearcut A numeric vector with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches measurable size. If NA the default values from initSeedling.def are used Ainit and is automatically computed using air temperature.
-#' @param fixBAinitClarcut If 1, when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year 
-#' @param initCLcutRatio 
-#' @param PAR 
-#' @param TAir 
-#' @param VPD 
-#' @param Precip 
-#' @param CO2 
-#' @param P0 
-#' @param initVar 
-#' @param soilC 
-#' @param weatherYasso 
-#' @param litterSize 
-#' @param soilCtot 
-#' @param defaultThin 
-#' @param ClCut 
-#' @param energyCut 
-#' @param inDclct 
-#' @param inAclct 
-#' @param yassoRun 
-#' @param smoothP0 
-#' @param smoothETS 
-#' @param smoothYear 
-#' @param tapioPars 
-#' @param thdPer 
-#' @param limPer 
-#' @param ftTapioPar 
-#' @param tTapioPar 
-#' @param GVrun 
-#' @param thinInt 
-#' @param fertThin 
-#' @param nYearsFert 
-#' @param protect 
-#' @param mortMod 
-#' @param ECMmod 
-#' @param pECMmod 
+#' @param fixBAinitClarcut If 1, when clearcuts occur the species initial biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year 
+#' @param initCLcutRatio vector (of the length of the number of layers) with basal area fraction (to the total basal area)  at replanting it fixBAinitClarcut == 1
+#' @param PAR A numeric vector of daily sums of photosynthetically active radiation, mmol/m2
+#' @param TAir A numeric vector of daily mean temperature, degrees C.
+#' @param VPD A numeric vector of daily mean vapour pressure deficits, kPa.
+#' @param Precip A numeric vector of daily rainfall, mm
+#' @param CO2 A numeric vector of air CO2, ppm
+#' @param P0 A numeric vector with the annual potential photosynthesis (gC m-2 y-1). If P0 is not provided PRELES is used to compute P0 using fAPAR = 1.
+#' @param initVar initial state of the forest. matrix with VarsIn,nLayers dimentions: VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))
+#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem).
+#' @param weatherYasso Annual weather inputs for Yasso, matrix with nYears and 3 columns. If NA it is internally calculated using the daily weather inputs
+#' @param litterSize Marix with litter inputs for YASSO. Rows are tree organs, columns correspond to the species of pCROBAS.
+#' @param soilCtot total annual soilcarbon per year
+#' @param defaultThin If defaultThin = 1 (default) Finnish standard managment practices are applied (ref). 
+#' @param ClCut If ClCut = 1 clearcuts are applied. If inDclct = NA and inAclct = NA Finnish standard clearcut practices are applied (ref).
+#' @param energyCut if==1 energy wood is harvested at thinning and clearcut
+#' @param inDclct Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
+#' @param inAclct Vector of Age (year) threshold for clearcut.  Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
+#' @param yassoRun flag for YASSO calculations. If yassoRun=1 the YASSO model is run to compute the carbon balance of the soil.
+#' @param smoothP0 if 1 P0 is smoothed using an average window of smoothYear (see below) # years 
+#' @param smoothETS if 1 ETS is smoothed using an average window of smoothYear (see below) # years 
+#' @param smoothYear # of years for smoothing P0 and ETS
+#' @param tapioPars parameters for the tapio rules applied at harvests in Finalnd. tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
+#' @param thdPer value varying between 0 and 1 (default=0.5) defining the intensities of the thinnings based of Finnish default rules. 
+#' @param limPer value varying between 0 and 1 (default=0.5) defining the BASAL area threshold used for thinning implementation according to Finnish rules.
+#' @param ftTapioPar   first thinning parameters. 
+#' @param tTapioPar  Tending  thinning parameters. 
+#' @param GVrun flag for Ground vegetation model 1-> runs the GV model
+#' @param thinInt parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
+#' @param fertThin flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 
+#' @param nYearsFert number of years after thinnings for which the fertilization is effective 
+#' @param protect flag for retention trees after clearcut (randomly 5-10% basal area is left after clearcut)
+#' @param mortMod flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
+#' @param ECMmod flag for activation of the ectomycoryzal model (ECMmod=1). see Makela et al. 2022
+#' @param pECMmod parameters of ECM model 
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
 #'
 #' @return
+#' In addition to the input variables
+#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem).
+#' @param soilCtot stand total annual soilcarbon per year
+#' @param output  An array with annual model outputs. 1st dimension corresponds to the number of years of the simulation (nYears); 2nd dimension corresponds to the output variables (see list below); 3rd dimension corresponds to the number of layers in the stand (nLayers); 4th dimensions reports the state of the stand (1) and (2) the variables of the harvested trees (2).
+#' Output variables: 
+#' 1."siteID" 
+#' 2."gammaC" internal parameter 
+#' 3."sitetype" site fertility class 
+#' 4."species" 
+#' 5."ETS" effective temperature sums 
+#' 6."P0" Potential annual gross primary production (gC m-2 y-1) 
+#' 7."age" Age of the layer (years) 
+#' 8."DeadWoodVolume" Dead wood volume (m3 ha-1) 
+#' 9."Respi_tot" Autotrophic respiration (gC m-2 y-1) 
+#' 10."GPP/1000" Total tree GPP  (kgC m-2 y-1) 
+#' 11."H" Layer average height (m) 
+#' 12."D" Layer average diameter at breast height (cm) 
+#' 13."BA" Layer basal area (m-2 ha-1) 
+#' 14."Hc_base" Layer Base of crown height (m) 
+#' 15."Cw" Crown width (m) 
+#' 16."A" Sapwood area of average tree at crown base (m2) 
+#' 17."N" Layer density 
+#' 18."npp" net primary production (gC m-2 y-1) 
+#' 19."leff" Effective leaf area 
+#' 20."keff" Effective light extintion coefficient 
+#' 21."lproj" Projected leaf area 
+#' 22."ET_preles" Annual evapotranspiration (mm y-1) 
+#' 23."weight" Layer weight on photosynthesis 
+#' 24."Wbranch" Living Branch biomass (kgC ha-1) 
+#' 25."WfineRoots" Fine roots biomass (kgC ha-1) 
+#' 26."Litter_fol" Foliage litter (kgC ha-1) 
+#' 27."Litter_fr" Fine root litter (kgC ha-1) 
+#' 28."Litter_fWoody" fine woody litter (kgC ha-1) 
+#' 29."Litter_cWood" coarse woody litter (kgC ha-1) 
+#' 30."V" Layer volume (m3 ha-1) 
+#' 31."Wstem" Stem Biomass (kgC ha-1) 
+#' 32."W_croot" Course root Biomass (kgC ha-1) 
+#' 33."wf_STKG" Foliage biomass (kgC ha-1) 
+#' 34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) 
+#' 35."B_tree" Basal area of average tree (m2) 
+#' 36."Light" The proportion of light that has not been intercepted by canopy (meanlight)  
+#' 37."VroundWood" harvested round wood volume (m3 ha-1) 
+#' 38."WroundWood" haversted round wood biomass (kgC ha-1) 
+#' 39."soilC" totaal soil carbon (kgC ha-1) 
+#' 40."aSW" average available soil water (mm) 
+#' 41."dH" height growth (m) 
+#' 42."Vmort" volume of dead trees (m3 ha-1) 
+#' 43."grossGrowth" gross growth (m3 ha-1 y-1) 
+#' 44."GPPtrees" Gross primary production per tree layer (gC m-2 y-1) 
+#' 45."Rh" heterotrophic respiration (gC m-2 y-1) 
+#' 46."NEP" Net ecosystem exchange (gC m-2 y-1), note 1st layer include fluxes from ground vegetation 
+#' 47." W_wsap" sapwood biomass (kgC ha-1) 
+#' 48."W_c" sapwood stem below Crown (kgC ha-1) 
+#' 49."W_s" sapwood stem within crown (kgC ha-1) 
+#' 50."Wsh" biomass of stem heartwood  (kgC ha-1) 
+#' 51."Wdb" biomass of dead branches on living trees (kgC ha-1) 
+#' 52."dHc" Height of the crown base change (m) 
+#' 53."Wbh" biomass of branches heartwood (kgC ha-1) 
+#' 54."Wcrh" biomass of coarse root heartwood (kgC ha-1)
+#' 
+#' 
+#' 
 #' @export
 #'
 #' @examples
