@@ -27,6 +27,7 @@ TransectRun(
   initCLcutRatio = NA,
   multiP0 = NA,
   soilC = NA,
+  weatherInput = NULL,
   weatherYasso = NA,
   litterSize = litterSizeDef,
   soilCtot = NA,
@@ -45,8 +46,9 @@ TransectRun(
   thinInt = -999,
   mortMod = 1,
   ECMmod = 0,
-  pPRELESgv = pPREL,
-  layerPRELES = 0
+  layerPRELES = 0,
+  LUEtrees = pLUEtrees,
+  LUEgv = pLUEgv
 )
 }
 \arguments{
@@ -68,7 +70,7 @@ TransectRun(
 
 \item{multiThin}{A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.}
 
-\item{multiNthin}{}
+\item{multiNthin}{A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
 
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
@@ -93,6 +95,8 @@ TransectRun(
 \item{multiP0}{}
 
 \item{soilC}{}
+
+\item{weatherInput}{##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations}
 
 \item{weatherYasso}{}
 
@@ -130,9 +134,11 @@ TransectRun(
 
 \item{ECMmod}{flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling}
 
-\item{pPRELESgv}{}
-
 \item{layerPRELES}{}
+
+\item{LUEtrees}{light use efficiency parameters for tree species}
+
+\item{LUEgv}{light use efficiency parameter for ground vegetation}
 }
 \value{
 The output from multiPrebas()

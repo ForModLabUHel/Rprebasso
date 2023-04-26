@@ -50,8 +50,9 @@ prebas(
   mortMod = 1,
   ECMmod = 0,
   pECMmod = parsECMmod,
-  pPRELESgv = pPREL,
-  layerPRELES = 0
+  layerPRELES = 0,
+  LUEtrees = pLUEtrees,
+  LUEgv = pLUEgv
 )
 }
 \arguments{
@@ -71,83 +72,161 @@ prebas(
 
 \item{siteInfo}{vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3,160,0,0,20,413.,0.45,0.118), i.e. siteType = 3.}
 
-\item{thinning}{A matrix with thinnig inputs. Rows correspond to a thinning event. Dimensions: #Thinnings x 10. The rows, nThin, is the number of thinnings. For the columns: column 1 is year from the start of the simulation when the thinnig occur; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 are stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999.; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
+\item{thinning}{A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
 
-\item{initClearcut}{}
+\item{initClearcut}{A numeric vector with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches measurable size. If NA the default values from initSeedling.def are used Ainit and is automatically computed using air temperature.}
 
-\item{fixBAinitClarcut}{}
+\item{fixBAinitClarcut}{If 1, when clearcuts occur the species initial biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year}
 
-\item{initCLcutRatio}{}
+\item{initCLcutRatio}{vector (of the length of the number of layers) with basal area fraction (to the total basal area)  at replanting it fixBAinitClarcut == 1}
 
-\item{PAR}{}
+\item{PAR}{A numeric vector of daily sums of photosynthetically active radiation, mmol/m2}
 
-\item{TAir}{}
+\item{TAir}{A numeric vector of daily mean temperature, degrees C.}
 
-\item{VPD}{}
+\item{VPD}{A numeric vector of daily mean vapour pressure deficits, kPa.}
 
-\item{Precip}{}
+\item{Precip}{A numeric vector of daily rainfall, mm}
 
-\item{CO2}{}
+\item{CO2}{A numeric vector of air CO2, ppm}
 
-\item{P0}{}
+\item{P0}{A numeric vector with the annual potential photosynthesis (gC m-2 y-1). If P0 is not provided PRELES is used to compute P0 using fAPAR = 1.}
 
-\item{initVar}{}
+\item{initVar}{initial state of the forest. matrix with VarsIn,nLayers dimentions: VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))}
 
-\item{soilC}{}
+\item{soilC}{Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem).}
 
-\item{weatherYasso}{}
+\item{weatherYasso}{Annual weather inputs for Yasso, matrix with nYears and 3 columns. If NA it is internally calculated using the daily weather inputs}
 
-\item{litterSize}{}
+\item{litterSize}{Marix with litter inputs for YASSO. Rows are tree organs, columns correspond to the species of pCROBAS.}
 
-\item{soilCtot}{}
+\item{soilCtot}{total annual soilcarbon per year}
 
-\item{defaultThin}{}
+\item{defaultThin}{If defaultThin = 1 (default) Finnish standard managment practices are applied (ref).}
 
-\item{ClCut}{}
+\item{ClCut}{If ClCut = 1 clearcuts are applied. If inDclct = NA and inAclct = NA Finnish standard clearcut practices are applied (ref).}
 
-\item{energyCut}{}
+\item{energyCut}{if==1 energy wood is harvested at thinning and clearcut}
 
-\item{inDclct}{}
+\item{inDclct}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
-\item{inAclct}{}
+\item{inAclct}{Vector of Age (year) threshold for clearcut.  Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
-\item{yassoRun}{}
+\item{yassoRun}{flag for YASSO calculations. If yassoRun=1 the YASSO model is run to compute the carbon balance of the soil.}
 
-\item{smoothP0}{}
+\item{smoothP0}{if 1 P0 is smoothed using an average window of smoothYear (see below) # years}
 
-\item{smoothETS}{}
+\item{smoothETS}{if 1 ETS is smoothed using an average window of smoothYear (see below) # years}
 
-\item{smoothYear}{}
+\item{smoothYear}{# of years for smoothing P0 and ETS}
 
-\item{tapioPars}{}
+\item{tapioPars}{parameters for the tapio rules applied at harvests in Finalnd. tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds}
 
-\item{thdPer}{}
+\item{thdPer}{value varying between 0 and 1 (default=0.5) defining the intensities of the thinnings based of Finnish default rules.}
 
-\item{limPer}{}
+\item{limPer}{value varying between 0 and 1 (default=0.5) defining the BASAL area threshold used for thinning implementation according to Finnish rules.}
 
-\item{ftTapioPar}{}
+\item{ftTapioPar}{first thinning parameters.}
 
-\item{tTapioPar}{}
+\item{tTapioPar}{Tending  thinning parameters.}
 
-\item{GVrun}{}
+\item{GVrun}{flag for Ground vegetation model 1-> runs the GV model}
 
-\item{thinInt}{}
+\item{thinInt}{parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);}
 
-\item{fertThin}{}
+\item{fertThin}{flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3}
 
-\item{nYearsFert}{}
+\item{nYearsFert}{number of years after thinnings for which the fertilization is effective}
 
-\item{protect}{}
+\item{protect}{flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)}
 
-\item{mortMod}{}
+\item{mortMod}{flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models}
 
-\item{ECMmod}{}
+\item{ECMmod}{flag for activation of the ectomycoryzal model (ECMmod=1). see Makela et al. 2022}
 
-\item{pECMmod}{}
-
-\item{pPRELESgv}{preles parameters for ground vegetation (only runs if layerPRELES==1, other wise 1 parameter set is used for the whole ecosystem)}
+\item{pECMmod}{parameters of ECM model}
 
 \item{layerPRELES}{flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest}
+
+\item{LUEtrees}{light use efficiency parameters for tree species}
+
+\item{LUEgv}{light use efficiency parameter for ground vegetation}
+}
+\value{
+soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
+  \cr
+ soilCtot stand total annual soilcarbon per year. \cr
+  \cr
+ output  An array with annual model outputs. 1st dimension corresponds to the number of years of the simulation (nYears); 2nd dimension corresponds to the output variables (see list below); 3rd dimension corresponds to the number of layers in the stand (nLayers); 4th dimensions reports the state of the stand (1) and (2) the variables of the harvested trees (2). \cr
+Output variables: \cr
+1."siteID" \cr
+2."gammaC" internal parameter \cr
+3."sitetype" site fertility class \cr
+4."species" \cr
+5."ETS" effective temperature sums \cr
+6."P0" Potential annual gross primary production (gC m-2 y-1) \cr
+7."age" Age of the layer (years) \cr
+8."DeadWoodVolume" Dead wood volume (m3 ha-1) \cr
+9."Respi_tot" Autotrophic respiration (gC m-2 y-1) \cr
+10."GPP/1000" Total tree GPP  (kgC m-2 y-1) \cr
+11."H" Layer average height (m) \cr
+12."D" Layer average diameter at breast height (cm) \cr
+13."BA" Layer basal area (m-2 ha-1) \cr
+14."Hc_base" Layer Base of crown height (m) \cr
+15."Cw" Crown width (m) \cr
+16."A" Sapwood area of average tree at crown base (m2) \cr
+17."N" Layer density \cr
+18."npp" net primary production (gC m-2 y-1) \cr
+19."leff" Effective leaf area \cr
+20."keff" Effective light extintion coefficient \cr
+21."lproj" Projected leaf area \cr
+22."ET_preles" Annual evapotranspiration (mm y-1) \cr
+23."weight" Layer weight on photosynthesis \cr
+24."Wbranch" Living Branch biomass (kgC ha-1) \cr
+25."WfineRoots" Fine roots biomass (kgC ha-1) \cr
+26."Litter_fol" Foliage litter (kgC ha-1) \cr
+27."Litter_fr" Fine root litter (kgC ha-1) \cr
+28."Litter_fWoody" fine woody litter (kgC ha-1)\cr 
+29."Litter_cWood" coarse woody litter (kgC ha-1) \cr
+30."V" Layer volume (m3 ha-1) \cr
+31."Wstem" Stem Biomass (kgC ha-1) \cr
+32."W_croot" Course root Biomass (kgC ha-1) \cr
+33."wf_STKG" Foliage biomass (kgC ha-1) \cr
+34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) \cr
+35."B_tree" Basal area of average tree (m2) \cr
+36."Light" The proportion of light that has not been intercepted by canopy (meanlight)  \cr
+37."VroundWood" harvested round wood volume (m3 ha-1) \cr
+38."WroundWood" haversted round wood biomass (kgC ha-1) \cr
+39."soilC" totaal soil carbon (kgC ha-1) \cr
+40."aSW" average available soil water (mm) \cr
+41."dH" height growth (m) \cr
+42."Vmort" volume of dead trees (m3 ha-1) \cr
+43."grossGrowth" gross growth (m3 ha-1 y-1) \cr
+44."GPPtrees" Gross primary production per tree layer (gC m-2 y-1) \cr
+45."Rh" heterotrophic respiration (gC m-2 y-1) \cr
+46."NEP" Net ecosystem exchange (gC m-2 y-1), note 1st layer include fluxes from ground vegetation \cr
+47." W_wsap" sapwood biomass (kgC ha-1) \cr
+48."W_c" sapwood stem below Crown (kgC ha-1) \cr
+49."W_s" sapwood stem within crown (kgC ha-1) \cr
+50."Wsh" biomass of stem heartwood  (kgC ha-1) \cr
+51."Wdb" biomass of dead branches on living trees (kgC ha-1) \cr
+52."dHc" Height of the crown base change (m) \cr
+53."Wbh" biomass of branches heartwood (kgC ha-1) \cr
+54."Wcrh" biomass of coarse root heartwood (kgC ha-1)\cr
+\cr
+ energyWood  An array with annual energywood harvested. \cr
+ 1st dimension corresponds to the number of years of the simulation (nYears); \cr
+ 2nd dimension corresponds to the layers;\cr
+ 3rd dimension has 2 elements that correspond to volume and biomasses respectively\cr
+
+\cr
+ dailyPRELES  A matrix with PRELES output: \cr
+ 1st dimension corresponds to the days ; \cr
+ 2nd dimension corresponds to the PRELES outputs: GPP, ET and SW. \cr
+\cr
+ GVout  A matrix with the ground vegetation model output: \cr
+ 1st dimension corresponds to the years ; \cr
+ 2nd dimension corresponds to the GV outputs: fAPAR_gv, litGV, photoGV, Wgv,GVnpp. \cr
 }
 \description{
 function to run the PREBAS model for a single site!

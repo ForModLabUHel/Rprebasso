@@ -42,7 +42,7 @@
 #' @param thinInt parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
 #' @param fertThin flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 
 #' @param nYearsFert number of years after thinnings for which the fertilization is effective 
-#' @param protect flag for retention trees after clearcut (randomly 5-10% basal area is left after clearcut)
+#' @param protect flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)
 #' @param mortMod flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
 #' @param ECMmod flag for activation of the ectomycoryzal model (ECMmod=1). see Makela et al. 2022
 #' @param pECMmod parameters of ECM model 
@@ -51,67 +51,80 @@
 #' @param LUEgv light use efficiency parameter for ground vegetation
 #'
 #' @return
-#' In addition to the input variables
-#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem).
-#' @param soilCtot stand total annual soilcarbon per year
-#' @param output  An array with annual model outputs. 1st dimension corresponds to the number of years of the simulation (nYears); 2nd dimension corresponds to the output variables (see list below); 3rd dimension corresponds to the number of layers in the stand (nLayers); 4th dimensions reports the state of the stand (1) and (2) the variables of the harvested trees (2).
-#' Output variables: 
-#' 1."siteID" 
-#' 2."gammaC" internal parameter 
-#' 3."sitetype" site fertility class 
-#' 4."species" 
-#' 5."ETS" effective temperature sums 
-#' 6."P0" Potential annual gross primary production (gC m-2 y-1) 
-#' 7."age" Age of the layer (years) 
-#' 8."DeadWoodVolume" Dead wood volume (m3 ha-1) 
-#' 9."Respi_tot" Autotrophic respiration (gC m-2 y-1) 
-#' 10."GPP/1000" Total tree GPP  (kgC m-2 y-1) 
-#' 11."H" Layer average height (m) 
-#' 12."D" Layer average diameter at breast height (cm) 
-#' 13."BA" Layer basal area (m-2 ha-1) 
-#' 14."Hc_base" Layer Base of crown height (m) 
-#' 15."Cw" Crown width (m) 
-#' 16."A" Sapwood area of average tree at crown base (m2) 
-#' 17."N" Layer density 
-#' 18."npp" net primary production (gC m-2 y-1) 
-#' 19."leff" Effective leaf area 
-#' 20."keff" Effective light extintion coefficient 
-#' 21."lproj" Projected leaf area 
-#' 22."ET_preles" Annual evapotranspiration (mm y-1) 
-#' 23."weight" Layer weight on photosynthesis 
-#' 24."Wbranch" Living Branch biomass (kgC ha-1) 
-#' 25."WfineRoots" Fine roots biomass (kgC ha-1) 
-#' 26."Litter_fol" Foliage litter (kgC ha-1) 
-#' 27."Litter_fr" Fine root litter (kgC ha-1) 
-#' 28."Litter_fWoody" fine woody litter (kgC ha-1) 
-#' 29."Litter_cWood" coarse woody litter (kgC ha-1) 
-#' 30."V" Layer volume (m3 ha-1) 
-#' 31."Wstem" Stem Biomass (kgC ha-1) 
-#' 32."W_croot" Course root Biomass (kgC ha-1) 
-#' 33."wf_STKG" Foliage biomass (kgC ha-1) 
-#' 34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) 
-#' 35."B_tree" Basal area of average tree (m2) 
-#' 36."Light" The proportion of light that has not been intercepted by canopy (meanlight)  
-#' 37."VroundWood" harvested round wood volume (m3 ha-1) 
-#' 38."WroundWood" haversted round wood biomass (kgC ha-1) 
-#' 39."soilC" totaal soil carbon (kgC ha-1) 
-#' 40."aSW" average available soil water (mm) 
-#' 41."dH" height growth (m) 
-#' 42."Vmort" volume of dead trees (m3 ha-1) 
-#' 43."grossGrowth" gross growth (m3 ha-1 y-1) 
-#' 44."GPPtrees" Gross primary production per tree layer (gC m-2 y-1) 
-#' 45."Rh" heterotrophic respiration (gC m-2 y-1) 
-#' 46."NEP" Net ecosystem exchange (gC m-2 y-1), note 1st layer include fluxes from ground vegetation 
-#' 47." W_wsap" sapwood biomass (kgC ha-1) 
-#' 48."W_c" sapwood stem below Crown (kgC ha-1) 
-#' 49."W_s" sapwood stem within crown (kgC ha-1) 
-#' 50."Wsh" biomass of stem heartwood  (kgC ha-1) 
-#' 51."Wdb" biomass of dead branches on living trees (kgC ha-1) 
-#' 52."dHc" Height of the crown base change (m) 
-#' 53."Wbh" biomass of branches heartwood (kgC ha-1) 
-#' 54."Wcrh" biomass of coarse root heartwood (kgC ha-1)
+#'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
+#'   \cr
+#'  soilCtot stand total annual soilcarbon per year. \cr
+#'   \cr
+#'  output  An array with annual model outputs. 1st dimension corresponds to the number of years of the simulation (nYears); 2nd dimension corresponds to the output variables (see list below); 3rd dimension corresponds to the number of layers in the stand (nLayers); 4th dimensions reports the state of the stand (1) and (2) the variables of the harvested trees (2). \cr
+#' Output variables: \cr
+#' 1."siteID" \cr
+#' 2."gammaC" internal parameter \cr
+#' 3."sitetype" site fertility class \cr
+#' 4."species" \cr
+#' 5."ETS" effective temperature sums \cr
+#' 6."P0" Potential annual gross primary production (gC m-2 y-1) \cr
+#' 7."age" Age of the layer (years) \cr
+#' 8."DeadWoodVolume" Dead wood volume (m3 ha-1) \cr
+#' 9."Respi_tot" Autotrophic respiration (gC m-2 y-1) \cr
+#' 10."GPP/1000" Total tree GPP  (kgC m-2 y-1) \cr
+#' 11."H" Layer average height (m) \cr
+#' 12."D" Layer average diameter at breast height (cm) \cr
+#' 13."BA" Layer basal area (m-2 ha-1) \cr
+#' 14."Hc_base" Layer Base of crown height (m) \cr
+#' 15."Cw" Crown width (m) \cr
+#' 16."A" Sapwood area of average tree at crown base (m2) \cr
+#' 17."N" Layer density \cr
+#' 18."npp" net primary production (gC m-2 y-1) \cr
+#' 19."leff" Effective leaf area \cr
+#' 20."keff" Effective light extintion coefficient \cr
+#' 21."lproj" Projected leaf area \cr
+#' 22."ET_preles" Annual evapotranspiration (mm y-1) \cr
+#' 23."weight" Layer weight on photosynthesis \cr
+#' 24."Wbranch" Living Branch biomass (kgC ha-1) \cr
+#' 25."WfineRoots" Fine roots biomass (kgC ha-1) \cr
+#' 26."Litter_fol" Foliage litter (kgC ha-1) \cr
+#' 27."Litter_fr" Fine root litter (kgC ha-1) \cr
+#' 28."Litter_fWoody" fine woody litter (kgC ha-1)\cr 
+#' 29."Litter_cWood" coarse woody litter (kgC ha-1) \cr
+#' 30."V" Layer volume (m3 ha-1) \cr
+#' 31."Wstem" Stem Biomass (kgC ha-1) \cr
+#' 32."W_croot" Course root Biomass (kgC ha-1) \cr
+#' 33."wf_STKG" Foliage biomass (kgC ha-1) \cr
+#' 34."wf_treeKG" Foliage biomass of the average tree (kgC ha-1) \cr
+#' 35."B_tree" Basal area of average tree (m2) \cr
+#' 36."Light" The proportion of light that has not been intercepted by canopy (meanlight)  \cr
+#' 37."VroundWood" harvested round wood volume (m3 ha-1) \cr
+#' 38."WroundWood" haversted round wood biomass (kgC ha-1) \cr
+#' 39."soilC" totaal soil carbon (kgC ha-1) \cr
+#' 40."aSW" average available soil water (mm) \cr
+#' 41."dH" height growth (m) \cr
+#' 42."Vmort" volume of dead trees (m3 ha-1) \cr
+#' 43."grossGrowth" gross growth (m3 ha-1 y-1) \cr
+#' 44."GPPtrees" Gross primary production per tree layer (gC m-2 y-1) \cr
+#' 45."Rh" heterotrophic respiration (gC m-2 y-1) \cr
+#' 46."NEP" Net ecosystem exchange (gC m-2 y-1), note 1st layer include fluxes from ground vegetation \cr
+#' 47." W_wsap" sapwood biomass (kgC ha-1) \cr
+#' 48."W_c" sapwood stem below Crown (kgC ha-1) \cr
+#' 49."W_s" sapwood stem within crown (kgC ha-1) \cr
+#' 50."Wsh" biomass of stem heartwood  (kgC ha-1) \cr
+#' 51."Wdb" biomass of dead branches on living trees (kgC ha-1) \cr
+#' 52."dHc" Height of the crown base change (m) \cr
+#' 53."Wbh" biomass of branches heartwood (kgC ha-1) \cr
+#' 54."Wcrh" biomass of coarse root heartwood (kgC ha-1)\cr
+#' \cr
+#'  energyWood  An array with annual energywood harvested. \cr
+#'  1st dimension corresponds to the number of years of the simulation (nYears); \cr
+#'  2nd dimension corresponds to the layers;\cr
+#'  3rd dimension has 2 elements that correspond to volume and biomasses respectively\cr
 #' 
-#' 
+#' \cr
+#'  dailyPRELES  A matrix with PRELES output: \cr
+#'  1st dimension corresponds to the days ; \cr
+#'  2nd dimension corresponds to the PRELES outputs: GPP, ET and SW. \cr
+#' \cr
+#'  GVout  A matrix with the ground vegetation model output: \cr
+#'  1st dimension corresponds to the years ; \cr
+#'  2nd dimension corresponds to the GV outputs: fAPAR_gv, litGV, photoGV, Wgv,GVnpp. \cr
 #' 
 #' @export
 #'
