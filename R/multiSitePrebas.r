@@ -343,6 +343,12 @@ InitMultiSite <- function(nYearsMS,
     }
   }
   
+  # # Adjust alphar considering N limitation
+  # if(FALSE){
+  #   P0currClim <- colMeans(multiP0[(1:min(5,maxYears)),,1]) #calculate P0 in current climate using the first 5 years
+  #   
+  # }
+  # 
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
   initVarX <- abind(initVarX,matrix(multiOut[,1,3,,2],nSites,maxNlayers),along=2)
