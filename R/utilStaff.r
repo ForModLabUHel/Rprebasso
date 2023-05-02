@@ -765,3 +765,16 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     
     return(multiSiteInit)
   }
+  
+  fTfun <- function(TAir, precip){
+    fT <- exp(0.059*TAir - 0.001*TAir^2)* (1-exp(-1.858*precip))
+    return(fT)
+  }
+  
+  
+  alpharN <- function(alphar0, p0,p00,TAir0,TAir,precip0,precip){
+    fT0 <- fTfun(TAir0,precip0)
+    fT <- fTfun(TAir,precip)
+    alphar <- alphar0 * p0/p00*fT0/fT
+  }
+  

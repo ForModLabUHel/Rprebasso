@@ -45,7 +45,8 @@
 #' @param layerPRELES 
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
-
+#' @param aplharNcalc #alphar calculations based on Nitrogen availability
+#' 
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
@@ -116,7 +117,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         ECMmod = 0,
                         layerPRELES = 0,
                         LUEtrees = pLUEtrees,
-                        LUEgv = pLUEgv
+                        LUEgv = pLUEgv,
+                        aplharNcalc=FALSE
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -230,7 +232,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     ECMmod=ECMmod,
     layerPRELES=layerPRELES,
     LUEtrees = LUEtrees,
-    LUEgv = LUEgv
+    LUEgv = LUEgv,
+    aplharNcalc=aplharNcalc
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

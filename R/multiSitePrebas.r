@@ -48,6 +48,7 @@
 #' @param layerPRELES 
 #' @param LUEtrees 
 #' @param LUEgv 
+#' @param aplharNcalc #alphar calculations based on Nitrogen availability
 #'
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -100,7 +101,8 @@ InitMultiSite <- function(nYearsMS,
                           pECMmod = parsECMmod,
                           layerPRELES = 0,
                           LUEtrees = pLUEtrees,
-                          LUEgv = pLUEgv
+                          LUEgv = pLUEgv,
+                          aplharNcalc=FALSE
                           ){  
   
   nSites <- length(nYearsMS)
@@ -395,6 +397,37 @@ InitMultiSite <- function(nYearsMS,
   dimnames(multiInitVar) <-  list(site=NULL,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
   
+  ###initialize siteType
+  multiOut[,,3,,1] <- array(siteInfo[,3],dim=c(nSites,maxYears,maxNlayers))
+  ###initialize alfar
+  for(ijj in 1:maxNlayers){
+    siteXs <- which(multiInitVar[,1,ijj] %in% 1:ncol(pCROBAS))
+    multiOut[siteXs,,3,ijj,2] =
+      matrix(pCROBAS[cbind((20+pmin(siteInfo[,3],5))[siteXs],
+              multiInitVar[siteXs,1,ijj])],
+             length(siteXs),maxYears)
+  }
+  
+if(aplharNcalc){
+  ###initialize alfar
+  p0currClim <- colMeans(multiP0[,1:min(maxYears,5),1])
+  p0ratio <- multiP0[,,1]/p0currClim
+  T0 <- apply(weatherYasso[,1:min(5,maxYears),1],1,mean)
+  precip0 <- apply(weatherYasso[,1:min(5,maxYears),2],1,mean)
+  fT0 <- fTfun(T0,precip0)
+  fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
+  fTratio <- fT/fT0 
+  alpharNfact <- p0ratio * fTratio
+  
+  for(ijj in 1:nClimID){
+      # siteXs <- which(siteInfo[,2] == ijj)
+      siteXs <- which(siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
+      if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
+  }
+} 
+  
   multiSiteInit <- list(
     multiOut = multiOut,
     multiEnergyWood = multiEnergyWood,
@@ -450,7 +483,8 @@ InitMultiSite <- function(nYearsMS,
     pECMmod = pECMmod,
     layerPRELES = layerPRELES,
     LUEtrees = LUEtrees,
-    LUEgv = LUEgv
+    LUEgv = LUEgv,
+    aplharNcalc=aplharNcalc
   )
   return(multiSiteInit)
 }
@@ -547,19 +581,6 @@ multiPrebas <- function(multiSiteInit,
                         fertThin = 0,
                         nYearsFert = 20,
                         oldLayer=0){
-  ###initialize siteType
-  multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
-                                          dim=c(multiSiteInit$nSites,
-                                                multiSiteInit$maxYears,
-                                                multiSiteInit$maxNlayers))
-  
-  for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
-                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
-             length(siteXs),multiSiteInit$maxYears)
-  }
   
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
@@ -630,6 +651,7 @@ multiPrebas <- function(multiSiteInit,
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  prebas$aplharNcalc = multiSiteInit$aplharNcalc
   
   class(prebas) <- "multiPrebas"
   return(prebas)
@@ -702,19 +724,7 @@ if(ageHarvPrior>0){
   siteOrder[,1] <- siteOrder[newOrdX,1]
 }  
   
-  ###initialize siteType
-  multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
-                                          dim=c(multiSiteInit$nSites,
-                                                multiSiteInit$maxYears,
-                                                multiSiteInit$maxNlayers))
-  for(ijj in 1:multiSiteInit$maxNlayers){
-    siteXs <- which(multiSiteInit$multiInitVar[,1,ijj] %in% 1:ncol(multiSiteInit$pCROBAS))
-    multiSiteInit$multiOut[siteXs,,3,ijj,2] =
-      matrix(multiSiteInit$pCROBAS[cbind((20+pmin(multiSiteInit$siteInfo[,3],5))[siteXs],
-                                         multiSiteInit$multiInitVar[siteXs,1,ijj])],
-             length(siteXs),multiSiteInit$maxYears)
-  }
-  
+
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -800,6 +810,7 @@ if(ageHarvPrior>0){
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  prebas$aplharNcalc = multiSiteInit$aplharNcalc
   return(prebas)
 }
 
