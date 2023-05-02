@@ -334,6 +334,22 @@ prebas <- function(nYears,
   output[,3,,1] <- siteInfo[3]
   for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
   
+  if(aplharNcalc){
+    ###initialize alfar
+    p0currClim <- mean(P0[1:min(maxYears,5),1])
+    p0ratio <- P0[,1]/p0currClim
+    T0 <- mean(weatherYasso[1:min(5,maxYears),1])
+    precip0 <- mean(weatherYasso[1:min(5,maxYears),2])
+    fT0 <- fTfun(T0,precip0)
+    fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
+    fTratio <- fT/fT0 
+    alpharNfact <- p0ratio * fTratio
+    if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
+    if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
+    }
+  } 
+  
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),

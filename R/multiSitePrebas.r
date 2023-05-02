@@ -410,7 +410,7 @@ InitMultiSite <- function(nYearsMS,
   
 if(aplharNcalc){
   ###initialize alfar
-  p0currClim <- colMeans(multiP0[,1:min(maxYears,5),1])
+  p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
   p0ratio <- multiP0[,,1]/p0currClim
   T0 <- apply(weatherYasso[,1:min(5,maxYears),1],1,mean)
   precip0 <- apply(weatherYasso[,1:min(5,maxYears),2],1,mean)
