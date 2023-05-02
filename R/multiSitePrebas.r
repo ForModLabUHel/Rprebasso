@@ -48,7 +48,7 @@
 #' @param layerPRELES 
 #' @param LUEtrees 
 #' @param LUEgv 
-#' @param aplharNcalc #alphar calculations based on Nitrogen availability
+#' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
 #'
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export

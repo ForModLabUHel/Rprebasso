@@ -49,6 +49,7 @@
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
+#' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -348,7 +349,6 @@ prebas <- function(nYears,
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
     }
   } 
-  
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),

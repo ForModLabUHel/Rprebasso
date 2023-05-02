@@ -45,7 +45,7 @@
 #' @param layerPRELES 
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
-#' @param aplharNcalc #alphar calculations based on Nitrogen availability
+#' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
 #' 
 #' @importFrom plyr aaply
 #'
