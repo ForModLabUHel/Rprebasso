@@ -347,7 +347,6 @@ prebas <- function(nYears,
     alpharNfact <- p0ratio * fTratio
     if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
-    }
   } 
   
   prebas <- .Fortran("prebas",
