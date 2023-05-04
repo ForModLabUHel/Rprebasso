@@ -343,10 +343,10 @@ prebas <- function(nYears,
   
   if(alpharNcalc){
     ###initialize alfar
-    if(is.na(p0currClim)) p0currClim <- mean(P0[1:min(maxYears,5),1])
+    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,5),1])
     p0ratio <- multiP0[,,1]/p0currClim
-    if(is.na(TcurrClim)) TcurrClim <- mean(weatherYasso[1:min(5,maxYears),1])
-    if(is.na(PcurrClim)) PcurrClim <- mean(weatherYasso[1:min(5,maxYears),2])
+    if(all(is.na(TcurrClim))) TcurrClim <- mean(weatherYasso[1:min(5,maxYears),1])
+    if(all(is.na(PcurrClim))) PcurrClim <- mean(weatherYasso[1:min(5,maxYears),2])
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
     fTratio <- fT/fT0 
