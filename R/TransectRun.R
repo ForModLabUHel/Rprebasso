@@ -240,9 +240,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     LUEtrees = LUEtrees,
     LUEgv = LUEgv,
     aplharNcalc=aplharNcalc,
-    p0currClim = NA,
-    TcurrClim = NA,
-    PcurrClim = NA
+    p0currClim = p0currClim,
+    TcurrClim = TcurrClim,
+    PcurrClim = PcurrClim
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)
