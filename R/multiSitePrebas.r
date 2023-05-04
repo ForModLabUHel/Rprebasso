@@ -46,7 +46,7 @@ InitMultiSite <- function(nYearsMS,
                           ETSstart = NULL,
                           pCN_alfar=NULL,##parameters for calculating alfar from CN ratio
                           latitude=NULL, #vector of latitudes of sites
-                          aplharNcalc=FALSE,
+                          alpharNcalc=FALSE,
                           p0currClim = NA,
                           TcurrClim = NA,
                           PcurrClim = NA
@@ -371,7 +371,7 @@ InitMultiSite <- function(nYearsMS,
   dimnames(multiInitVar) <-  list(site=NULL,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
   
-  if(aplharNcalc){
+  if(alpharNcalc){
     ###initialize alfar
     if(is.na(p0currClim)) p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
     p0ratio <- multiP0[,,1]/p0currClim
@@ -447,7 +447,7 @@ InitMultiSite <- function(nYearsMS,
     ETSstart = ETSstart,
     pCN_alfar = pCN_alfar,
     latitude = latitude,
-    aplharNcalc=aplharNcalc
+    alpharNcalc=alpharNcalc
   )
   return(multiSiteInit)
 }
@@ -567,7 +567,7 @@ multiPrebas <- function(multiSiteInit,
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
-  prebas$aplharNcalc = multiSiteInit$aplharNcalc
+  prebas$alpharNcalc = multiSiteInit$alpharNcalc
   
   class(prebas) <- "multiPrebas"
   return(prebas)
@@ -747,7 +747,7 @@ if(ageHarvPrior>0){
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
-  prebas$aplharNcalc = multiSiteInit$aplharNcalc
+  prebas$alpharNcalc = multiSiteInit$alpharNcalc
 
   return(prebas)
 }

@@ -47,7 +47,7 @@
 #' @param pECMmod 
 #' @param ETSstart 
 #' @param pCN_alfar 
-#' @param aplharNcalc
+#' @param alpharNcalc
 #' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
@@ -101,7 +101,7 @@ prebas <- function(nYears,
                    ETSstart=NULL,
                    pCN_alfar=NULL,
                    latitude = NULL,
-                   aplharNcalc=FALSE,
+                   alpharNcalc=FALSE,
                    p0currClim = NA,
                    TcurrClim = NA,
                    PcurrClim = NA
@@ -283,7 +283,7 @@ prebas <- function(nYears,
   initVar <- as.matrix(initVar[1:7,])
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
 
-  if(aplharNcalc){
+  if(alpharNcalc){
     ###initialize alfar
     if(is.na(p0currClim)) p0currClim <- mean(P0[1:min(maxYears,5),1])
     p0ratio <- multiP0[,,1]/p0currClim
