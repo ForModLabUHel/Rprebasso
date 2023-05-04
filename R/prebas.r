@@ -48,6 +48,9 @@
 #' @param ETSstart 
 #' @param pCN_alfar 
 #' @param aplharNcalc
+#' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #'
 #' @return
 #' @export
@@ -98,7 +101,10 @@ prebas <- function(nYears,
                    ETSstart=NULL,
                    pCN_alfar=NULL,
                    latitude = NULL,
-                   aplharNcalc=FALSE
+                   aplharNcalc=FALSE,
+                   p0currClim = NA,
+                   TcurrClim = NA,
+                   PcurrClim = NA
               ){
   
   if(is.null(latitude) & ECMmod==1){
@@ -279,18 +285,18 @@ prebas <- function(nYears,
 
   if(aplharNcalc){
     ###initialize alfar
-    p0currClim <- mean(P0[1:min(maxYears,5),1])
-    p0ratio <- P0[,1]/p0currClim
-    T0 <- mean(weatherYasso[1:min(5,maxYears),1])
-    precip0 <- mean(weatherYasso[1:min(5,maxYears),2])
-    fT0 <- fTfun(T0,precip0)
+    if(is.na(p0currClim)) p0currClim <- mean(P0[1:min(maxYears,5),1])
+    p0ratio <- multiP0[,,1]/p0currClim
+    if(is.na(TcurrClim)) TcurrClim <- mean(weatherYasso[1:min(5,maxYears),1])
+    if(is.na(PcurrClim)) PcurrClim <- mean(weatherYasso[1:min(5,maxYears),2])
+    fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
     fTratio <- fT/fT0 
     alpharNfact <- p0ratio * fTratio
     if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
-  }
-
+  } 
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
