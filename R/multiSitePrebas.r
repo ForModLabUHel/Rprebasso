@@ -49,6 +49,9 @@
 #' @param LUEtrees 
 #' @param LUEgv 
 #' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
 #'
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -102,7 +105,10 @@ InitMultiSite <- function(nYearsMS,
                           layerPRELES = 0,
                           LUEtrees = pLUEtrees,
                           LUEgv = pLUEgv,
-                          aplharNcalc=FALSE
+                          aplharNcalc=FALSE,
+                          p0currClim = NA,
+                          TcurrClim = NA,
+                          PcurrClim = NA
                           ){  
   
   nSites <- length(nYearsMS)
@@ -410,11 +416,11 @@ InitMultiSite <- function(nYearsMS,
   
 if(aplharNcalc){
   ###initialize alfar
-  p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
+  if(is.na(p0currClim)) p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
   p0ratio <- multiP0[,,1]/p0currClim
-  T0 <- apply(weatherYasso[,1:min(5,maxYears),1],1,mean)
-  precip0 <- apply(weatherYasso[,1:min(5,maxYears),2],1,mean)
-  fT0 <- fTfun(T0,precip0)
+  if(is.na(TcurrClim)) TcurrClim <- apply(weatherYasso[,1:min(5,maxYears),1],1,mean)
+  if(is.na(PcurrClim)) PcurrClim <- apply(weatherYasso[,1:min(5,maxYears),2],1,mean)
+  fT0 <- fTfun(TcurrClim,PcurrClim)
   fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
   fTratio <- fT/fT0 
   alpharNfact <- p0ratio * fTratio

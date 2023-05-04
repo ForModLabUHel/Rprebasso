@@ -46,6 +46,9 @@
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
 #' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
 #' 
 #' @importFrom plyr aaply
 #'
@@ -118,7 +121,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         layerPRELES = 0,
                         LUEtrees = pLUEtrees,
                         LUEgv = pLUEgv,
-                        aplharNcalc=FALSE
+                        aplharNcalc=FALSE,
+                        p0currClim = NA,
+                        TcurrClim = NA,
+                        PcurrClim = NA
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -233,7 +239,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     layerPRELES=layerPRELES,
     LUEtrees = LUEtrees,
     LUEgv = LUEgv,
-    aplharNcalc=aplharNcalc
+    aplharNcalc=aplharNcalc,
+    p0currClim = NA,
+    TcurrClim = NA,
+    PcurrClim = NA
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

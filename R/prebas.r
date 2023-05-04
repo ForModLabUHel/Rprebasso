@@ -50,6 +50,9 @@
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
 #' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -174,7 +177,10 @@ prebas <- function(nYears,
                    pECMmod=parsECMmod,
                    layerPRELES = 0,
                    LUEtrees = pLUEtrees,
-                   LUEgv = pLUEgv
+                   LUEgv = pLUEgv,
+                   p0currClim = NA,
+                   TcurrClim = NA,
+                   PcurrClim = NA
               ){
   
   ###process weather###
@@ -337,11 +343,11 @@ prebas <- function(nYears,
   
   if(aplharNcalc){
     ###initialize alfar
-    p0currClim <- mean(P0[1:min(maxYears,5),1])
-    p0ratio <- P0[,1]/p0currClim
-    T0 <- mean(weatherYasso[1:min(5,maxYears),1])
-    precip0 <- mean(weatherYasso[1:min(5,maxYears),2])
-    fT0 <- fTfun(T0,precip0)
+    if(is.na(p0currClim)) p0currClim <- mean(P0[1:min(maxYears,5),1])
+    p0ratio <- multiP0[,,1]/p0currClim
+    if(is.na(TcurrClim)) TcurrClim <- mean(weatherYasso[1:min(5,maxYears),1])
+    if(is.na(PcurrClim)) PcurrClim <- mean(weatherYasso[1:min(5,maxYears),2])
+    fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
     fTratio <- fT/fT0 
     alpharNfact <- p0ratio * fTratio
