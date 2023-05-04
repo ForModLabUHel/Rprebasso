@@ -49,7 +49,7 @@
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
-#' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
 #' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
@@ -341,7 +341,7 @@ prebas <- function(nYears,
   output[,3,,1] <- siteInfo[3]
   for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
   
-  if(aplharNcalc){
+  if(alpharNcalc){
     ###initialize alfar
     if(is.na(p0currClim)) p0currClim <- mean(P0[1:min(maxYears,5),1])
     p0ratio <- multiP0[,,1]/p0currClim

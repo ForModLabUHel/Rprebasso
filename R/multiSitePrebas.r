@@ -48,7 +48,7 @@
 #' @param layerPRELES 
 #' @param LUEtrees 
 #' @param LUEgv 
-#' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
@@ -105,7 +105,7 @@ InitMultiSite <- function(nYearsMS,
                           layerPRELES = 0,
                           LUEtrees = pLUEtrees,
                           LUEgv = pLUEgv,
-                          aplharNcalc=FALSE,
+                          alpharNcalc=FALSE,
                           p0currClim = NA,
                           TcurrClim = NA,
                           PcurrClim = NA
@@ -414,7 +414,7 @@ InitMultiSite <- function(nYearsMS,
              length(siteXs),maxYears)
   }
   
-if(aplharNcalc){
+if(alpharNcalc){
   ###initialize alfar
   if(is.na(p0currClim)) p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
   p0ratio <- multiP0[,,1]/p0currClim
@@ -490,7 +490,7 @@ if(aplharNcalc){
     layerPRELES = layerPRELES,
     LUEtrees = LUEtrees,
     LUEgv = LUEgv,
-    aplharNcalc=aplharNcalc
+    alpharNcalc=alpharNcalc
   )
   return(multiSiteInit)
 }
@@ -657,7 +657,7 @@ multiPrebas <- function(multiSiteInit,
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
-  prebas$aplharNcalc = multiSiteInit$aplharNcalc
+  prebas$alpharNcalc = multiSiteInit$alpharNcalc
   
   class(prebas) <- "multiPrebas"
   return(prebas)
@@ -816,7 +816,7 @@ if(ageHarvPrior>0){
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
-  prebas$aplharNcalc = multiSiteInit$aplharNcalc
+  prebas$alpharNcalc = multiSiteInit$alpharNcalc
   return(prebas)
 }
 

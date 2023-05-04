@@ -45,7 +45,7 @@
 #' @param layerPRELES 
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
-#' @param aplharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
@@ -121,7 +121,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         layerPRELES = 0,
                         LUEtrees = pLUEtrees,
                         LUEgv = pLUEgv,
-                        aplharNcalc=FALSE,
+                        alpharNcalc=FALSE,
                         p0currClim = NA,
                         TcurrClim = NA,
                         PcurrClim = NA
@@ -239,7 +239,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     layerPRELES=layerPRELES,
     LUEtrees = LUEtrees,
     LUEgv = LUEgv,
-    aplharNcalc=aplharNcalc,
+    alpharNcalc=alpharNcalc,
     p0currClim = p0currClim,
     TcurrClim = TcurrClim,
     PcurrClim = PcurrClim
