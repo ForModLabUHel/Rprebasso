@@ -178,6 +178,7 @@ prebas <- function(nYears,
                    layerPRELES = 0,
                    LUEtrees = pLUEtrees,
                    LUEgv = pLUEgv,
+                   alpharNcalc=FALSE,
                    p0currClim = NA,
                    TcurrClim = NA,
                    PcurrClim = NA
