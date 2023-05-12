@@ -43,7 +43,7 @@
 #' @param fertThin flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 
 #' @param nYearsFert number of years after thinnings for which the fertilization is effective 
 #' @param protect flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)
-#' @param mortMod flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
+#' @param mortMod flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models. If one value is provided the same model is applied to managed and unmanaged (those forests where both ClCut and defaultThin are set to 0) forests. If two values are provided ,for example c(1,3), the first model is applied to managed forests and the second to unmanaged forests.
 #' @param ECMmod flag for activation of the ectomycoryzal model (ECMmod=1). see Makela et al. 2022
 #' @param pECMmod parameters of ECM model 
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
