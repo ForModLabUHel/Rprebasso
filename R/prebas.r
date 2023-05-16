@@ -357,7 +357,7 @@ prebas <- function(nYears,
     ####alphar is smoothed using a running average of 10 years
     if(maxNlayers==1) output[1,3,,2] <- mean(output[1:10,3,1,2])
     if(maxNlayers>1) output[1,3,,2] <- apply(output[1:10,3,,2],2,mean)
-    if(maxNlayers>1) for(ijj in 2:maxYears){
+    for(ijj in 2:maxYears){
       output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
     }
   } 
