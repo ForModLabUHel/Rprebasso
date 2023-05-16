@@ -343,12 +343,11 @@ prebas <- function(nYears,
   for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
   
   if(alpharNcalc){
-    alphar0 <- output[1,3,,2]
     ###initialize alfar
-    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,5),1])
+    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,10),1])
     p0ratio <- P0[,1]/p0currClim
-    if(all(is.na(TcurrClim))) TcurrClim <- mean(weatherYasso[1:min(5,maxYears),1])
-    if(all(is.na(PcurrClim))) PcurrClim <- mean(weatherYasso[1:min(5,maxYears),2])
+    if(all(is.na(TcurrClim))) TcurrClim <- mean(weatherYasso[1:min(10,maxYears),1])
+    if(all(is.na(PcurrClim))) PcurrClim <- mean(weatherYasso[1:min(10,maxYears),2])
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
     fTratio <- fT/fT0 
@@ -356,8 +355,9 @@ prebas <- function(nYears,
     if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
     ####alphar is smoothed using a running average of 10 years
-    output[1,3,,2] <- alphar0
-    for(ijj in 2:maxYears){
+    if(maxNlayers==1) output[1,3,,2] <- mean(output[1:10,3,1,2])
+    if(maxNlayers>1) output[1,3,,2] <- apply(output[1:10,3,,2],2,mean)
+    if(maxNlayers>1) for(ijj in 2:maxYears){
       output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
     }
   } 
