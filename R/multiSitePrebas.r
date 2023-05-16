@@ -372,6 +372,7 @@ InitMultiSite <- function(nYearsMS,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
   
   if(alpharNcalc){
+    alphar0 <- multiOut[,1,3,,2]
     ###initialize alfar
     if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
     p0ratio <- multiP0[,,1]/p0currClim
@@ -388,6 +389,11 @@ InitMultiSite <- function(nYearsMS,
       if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
       if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
+    }
+    ####alphar is smoothed using a running average of 10 years
+    multiOut[,1,3,,2] <- alphar0
+    for(ijj in 2:maxYears){
+      multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
     }
   } 
   

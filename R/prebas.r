@@ -284,6 +284,7 @@ prebas <- function(nYears,
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
 
   if(alpharNcalc){
+    alphar0 <- output[1,3,,2]
     ###initialize alfar
     if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,5),1])
     p0ratio <- multiP0[,,1]/p0currClim
@@ -295,6 +296,11 @@ prebas <- function(nYears,
     alpharNfact <- p0ratio * fTratio
     if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
+    ####alphar is smoothed using a running average of 10 years
+    output[1,3,,2] <- alphar0
+    for(ijj in 2:maxYears){
+      output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
+    }
   } 
   
   prebas <- .Fortran("prebas",
