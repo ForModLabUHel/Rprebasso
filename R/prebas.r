@@ -49,7 +49,7 @@
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
-#' @param alpharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability. Default value is FALSE (no nitrogen impact). = True calculates N uptake
 #' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
@@ -343,9 +343,10 @@ prebas <- function(nYears,
   for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
   
   if(alpharNcalc){
+    alphar0 <- output[1,3,,2]
     ###initialize alfar
     if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,5),1])
-    p0ratio <- multiP0[,,1]/p0currClim
+    p0ratio <- P0[,1]/p0currClim
     if(all(is.na(TcurrClim))) TcurrClim <- mean(weatherYasso[1:min(5,maxYears),1])
     if(all(is.na(PcurrClim))) PcurrClim <- mean(weatherYasso[1:min(5,maxYears),2])
     fT0 <- fTfun(TcurrClim,PcurrClim)
@@ -354,6 +355,11 @@ prebas <- function(nYears,
     alpharNfact <- p0ratio * fTratio
     if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
+    ####alphar is smoothed using a running average of 10 years
+    output[1,3,,2] <- alphar0
+    for(ijj in 2:maxYears){
+      output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
+    }
   } 
   
   prebas <- .Fortran("prebas",
