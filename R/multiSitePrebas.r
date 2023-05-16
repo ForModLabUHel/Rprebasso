@@ -372,12 +372,11 @@ InitMultiSite <- function(nYearsMS,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
   
   if(alpharNcalc){
-    alphar0 <- multiOut[,1,3,,2]
     ###initialize alfar
-    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,5),1])
+    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,10),1])
     p0ratio <- multiP0[,,1]/p0currClim
-    if(all(is.na(TcurrClim))) TcurrClim <- apply(weatherYasso[,1:min(5,maxYears),1],1,mean)
-    if(all(is.na(PcurrClim))) PcurrClim <- apply(weatherYasso[,1:min(5,maxYears),2],1,mean)
+    if(all(is.na(TcurrClim))) TcurrClim <- apply(weatherYasso[,1:min(10,maxYears),1],1,mean)
+    if(all(is.na(PcurrClim))) PcurrClim <- apply(weatherYasso[,1:min(10,maxYears),2],1,mean)
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
     fTratio <- fT/fT0 
@@ -391,7 +390,8 @@ InitMultiSite <- function(nYearsMS,
       if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
     }
     ####alphar is smoothed using a running average of 10 years
-    multiOut[,1,3,,2] <- alphar0
+    if(maxNlayers==1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,1,2],1,mean)
+    if(maxNlayers>1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,,2],c(1,3),mean)
     for(ijj in 2:maxYears){
       multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
     }
