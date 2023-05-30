@@ -780,8 +780,8 @@ if (N>0.) then
 				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
 				Cost_m = Respi_m
 			endif
-			nppCost = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
-			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
+			nppCost = max(0.,(gpp_sp - Cost_m / 10000.) / (1.+par_c))  !!newX
+			npp = max(0.,(gpp_sp - Respi_m / 10000.) / (1.+par_c))  !!newX
 			
 			
 			Respi_tot = gpp_sp - npp
