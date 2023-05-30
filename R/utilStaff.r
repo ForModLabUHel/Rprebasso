@@ -50,7 +50,7 @@ initBiomasses <- function(pCro,initVarX){
   Lc <- h - hc
   
   ### Fine root allocation of early growth  
-  age_factor <-  (1. - (1- pCro[44,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[45,initVarX[1,layerXs]])/ pCro[46,initVarX[1,layerXs]])))/ pCro[44,initVarX[1,layerXs]] 
+  age_factor <-  (1. - (1- pCro[45,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[46,initVarX[1,layerXs]])/ pCro[47,initVarX[1,layerXs]])))/ pCro[45,initVarX[1,layerXs]] 
   par_alfar <- par_alfar0[layerXs] * age_factor
   par_rhor <- par_alfar * par_rhof
   beta0 <- par_beta0 * age_factor
@@ -788,13 +788,16 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     return(CN)
   }
   
-  # ###calculate alfar based on CNratio
-  # CNratio <- function(ETS, st,pars){
-  #   int_CN = pars[1]
-  #   p_ETS = pars[2]
-  #   p_st = pars[3]
-  #   #calculate CN ratio
-  #   CN = int_CN + p_ETS * ETS + p_st * st    
-  #   return(CN)
-  # }
-  # 
+
+  fTfun <- function(TAir, precip){
+    fT <- exp(0.059*TAir - 0.001*TAir^2)* (1-exp(-1.858*precip))
+    return(fT)
+  }
+  
+  
+  alpharN <- function(alphar0, p0,p00,TAir0,TAir,precip0,precip){
+    fT0 <- fTfun(TAir0,precip0)
+    fT <- fTfun(TAir,precip)
+    alphar <- alphar0 * p0/p00*fT0/fT
+  }
+  
