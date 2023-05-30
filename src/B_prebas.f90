@@ -68,7 +68,7 @@ implicit none
 
  real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
- real (kind=8) :: step, totBA,GVnpp(nYears),normFactP0
+ real (kind=8) :: step, totBA,GVnpp(nYears)
 
  real (kind=8) :: stand_all(nVar, nLayers)
  real (kind=8) :: outt(nVar, nLayers, 2)
