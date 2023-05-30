@@ -45,7 +45,11 @@ InitMultiSite <- function(nYearsMS,
                           pECMmod = parsECMmod,
                           ETSstart = NULL,
                           pCN_alfar=NULL,##parameters for calculating alfar from CN ratio
-                          latitude=NULL #vector of latitudes of sites
+                          latitude=NULL, #vector of latitudes of sites
+                          alpharNcalc=FALSE,
+                          p0currClim = NA,
+                          TcurrClim = NA,
+                          PcurrClim = NA
                           ){  
   
   
@@ -216,7 +220,7 @@ InitMultiSite <- function(nYearsMS,
       nYearsX <- max(nYearsMS[which(climIDs==climID)])
       P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
                    TAir=TAir[climID,1:(365*nYearsX)],VPD=VPD[climID,1:(365*nYearsX)],
-                   Precip=Precip[climID,1:(365*nYearsX)],CO2=rep(380,(365*nYearsX)),
+                   Precip=Precip[climID,1:(365*nYearsX)],CO2=CO2[climID,1:(365*nYearsX)],
                    fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
       P0 <- matrix(P0,365,nYearsX)
       multiP0[climID,(1:nYearsX),1] <- colSums(P0)
@@ -343,6 +347,12 @@ InitMultiSite <- function(nYearsMS,
     }
   }
   
+  # # Adjust alphar considering N limitation
+  # if(FALSE){
+  #   P0currClim <- colMeans(multiP0[(1:min(5,maxYears)),,1]) #calculate P0 in current climate using the first 5 years
+  #   
+  # }
+  # 
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
   initVarX <- abind(initVarX,matrix(multiOut[,1,3,,2],nSites,maxNlayers),along=2)
@@ -360,6 +370,32 @@ InitMultiSite <- function(nYearsMS,
   
   dimnames(multiInitVar) <-  list(site=NULL,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
+  
+  if(alpharNcalc){
+    ###initialize alfar
+    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,10),1])
+    p0ratio <- multiP0[,,1]/p0currClim
+    if(all(is.na(TcurrClim))) TcurrClim <- apply(weatherYasso[,1:min(10,maxYears),1],1,mean)
+    if(all(is.na(PcurrClim))) PcurrClim <- apply(weatherYasso[,1:min(10,maxYears),2],1,mean)
+    fT0 <- fTfun(TcurrClim,PcurrClim)
+    fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
+    fTratio <- fT/fT0 
+    alpharNfact <- p0ratio * fTratio
+    
+    for(ijj in 1:nClimID){
+      # siteXs <- which(siteInfo[,2] == ijj)
+      siteXs <- which(siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
+      if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
+    }
+    ####alphar is smoothed using a running average of 10 years
+    if(maxNlayers==1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,1,2],1,mean)
+    if(maxNlayers>1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,,2],c(1,3),mean)
+    for(ijj in 2:maxYears){
+      multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
+    }
+  } 
   
   multiSiteInit <- list(
     multiOut = multiOut,
@@ -416,7 +452,8 @@ InitMultiSite <- function(nYearsMS,
     pECMmod = pECMmod,
     ETSstart = ETSstart,
     pCN_alfar = pCN_alfar,
-    latitude = latitude
+    latitude = latitude,
+    alpharNcalc=alpharNcalc
   )
   return(multiSiteInit)
 }
@@ -536,6 +573,7 @@ multiPrebas <- function(multiSiteInit,
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  prebas$alpharNcalc = multiSiteInit$alpharNcalc
   
   class(prebas) <- "multiPrebas"
   return(prebas)
@@ -715,6 +753,8 @@ if(ageHarvPrior>0){
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  prebas$alpharNcalc = multiSiteInit$alpharNcalc
+
   return(prebas)
 }
 

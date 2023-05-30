@@ -19,6 +19,10 @@
 #' @param pCN_alfar Matrix of parameters (columns are species)for alfar calculations based on CN ratio. Use parsCN_alfar as default values
 #' @param fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
 #' @param weatherInput ##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability
+#' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
 #'
 #' @importFrom plyr aaply
 #'
@@ -91,7 +95,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         ETSstart=NULL,
                         pCN_alfar = NULL,
                         fertThin=0,
-                        latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203)
+                        latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203),
+                        alpharNcalc=FALSE,
+                        p0currClim = NA,
+                        TcurrClim = NA,
+                        PcurrClim = NA
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -206,7 +214,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     ECMmod=ECMmod,
     ETSstart = ETSstart,
     pCN_alfar = pCN_alfar,
-    latitude = latitude
+    latitude = latitude,
+    alpharNcalc=alpharNcalc,
+    p0currClim = p0currClim,
+    TcurrClim = TcurrClim,
+    PcurrClim = PcurrClim
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
   TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
