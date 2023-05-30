@@ -216,7 +216,7 @@ InitMultiSite <- function(nYearsMS,
       nYearsX <- max(nYearsMS[which(climIDs==climID)])
       P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
                    TAir=TAir[climID,1:(365*nYearsX)],VPD=VPD[climID,1:(365*nYearsX)],
-                   Precip=Precip[climID,1:(365*nYearsX)],CO2=rep(380,(365*nYearsX)),
+                   Precip=Precip[climID,1:(365*nYearsX)],CO2=CO2[climID,1:(365*nYearsX)],
                    fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
       P0 <- matrix(P0,365,nYearsX)
       multiP0[climID,(1:nYearsX),1] <- colSums(P0)

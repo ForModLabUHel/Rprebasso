@@ -10,6 +10,8 @@ initBiomasses(pCro, initVarX)
 \item{pCro}{matrix of CROBAS parameters where each column correspond to a different species}
 
 \item{initVarX}{initial state of the forests.}
+
+\item{par_alfar0}{first year value of alfar (alfar changes every year if based on CN).}
 }
 \value{
 the biomasses at initialization

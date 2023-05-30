@@ -27,6 +27,7 @@ TransectRun(
   initCLcutRatio = NA,
   multiP0 = NA,
   soilC = NA,
+  weatherInput = NULL,
   weatherYasso = NA,
   litterSize = litterSizeDef,
   soilCtot = NA,
@@ -43,7 +44,12 @@ TransectRun(
   ftTapioPar = ftTapio,
   tTapioPar = tTapio,
   thinInt = -999,
-  mortMod = 1
+  mortMod = 1,
+  ECMmod = 0,
+  ETSstart = NULL,
+  pCN_alfar = NULL,
+  fertThin = 0,
+  latitude = c(60.295, 60.959, 61.377, 62.647, 64.441, 66.143, 68.203)
 )
 }
 \arguments{
@@ -63,7 +69,7 @@ TransectRun(
 
 \item{defaultThin}{If defaultThin = 1 (default) Finnish standard management practices are applied (ref).}
 
-\item{multiThin}{A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.}
+\item{multiThin}{A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
 
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
@@ -71,9 +77,17 @@ TransectRun(
 
 \item{multiInitClearCut}{A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'}
 
+\item{weatherInput}{##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations}
+
 \item{mortMod}{flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)}
 
 \item{ECMmod}{flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling}
+
+\item{ETSstart}{A vector of initial average ETS, it should be based on historical data. if NULL it will be calculated using the first 10 years of the simulation weather inputs}
+
+\item{pCN_alfar}{Matrix of parameters (columns are species)for alfar calculations based on CN ratio. Use parsCN_alfar as default values}
+
+\item{fertThin}{!!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3}
 }
 \value{
 The output from multiPrebas()

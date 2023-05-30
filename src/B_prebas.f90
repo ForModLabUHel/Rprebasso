@@ -111,9 +111,9 @@ implicit none
 real (kind=8) :: Nmort, BAmort
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
- real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
+ real (kind=8) :: Cost_m, normFactETS, normFactP0!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4)
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4), ncount
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -121,7 +121,8 @@ real (kind=8) :: Nmort, BAmort
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
- real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
+ real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX , apu
+ integer :: zcount
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -505,7 +506,7 @@ endif
 	GVout(year,:) = 0.
    endif
 
-! if(isnan(fAPARgvX)) fAPARgvX = 0.
+ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
    fAPARsite = fAPARtrees + fAPARgvX
@@ -530,6 +531,7 @@ endif
   !store GPP
    GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
    STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+!   write(6,*) fAPARtrees, fAPARgvX, fAPARsite, STAND_all(10,:)
 
 !initialize for next year  
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
@@ -674,19 +676,22 @@ if (N>0.) then
   
   ! par_H0 = par_H0max * (1 - exp(-par_kH * ETS/par_alfar)) !!! attempt to improve model for diameter/heigh allocation, not used currently. 
   ! theta = par_thetaMax / (1. + exp(-(H - par_H0)/(par_H0*par_gamma)))   !!!! see above, get zero now
+  ncount = 0
   theta = par_thetaMax
+  normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
+  normFactP0 = p0 / p0_ref
 
   mrFact = max(0., par_aETS * (ETS_ref-ETS)/ETS_ref) !!!new version
   if(ECMmod==1) mrFact = 0.
 
-par_mr = par_mr0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) * mrFact / par_vr0 
-par_mf = par_mf0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
+  par_mr = par_mr0* normFactP0 + (1+par_c) * mrFact / par_vr0    !!!new version !!newX
+  par_mf = par_mf0* normFactP0
+  par_mw = par_mw0* normFactP0 
 
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
-  par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
-  par_vr = par_vr0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref) !!new version
+  par_vf = par_vf0 / normFactETS
+  par_vr = par_vr0 / normFactETS !!new version
   par_rhor = par_alfar * par_rhof !rho: pipe model parameter for fine roots
 
     ! -------------------------------------
@@ -706,12 +711,18 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
     endif
 	gpp_sp = max(0.,(s0 - par_s1 * H) * wf_STKG / 10000.)
 	
+!			write(6,*) siteInfo(1), year, gpp_sp, p_eff, p_eff_all,s0, WF_STKG, Light, gammaC	
         !---------------------------------------
         ! DYNAMIC GROWTH MODEL STARTS
         !Updating the tree H, D, Hc and Cw for the next year, according to the method by Valentine & Makela (2005)
         !Valentine & Makela 2005. Bridging process - based and empirical approaches to modeling tree growth.
         ! HERE the units are kg / ha
-			gammaC = par_cR/Light
+			if(Light > 0.) then
+				gammaC = par_cR/Light
+			else
+				gammaC = 0.0
+			endif
+			
             betab = hb/Lc
 			age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
             beta0 = par_beta0 * age_factor
@@ -736,10 +747,10 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 
 			! ECM modelling
 			if(ECMmod==1) then !!!ECMmodelling
-			    normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
+			    ! normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
 				! normFactP = p0 / p0_ref
 				! call CUEcalc(ETSmean, sitetype,par_mr0,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),normFactP,normFactETS,P_RT,pECMmod) !!!ECMmodelling
-				call CUEcalc(latitude, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,normFactETS,pECMmod) !!!ECMmodelling
+				call CUEcalc(latitude, sitetype,par_mr,W_froot,r_RT,rm_aut_roots,litt_RT,exud(ij),P_RT,normFactP0,pECMmod) !!!ECMmodelling
 
 				modOut((year+1),45,ij,1) = P_RT  !add priming to heterotrophic respiration
 				Respi_m = par_mf * wf_STKG + par_mw * W_wsap + rm_aut_roots * W_froot  !!!ECMmodelling
@@ -748,9 +759,19 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 				Respi_m = (par_mf + par_alfar*par_mr)* wf_STKG + par_mw * W_wsap
 				Cost_m = Respi_m
 			endif
-			nppCost = (gpp_sp - Cost_m / 10000.) / (1.+par_c)  !!newX
-			npp = (gpp_sp - Respi_m / 10000.) / (1.+par_c)  !!newX
+			nppCost = max(0.,(gpp_sp - Cost_m / 10000.) / (1.+par_c) ) !!newX, no negative npp allowed
+			npp = max(0.,(gpp_sp - Respi_m / 10000.) / (1.+par_c))  !!newX
 			
+! Hyungwoo's exercise !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! definition of par_zb has been changed
+             zcount = 0
+     
+ 886       	 Sb = N * par_rhow * A *(par_z + 1) * betab * dHc
+             apu = 0.0001 * Sb 
+			 nppCost = nppCost +  0.0001 * Sb * par_zb 
+			 npp = npp + 0.0001 * Sb * par_zb
+			 write(1,*)siteInfo(1), year, gpp_sp, nppCost, apu, par_zb
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			
 			Respi_tot = gpp_sp - npp
 				 ! ! litter fall in the absence of thinning
@@ -759,11 +780,14 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
+	  
+555		continue
+
 			
         !Height growth-----------------------
 		f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
 		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+				(par_z+1)/par_z *W_bs + beta0 * W_c) + betaC * W_s)
 		dH = max(0.,((H-Hc) * f1/f2))
 		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
 		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
@@ -774,12 +798,15 @@ par_mw = par_mw0* (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
 		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
 			gammaC = 1.
 			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+				(par_z+1)/par_z *W_bs + beta0 * W_c) + betaC * W_s)
 			dH = max(0.,((H-Hc) * f1/f2))
 			mort = 888.
 		endif
 
-  
+    ! if(zcount.eq.0.and.par_zb.gt.0) then
+        ! zcount = 1
+        ! goto 886
+    ! endif		
  !-----------------------------------
         !crown rise
 !         if(H - Hc > par_Cr2*100./sqrt(N)) then
@@ -814,7 +841,7 @@ endif
             dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
             dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
             dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
-            dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
+            dWdb = max(0.,W_branch/Lc * (par_z+1) * gammaC * dH - Wdb/Tdb)
 
 ! determine N demand and N uptake
 		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH + wf_STKG / par_vf
@@ -824,17 +851,33 @@ endif
 		Sc = N * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		St = N * beta0 * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		Gw = dWw + Sb + Sc + St + theta * W_wsap
-
+		
 		
 
+		
+	  ncount = ncount + 1
+      nitpar(7) = 12 * P0yX(year,2) / par_alfar / 1000.
       call Nitrogen(Gf,Gr,Gw,W_froot,W_froot, siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
-	  	  write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup, Ndem 
+
 		  
-	  call fTyasso(pYasso,weatherYasso(nYears,:),fTaweNH)
-	  write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
-	  write(6,*) siteInfo(1), year, S_fol,S_fr
+	  call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
 
+!	  write(6,*) siteInfo(1), year, S_fol,S_fr
+	   if(Nup.lt.Ndem*1.001)then
+		 if(Ndem.gt.0.)then
+			 if(ncount < 6)then
+				 nppCost = Nup / Ndem * nppCost
+				 goto 555
+			 else
+				 ncount = 0
+			 endif
+		 endif
+	   endif
 
+!	write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup / nitpar(7), Ndem , dH
+	write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
+	
+	
 !!  Update state variables
           H = H + step * dH
           A = A + step * dA

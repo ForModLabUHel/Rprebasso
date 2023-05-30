@@ -2136,6 +2136,7 @@ IMPLICIT NONE
     te(3) = climate(1)+4*climate(3)*(1-1/SQRT(2.0))/pi
     te(4) = climate(1)+4*climate(3)/SQRT(2.0)/pi
 
+!    write(6,*) climate(1),climate(3),climate(2)
     tem = 0.0
     temN = 0.0
     temH = 0.0
@@ -2171,7 +2172,7 @@ fTaweNH(4) = temA
 ! ETS long-term mean ETS
 ! Wr stand level biomass of fine roots of current layer (kg C / ha)
 ! Nup N uptake by current layer
-subroutine Nitrogen(Gf,Gr,Gw,Wr,Wrtot,st, latitude, CN, Nup,Ndem,nitpar, pars)
+subroutine Nitrogen(Gf,Gr,Gw,Wr,Wrtot,st, latitude, CN, Nup,Ndem, nitpar, pars)
 implicit none
 
 	real(8),intent(in) :: Gf, Gr, Gw, Wr, Wrtot, st, latitude, nitpar(8), pars(12)
@@ -2186,7 +2187,7 @@ implicit none
     ! ff = nitpar(4)
 	! fr = nitpar(5)
 	! fw = nitpar(6)
-	! Umax = nitpar(7)	
+	 Umax = nitpar(7)	
 	! kN = nitpar(8)
 	! 
 
@@ -2197,7 +2198,7 @@ call CNratio(CN, latitude, st,pars(6:8))
     ff = 0.7
 	fr = 0.7
 	fw = 0.0
-	Umax = 1.	
+!	Umax = 1.	
 	kN = 0.001
 
  !calculate Ndem
