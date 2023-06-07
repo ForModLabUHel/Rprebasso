@@ -35,7 +35,7 @@
 #' @param smoothP0 
 #' @param smoothETS 
 #' @param smoothYear 
-#' @param HcModV 
+#' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #' @param tapioPars 
 #' @param thdPer 
 #' @param limPer 
@@ -109,7 +109,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         smoothP0 = 1,
                         smoothETS = 1,
                         smoothYear=5,
-                        HcModV=2,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                        HcModV=HcModV_def,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model; default value (HcModV_def) is 1
                         tapioPars=pTapio,
                         thdPer = NA,
                         limPer = NA,

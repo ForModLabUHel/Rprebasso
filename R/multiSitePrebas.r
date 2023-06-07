@@ -34,7 +34,7 @@
 #' @param smoothP0 
 #' @param smoothETS 
 #' @param smoothYear 
-#' @param HcModV 
+#' @param HcModV  version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model; default value (HcModV_def) is 1
 #' @param tapioPars 
 #' @param thdPer 
 #' @param limPer 
@@ -91,7 +91,7 @@ InitMultiSite <- function(nYearsMS,
                           smoothP0 = 1,
                           smoothETS = 1,
                           smoothYear=5,
-                          HcModV=2,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model
+                          HcModV=HcModV_def,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model; default value (HcModV_def) is 1
                           tapioPars=pTapio,
                           thdPer = NA,
                           limPer = NA,
@@ -275,9 +275,9 @@ InitMultiSite <- function(nYearsMS,
   }else{
     ####if Height of the crown base is not available use model
     if(maxNlayers==1){
-      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod),dim=c(nSites,7,1))
+      multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV),dim=c(nSites,7,1))
     }else{
-      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod)
+      multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV)
     }
     
     ###age cannot be lower than 1 year
