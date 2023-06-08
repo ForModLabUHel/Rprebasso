@@ -1,13 +1,15 @@
-# Function to Compute Hc based on ksi parameter
-ksiHcMod <- function(initVar){
+# Function to Compute Hc based on pipe model
+HcPipeMod <- function(initVar,pCROBAS){
   h <- initVar[3] - 1.3
   b <- pi * initVar[4]^2 / 40000
   p_ksi <- pCROBAS[38,initVar[1]]
   p_rhof <- pCROBAS[15,initVar[1]]
   p_z <- pCROBAS[11,initVar[1]]
-  Lc <- h* ((p_rhof * b)/(p_ksi * h^p_z))^(1/(p_z-1))
-  Hc <- max(0.,(h-Lc))
-  return(Hc)
+  
+  rc <- ((p_rhof * b)/(p_ksi * h^p_z))^(1/(p_z-1))
+  Lc <- min(initVar[3],h * rc)
+  Hc <- initVar[3]-Lc
+  return(Hc)  
 }
 
 ###function to replace HC NAs in initial variable initVar

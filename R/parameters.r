@@ -540,3 +540,6 @@ tTapio[2,3,2,1:7] <- c(1000, 0.2, 4, 7, 2000, 2500, 7)
 tTapio[3,3,2,1:7] <- c(1000, 0.2, 4, 7, 2000, 2500, 7)
 tTapio[4,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
 tTapio[5,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
+
+###default value for the Hc model selection. 1 uses the pipemodel: HcPipeMod() function
+HcModV_def <- 1

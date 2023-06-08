@@ -51,6 +51,7 @@
 #' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #'
 #' @return
 #' @export
@@ -104,7 +105,8 @@ prebas <- function(nYears,
                    alpharNcalc=FALSE,
                    p0currClim = NA,
                    TcurrClim = NA,
-                   PcurrClim = NA
+                   PcurrClim = NA,
+                   HcModV = HcModV_def #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
               ){
   
   if(is.null(latitude) & ECMmod==1){
@@ -211,7 +213,8 @@ prebas <- function(nYears,
   
   
   ####if Height of the crown base is not available use model
-  initVar <- findHcNAs(initVar,pHcMod)
+  initVar <- findHcNAs(initVar,pHcMod,pCROBAS,HcModV)
+  
   # initialize A
   for(ikj in 1:nLayers){
     p_ksi=pCROBAS[38,initVar[1,ikj]]
