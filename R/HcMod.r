@@ -13,7 +13,7 @@ HcPipeMod <- function(initVar,pCROBAS){
 }
 
 ###function to replace HC NAs in initial variable initVar
-findHcNAs <- function(initVar,pHcMod,hcFactor=1.){
+findHcNAs <- function(initVar,pHcMod,pCrobas,HcModV){
   if(is.vector(initVar)){
     if(is.na(initVar[6])){
       H=initVar[3]
@@ -27,7 +27,12 @@ findHcNAs <- function(initVar,pHcMod,hcFactor=1.){
       
       inModHc <- c(pHcMod[,initVar[1]],H,D,age,BA_sp,BA_tot,N_tot,
                    D.aver,H.aver,initVar[1])
-      initVar[6] <- model.Hc(inModHc) * hcFactor
+      if(HcModV==1){
+        initVar[6] <- HcPipeMod(initVar,pCrobas)
+      }else{
+        initVar[6] <- model.Hc(inModHc)  
+      }
+      
     }
   } else if(any(is.na(initVar[6,]))){
     initVar[1,][which(initVar[1,]==0)] <- 1 ###deals with 0 species ID
@@ -41,13 +46,21 @@ findHcNAs <- function(initVar,pHcMod,hcFactor=1.){
     D.aver=sum(initVar[4,]*initVar[5,]/sum(initVar[5,],na.rm = T),na.rm = T)
     H.aver=sum(initVar[3,]*initVar[5,]/sum(initVar[5,],na.rm = T),na.rm = T)
     if(length(HcNAs)==1){
-      inModHc <- c(pHcMod[,initVar[1,HcNAs]],H,D,age,BA_sp,BA_tot,
-                   N_tot,D.aver,H.aver,initVar[1,HcNAs])
-      initVar[6,HcNAs] <- model.Hc(inModHc) * hcFactor
+      if(HcModV==1){
+        initVar[6,HcNAs] <- HcPipeMod(initVar[,HcNAs],pCrobas)
+      }else{
+        inModHc <- c(pHcMod[,initVar[1,HcNAs]],H,D,age,BA_sp,BA_tot,
+                     N_tot,D.aver,H.aver,initVar[1,HcNAs])
+        initVar[6,HcNAs] <- model.Hc(inModHc) 
+      }
     }else{
-      inModHc <- rbind(pHcMod[,initVar[1,HcNAs]],H,D,age,BA_sp,BA_tot,
-                       N_tot,D.aver,H.aver,initVar[1,HcNAs])
-      initVar[6,HcNAs] <- apply(inModHc,2,model.Hc) * hcFactor
+      if(HcModV==1){
+        initVar[6,HcNAs] <- apply(initVar[,HcNAs],2,HcPipeMod,pCrobas)
+      }else{
+        inModHc <- rbind(pHcMod[,initVar[1,HcNAs]],H,D,age,BA_sp,BA_tot,
+                         N_tot,D.aver,H.aver,initVar[1,HcNAs])
+        initVar[6,HcNAs] <- apply(inModHc,2,model.Hc) 
+      }
     }
   }
   return(initVar)
