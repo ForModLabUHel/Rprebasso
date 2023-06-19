@@ -69,6 +69,6 @@ calBioIndices <- function(modOut){
     HSIfsRun <- mapply(HSIfs,Vspruce,Pspruce,Vdec)
     #resource availability is not still implemented
   }
-  return(list(HSIcaper=HSIcaperRun,HSIhg=HSIhgRun,HSIttwo=HSIttwoRun,HSIlswo=HSIlswoRun,HSIltt=HSIlttRun,HSIfs=HSIfsRun))
+  return(list(HSIcaper=HSIcaperRun,HSIhg=HSIhgRun,HSIttwo=HSIttwoRun,HSIlswo=HSIlswoRun,HSIltt=HSIlttRun,HSIfs=HSIfsRun,HSIttwoPop=HSIttwoRunPop,HSIlswoPop=HSIlswoRunPop))
 }
 ## TODO: Add a second way, by option in the funcion calBioIndices(option), 0 = default (BA deciduous recently died), 1= total BA recently died
