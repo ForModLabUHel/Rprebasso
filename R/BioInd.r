@@ -97,14 +97,13 @@ HSIttwo <- function(BArecd,Vtotal) {
   return(HSIttwoint)
 }
 
-#' Habitat suitability for the Three-toed woodpecker simpliofied
+#' Habitat suitability for the Three-toed woodpecker simplified
 #' @Description 
 #'  Biodiversity indicator for habitat suitability of Three-toed woodpecker (Picoides tridactylus)
 #'
 #' @param BArecd Total basal area (m2/ha) of recently died trees 
-#' @param Vtotal Total timber volume of living trees
 #'
-#' @return the habitat suitability index
+#' @return the probability of presence of the bird
 #' @export
 #'
 #' @examples
@@ -139,14 +138,13 @@ HSIlswo <- function(BArecddec,ageoldest) {
 }
 
 
-#' Habitat suitability for the Lesser-spotted woodpecker Simplified
+#' Habitat suitability for the Lesser-spotted woodpecker simplified
 #' @Description 
 #'  Biodiversity indicator for habitat suitability of Lesser-spotted woodpecker (Dendrocopos minor) 
 #'
 #' @param BArecddec Total basal area (m2/ha) of recently died deciduous trees
-#' @param ageoldest Age of the oldest layer
 #'
-#' @return the habitat suitability index
+#' @return the probability of presence of the bird
 #' @export
 #'
 #' @examples
