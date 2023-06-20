@@ -33,8 +33,10 @@ calBioIndices <- function(modOut){
     HSIhgRun <- matrix(mapply(HSIhg,ageoldest,Pdec,Pspruce),modOut$nSites,modOut$nYears)
     #HSIttwoRun <- matrix(mapply(HSIttwo,BAtot,Vtot),modOut$nSites,modOut$nYears)
     HSIttwoRun <- matrix(mapply(HSIttwo,BAmortTot,Vtot),modOut$nSites,modOut$nYears)
+    HSIttwoRunPop <- matrix(mapply(HSIttwoPop,BAmortTot),modOut$nSites,modOut$nYears) #probability of presence term
     #HSIlswoRun <- matrix(mapply(HSIlswo,BAdec,ageoldest),modOut$nSites,modOut$nYears)
     HSIlswoRun <- matrix(mapply(HSIlswo,BAdecMort,ageoldest),modOut$nSites,modOut$nYears)
+    HSIlswoRunPop <- matrix(mapply(HSIlswoPop,BAdecMort),modOut$nSites,modOut$nYears) #probability of presence term
     HSIlttRun <- matrix(mapply(HSIltt,ageoldest,BAtot,Pdec),modOut$nSites,modOut$nYears)
     HSIfsRun <- matrix(mapply(HSIfs,Vspruce,Pspruce,Vdec),modOut$nSites,modOut$nYears)
     #resource availability is not still implemented
@@ -63,8 +65,10 @@ calBioIndices <- function(modOut){
     HSIhgRun <- mapply(HSIhg,ageoldest,Pdec,Pspruce)
     #HSIttwoRun <- mapply(HSIttwo,BAtot,Vtot)
     HSIttwoRun <- matrix(mapply(HSIttwo,BAmortTot,Vtot),modOut$nSites,modOut$nYears)
+    HSIttwoRunPop <- matrix(mapply(HSIttwoPop,BAmortTot),modOut$nSites,modOut$nYears) #probability of presence term
     #HSIlswoRun <- mapply(HSIlswo,BAdec,ageoldest)
     HSIlswoRun <- matrix(mapply(HSIlswo,BAdecMort,ageoldest),modOut$nSites,modOut$nYears)
+    HSIlswoRunPop <- matrix(mapply(HSIlswoPop,BAdecMort),modOut$nSites,modOut$nYears) #probability of presence term
     HSIlttRun <- mapply(HSIltt,ageoldest,BAtot,Pdec)
     HSIfsRun <- mapply(HSIfs,Vspruce,Pspruce,Vdec)
     #resource availability is not still implemented
