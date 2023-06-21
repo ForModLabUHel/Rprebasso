@@ -1096,6 +1096,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
     stand(12) = D
     stand(13) = BA
     stand(16) = A
+	stand(14) = Hc	
     stand(17) = N
     stand(26) = S_fol
     stand(27) = S_fr
