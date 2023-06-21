@@ -1021,7 +1021,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
      if(Nold==0.) then
 		Nold = N
 		Wdb = 0.
-		A = par_ksi/par_rhof * Lc^par_z
+		A = 0.007!par_ksi/par_rhof * Lc^par_z
 		stand(7) = initClearcut(5)
 	 endif
 	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
