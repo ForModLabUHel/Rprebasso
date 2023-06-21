@@ -1018,12 +1018,12 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
 	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
-     if(Nold==0.) then
+     ! if(Nold==0.) then
 		Nold = N
 		Wdb = 0.
 		A = 0.007!par_ksi/par_rhof * Lc^par_z
 		stand(7) = initClearcut(5)
-	 endif
+	 ! endif
 	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
 		if(isnan(stand(50))) stand(50) = 0
 		if(isnan(stand(53))) stand(53) = 0
