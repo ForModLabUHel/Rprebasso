@@ -999,10 +999,6 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	 wf_STKG_old = wf_STKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
-     if(Nold==0.) then
-		Nold=N
-		Wdb = 0.
-	 endif
      Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
 	 if (thinning(countThinning,10) /= -999.) then
@@ -1021,7 +1017,14 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
      beta1 = (beta0 + betab + par_betas) !!newX
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
-
+	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
+     if(Nold==0.) then
+		Nold = N
+		Wdb = 0.
+		A = par_ksi/par_rhof * Lc^par_z
+		stand(7) = initClearcut(5)
+	 endif
+	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
 		if(isnan(stand(50))) stand(50) = 0
 		if(isnan(stand(53))) stand(53) = 0
 		if(isnan(stand(54))) stand(54) = 0
