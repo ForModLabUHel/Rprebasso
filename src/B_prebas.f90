@@ -121,7 +121,7 @@ real (kind=8) :: Nmort, BAmort
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
- logical :: doThin, early = .false.
+ logical :: doThin, early = .false., flagInitWithThin = .false.
  real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -477,6 +477,7 @@ if (year <= maxYearSite) then
    else
     ij=nLayers
    endif
+   if(sum(modOut(year,11,1:ij,1)) > 0.) yearX = 0
    if(sum(modOut(year,11,1:ij,1)) == 0. .and. yearX == 0) then
 	if((nYears-year)<10) then
 			Ainit = max(nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25 + 2.0),2)!! + 2.0 to account for the delay between planting and clearcut
@@ -626,6 +627,7 @@ exud(ij) = 0.d0
  par_H0max = param(32)
  par_gamma = param(33)
  par_kH = param(34)
+ par_ksi = param(38)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
  par_sla0 = param(39)
@@ -1017,14 +1019,17 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
      beta1 = (beta0 + betab + par_betas) !!newX
      beta2 = 1. - betab - par_betas 		!!newX
 	 betaC = (beta1 + gammaC * beta2) / par_betas
-	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
-     ! if(Nold==0.) then
+	 
+	 !!!reinitialize the stand and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
+     if(Nold==0.) then
+		flagInitWithThin = .true.
 		Nold = N
 		Wdb = 0.
-		A = 0.007!par_ksi/par_rhof * Lc^par_z
-		stand(7) = initClearcut(5)
-	 ! endif
+		A = par_ksi/par_rhof * Lc**par_z
+		stand(7) = Ainit
+	 endif
 	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
+		
 		if(isnan(stand(50))) stand(50) = 0
 		if(isnan(stand(53))) stand(53) = 0
 		if(isnan(stand(54))) stand(54) = 0
@@ -1073,7 +1078,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
     ! S_branch = stand_all(28,ij) + stand_all(24,ij) - W_branch
     ! S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + stand_all(32,ij) - W_croot
 
-
+if(flagInitWithThin) then
      outt(11,ij,2) = STAND_tot(11)
      outt(12,ij,2) = STAND_tot(12)
      outt(13,ij,2) = STAND_tot(13) - BA
@@ -1091,7 +1096,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
      outt(33,ij,2) = STAND_tot(33) - wf_STKG
      outt(34,ij,2) = (STAND_tot(34)*Nold - wf_treeKG*N)/Nthd
      outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
-
+	 flagInitWithThin = .false.
+endif
     stand(11) = H
     stand(12) = D
     stand(13) = BA

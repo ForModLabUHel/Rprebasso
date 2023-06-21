@@ -295,6 +295,7 @@ if(oldLayer==1) then
 else
  jj=nLayers(i)
 endif
+    if(sum(output(1,11,1:jj,1))>0)  yearXrepl(i) = 0.
 	if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
 	 if((maxYears-ij)<10) then
  		Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
