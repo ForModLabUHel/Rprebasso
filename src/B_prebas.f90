@@ -996,9 +996,10 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
      Lc = H - Hc !Lc
      rc = Lc / (H-1.3) !crown ratio
      Nold = N
-     wf_STKG_old = wf_STKG
+	 wf_STKG_old = wf_STKG
      W_stem_old = W_stem
      N = BA/(pi*((D/2./100.)**2.)) ! N
+     if(Nold==0.) Nold=N
      Nthd = max(0.,(Nold-N)) ! number of cutted trees
      B = BA/N!(pi*((D/2/100)**2))
 	 if (thinning(countThinning,10) /= -999.) then
