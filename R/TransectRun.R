@@ -9,47 +9,22 @@
 #' @param pCROBAS   (47 x nSpecies matrix) Matrix of parameter sets, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany). Default is pCROB, print(pCROB) to see the parameter values and names.
 #' @param AgeEffect Carbon allocation strategy for seedlings. When True, the early growth will decrease due to age effect,by setting pCROBAS[45,]<-0.3.
 #' @param defaultThin If defaultThin = 1 (default) Finnish standard management practices are applied (ref).
-#' @param multiThin 	A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.
+#' @param multiThin 	A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
 #' @param ClCut     Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
+#' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #' @param energyCut Energy cutting strategy will be applied if set to 1. Default value is 0.
 #' @param mortMod flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)
 #' @param ECMmod flag for the ECM modelling activation 1 -> model ECM according to Makela et al. 2022, 0 -> no ECM modelling
 #' @param multiInitClearCut A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'
-#' @param multiNthin A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
-#' @param GVrun 
-#' @param pHcMod 
-#' @param etmodel 
-#' @param pYASSO 
-#' @param pAWEN 
-#' @param fixBAinitClarcut 
-#' @param initCLcutRatio 
-#' @param multiP0 
-#' @param soilC 
+#' @param ETSstart A vector of initial average ETS, it should be based on historical data. if NULL it will be calculated using the first 10 years of the simulation weather inputs
+#' @param pCN_alfar Matrix of parameters (columns are species)for alfar calculations based on CN ratio. Use parsCN_alfar as default values
+#' @param fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
 #' @param weatherInput ##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations
-#' @param weatherYasso 
-#' @param litterSize 
-#' @param soilCtot 
-#' @param inDclct 
-#' @param inAclct 
-#' @param yassoRun 
-#' @param smoothP0 
-#' @param smoothETS 
-#' @param smoothYear 
-#' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
-#' @param tapioPars 
-#' @param thdPer 
-#' @param limPer 
-#' @param ftTapioPar 
-#' @param tTapioPar 
-#' @param thinInt 
-#' @param layerPRELES 
-#' @param LUEtrees light use efficiency parameters for tree species
-#' @param LUEgv light use efficiency parameter for ground vegetation
-#' @param alpharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
-#' 
+#'
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
@@ -118,9 +93,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         thinInt = -999.,
                         mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
                         ECMmod = 0,
-                        layerPRELES = 0,
-                        LUEtrees = pLUEtrees,
-                        LUEgv = pLUEgv,
+                        ETSstart=NULL,
+                        pCN_alfar = NULL,
+                        fertThin=0,
+                        latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203),
                         alpharNcalc=FALSE,
                         p0currClim = NA,
                         TcurrClim = NA,
@@ -169,9 +145,6 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
   }
 
-  if (AgeEffect == T) {
-    pCROBAS[45, ] <- 0.3
-  }
   if(is.null(weatherInput)){
     path.weatherTran <-
       system.file("transect", "weatherTran.rda", package = "Rprebasso")
@@ -188,6 +161,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     VPD = weatherInput$VPD
     Precip = weatherInput$Precip
     CO2 = weatherInput$CO2
+  }
+  
+  if (AgeEffect == T) {
+    pCROBAS[45, ] <- 0.3
   }
 
   initPrebas <- InitMultiSite(
@@ -236,15 +213,15 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     thinInt = thinInt,
     mortMod = mortMod,#flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
     ECMmod=ECMmod,
-    layerPRELES=layerPRELES,
-    LUEtrees = LUEtrees,
-    LUEgv = LUEgv,
+    ETSstart = ETSstart,
+    pCN_alfar = pCN_alfar,
+    latitude = latitude,
     alpharNcalc=alpharNcalc,
     p0currClim = p0currClim,
     TcurrClim = TcurrClim,
     PcurrClim = PcurrClim
   )
-  initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
-  TransectOut <- multiPrebas(initPrebas)
+  initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
+  TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
   return(TransectOut)
 }

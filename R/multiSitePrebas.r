@@ -234,14 +234,17 @@ InitMultiSite <- function(nYearsMS,
   
   maxThin <- max(multiNthin)
   ###thinning if missing.  To improve
+  ###thinning if missing.  To improve
   if(all(is.na(multiThin))){
     multiNthin <- rep(0,nSites)
     maxThin <- 2
-    multiThin <- array(0, dim=c(nSites,maxThin,10))
+    multiThin <- array(0, dim=c(nSites,maxThin,11))
     multiThin[,,9:10] <- -999
+    multiThin[,,11] <- 1
   }
+  if(dim(multiThin)[3]==10) multiThin <- abind(multiThin,matrix(1,nSites,maxThin),along= 3)
   multiThin[is.na(multiThin)] <- -999
-  
+
   ###PROCESS weather inputs for prebas
   multiweather <- array(-999,dim=c(nClimID,maxYears,365,5))
   

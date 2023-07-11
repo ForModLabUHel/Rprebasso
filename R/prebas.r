@@ -199,14 +199,18 @@ prebas <- function(nYears,
   ###
   
   ###proc thinnings##
+  ###proc thinnings##
   if(all(is.na(thinning))){
-    thinning=matrix(0,1,10)
+    thinning=matrix(0,1,11)
     thinning[,9:10] <- -999
-  } 
+    thinning[,11] <- 1
+  }
+  if(ncol(thinning==10)) thinning <- cbind(thinning,1)
   thinning[is.na(thinning)] <- -999
   nThinning = max(1,nrow(thinning))
   thinning <- thinning[order(thinning[,2],thinning[,1],thinning[,3]),]
   ###
+  
   if(all(is.na(initVar))) {
     nLayers <- 3 }else {
       nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
