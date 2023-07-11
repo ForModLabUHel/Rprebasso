@@ -22,7 +22,7 @@ implicit none
  integer, intent(in) :: DOY(365), etmodel, ECMmod
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
- real (kind=8), intent(inout) :: thinning(nThinning, 10) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
+ real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
@@ -122,6 +122,9 @@ real (kind=8) :: Nmort, BAmort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
  logical :: doThin, early = .false.
  real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
+ !!user thinnings
+ real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
+ real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -926,7 +929,7 @@ endif
 	if(thinning(countThinning,9) .NE. -999) then
 	 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
 	endif
-    if(thinning(countThinning,4)==0.) then
+	if(thinning(countThinning,4)==0.) then
      STAND(2) = 0. !!newX
 	 STAND(8:21) = 0. !#!#
      STAND(23:37) = 0. !#!#
@@ -1023,21 +1026,39 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 
 !! calculate litter including residuals from thinned trees
   !energyCut
+    pHarvTrees = thinning(countThinning,11)
 	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
 	S_fr = max(0.,stand(27) + stand(25) - W_froot)
+
+	hW_branch = (stand(24) - W_branch)* pHarvTrees
+	hW_croot = (stand(32) - W_croot)* pHarvTrees
+	hW_stem = (stand(31) - W_stem)* pHarvTrees
+	hWdb = (stand(51) - Wdb)* pHarvTrees
+	remhW_branch = (stand(24) - W_branch) * (1.-pHarvTrees)
+	remhW_croot = (stand(32) - W_croot) * (1.-pHarvTrees)
+	remhW_stem = (stand(31) - W_stem) * (1.-pHarvTrees)
+	remhWdb = (stand(51) - Wdb) * (1.-pHarvTrees)
+
 	if(energyCut==1.) then
 	species = int(max(1.,stand(4)))
-	 energyWood(year,ij,2) = max(0.,(stand(24) - W_branch + (stand(32) - W_croot)*0.3 + &
-					(stand(31) - W_stem) * (1-harvRatio)) * energyRatio)
+	
+	 energyWood(year,ij,2) = max(0.,(hW_branch + hW_croot*0.3 + &
+					(hW_stem) * (1-harvRatio)) * energyRatio)
 if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species))
-     S_branch = max(0.,stand(28) + (stand(24) - W_branch) * (1-energyRatio) + stand(51) - Wdb +&
-				(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) * 0.83 + &
-				(stand(31) - W_stem) * (1-harvRatio) * (1-energyRatio))
+     S_branch = max(0.,stand(28) + hW_branch * (1-energyRatio) + hWdb +&
+				(0.3 * (1-energyRatio)+0.7) * hW_croot * 0.83 + &
+				hW_stem * (1-harvRatio) * (1-energyRatio))
      S_wood = max(0.,stand(29) +(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) *0.17)
 	else
-    S_branch = max(0.,stand(28)+stand(24)-W_branch+stand(51)-Wdb+(stand(32)-W_croot)*0.83 + &
-		(stand(31) - W_stem) * (1-harvRatio))
-    S_wood = max(0.,stand(29)  + (stand(32) - W_croot)*0.17)
+    S_branch = max(0.,stand(28)+hW_branch+hWdb+hW_croot*0.83 + &
+		hW_stem * (1-harvRatio))
+    S_wood = max(0.,stand(29)  + hW_croot*0.17)
+	endif
+	
+	!!! if part of the thinned trees is not harvested (e.g.,residues from disturbances) litterfall is updated
+	if(pHarvTrees < 1.) then
+		S_branch = S_branch + remhW_branch + remhW_croot * 0.83 + remhWdb
+		S_wood = S_wood + remhW_croot*0.17 + remhW_stem
 	endif
   !energyCut	
 ! !! calculate litter including residuals from thinned trees
