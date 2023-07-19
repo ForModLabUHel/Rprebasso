@@ -1030,14 +1030,14 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
 	S_fr = max(0.,stand(27) + stand(25) - W_froot)
 
-	hW_branch = (stand(24) - W_branch)* pHarvTrees
-	hW_croot = (stand(32) - W_croot)* pHarvTrees
-	hW_stem = (stand(31) - W_stem)* pHarvTrees
-	hWdb = (stand(51) - Wdb)* pHarvTrees
-	remhW_branch = (stand(24) - W_branch) * (1.-pHarvTrees)
-	remhW_croot = (stand(32) - W_croot) * (1.-pHarvTrees)
-	remhW_stem = (stand(31) - W_stem) * (1.-pHarvTrees)
-	remhWdb = (stand(51) - Wdb) * (1.-pHarvTrees)
+	hW_branch = max(0.,(stand(24) - W_branch)* pHarvTrees)
+	hW_croot = max(0.,(stand(32) - W_croot)* pHarvTrees)
+	hW_stem = max(0.,(stand(31) - W_stem)* pHarvTrees)
+	hWdb = max(0.,(stand(51) - Wdb)* pHarvTrees)
+	remhW_branch = max(0.,(stand(24) - W_branch) * (1.-pHarvTrees))
+	remhW_croot = max(0.,(stand(32) - W_croot) * (1.-pHarvTrees))
+	remhW_stem = max(0.,(stand(31) - W_stem) * (1.-pHarvTrees))
+	remhWdb = max(0.,(stand(51) - Wdb) * (1.-pHarvTrees))
 
 	if(energyCut==1.) then
 	species = int(max(1.,stand(4)))
@@ -1068,23 +1068,23 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
     ! S_wood = stand_all(29,ij) + (stand_all(31,ij) - W_stem) * (1-harvRatio) + stand_all(32,ij) - W_croot
 
 
-     outt(11,ij,2) = STAND_tot(11)
-     outt(12,ij,2) = STAND_tot(12)
-     outt(13,ij,2) = STAND_tot(13) - BA
-     outt(14,ij,2) = STAND_tot(14)
-     outt(15,ij,2) = STAND_tot(15)
-     outt(16,ij,2) = STAND_tot(16)
-     outt(17,ij,2) = Nthd
-     outt(18:23,ij,2) = -999.
-     outt(24,ij,2) = STAND_tot(24) - W_branch
-     outt(25,ij,2) = STAND_tot(25) - W_froot
-     outt(26:29,ij,2) = -999.
-     outt(30,ij,2) = STAND_tot(30) - V
-     outt(31,ij,2) = STAND_tot(31) - W_stem
-     outt(32,ij,2) = STAND_tot(32) - W_croot
-     outt(33,ij,2) = STAND_tot(33) - wf_STKG
-     outt(34,ij,2) = (STAND_tot(34)*Nold - wf_treeKG*N)/Nthd
-     outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
+	outt(11,ij,2) = STAND_tot(11)
+	outt(12,ij,2) = STAND_tot(12)
+	outt(13,ij,2) = (STAND_tot(13) - BA) * pHarvTrees
+	outt(14,ij,2) = STAND_tot(14)
+	outt(15,ij,2) = STAND_tot(15)
+	outt(16,ij,2) = STAND_tot(16)
+	outt(17,ij,2) = (Nthd) * pHarvTrees
+	outt(18:23,ij,2) = -999.
+	outt(24,ij,2) = (STAND_tot(24) - W_branch) * pHarvTrees
+	outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
+	outt(26:29,ij,2) = -999.
+	outt(30,ij,2) = (STAND_tot(30) - V) * pHarvTrees
+	outt(31,ij,2) = (STAND_tot(31) - W_stem) * pHarvTrees
+	outt(32,ij,2) = (STAND_tot(32) - W_croot) * pHarvTrees
+	outt(33,ij,2) = (STAND_tot(33) - wf_STKG) * pHarvTrees
+	outt(34,ij,2) = (STAND_tot(34)*Nold - wf_treeKG*N)/Nthd
+	outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
 
     stand(11) = H
     stand(12) = D
