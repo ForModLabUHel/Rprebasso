@@ -197,6 +197,7 @@ endif
 	 endif
 
 	 do ijj = 1,jj
+      relBA(i,1:jj) = multiOut(i,int(ij-initClearcut(i,5)-2),13,ijj,1)/ multiOut(i,int(ij-initClearcut(i,5)-2),13,:,1)
 	  species = int(multiOut(i,1,4,ijj,1))
 	  initVar(i,1,ijj) = multiOut(i,1,4,ijj,1)
 	  initVar(i,2,ijj) = initClearcut(i,5)
