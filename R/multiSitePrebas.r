@@ -10,7 +10,7 @@ InitMultiSite <- function(nYearsMS,
                           multiThin = NA,
                           multiNthin = NA,
                           multiInitClearCut = NA,
-                          fixBAinitClarcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
+                          fixBAinitClearcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
                           initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                           areas = NA,
                           PAR,
@@ -308,7 +308,7 @@ InitMultiSite <- function(nYearsMS,
   }
   
   multiInitVar[,6:7,][which(is.na(multiInitVar[,6:7,]))] <- 0
-  if(length(fixBAinitClarcut)==1) fixBAinitClarcut=rep(fixBAinitClarcut,nSites)
+  if(length(fixBAinitClearcut)==1) fixBAinitClearcut=rep(fixBAinitClearcut,nSites)
   
   if(all(is.na(initCLcutRatio))){
     if(maxNlayers==1){
@@ -419,7 +419,7 @@ InitMultiSite <- function(nYearsMS,
     nThinning = multiNthin,
     fAPAR = matrix(0.7,nSites,maxYears),
     initClearcut = multiInitClearCut,
-    fixBAinitClarcut=fixBAinitClarcut,
+    fixBAinitClearcut=fixBAinitClearcut,
     initCLcutRatio = initCLcutRatio,
     ETSy = multiETS,
     P0y = multiP0,
@@ -533,7 +533,7 @@ multiPrebas <- function(multiSiteInit,
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
                      initClearcut=as.matrix(multiSiteInit$initClearcut),
-                     fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClarcut),
+                     fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClearcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                      ETSy=as.matrix(multiSiteInit$ETSy),
                      P0y=as.array(multiSiteInit$P0y),
@@ -701,7 +701,7 @@ if(ageHarvPrior>0){
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
                      initClearcut=as.matrix(multiSiteInit$initClearcut),
-                     fixBAinitClarcut = as.double(multiSiteInit$fixBAinitClarcut),
+                     fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClearcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                      ETSy=as.matrix(multiSiteInit$ETSy),
                      P0y=as.array(multiSiteInit$P0y),
@@ -883,7 +883,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
                      initClearcut=as.matrix(multiSiteInit$initClearcut),
-                     fixBAinitClarcut = as.double(multiSiteInit$fixBAinitClarcut),
+                     fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClearcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                      ETSy=as.matrix(multiSiteInit$ETSy),
                      P0y=as.array(multiSiteInit$P0y),
