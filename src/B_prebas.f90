@@ -1079,11 +1079,11 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
 	outt(24,ij,2) = (STAND_tot(24) - W_branch) * pHarvTrees
 	outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
 	outt(26:29,ij,2) = -999.
-	outt(30,ij,2) = (STAND_tot(30) - V) * pHarvTrees
-	outt(31,ij,2) = (STAND_tot(31) - W_stem) * pHarvTrees
-	outt(32,ij,2) = (STAND_tot(32) - W_croot) * pHarvTrees
-	outt(33,ij,2) = (STAND_tot(33) - wf_STKG) * pHarvTrees
-	outt(34,ij,2) = (STAND_tot(34)*Nold - wf_treeKG*N)/Nthd
+	outt(30,ij,2) = max((STAND_tot(30) - V) * pHarvTrees,0.)
+    outt(31,ij,2) = max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
+    outt(32,ij,2) = max((STAND_tot(32) - W_croot) * pHarvTrees,0.)
+    outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
+    outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
 	outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
 
     stand(11) = H
