@@ -107,8 +107,8 @@ implicit none
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
-!variables for random mortality calculations
-real (kind=8) :: Nmort, BAmort
+!variables for random mortality calculations & disturbances
+real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
@@ -1080,7 +1080,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
 	outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
 	outt(26:29,ij,2) = -999.
 	outt(30,ij,2) = max((STAND_tot(30) - V) * pHarvTrees,0.)
-	stand(42) = stand(42) + max((STAND_tot(30) - V) * (1-pHarvTrees),0.)
+	VmortDist(ij) = stand(42) + max((STAND_tot(30) - V) * (1-pHarvTrees),0.)
     outt(31,ij,2) = max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
     outt(32,ij,2) = max((STAND_tot(32) - W_croot) * pHarvTrees,0.)
     outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
@@ -1545,6 +1545,10 @@ endif
  
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
+
+!add the dead trees from disturbances
+ STAND_all(42,:) = STAND_all(42,:) + VmortDist
+
 
 outt(:,:,1) = STAND_all
 
