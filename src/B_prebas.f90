@@ -110,7 +110,7 @@ implicit none
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
-!variables for random mortality calculations
+!variables for random mortality calculations & disturbances
 real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
@@ -1576,6 +1576,7 @@ endif
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
 
+!add dead trees from disturbances
 STAND_all(42,:) = STAND_all(42,:) + VmortDist
 
 outt(:,:,1) = STAND_all
