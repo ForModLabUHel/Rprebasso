@@ -1106,6 +1106,7 @@ endif
      outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
      outt(26:29,ij,2) = -999.
      outt(30,ij,2) = max((STAND_tot(30) - V) * pHarvTrees,0.)
+	 stand(42) = stand(42) + max((STAND_tot(30) - V) * (1-pHarvTrees),0.)
      outt(31,ij,2) = max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
      outt(32,ij,2) = max((STAND_tot(32) - W_croot) * pHarvTrees,0.)
      outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
