@@ -21,7 +21,7 @@
 #' @param etmodel 
 #' @param pYASSO 
 #' @param pAWEN 
-#' @param fixBAinitClarcut 
+#' @param fixBAinitClearcut 
 #' @param initCLcutRatio 
 #' @param multiP0 
 #' @param soilC 
@@ -49,6 +49,7 @@
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param ingrowth # flag to simulate ingrowth
 #' 
 #' @importFrom plyr aaply
 #'
@@ -95,7 +96,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         pYASSO =pYAS,
                         pAWEN = parsAWEN,
                         multiInitClearCut = NA,
-                        fixBAinitClarcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
+                        fixBAinitClearcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
                         initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                         multiP0=NA,
                         soilC = NA,
@@ -124,7 +125,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         alpharNcalc=FALSE,
                         p0currClim = NA,
                         TcurrClim = NA,
-                        PcurrClim = NA
+                        PcurrClim = NA,
+                        ingrowth = FALSE
 ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -215,7 +217,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     pYASSO =pYASSO,
     pAWEN = pAWEN,
     multiInitClearCut = multiInitClearCut,
-    fixBAinitClarcut = fixBAinitClarcut,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
+    fixBAinitClearcut = fixBAinitClearcut,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
     initCLcutRatio = initCLcutRatio,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
     multiP0=multiP0,
     soilC = soilC,
@@ -242,7 +244,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     alpharNcalc=alpharNcalc,
     p0currClim = p0currClim,
     TcurrClim = TcurrClim,
-    PcurrClim = PcurrClim
+    PcurrClim = PcurrClim,
+    ingrowth = ingrowth
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

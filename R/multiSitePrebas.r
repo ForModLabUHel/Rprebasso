@@ -108,7 +108,8 @@ InitMultiSite <- function(nYearsMS,
                           alpharNcalc=FALSE,
                           p0currClim = NA,
                           TcurrClim = NA,
-                          PcurrClim = NA
+                          PcurrClim = NA,
+                          ingrowth = FALSE
                           ){  
   
   nSites <- length(nYearsMS)
@@ -120,6 +121,14 @@ InitMultiSite <- function(nYearsMS,
   if(all(is.na(siteInfo))){
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118),nSites,12,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
+  }
+  if(ingrowth){
+    ingrowthStep <- 10
+    nTreeIngrowth <- 10
+    nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
+    siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers
+  }else{
+    nIngrowthLayers = 0
   }
   colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit", 
                           "SOGinit", "Sinit", "nLayers", "nSpecies", "soildepth", 
@@ -235,16 +244,41 @@ InitMultiSite <- function(nYearsMS,
   maxThin <- max(multiNthin)
   ###thinning if missing.  To improve
   ###thinning if missing.  To improve
-  if(all(is.na(multiThin))){
+  if(all(is.na(multiThin)) & !ingrowth){
     multiNthin <- rep(0,nSites)
     maxThin <- 2
     multiThin <- array(0, dim=c(nSites,maxThin,11))
     multiThin[,,9:10] <- -999
     multiThin[,,11] <- 1
   }
-  if(dim(multiThin)[3]==10) multiThin <- abind(multiThin,matrix(1,nSites,maxThin),along= 3)
+  if(!all(is.na(multiThin))){
+    if(dim(multiThin)[3]==10) multiThin <- abind(multiThin,matrix(1,nSites,maxThin),along= 3)
+  }
+  if(ingrowth){
+    yearIngrowth <- seq(ingrowthStep,maxYears,by=ingrowthStep)
+    thinX <- array(0, dim=c(nSites,nIngrowthLayers,11))
+    thinX[,,9:10] <- -999
+    thinX[,,11] <- 1
+    thinX[,,1] <- matrix(yearIngrowth,nSites,length(yearIngrowth),byrow = T)
+    thinX[,,2] <- matrix(siteInfo[,1],nSites,length(yearIngrowth))
+    thinX[,,3] <- matrix((maxNlayers-nIngrowthLayers+1):maxNlayers,nSites,length(yearIngrowth),byrow = T)
+    thinX[,,4] <- initSeedling.def[1]
+    thinX[,,5] <- initSeedling.def[2]
+    thinX[,,7] <- initSeedling.def[4]
+    thinX[,,6] <- nTreeIngrowth*(pi*((initSeedling.def[2]/2/100)^2))
+    
+    if(!all(is.na(multiThin))){
+      multiThin <- abind(multiThin,thinX,along=2)
+      multiNthin <- multiNthin + nIngrowthLayers
+      maxThin <- dim(multiThin)[2]
+    }else{
+      multiThin <- thinX
+      multiNthin <- rep(nIngrowthLayers,nSites)
+      maxThin <- nIngrowthLayers
+    }
+  }
   multiThin[is.na(multiThin)] <- -999
-
+  
   ###PROCESS weather inputs for prebas
   multiweather <- array(-999,dim=c(nClimID,maxYears,365,5))
   
@@ -261,23 +295,27 @@ InitMultiSite <- function(nYearsMS,
   }
   
   if(all(is.na(multiInitVar))){
-    multiInitVar <- array(NA,dim=c(nSites,7,maxNlayers))
-    multiInitVar[,1,] <- rep(1:maxNlayers,each=nSites)
+    multiInitVar <- array(NA,dim=c(nSites,7,(maxNlayers-nIngrowthLayers)))
+    multiInitVar[,1,] <- rep(1:(maxNlayers-nIngrowthLayers),each=nSites)
+    multiInitVar[,5,] <- initClearcut[3]/(maxNlayers-nIngrowthLayers)
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
-    multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
-    multiInitVar[,2,] <- matrix(Ainits,nSites,maxNlayers)
-    for(ikj in 1:maxNlayers){
+    multiInitVar[,6,] <- initClearcut[4]
+    multiInitVar[,2,] <- matrix(Ainits,nSites,(maxNlayers-nIngrowthLayers))
+    for(ikj in 1:(maxNlayers-nIngrowthLayers)){
       p_ksi <- pCROBAS[38,multiInitVar[,1,ikj]]
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
       Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
       A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
-      multiInitVar[,7,ikj] <- A     
+      B_tree <- pi*(multiInitVar[,4,ikj]/200)^2
+      A2 <- (multiInitVar[,3,ikj] - multiInitVar[,6,ikj])/
+        (multiInitVar[,3,ikj]-1.3) * B_tree
+      multiInitVar[,7,ikj] <- pmin(A,A2)     
     } 
     multiInitVar[which(is.na(multiInitVar))] <- 0.
   }else{
     ####if Height of the crown base is not available use model
-    if(maxNlayers==1){
+    if(maxNlayers-nIngrowthLayers==1){
       multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV),dim=c(nSites,7,1))
     }else{
       multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV)
@@ -288,18 +326,22 @@ InitMultiSite <- function(nYearsMS,
     
     ####compute A
     if(all(is.na(multiInitVar[,7,]))|all(multiInitVar[,7,]==0)){
-      for(ikj in 1:maxNlayers){
+      for(ikj in 1:(maxNlayers-nIngrowthLayers)){
         not0 <- which(multiInitVar[,3,ikj]>0)
         p_ksi <- pCROBAS[38,multiInitVar[not0,1,ikj]]
         p_rhof <- pCROBAS[15,multiInitVar[not0,1,ikj]]
         p_z <- pCROBAS[11,multiInitVar[not0,1,ikj]]
         Lc <- multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj]
         A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
-        multiInitVar[not0,7,ikj] <- A     
+        B_tree <- pi*(multiInitVar[not0,4,ikj]/200)^2
+        A2 <- (multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj])/
+          (multiInitVar[not0,3,ikj]-1.3) * B_tree
+        multiInitVar[not0,7,ikj] <- pmin(A,A2)     
       } 
     }
     LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
     if(any(LcCheck<0.)) return("check, some Lc is negative")
+
     # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
     #  p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
     #  p_z <- matrix(pCROBAS[11,multiInitVar[,1,]],nSites,maxNlayers)
@@ -327,6 +369,7 @@ InitMultiSite <- function(nYearsMS,
     # multiInitVar[,7,][ops] <- A
     # }
   }
+  multiInitVar <- abind(multiInitVar,array(0,dim=c(nSites,7,nIngrowthLayers)),along=3)
   
   multiInitVar[,6:7,][which(is.na(multiInitVar[,6:7,]))] <- 0
   if(length(fixBAinitClearcut)==1) fixBAinitClearcut=rep(fixBAinitClearcut,nSites)
@@ -391,6 +434,7 @@ InitMultiSite <- function(nYearsMS,
   
   ###!!!###initiaize biomasses
   initVarX <- abind(multiInitVar,matrix(siteInfo[,3],nSites,maxNlayers),along=2)
+  print(initVarX[,7,])
   biomasses <- array(apply(initVarX,1,initBiomasses,pCro=pCROBAS),dim=c(12,maxNlayers,nSites))
   biomasses <- aperm(biomasses,c(3,1,2))
   biomasses[which(is.na(biomasses))] <- 0

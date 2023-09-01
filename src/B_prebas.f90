@@ -948,200 +948,201 @@ endif
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
-	STAND_tot = STAND
-	if(thinning(countThinning,9) .NE. -999) then
-	 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
+	if(year >= yearX) then
+		STAND_tot = STAND
+		if(thinning(countThinning,9) .NE. -999) then
+		 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
+		endif
+		if(thinning(countThinning,4)==0.) then
+		 STAND(2) = 0. !!newX
+		 STAND(8:21) = 0. !#!#
+		 STAND(23:37) = 0. !#!#
+		 STAND(43:44) = 0. !#!#
+		 STAND(47:nVar) = 0. !#!#
+	 !! calculate litter including residuals from thinned trees
+	  !energyCut
+		 S_fol = wf_STKG + S_fol
+		 S_fr = W_froot + S_fr
+		 if(energyCut==1.) then
+		  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
+		  species = int(max(1.,stand(4)))
+	if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
+		  S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
+					W_stem* (1-harvRatio)* (1-energyRatio) + &
+					(0.3 * (1-energyRatio)+0.7) * W_croot *0.83))
+		  S_wood = S_wood + (0.3 * (1-energyRatio)+0.7) * W_croot *0.17
+		 else
+		  S_branch = max(0.,(W_branch + Wdb + W_croot*0.83 + S_branch + W_stem* (1-harvRatio)))
+		  S_wood = S_wood + W_croot*0.17!(1-harvRatio) takes into account of the stem residuals after thinnings
+		 endif
+	  !energyCut
+		 STAND(26) = S_fol
+		 STAND(27) = S_fr
+		 STAND(28) = S_branch
+		 STAND(29) = S_wood
+		else
+		 if(thinning(countThinning,8)==1.) then
+		if(thinning(countThinning,4) < 2. .and. thinning(countThinning,4) > 0.) then
+		 thinning(countThinning,4) = H * thinning(countThinning,4)
+		endif
+		if(thinning(countThinning,5) < 2. .and. thinning(countThinning,5) > 0.) then
+		 thinning(countThinning,5) = D * thinning(countThinning,5)
+		endif
+		if(thinning(countThinning,6) < 1. .and. thinning(countThinning,6) > 0.) then
+		 thinning(countThinning,6) = BA * thinning(countThinning,6)
+		endif
+		if(thinning(countThinning,7) < 2. .and. thinning(countThinning,7) > 0.) then
+		 thinning(countThinning,7) = Hc * thinning(countThinning,7)
+		endif
+		 endif
+		 if (thinning(countThinning,4) /= -999.) H = thinning(countThinning,4)
+		 if (thinning(countThinning,7) /= -999.) stand(14) = thinning(countThinning,7)
+		 if (thinning(countThinning,5) /= -999.) D = thinning(countThinning,5)
+		 BA = thinning(countThinning,6)
+		 Hc=stand(14)
+		 Lc = H - Hc !Lc
+		 rc = Lc / (H-1.3) !crown ratio
+		 Nold = N
+		 wf_STKG_old = wf_STKG
+		 W_stem_old = W_stem
+		 N = BA/(pi*((D/2./100.)**2.)) ! N
+		 Nthd = max(0.,(Nold-N)) ! number of cutted trees
+		 B = BA/N!(pi*((D/2/100)**2))
+		 if (thinning(countThinning,10) /= -999.) then
+		   A = thinning(countThinning,10)
+		 else
+		   A = stand(16) * B/stand(35)
+		 endif
+		 ! Update dependent variables
+		 hb = par_betab * Lc**par_x
+		 gammaC = par_cR/stand(36)
+		 par_rhof = par_rhof1 * ETS + par_rhof2
+		 par_rhor = par_alfar * par_rhof
+		 betab = hb/Lc
+		 age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
+		 beta0 = par_beta0 * age_factor
+		 beta1 = (beta0 + betab + par_betas) !!newX
+		 beta2 = 1. - betab - par_betas 		!!newX
+		 betaC = (beta1 + gammaC * beta2) / par_betas
+		 
+		 !!!reinitialize the stand and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
+		 if(Nold==0.) then
+			flagInitWithThin = .true.
+			Nold = N
+			Wdb = 0.
+			A = par_ksi/par_rhof * Lc**par_z
+			stand(7) = Ainit
+		 endif
+		 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
+			
+			if(isnan(stand(50))) stand(50) = 0
+			if(isnan(stand(53))) stand(53) = 0
+			if(isnan(stand(54))) stand(54) = 0
+			W_bh = stand(53)
+			W_crh = stand(54)
+			wf_treeKG = max(par_rhof * A,0.)
+			wf_STKG = max(N * wf_treeKG,0.)
+			W_froot = max(par_rhor * A * N,0.)  !!to check  !!newX
+			W_wsap = max(par_rhow * A * N * (beta1 * H + beta2 * Hc),0.) !!newX
+			W_c = max(par_rhow * A * N * Hc,0.) !sapwood stem below Crown
+			W_s = max(par_rhow * A * N * par_betas * Lc,0.) !sapwood stem within crown
+			W_bs =  max(par_rhow * A * N * betab * Lc,0.) !branches biomass
+			W_crs = max(par_rhow * beta0 * A * H * N,0.) !W_stem * (beta0 - 1.)	!coarse root biomass
+			! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
+			Wsh = max(stand(50) * N/Nold,0.) !!this is not proportional to the size of the standing trees
+			W_stem = max(W_c + W_s + Wsh,0.)
+			W_crh = max(W_crh * N/Nold,0.)
+			W_bh = max(W_bh * N/Nold,0.)
+			V = max(W_stem / par_rhow,0.)
+			W_croot = max(W_crs + W_crh,0.)
+			W_branch = max(W_bs + W_bh,0.)
+			Wdb = max(Wdb * N/Nold,0.)
+	!! calculate litter including residuals from thinned trees
+	!energyCut
+	pHarvTrees = thinning(countThinning,11)
+	S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
+	S_fr = max(0.,stand(27) + stand(25) - W_froot)
+
+	hW_branch = max(0.,(stand(24) - W_branch)* pHarvTrees)
+	hW_croot = max(0.,(stand(32) - W_croot)* pHarvTrees)
+	hW_stem = max(0.,(stand(31) - W_stem)* pHarvTrees)
+	hWdb = max(0.,(stand(51) - Wdb)* pHarvTrees)
+	remhW_branch = max(0.,(stand(24) - W_branch) * (1.-pHarvTrees))
+	remhW_croot = max(0.,(stand(32) - W_croot) * (1.-pHarvTrees))
+	remhW_stem = max(0.,(stand(31) - W_stem) * (1.-pHarvTrees))
+	remhWdb = max(0.,(stand(51) - Wdb) * (1.-pHarvTrees))
+
+	if(energyCut==1.) then
+	species = int(max(1.,stand(4)))
+
+	energyWood(year,ij,2) = max(0.,(hW_branch + hW_croot*0.3 + &
+									  (hW_stem) * (1-harvRatio)) * energyRatio)
+	if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species))
+	S_branch = max(0.,stand(28) + hW_branch * (1-energyRatio) + hWdb +&
+					 (0.3 * (1-energyRatio)+0.7) * hW_croot * 0.83 + &
+					 hW_stem * (1-harvRatio) * (1-energyRatio))
+	S_wood = max(0.,stand(29) +(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) *0.17)
+	else
+	  S_branch = max(0.,stand(28)+hW_branch+hWdb+hW_croot*0.83 + &
+					   hW_stem * (1-harvRatio))
+	  S_wood = max(0.,stand(29)  + hW_croot*0.17)
 	endif
-    if(thinning(countThinning,4)==0.) then
-     STAND(2) = 0. !!newX
-	 STAND(8:21) = 0. !#!#
-     STAND(23:37) = 0. !#!#
-     STAND(43:44) = 0. !#!#
-	 STAND(47:nVar) = 0. !#!#
- !! calculate litter including residuals from thinned trees
-  !energyCut
-	 S_fol = wf_STKG + S_fol
-     S_fr = W_froot + S_fr
-	 if(energyCut==1.) then
-	  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-	  species = int(max(1.,stand(4)))
-if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
-      S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
-				W_stem* (1-harvRatio)* (1-energyRatio) + &
-				(0.3 * (1-energyRatio)+0.7) * W_croot *0.83))
-      S_wood = S_wood + (0.3 * (1-energyRatio)+0.7) * W_croot *0.17
-	 else
-      S_branch = max(0.,(W_branch + Wdb + W_croot*0.83 + S_branch + W_stem* (1-harvRatio)))
-      S_wood = S_wood + W_croot*0.17!(1-harvRatio) takes into account of the stem residuals after thinnings
-	 endif
-  !energyCut
-     STAND(26) = S_fol
-     STAND(27) = S_fr
-     STAND(28) = S_branch
-     STAND(29) = S_wood
-    else
-     if(thinning(countThinning,8)==1.) then
-	if(thinning(countThinning,4) < 2. .and. thinning(countThinning,4) > 0.) then
-	 thinning(countThinning,4) = H * thinning(countThinning,4)
+
+	!!! if part of the thinned trees is not harvested (e.g.,residues from disturbances) litterfall is updated
+	if(pHarvTrees < 1.) then
+	S_branch = S_branch + remhW_branch + remhW_croot * 0.83 + remhWdb
+	S_wood = S_wood + remhW_croot*0.17 + remhW_stem
 	endif
-	if(thinning(countThinning,5) < 2. .and. thinning(countThinning,5) > 0.) then
-	 thinning(countThinning,5) = D * thinning(countThinning,5)
+
+
+		 outt(11,ij,2) = STAND_tot(11)
+		 outt(12,ij,2) = STAND_tot(12)
+		 outt(13,ij,2) = (STAND_tot(13) - BA) * pHarvTrees
+		 outt(14,ij,2) = STAND_tot(14)
+		 outt(15,ij,2) = STAND_tot(15)
+		 outt(16,ij,2) = STAND_tot(16)
+		 outt(17,ij,2) = (Nthd) * pHarvTrees
+		 outt(18:23,ij,2) = -999.
+		 outt(24,ij,2) = (STAND_tot(24) - W_branch) * pHarvTrees
+		 outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
+		 outt(26:29,ij,2) = -999.
+		 outt(30,ij,2) = max((STAND_tot(30) - V) * pHarvTrees,0.)
+		 VmortDist(ij) = stand(42) + max((STAND_tot(30) - V) * (1-pHarvTrees),0.)
+		 outt(31,ij,2) = max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
+		 outt(32,ij,2) = max((STAND_tot(32) - W_croot) * pHarvTrees,0.)
+		 outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
+		 outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
+		 outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
+	if(flagInitWithThin) then
+		 flagInitWithThin = .false.
 	endif
-	if(thinning(countThinning,6) < 1. .and. thinning(countThinning,6) > 0.) then
-	 thinning(countThinning,6) = BA * thinning(countThinning,6)
+		stand(11) = H
+		stand(12) = D
+		stand(13) = BA
+		stand(16) = A
+		stand(14) = Hc	
+		stand(17) = N
+		stand(26) = S_fol
+		stand(27) = S_fr
+		stand(28) = S_branch
+		stand(29) = S_wood
+		stand(24) = W_branch
+		stand(25) = W_froot
+		stand(30) = V  !
+		stand(31) = W_stem
+		stand(32) = W_croot
+		stand(33) = wf_STKG
+		stand(34) = wf_treeKG
+		stand(35) = B
+		stand(47) = W_wsap
+		stand(48) = W_c
+		stand(49) = W_s
+		stand(53) = W_bh
+		stand(54) = W_crh
+		stand(50) = Wsh
+		stand(51) = Wdb
+		endif
 	endif
-	if(thinning(countThinning,7) < 2. .and. thinning(countThinning,7) > 0.) then
-	 thinning(countThinning,7) = Hc * thinning(countThinning,7)
-	endif
-     endif
-     if (thinning(countThinning,4) /= -999.) H = thinning(countThinning,4)
-     if (thinning(countThinning,7) /= -999.) stand(14) = thinning(countThinning,7)
-     if (thinning(countThinning,5) /= -999.) D = thinning(countThinning,5)
-     BA = thinning(countThinning,6)
-	 Hc=stand(14)
-     Lc = H - Hc !Lc
-     rc = Lc / (H-1.3) !crown ratio
-     Nold = N
-	 wf_STKG_old = wf_STKG
-     W_stem_old = W_stem
-     N = BA/(pi*((D/2./100.)**2.)) ! N
-     Nthd = max(0.,(Nold-N)) ! number of cutted trees
-     B = BA/N!(pi*((D/2/100)**2))
-	 if (thinning(countThinning,10) /= -999.) then
-	   A = thinning(countThinning,10)
-	 else
-	   A = stand(16) * B/stand(35)
-	 endif
-     ! Update dependent variables
-	 hb = par_betab * Lc**par_x
-	 gammaC = par_cR/stand(36)
-	 par_rhof = par_rhof1 * ETS + par_rhof2
- 	 par_rhor = par_alfar * par_rhof
-     betab = hb/Lc
-	 age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
-     beta0 = par_beta0 * age_factor
-     beta1 = (beta0 + betab + par_betas) !!newX
-     beta2 = 1. - betab - par_betas 		!!newX
-	 betaC = (beta1 + gammaC * beta2) / par_betas
-	 
-	 !!!reinitialize the stand and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
-     if(Nold==0.) then
-		flagInitWithThin = .true.
-		Nold = N
-		Wdb = 0.
-		A = par_ksi/par_rhof * Lc**par_z
-		stand(7) = Ainit
-	 endif
-	 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
-		
-		if(isnan(stand(50))) stand(50) = 0
-		if(isnan(stand(53))) stand(53) = 0
-		if(isnan(stand(54))) stand(54) = 0
-	    W_bh = stand(53)
-		W_crh = stand(54)
-		wf_treeKG = max(par_rhof * A,0.)
-		wf_STKG = max(N * wf_treeKG,0.)
-		W_froot = max(par_rhor * A * N,0.)  !!to check  !!newX
-		W_wsap = max(par_rhow * A * N * (beta1 * H + beta2 * Hc),0.) !!newX
-		W_c = max(par_rhow * A * N * Hc,0.) !sapwood stem below Crown
-		W_s = max(par_rhow * A * N * par_betas * Lc,0.) !sapwood stem within crown
-		W_bs =  max(par_rhow * A * N * betab * Lc,0.) !branches biomass
-        W_crs = max(par_rhow * beta0 * A * H * N,0.) !W_stem * (beta0 - 1.)	!coarse root biomass
-		! Wsh = Wsh + par_z * gammaC * W_c/Lc * dH + theta*(W_c + W_s)
-		Wsh = max(stand(50) * N/Nold,0.) !!this is not proportional to the size of the standing trees
-		W_stem = max(W_c + W_s + Wsh,0.)
-		W_crh = max(W_crh * N/Nold,0.)
-		W_bh = max(W_bh * N/Nold,0.)
-		V = max(W_stem / par_rhow,0.)
-		W_croot = max(W_crs + W_crh,0.)
-		W_branch = max(W_bs + W_bh,0.)
-		Wdb = max(Wdb * N/Nold,0.)
-!! calculate litter including residuals from thinned trees
-!energyCut
-pHarvTrees = thinning(countThinning,11)
-S_fol = max(0.,stand(26) + stand(33) - wf_STKG)
-S_fr = max(0.,stand(27) + stand(25) - W_froot)
-
-hW_branch = max(0.,(stand(24) - W_branch)* pHarvTrees)
-hW_croot = max(0.,(stand(32) - W_croot)* pHarvTrees)
-hW_stem = max(0.,(stand(31) - W_stem)* pHarvTrees)
-hWdb = max(0.,(stand(51) - Wdb)* pHarvTrees)
-remhW_branch = max(0.,(stand(24) - W_branch) * (1.-pHarvTrees))
-remhW_croot = max(0.,(stand(32) - W_croot) * (1.-pHarvTrees))
-remhW_stem = max(0.,(stand(31) - W_stem) * (1.-pHarvTrees))
-remhWdb = max(0.,(stand(51) - Wdb) * (1.-pHarvTrees))
-
-if(energyCut==1.) then
-species = int(max(1.,stand(4)))
-
-energyWood(year,ij,2) = max(0.,(hW_branch + hW_croot*0.3 + &
-                                  (hW_stem) * (1-harvRatio)) * energyRatio)
-if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) / pCrobas(2,species))
-S_branch = max(0.,stand(28) + hW_branch * (1-energyRatio) + hWdb +&
-                 (0.3 * (1-energyRatio)+0.7) * hW_croot * 0.83 + &
-                 hW_stem * (1-harvRatio) * (1-energyRatio))
-S_wood = max(0.,stand(29) +(0.3 * (1-energyRatio)+0.7) * (stand(32) - W_croot) *0.17)
-else
-  S_branch = max(0.,stand(28)+hW_branch+hWdb+hW_croot*0.83 + &
-                   hW_stem * (1-harvRatio))
-  S_wood = max(0.,stand(29)  + hW_croot*0.17)
-endif
-
-!!! if part of the thinned trees is not harvested (e.g.,residues from disturbances) litterfall is updated
-if(pHarvTrees < 1.) then
-S_branch = S_branch + remhW_branch + remhW_croot * 0.83 + remhWdb
-S_wood = S_wood + remhW_croot*0.17 + remhW_stem
-endif
-
-
-     outt(11,ij,2) = STAND_tot(11)
-     outt(12,ij,2) = STAND_tot(12)
-     outt(13,ij,2) = (STAND_tot(13) - BA) * pHarvTrees
-     outt(14,ij,2) = STAND_tot(14)
-     outt(15,ij,2) = STAND_tot(15)
-     outt(16,ij,2) = STAND_tot(16)
-     outt(17,ij,2) = (Nthd) * pHarvTrees
-     outt(18:23,ij,2) = -999.
-     outt(24,ij,2) = (STAND_tot(24) - W_branch) * pHarvTrees
-     outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
-     outt(26:29,ij,2) = -999.
-     outt(30,ij,2) = max((STAND_tot(30) - V) * pHarvTrees,0.)
-	 VmortDist(ij) = stand(42) + max((STAND_tot(30) - V) * (1-pHarvTrees),0.)
-	 outt(31,ij,2) = max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
-     outt(32,ij,2) = max((STAND_tot(32) - W_croot) * pHarvTrees,0.)
-     outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
-     outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
-     outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
-if(flagInitWithThin) then
-	 flagInitWithThin = .false.
-endif
-    stand(11) = H
-    stand(12) = D
-    stand(13) = BA
-    stand(16) = A
-	stand(14) = Hc	
-    stand(17) = N
-    stand(26) = S_fol
-    stand(27) = S_fr
-    stand(28) = S_branch
-    stand(29) = S_wood
-    stand(24) = W_branch
-    stand(25) = W_froot
-    stand(30) = V  !
-    stand(31) = W_stem
-    stand(32) = W_croot
-    stand(33) = wf_STKG
-    stand(34) = wf_treeKG
-    stand(35) = B
-	stand(47) = W_wsap
-	stand(48) = W_c
-	stand(49) = W_s
-	stand(53) = W_bh
-	stand(54) = W_crh
-	stand(50) = Wsh
-	stand(51) = Wdb
-    endif
-
 	countThinning = countThinning + 1
 
    End If
