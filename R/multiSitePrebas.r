@@ -278,6 +278,7 @@ InitMultiSite <- function(nYearsMS,
         p_z <- pCROBAS[11,multiInitVar[not0,1,ikj]]
         Lc <- multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj]
         A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
+        B_tree <- pi*(multiInitVar[not0,4,ikj]/200)^2
         A2 <- (multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj])/
           (multiInitVar[not0,3,ikj]-1.3) * B_tree
         multiInitVar[not0,7,ikj] <- pmin(A,A2)     
