@@ -250,7 +250,11 @@ InitMultiSite <- function(nYearsMS,
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
       Lc <- multiInitVar[,3,ikj] - multiInitVar[,6,ikj]
       A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
-      multiInitVar[,7,ikj] <- A     
+      B_tree <- pi*(multiInitVar[,4,ikj]/200)^2
+      A2 <- (multiInitVar[,3,ikj] - multiInitVar[,6,ikj])/
+        (multiInitVar[,3,ikj]-1.3) * B_tree
+      multiInitVar[,7,ikj] <- pmin(A,A2)     
+      
     } 
     multiInitVar[which(is.na(multiInitVar))] <- 0.
   }else{
@@ -274,7 +278,9 @@ InitMultiSite <- function(nYearsMS,
         p_z <- pCROBAS[11,multiInitVar[not0,1,ikj]]
         Lc <- multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj]
         A <- as.numeric(p_ksi/p_rhof * Lc^p_z)
-        multiInitVar[not0,7,ikj] <- A     
+        A2 <- (multiInitVar[not0,3,ikj] - multiInitVar[not0,6,ikj])/
+          (multiInitVar[not0,3,ikj]-1.3) * B_tree
+        multiInitVar[not0,7,ikj] <- pmin(A,A2)     
       } 
     }
     LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
