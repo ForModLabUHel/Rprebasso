@@ -995,10 +995,21 @@ endif
 		 thinning(countThinning,7) = Hc * thinning(countThinning,7)
 		endif
 		 endif
+		 
+		 !!!check if ingrowth and calculate the number of trees
+		 if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then 
+		  if(fAPARtrees<0.7) then 
+			BA = pi*((0.5/200)**2)*(1.5d0/fAPARtrees)
+		  else
+			BA = 0.d0
+		  endif	
+		 else
+		  BA = thinning(countThinning,6)
+		 endif
+		 
 		 if (thinning(countThinning,4) /= -999.) H = thinning(countThinning,4)
 		 if (thinning(countThinning,7) /= -999.) stand(14) = thinning(countThinning,7)
 		 if (thinning(countThinning,5) /= -999.) D = thinning(countThinning,5)
-		 BA = thinning(countThinning,6)
 		 Hc=stand(14)
 		 Lc = H - Hc !Lc
 		 rc = Lc / (H-1.3) !crown ratio

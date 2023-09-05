@@ -124,7 +124,7 @@ InitMultiSite <- function(nYearsMS,
   }
   if(ingrowth){
     ingrowthStep <- 10
-    nTreeIngrowth <- 10
+    # nTreeIngrowth <- 10
     nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
     siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers
   }else{
@@ -265,7 +265,7 @@ InitMultiSite <- function(nYearsMS,
     thinX[,,4] <- initSeedling.def[1]
     thinX[,,5] <- initSeedling.def[2]
     thinX[,,7] <- initSeedling.def[4]
-    thinX[,,6] <- nTreeIngrowth*(pi*((initSeedling.def[2]/2/100)^2))
+    thinX[,,6] <- -777#nTreeIngrowth*(pi*((initSeedling.def[2]/2/100)^2))
     
     if(!all(is.na(multiThin))){
       multiThin <- abind(multiThin,thinX,along=2)
