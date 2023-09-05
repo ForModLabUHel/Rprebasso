@@ -100,8 +100,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         alpharNcalc=FALSE,
                         p0currClim = NA,
                         TcurrClim = NA,
-                        PcurrClim = NA,
-                        ingrowth = FALSE
+                        PcurrClim = NA
                         ) {
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -220,8 +219,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     alpharNcalc=alpharNcalc,
     p0currClim = p0currClim,
     TcurrClim = TcurrClim,
-    PcurrClim = PcurrClim,
-    ingrowth = ingrowth
+    PcurrClim = PcurrClim
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
   TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
