@@ -391,7 +391,7 @@ InitMultiSite <- function(nYearsMS,
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
     fTratio <- fT/fT0 
-    alpharNfact <- p0ratio * fTratio
+    alpharNfact <- p0ratio / fTratio
     
     for(ijj in 1:nClimID){
       # siteXs <- which(siteInfo[,2] == ijj)
