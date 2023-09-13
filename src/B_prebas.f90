@@ -1079,9 +1079,9 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
 	outt(24,ij,2) = (STAND_tot(24) - W_branch) * pHarvTrees
 	outt(25,ij,2) = (STAND_tot(25) - W_froot) * pHarvTrees
 	outt(26:29,ij,2) = -999.
-	outt(30,ij,2) = max((STAND_tot(30) - V) * pHarvTrees,0.)
+	outt(30,ij,2) = outt(30,ij,2) + max((STAND_tot(30) - V) * pHarvTrees,0.)
 	VmortDist(ij) = stand(42) + max((STAND_tot(30) - V) * (1-pHarvTrees),0.)
-    outt(31,ij,2) = max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
+	outt(31,ij,2) = outt(31,ij,2) + max((STAND_tot(31) - W_stem) * pHarvTrees,0.)
     outt(32,ij,2) = max((STAND_tot(32) - W_croot) * pHarvTrees,0.)
     outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
     outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
@@ -1177,7 +1177,10 @@ if (ClCut == 1.) then
 
   !!!implement clearcut by layer (start) (not for old layer in oldLayer sceario)
    do ij = 1, ll
-    outt(6:nVar,ij,2) = stand_all(6:nVar,ij)
+    outt(/9,10,13,16,17,18,24,25,30,31,32,33/,ij,2) = outt(/9,10,13,16,17,18,24,25,30,31,32,33/,ij,2) + &
+			stand_all(/9,10,13,16,17,18,24,25,30,31,32,33/,ij)
+	outt(/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/,ij,2) = &
+		stand_all(/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/,ij)
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1492,23 +1495,23 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
   !energyCut
 	
 	
-    outt(11,ij,2) = STAND_tot(11)
-    outt(12,ij,2) = STAND_tot(12)
-    outt(13,ij,2) = STAND_tot(13) - BA
-    outt(14,ij,2) = STAND_tot(14)
-    outt(15,ij,2) = STAND_tot(15)
-    outt(16,ij,2) = STAND_tot(16)
-    outt(17,ij,2) = Nthd
-    outt(18:23,ij,2) = -999.
-    outt(24,ij,2) = STAND_tot(24) - W_branch
-    outt(25,ij,2) = STAND_tot(25) - W_froot
-    outt(26:29,ij,2) = -999.
-    outt(30,ij,2) = STAND_tot(30) - V
-    outt(31,ij,2) = STAND_tot(31) - W_stem
-    outt(32,ij,2) = Nthd * W_croot/N
-    outt(33,ij,2) = STAND_tot(33) - wf_STKG
-    outt(34,ij,2) = outt(33,ij,2)/Nthd
-    outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
+	outt(11,ij,2) = STAND_tot(11)
+	outt(12,ij,2) = STAND_tot(12)
+	outt(13,ij,2) = outt(13,ij,2) + STAND_tot(13) - BA
+	outt(14,ij,2) = STAND_tot(14)
+	outt(15,ij,2) = STAND_tot(15)
+	outt(16,ij,2) = outt(16,ij,2) + STAND_tot(16)
+	outt(17,ij,2) = outt(17,ij,2) + Nthd
+	outt(18:23,ij,2) = -999.
+	outt(24,ij,2) = outt(24,ij,2) + STAND_tot(24) - W_branch
+	outt(25,ij,2) = outt(25,ij,2) + STAND_tot(25) - W_froot
+	outt(26:29,ij,2) = -999.
+	outt(30,ij,2) = outt(30,ij,2) + STAND_tot(30) - V
+	outt(31,ij,2) = outt(31,ij,2) + STAND_tot(31) - W_stem
+	outt(32,ij,2) = Nthd * W_croot/N
+	outt(33,ij,2) = STAND_tot(33) - wf_STKG
+	outt(34,ij,2) = outt(33,ij,2)/Nthd
+	outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
 
     stand_all(11,ij) = H
     stand_all(12,ij) = D
