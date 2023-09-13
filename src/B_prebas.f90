@@ -1124,6 +1124,8 @@ endif
 		 outt(33,ij,2) = max((STAND_tot(33) - wf_STKG) * pHarvTrees,0.)
 		 outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
 		 outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
+ write(1,*) outt(30,ij,2), "volume harvested by dist"
+
 	if(flagInitWithThin) then
 		 flagInitWithThin = .false.
 	endif
@@ -1218,10 +1220,14 @@ if (ClCut == 1.) then
 
   !!!implement clearcut by layer (start) (not for old layer in oldLayer sceario)
    do ij = 1, ll
+   
+   write(1,*) outt(30,ij,2), "volume harvested by clearcut before"
+
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
 										stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
 	outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/),ij,2) = &
 		stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/),ij)
+	write(1,*) outt(30,ij,2), "volume harvested by clearcut after"
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1536,7 +1542,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	endif
   !energyCut
 	
-	
+	write(1,*) outt(30,ij,2), "volume harvested by thinning before"
+
     outt(11,ij,2) = STAND_tot(11)
     outt(12,ij,2) = STAND_tot(12)
     outt(13,ij,2) = outt(13,ij,2) + STAND_tot(13) - BA
@@ -1554,6 +1561,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
     outt(33,ij,2) = STAND_tot(33) - wf_STKG
     outt(34,ij,2) = outt(33,ij,2)/Nthd
     outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
+
+write(1,*) outt(30,ij,2), "volume harvested by thinning after"
 
     stand_all(11,ij) = H
     stand_all(12,ij) = D

@@ -79,7 +79,7 @@ ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
 
-    ! open(1,file="test1.txt")
+    open(1,file="test1.txt")
     ! open(2,file="test2.txt")
     ! open(3,file="test3.txt")
 
@@ -943,7 +943,7 @@ soilCinOut = soilC
 soilCtotInOut = soilCtot
     ! open(1,file="test1.txt")
 	! write(1,*) i,ij,ijj,nSites, "end"
-	! close(1)
+	close(1)
 
 end subroutine
 
