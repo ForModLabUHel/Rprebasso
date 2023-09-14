@@ -187,7 +187,7 @@ ETSmean = ETSstart !initialise ETSmean using the starting value
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
-
+VmortDist=0.
 !!!update ETSmean using actual year data
 ETS = modOut(year,5,1,1)
 ETSmean = ETSmean + (ETS-ETSmean)/20.
