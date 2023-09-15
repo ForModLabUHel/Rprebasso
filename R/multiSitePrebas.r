@@ -340,17 +340,19 @@ InitMultiSite <- function(nYearsMS,
       } 
     }
     LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
-    if(any(LcCheck<0.)){
+    if(any(LcCheck<0) | any(is.na(LcCheck))){
       if(is.null(dim(LcCheck))){
-        siteXss <- which(LcCheck<0)
+        siteXss <- which(LcCheck<0 | is.na(LcCheck))
+        print(multiInitVar[siteXss,6,])
         multiInitVar[siteXss,6,] <- 0.1
       }else{
-        negLayers <- which(LcCheck<0,arr.ind = T)
+        negLayers <- which(LcCheck<0 | is.na(LcCheck),arr.ind = T)
         siteXss <- unique(negLayers[,1])
-        multiInitVar[,6,][negLayers]<- 0.1
+        print(multiInitVar[siteXss,6,][negLayers])
+        multiInitVar[siteXss,6,][negLayers]<- 0.1
       }
       warning("check, some Lc is negative it was replaced by 0.1.")
-      print("Sites where Hc was negative:")
+      print("Sites where Hc was negative or NaN:")
       print(siteXss)
     } 
 
@@ -383,7 +385,11 @@ InitMultiSite <- function(nYearsMS,
   }
   multiInitVar <- abind(multiInitVar,array(0,dim=c(nSites,7,nIngrowthLayers)),along=3)
   
-  multiInitVar[,6:7,][which(is.na(multiInitVar[,6:7,]))] <- 0
+  multiInitVar[,7,][which(is.na(multiInitVar[,7,]))] <- 0.
+  multiInitVar[,7,][which(multiInitVar[,7,]<=0)] <-
+    multiInitVar[,4,][which(multiInitVar[,7,]<=0)] * 0.0004681612/0.5
+  
+  
   if(length(fixBAinitClearcut)==1) fixBAinitClearcut=rep(fixBAinitClearcut,nSites)
   
   if(all(is.na(initCLcutRatio))){
