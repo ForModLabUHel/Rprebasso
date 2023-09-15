@@ -2205,3 +2205,95 @@ else
 endif
 
 endsubroutine
+
+
+
+
+!  function to calculate fAPAR of ground vegetation and report GVoutputs splitted by vegetation type (grass&herbs, srhubs, mosses&lichens)
+!***************************************************************
+  ! subroutine fAPARgv(fAPARstand,ets,siteType,agW,bgW,fAPAR_gv,litAG,litBG)
+subroutine fAPARgvByVtypes(inputs, output) !reduced input output	
+implicit none
+real (kind=8) :: output(13) !fAPAR(3), Lit_ab(3),Lit_bg(2),W_ab(3),W_bg(2)
+real (kind=8) :: inputs(3) !fAPARstand,ets,siteType
+real (kind=8) :: fAPARstand,ets,siteType, litAG(3), litBG(2)
+real (kind=8) :: totfAPAR_gv,totlitGV,totWGV
+real (kind=8) :: bgW(2),agW(3), xx(3),lai_gv(3),fAPAR_gv(3)!x_g, x_s, x_m !%cover grass&herbs, shrubs and mosses&lichens
+real (kind=8) :: b_g,a_g,a_s,a_m,b_m,alpha_ag(3),beta_ag(3),alpha_bg(2),beta_bg(2),laB(3)
+real (kind=8) :: turnAG(3),turnBG(2),p0ref
+real (kind=8) :: AWENs(4), AWENsh(4), AWENghAG(4), AWENml(4), AWENghBG(4)
+
+
+fAPARstand = inputs(1)
+ets = inputs(2)
+siteType = inputs(3)
+p0ref=1400.0
+!!!set parameters %cover
+if(siteType == 1.) then
+a_g = 0.4; a_s = 0.1; a_m = 0.1; b_m = 0.3; b_g = 0.4
+elseif(siteType == 2.) then
+a_g = 0.3; a_s = 0.3; a_m = 0.1; b_m = 0.4; b_g = 0.3
+elseif(siteType == 3.) then
+a_g = 0.3; a_s = 0.55; a_m = 0.3; b_m = 0.6; b_g = 0.1
+elseif(siteType == 4.) then
+a_g = 0.1; a_s = 0.65; a_m = 0.6; b_m = 0.8; b_g = 0.05
+elseif(siteType >4.5) then
+a_g = 0.05; a_s = 0.7; a_m = 0.6; b_m = 0.8; b_g = 0.
+endif
+
+alpha_ag = (/3152.4,1390.1,1637.1/)
+beta_ag = (/1.107,0.9496,0.8289/)
+alpha_bg = (/5016.0,1278.3/)
+beta_bg = (/0.831,0.6628/)
+if(ets<700.) then
+alpha_ag(1) = 3627.1
+beta_ag(1) = 0.948
+alpha_bg(1) = 5587.7
+beta_bg(1) = 0.45
+endif
+
+laB = (/6.,7.,1./)
+turnAG = (/0.37,0.54,0.2/) !!!turnovers above ground srbs,g&h, m&l
+turnBG = (/0.08,0.59/) !!!turnovers below ground srbs,g&h, m&l
+
+AWENsh = (/0.557,0.225264,0.086736,0.131/) !!!!Awen parameters for shrubs
+AWENghAG = (/0.273,0.427518,0.274482,0.025/) !!!!Awen parameters for grass&herbs aboveground
+AWENghBG = (/0.273,0.506844,0.195156,0.025/) !!!!Awen parameters for grass&herbs belowground
+AWENml = (/0.786,0.088445,0.034055,0.0915/) !!!!Awen parameters for lichens and mosses
+
+!% cover calculations
+! if(fAPARstand==0.) then
+! fAPARstand = 0.04
+! endif
+xx(1) = a_s * (fAPARstand+0.2) * (log((1.04)/(fAPARstand+0.04))) **0.5 !!1.04 0.04 is to avoid division by 0 and to make the argument of log 1 at fAPAR=1
+xx(2) = a_g * (1-fAPARstand) + b_g
+xx(3) = a_m * (1-fAPARstand) + b_m * fAPARstand
+
+!! calculate biomasses
+! agW = P0/p0ref * alpha_ag * xx ** (beta_ag)*0.5
+! bgW = P0/p0ref * alpha_bg * xx(1:2) ** (beta_bg)*0.5  !!!!0.5 converts DW to carbon
+agW = alpha_ag * xx ** (beta_ag)*0.5
+bgW = alpha_bg * xx(1:2) ** (beta_bg)*0.5  !!!!0.5 converts DW to carbon
+
+!! calculate litterfal
+litAG = agW * turnAG
+litBG = bgW * turnBG
+!! calculate AWEN
+AWENs =  litAG(1) * AWENsh + litAG(2)*AWENghAG + litAG(3) * AWENml + &
+  litBG(1)*AWENsh + litBG(2) *AWENghBG
+
+! !calculate LAI
+lai_gv = agW * laB / (10000 * 0.5)   !!!!0.5 converts SLA (m2/kg DW) to (m2/kg C) 
+
+fAPAR_gv(1) = (1-fAPARstand) * (1-exp(-0.5*(lai_gv(1))))
+fAPAR_gv(2) = (1-fAPARstand-fAPAR_gv(1)) * (1-exp(-0.5*(lai_gv(2))))
+fAPAR_gv(3) = (1-fAPARstand-fAPAR_gv(1)-fAPAR_gv(2)) * (1-exp(-0.5*(lai_gv(3))))
+output(1:3) = fAPAR_gv
+output(4:6) = litAG
+output(7:8) = litBG
+output(9:11) = agW
+output(12:13) = bgW
+
+
+end subroutine fAPARgvByVtypes
+
