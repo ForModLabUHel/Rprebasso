@@ -340,7 +340,19 @@ InitMultiSite <- function(nYearsMS,
       } 
     }
     LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
-    if(any(LcCheck<0.)) return("check, some Lc is negative")
+    if(any(LcCheck<0.)){
+      if(is.null(dim(LcCheck))){
+        siteXss <- which(LcCheck<0)
+        multiInitVar[siteXss,6,] <- 0.1
+      }else{
+        negLayers <- which(LcCheck<0,arr.ind = T)
+        siteXss <- unique(negLayers[,1])
+        multiInitVar[,6,][negLayers]<- 0.1
+      }
+      warning("check, some Lc is negative it was replaced by 0.1.")
+      print("Sites where Hc was negative:")
+      print(siteXss)
+    } 
 
     # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
     #  p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
