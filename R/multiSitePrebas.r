@@ -285,36 +285,27 @@ InitMultiSite <- function(nYearsMS,
       } 
     }
     LcCheck <- multiInitVar[,3,] - multiInitVar[,6,]
-    if(any(LcCheck<0.)) return("check, some Lc is negative")
-    # p_ksi = matrix(pCROBAS[38,multiInitVar[,1,]],nSites,maxNlayers)
-    #  p_rhof <- matrix(pCROBAS[15,multiInitVar[,1,]],nSites,maxNlayers)
-    #  p_z <- matrix(pCROBAS[11,multiInitVar[,1,]],nSites,maxNlayers)
-    #  Lc <- multiInitVar[,3,] - multiInitVar[,6,]
-    #  A <- p_ksi/p_rhof * Lc^p_z
-    #  multiInitVar[,7,] <- A      # p_ksi=pCROBAS[38,multiInitVar[,1,]]
-    # p_rhof <- pCROBAS[15,multiInitVar[,1,]]
-    # p_z <- pCROBAS[11,multiInitVar[,1,]]
-    # Lc <- multiInitVar[,3,] - multiInitVar[,6,]
-    # A <- p_ksi/p_rhof * Lc^p_z
-    # multiInitVar[,7,] <- A
-    # N = multiInitVar[,5,]/(pi*((multiInitVar[,4,]/2/100)**2))
-    # B = multiInitVar[,5,]/N
-    # Lc = multiInitVar[,3,] - multiInitVar[,6,]
-    # rc = Lc / (multiInitVar[,3,]-1.3) 
-    # multiInitVar[,7,] = rc * B
-    # multiInitVar[which(is.na(multiInitVar))] <- 0.
-    # ops <- which(multiInitVar[,6,]<1.3 & multiInitVar[,3,]>0.,arr.ind = T)
-    # if(length(ops)>0.){
-    # p_ksi=pCROBAS[38,multiInitVar[,1,][ops]]
-    # p_rhof <- pCROBAS[15,multiInitVar[,1,][ops]]
-    # p_z <- pCROBAS[11,multiInitVar[,1,][ops]]
-    # Lc <- multiInitVar[,3,][ops] - multiInitVar[,6,][ops]
-    # A <- p_ksi/p_rhof * Lc^p_z
-    # multiInitVar[,7,][ops] <- A
-    # }
+    if(any(LcCheck<0) | any(is.na(LcCheck))){
+      if(is.null(dim(LcCheck))){
+        siteXss <- which(LcCheck<0 | is.na(LcCheck))
+        print(multiInitVar[siteXss,6,])
+        multiInitVar[siteXss,6,] <- 0.1
+      }else{
+        negLayers <- which(LcCheck<0 | is.na(LcCheck),arr.ind = T)
+        siteXss <- unique(negLayers[,1])
+        print(multiInitVar[siteXss,6,][negLayers])
+        multiInitVar[siteXss,6,][negLayers]<- 0.1
+      }
+      warning("check, some Lc is negative it was replaced by 0.1.")
+      print("Sites where Hc was negative or NaN:")
+      print(siteXss)
+    } 
   }
   
-  multiInitVar[,6:7,][which(is.na(multiInitVar[,6:7,]))] <- 0
+  multiInitVar[,7,][which(is.na(multiInitVar[,7,]))] <- 0.
+  multiInitVar[,7,][which(multiInitVar[,7,]<=0)] <-
+    multiInitVar[,4,][which(multiInitVar[,7,]<=0)] * 0.0004681612/0.5
+  
   if(length(fixBAinitClearcut)==1) fixBAinitClearcut=rep(fixBAinitClearcut,nSites)
   
   if(all(is.na(initCLcutRatio))){
