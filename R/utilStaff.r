@@ -794,37 +794,73 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   ###modOut is a PREBAS run (muöltisite or region) it needs to be adapted to single site runs
   ####GPP and NPP are calculated based on fAPAR and biomass ratios respectively
   GVmodByVegType <- function(modOut){
-    nYears <- modOut$maxYears
-    fAPAR <- modOut$fAPAR
-    ets <- modOut$ETSy
-    siteTypeX <- modOut$multiOut[,,3,1,1]
-    GVout <- array(NA,dim=c(19,modOut$nSites,nYears))
-    
-    inputs <- abind(fAPAR,ets,siteTypeX,along=3)
-    
-    GVout[1:13,,] <- apply(inputs,1:2,GVbyVtypes)
-    
-    oo <- apply(GVout[1:3,,],2:3,sum)
-    fAPARratio <- sweep(GVout[1:3,,],2:3,apply(GVout[1:3,,],2:3,sum),FUN="/")
-    GVgpp <-  sweep(fAPARratio,2:3,modOut$GVout[,,3],FUN="*") 
-    
-    Wtot <- GVout[9:11,,]  ##above ground
-    Wtot[1:2,,] <- Wtot[1:2,,] + GVout[12:13,,]     ##add belowground 
-    Wratio <- sweep(Wtot,2:3,apply(Wtot,2:3,sum),FUN="/")
-    GVnpp <-  sweep(Wratio,2:3,modOut$GVout[,,5],FUN="*") 
-    
-    GVout[14:16,,] <- GVgpp
-    GVout[17:19,,] <- GVnpp
-    
-    namesX <- c(paste0("fAPAR_",c("gra&her", "srhb", "mos&lic")),
-                paste0("liag_",c("gra&her", "srhb", "mos&lic")),
-                paste0("litbg_",c("gra&her", "srhb")),
-                paste0("Wag_",c("gra&her", "srhb", "mos&lic")),
-                paste0("Wbg_",c("gra&her", "srhb")),
-                paste0("GPP_",c("gra&her", "srhb", "mos&lic")),
-                paste0("NPP_",c("gra&her", "srhb", "mos&lic"))
-    )
-    dimnames(GVout) <- list(GVmod= namesX,sites=NULL,years=NULL)
-    return(GVout)
+    if(class(modOut)!="prebas"){
+      
+      nYears <- modOut$maxYears
+      fAPAR <- modOut$fAPAR
+      ets <- modOut$ETSy
+      siteTypeX <- modOut$multiOut[,,3,1,1]
+      GVout <- array(NA,dim=c(19,modOut$nSites,nYears))
+      
+      inputs <- abind(fAPAR,ets,siteTypeX,along=3)
+      
+      GVout[1:13,,] <- apply(inputs,1:2,GVbyVtypes)
+      
+      oo <- apply(GVout[1:3,,],2:3,sum)
+      fAPARratio <- sweep(GVout[1:3,,],2:3,apply(GVout[1:3,,],2:3,sum),FUN="/")
+      GVgpp <-  sweep(fAPARratio,2:3,modOut$GVout[,,3],FUN="*") 
+      
+      Wtot <- GVout[9:11,,]  ##above ground
+      Wtot[1:2,,] <- Wtot[1:2,,] + GVout[12:13,,]     ##add belowground 
+      Wratio <- sweep(Wtot,2:3,apply(Wtot,2:3,sum),FUN="/")
+      GVnpp <-  sweep(Wratio,2:3,modOut$GVout[,,5],FUN="*") 
+      
+      GVout[14:16,,] <- GVgpp
+      GVout[17:19,,] <- GVnpp
+      
+      namesX <- c(paste0("fAPAR_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("liag_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("litbg_",c("gra&her", "srhb")),
+                  paste0("Wag_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("Wbg_",c("gra&her", "srhb")),
+                  paste0("GPP_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("NPP_",c("gra&her", "srhb", "mos&lic"))
+      )
+      dimnames(GVout) <- list(GVmod= namesX,sites=NULL,years=NULL)
+      return(GVout)
+    }else{
+      nYears <- modOut$nYears
+      fAPAR <- modOut$fAPAR
+      ets <- modOut$ETS
+      siteTypeX <- modOut$output[,3,1,1]
+      GVout <- array(NA,dim=c(19,nYears))
+      
+      inputs <- abind(fAPAR,ets,siteTypeX,along=2)
+      
+      GVout[1:13,] <- apply(inputs,1,GVbyVtypes)
+      
+      oo <- apply(GVout[1:3,],2,sum)
+      fAPARratio <- sweep(GVout[1:3,],2,apply(GVout[1:3,],2,sum),FUN="/")
+      GVgpp <-  sweep(fAPARratio,2,modOut$GVout[,3],FUN="*") 
+      
+      Wtot <- GVout[9:11,]  ##above ground
+      Wtot[1:2,] <- Wtot[1:2,] + GVout[12:13,]     ##add belowground 
+      Wratio <- sweep(Wtot,2,apply(Wtot,2,sum),FUN="/")
+      GVnpp <-  sweep(Wratio,2,modOut$GVout[,5],FUN="*") 
+      
+      GVout[14:16,] <- GVgpp
+      GVout[17:19,] <- GVnpp
+      
+      namesX <- c(paste0("fAPAR_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("liag_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("litbg_",c("gra&her", "srhb")),
+                  paste0("Wag_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("Wbg_",c("gra&her", "srhb")),
+                  paste0("GPP_",c("gra&her", "srhb", "mos&lic")),
+                  paste0("NPP_",c("gra&her", "srhb", "mos&lic"))
+      )
+      dimnames(GVout) <- list(GVmod= namesX,years=NULL)
+      return(GVout)
+    }
   }
   
