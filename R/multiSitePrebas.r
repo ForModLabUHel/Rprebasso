@@ -347,9 +347,11 @@ InitMultiSite <- function(nYearsMS,
         multiInitVar[siteXss,6,] <- 0.1
       }else{
         negLayers <- which(LcCheck<0 | is.na(LcCheck),arr.ind = T)
-        siteXss <- unique(negLayers[,1])
-        print(multiInitVar[siteXss,6,][negLayers])
-        multiInitVar[siteXss,6,][negLayers]<- 0.1
+        if(length(negLayers)>0){
+          siteXss <- unique(negLayers[,1])
+          print(multiInitVar[siteXss,6,][negLayers])
+          multiInitVar[siteXss,6,][negLayers]<- 0.1
+        }
       }
       warning("check, some Lc is negative it was replaced by 0.1.")
       print("Sites where Hc was negative or NaN:")
