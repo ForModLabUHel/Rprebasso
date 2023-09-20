@@ -488,6 +488,7 @@ if(alpharNcalc){
   fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
   fTratio <- fT/fT0 
   alpharNfact <- p0ratio / fTratio
+  alpharNfact[which(is.na(alpharNfact))] <- 0
   for(ijj in 1:nClimID){
       # siteXs <- which(siteInfo[,2] == ijj)
       siteXs <- which(siteInfo[,2]==ijj)
