@@ -535,16 +535,16 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   baWmean <- function(modOut,varX){
     ###calculates basal area weighted mean for single site runs
     if(class(modOut)=="prebas"){
-      weightXs <- as.matrix(apply(modOut$output[,13,,1],1,FUN=function(vec)vec/sum(vec)))
+      weightXs <- as.matrix(apply(modOut$output[,13,,1],1,FUN=function(vec)vec/sum(vec,na.rm=T)))
       weightXs <- t(weightXs)
       weightXs[which(is.na(weightXs))] <- 0.
       weigthedMean <- rowSums(modOut$output[,varX,,1]*weightXs)
     }else{
       ###calculates basal area weighted mean for multi site runs
-      weightXs <- apply(modOut$multiOut[,,13,,1],1:2,FUN=function(vec)vec/sum(vec))
+      weightXs <- apply(modOut$multiOut[,,13,,1],1:2,FUN=function(vec)vec/sum(vec,na.rm=T))
       weightXs <- aperm(weightXs,c(2:3,1))
       weightXs[which(is.na(weightXs))] <- 0.
-      weigthedMean <- apply(modOut$multiOut[,,varX,,1]*weightXs,1:2,sum)
+      weigthedMean <- apply(modOut$multiOut[,,varX,,1]*weightXs,1:2,sum,na.rm=T)
     }
     return(weigthedMean)
   }
