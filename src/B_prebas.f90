@@ -1135,6 +1135,7 @@ endif
 	if(flagInitWithThin) then
 		 flagInitWithThin = .false.
 	endif
+		stand(4) = species
 		stand(11) = H
 		stand(12) = D
 		stand(13) = BA
