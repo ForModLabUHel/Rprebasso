@@ -951,8 +951,8 @@ endif
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 
 !set species from thinning matrix (strart)
-	 species = 3!int(thinning(countThinning,7))
-	 stand(4) = 3.d0!thinning(countThinning,7)
+	 species = int(thinning(countThinning,2))
+	 stand(4) = thinning(countThinning,2)
 !set species from thinning matrix (end)
 
 	if(year >= yearX) then
@@ -972,7 +972,7 @@ endif
 		 S_fr = W_froot + S_fr
 		 if(energyCut==1.) then
 		  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-		  species = 3!int(max(1.,stand(4)))
+		  species = int(max(1.,stand(4)))
 	if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 		  S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
 					W_stem* (1-harvRatio)* (1-energyRatio) + &
@@ -1091,7 +1091,7 @@ endif
 	remhWdb = max(0.,(stand(51) - Wdb) * (1.-pHarvTrees))
 
 	if(energyCut==1.) then
-	species = 3!int(max(1.,stand(4)))
+	species = int(max(1.,stand(4)))
 
 	energyWood(year,ij,2) = max(0.,(hW_branch + hW_croot*0.3 + &
 									  (hW_stem) * (1-harvRatio)) * energyRatio)
@@ -1135,7 +1135,7 @@ endif
 	if(flagInitWithThin) then
 		 flagInitWithThin = .false.
 	endif
-		stand(4) = 9.d0!species
+		stand(4) = thinning(countThinning,2)
 		stand(11) = H
 		stand(12) = D
 		stand(13) = BA
@@ -1164,12 +1164,11 @@ endif
 		endif
 	endif
 	countThinning = countThinning + 1
-
+ 
    End If
-  End If
-
-	STAND_all(:,ij)=STAND
-end do !!!!end loop species
+ End If
+ 	STAND_all(:,ij)=STAND
+ end do !!!!end loop species
  end do !!!!end loop inttimes
 
 !Perform thinning or defoliation events for this time period using standard management routines!!!!!!!!!!!!!!!!
@@ -1307,9 +1306,6 @@ if(pCrobas(2,species)>0.)	 energyWood(year,ij,1) = energyWood(year,ij,2) / pCrob
     stand_all(28,ij) = S_branch
     stand_all(29,ij) = S_wood
 	
-	! if(siteInfo(1) == 454702.) write(2,*) "clCutHarv",ij, outt(7,ij,2), outt(11,ij,2), outt(30,ij,2) 
-    ! if(siteInfo(1) == 454702.) write(2,*) "clCutremains",ij, stand_all(7,ij), stand_all(11,ij), stand_all(30,ij) 
-
    enddo !!!implement clearcut by layer (end)
   endif !!!end if oldLayer
  endif
@@ -1460,10 +1456,6 @@ if(defaultThin == 1.) then
 		endif
 		N = BA/(pi*((D/2./100.)**2.))
 	endif
-	
-	! if(siteInfo(1)==719400.) then 
-		! write(1,*) H, D, stand_all(11,ij), BA, stand_all(12,ij), stand_all(13,ij)
-	! endif
 
 	stand_all(13,ij) = BA	
     Nthd = max(0.,(Nold - N))
@@ -1593,9 +1585,6 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 	stand_all(50,ij) = Wsh
 	stand_all(51,ij) = Wdb
 
-! if(siteInfo(1) == 454702.) write(2,*) "thinned", ij, stand_all(7,ij), outt(11,ij,2) , outt(13,ij,2) , outt(30,ij,2) 
-! if(siteInfo(1) == 454702.) write(2,*) "remaining", ij, stand_all(7,ij), stand_all(11,ij),stand_all(13,ij) ,stand_all(30,ij) 
- 
    endif
   enddo
  endif !default thin
@@ -1610,6 +1599,7 @@ STAND_all(42,:) = STAND_all(42,:) + VmortDist
 outt(:,:,1) = STAND_all
 
 modOut((year+1),2,:,:) = outt(2,:,:)
+modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
@@ -1632,8 +1622,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
    !!!ECMmodelling.
    !add W for all layer to W folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling.  exud(ijj)=0 if ECMmod= 0
    folAWENH(ijj,2) = folAWENH(ijj,2) + exud(ijj) !!!ECMmodelling
-   ! write(3,*) exud(ij)
-   
+      
    call compAWENH(Lb(ijj),fbAWENH(ijj,:),pAWEN(5:8,species))   !!!awen partitioning branches
    call compAWENH(Lst(ijj),stAWENH(ijj,:),pAWEN(9:12,species))         !!!awen partitioning stems
 
@@ -1700,10 +1689,6 @@ call fAPARgv(fAPARtrees, ETSmean, siteInfo(3), lastGVout(1), lastGVout(2), &
   ! GVout(nYears,4) = lastGVout(4)
  else  !!!when nYears ==1 in the region multi prebas
   
-  ! ! if(isnan(lastGVout(4))) then
-	   ! ! write(1,*) siteInfo(1), lastGVout
-  ! ! close(1)
-  ! ! endif
   GVout(nYears,5) = (lastGVout(4) - GVout((nYears),4) + GVout((nYears),2))/10.
   ! GVout(nYears,4) = lastGVout(4)
   endif
