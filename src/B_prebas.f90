@@ -951,8 +951,8 @@ endif
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 
 !set species from thinning matrix (strart)
-	 species = int(thinning(countThinning,7))
-	 stand(4) = thinning(countThinning,7)
+	 species = 3!int(thinning(countThinning,7))
+	 stand(4) = 3.d0!thinning(countThinning,7)
 !set species from thinning matrix (end)
 
 	if(year >= yearX) then
@@ -972,7 +972,7 @@ endif
 		 S_fr = W_froot + S_fr
 		 if(energyCut==1.) then
 		  energyWood(year,ij,2) = (W_branch + W_croot*0.3 + W_stem* (1-harvRatio)) * energyRatio
-		  species = int(max(1.,stand(4)))
+		  species = 3!int(max(1.,stand(4)))
 	if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCrobas(2,species)
 		  S_branch = max(0.,((W_branch) * (1-energyRatio) + S_branch + Wdb + &
 					W_stem* (1-harvRatio)* (1-energyRatio) + &
@@ -1091,7 +1091,7 @@ endif
 	remhWdb = max(0.,(stand(51) - Wdb) * (1.-pHarvTrees))
 
 	if(energyCut==1.) then
-	species = int(max(1.,stand(4)))
+	species = 3!int(max(1.,stand(4)))
 
 	energyWood(year,ij,2) = max(0.,(hW_branch + hW_croot*0.3 + &
 									  (hW_stem) * (1-harvRatio)) * energyRatio)
@@ -1135,7 +1135,7 @@ endif
 	if(flagInitWithThin) then
 		 flagInitWithThin = .false.
 	endif
-		stand(4) = species
+		stand(4) = 9.d0!species
 		stand(11) = H
 		stand(12) = D
 		stand(13) = BA
