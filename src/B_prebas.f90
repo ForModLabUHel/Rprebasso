@@ -926,6 +926,11 @@ endif
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 	STAND_tot = STAND
+!set species from thinning matrix (strart)
+    species = int(thinning(countThinning,2))
+    stand(4) = thinning(countThinning,2)
+!set species from thinning matrix (end)
+
 	if(thinning(countThinning,9) .NE. -999) then
 	 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
 	endif
@@ -1087,6 +1092,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
     outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
 	outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
 
+    stand(4) = thinning(countThinning,2)
     stand(11) = H
     stand(12) = D
     stand(13) = BA
@@ -1559,6 +1565,7 @@ endif
 outt(:,:,1) = STAND_all
 
 modOut((year+1),2,:,:) = outt(2,:,:)
+modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
