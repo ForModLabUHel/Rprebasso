@@ -949,6 +949,12 @@ endif
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
+
+!set species from thinning matrix (strart)
+	 species = int(thinning(countThinning,7))
+	 stand(4) = thinning(countThinning,7)
+!set species from thinning matrix (end)
+
 	if(year >= yearX) then
 		STAND_tot = STAND
 		if(thinning(countThinning,9) .NE. -999) then
