@@ -1135,7 +1135,7 @@ endif
 	if(flagInitWithThin) then
 		 flagInitWithThin = .false.
 	endif
-		stand(4) = thinning(countThinning,2)
+		stand(4) = thinning(countThinning,3)
 		stand(11) = H
 		stand(12) = D
 		stand(13) = BA
