@@ -1092,7 +1092,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
     outt(34,ij,2) = max((STAND_tot(34)*Nold - wf_treeKG*N)/Nthd,0.)
 	outt(35,ij,2) = -999.; outt(36,ij,2)= -999.
 
-    stand(4) = thinning(countThinning,2)
+    stand(4) = thinning(countThinning,3)
     stand(11) = H
     stand(12) = D
     stand(13) = BA
