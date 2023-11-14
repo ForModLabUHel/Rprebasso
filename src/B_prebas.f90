@@ -951,8 +951,8 @@ endif
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 
 !set species from thinning matrix (strart)
-	 species = int(thinning(countThinning,2))
-	 stand(4) = thinning(countThinning,2)
+	 species = int(thinning(countThinning,3))
+	 stand(4) = thinning(countThinning,3)
 !set species from thinning matrix (end)
 
 	if(year >= yearX) then
