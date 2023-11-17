@@ -955,7 +955,7 @@ endif
 	 stand(4) = thinning(countThinning,2)
 !set species from thinning matrix (end)
 
-	if(year >= yearX) then
+	! if(year >= yearX) then
 		STAND_tot = STAND
 		if(thinning(countThinning,9) .NE. -999) then
 		 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
@@ -1050,6 +1050,7 @@ endif
 			Wdb = 0.
 			A = par_ksi/par_rhof * Lc**par_z
 			stand(7) = Ainit
+			yearX = 0.
 		 endif
 		 !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
 			
@@ -1162,8 +1163,9 @@ endif
 		stand(50) = Wsh
 		stand(51) = Wdb
 		endif
-	endif
+	! endif
 	countThinning = countThinning + 1
+
  
    End If
  End If

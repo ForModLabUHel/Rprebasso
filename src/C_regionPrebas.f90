@@ -247,11 +247,11 @@ endif
 	mortModX = mortMod(1) !!mortality model to be used in the managed forests
 	if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
 	
-	! if(ij>11) then
+	 ! if(i==2) then
 		! open(2,file="test2.txt")
-		! write(*,*) ij,i,iz, "before run"
+		! write(1,*) thinningX(1:az,:)
 		! close(2)
-	! endif
+	 ! endif
 	output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
