@@ -1046,6 +1046,7 @@ endif
 		 !!!reinitialize the stand and some variables when the thinning matrix is used to initialize the stand in the middle of the runs(start)
 		 if(Nold==0.) then
 			flagInitWithThin = .true.
+			yearX = 0.d0
 			Nold = N
 			Wdb = 0.
 			A = par_ksi/par_rhof * Lc**par_z
