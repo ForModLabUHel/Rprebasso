@@ -798,7 +798,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       
       nYears <- modOut$maxYears
       fAPAR <- modOut$fAPAR
-      ets <- modOut$ETSy
+      ets <- modOut$multiOut[,,5,1,1]
       siteTypeX <- modOut$multiOut[,,3,1,1]
       GVout <- array(NA,dim=c(19,modOut$nSites,nYears))
       
