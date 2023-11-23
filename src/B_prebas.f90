@@ -1599,8 +1599,9 @@ endif
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
  !!model disturbances
- if(disturbanceON) include 'disturbanceCalc.h'
-
+ if(disturbanceON) then
+   include 'disturbanceCalc.h'
+ endif
 
 !add dead trees from disturbances
 STAND_all(42,:) = STAND_all(42,:) + VmortDist
