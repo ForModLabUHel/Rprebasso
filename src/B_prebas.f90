@@ -1599,7 +1599,7 @@ endif
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
  !!model disturbances
- include 'disturbanceCalc.h'
+ if(disturbanceON) include 'disturbanceCalc.h'
 
 
 !add dead trees from disturbances
