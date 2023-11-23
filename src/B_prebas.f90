@@ -127,6 +127,10 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
+!disturbances
+ logical :: disturbanceON = .false.
+
+
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -1594,6 +1598,9 @@ endif
 
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
+ !!model disturbances
+ include 'disturbanceCalc.h'
+
 
 !add dead trees from disturbances
 STAND_all(42,:) = STAND_all(42,:) + VmortDist

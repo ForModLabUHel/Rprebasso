@@ -2214,3 +2214,25 @@ fTaweNH(2) = temN
 fTaweNH(3) = temH
 
     END SUBROUTINE
+
+!!!fire disturbance calculations 	
+subroutine pDistTest(ETS,parFire,pDistFireX)
+	implicit none
+	real(8), intent(inout) :: ETS,pDistFireX
+	!parameters
+	real(8), intent(in) :: parFire
+	
+	if (ETS > parFire) then
+	  call random_number(pDistFireX)
+	endif
+end subroutine
+
+!!!percentage of BA killed by disturbance 	
+subroutine intTest(pDistFire,pBAmort)
+	implicit none
+	real(8), intent(inout) :: pDistFire,pBAmort
+		
+	if (pDistFire > 0.5) then
+	  call random_number(pBAmort)
+	endif
+end subroutine
