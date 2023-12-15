@@ -52,7 +52,7 @@ InitMultiSite <- function(nYearsMS,
                           PcurrClim = NA
 ){  
   
-  if(nrow(pCROBAS!=53)) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
   nSites <- length(nYearsMS)
   

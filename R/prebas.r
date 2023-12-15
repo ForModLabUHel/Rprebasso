@@ -109,7 +109,7 @@ prebas <- function(nYears,
                    HcModV = HcModV_def #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
               ){
   
-  if(nrow(pCROBAS!=53)) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the site")
