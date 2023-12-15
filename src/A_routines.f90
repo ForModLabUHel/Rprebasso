@@ -1,4 +1,4 @@
-subroutine initBiomasses(pCrobas,initVar,siteType,biomasses,nVar,nPar) 
+subroutine initBiomasses(pCrobas,initVar,siteType,biomasses,par_alfar0,nVar,nPar) 
 	implicit none
 
     integer, intent(in) :: nVar,nPar
