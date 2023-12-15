@@ -7,11 +7,13 @@ if (disturbanceON) then
   ! pMort = 0.2d0
   perBAmort = 0.0d0
   call pDistTest(ETS,1200.0d0,pMort) !!!calculate probability of fire to occur in this stand
-  call intTest(pMort,perBAmort) !!!calculate the intensity of possible fire of fire to occur in this stand
+  call random_number(randX)
+  if(randX < pMort)  call intTest(pMort,perBAmort) !!!calculate the intensity of possible fire of fire to occur in this stand
+  
 !! calculate probability of the disturbance to occur and
 !! the intensity of the disturbance
-	call random_number(randX)
-	 if(perBAmort > 0.0d0) then
+	
+  if(perBAmort > 0.0d0) then
 
   BA_tot = sum(STAND_all(13,:))
   BAr = STAND_all(13,:)/BA_tot

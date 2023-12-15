@@ -2215,7 +2215,7 @@ fTaweNH(3) = temH
 
     END SUBROUTINE
 
-!!!fire disturbance calculations 	
+!!!toy model disturbance calculations 	
 subroutine pDistTest(ETS,parFire,pDistFireX)
 	implicit none
 	real(8), intent(inout) :: ETS,pDistFireX
@@ -2232,7 +2232,125 @@ subroutine intTest(pDistFire,pBAmort)
 	implicit none
 	real(8), intent(inout) :: pDistFire,pBAmort
 		
-	if (pDistFire > 0.5) then
-	  call random_number(pBAmort)
-	endif
+	  call random_number(pBAmort) !just some random number for now
+
 end subroutine
+
+
+!!!matrix of interactive number of rows
+subroutine testAlloc(pDistFire,mat1,mat2)
+	implicit none
+	real(8), allocatable, intent(inout) :: mat1(:,:),mat2(:,:)
+	! real(8), intent(inout) :: mat1x(10,3),mat2x(10,3)
+	real(8), intent(inout) :: pDistFire
+	real(8) :: pX
+	integer :: i, count1,count2
+	
+open(1,file="test1.txt")
+	count1 = 0 
+	count2 = 0
+	do i = 1,10 
+	write(1,*) i
+	call random_number(pX)
+	if(pX > pDistFire) then 
+	write(1,*) "1", i,pX
+	  if(count1 ==0 .and. count2==0) then
+		  count1 = 1
+		  allocate(mat1(count1,3))
+		  mat1(1,1) = count1
+		  mat1(1,2) = count2
+		  mat1(1,3) = pX
+		  write(1,*) "2", i,count1,count2,pX
+	  elseif(count1>count2) then
+		count2 = count2+2
+		  write(1,*) "2a", i,count1,count2,pX
+		!deallocate(mat2)
+		allocate(mat2(count2,3))
+		mat2(1:count1,:) = mat1
+		mat2(count2,1) = count1
+		mat2(count2,2) = count2
+		mat2(count2,3) = pX
+		write(3,*) "3", i,count1,count2,pX
+		deallocate(mat1)
+	  elseif(count2>count1 .and. count1>0) then
+		count1 = count1+2
+		write(3,*) "3a", i,count1,count2,pX
+		!deallocate(mat1)
+		allocate(mat1(count1,3))
+		mat1(1:count2,:) = mat2
+		mat1(count1,1) = count1
+		mat1(count1,2) = count2
+		mat1(count1,3) = pX
+		deallocate(mat2)
+		write(4,*) "4", i,count1,count2,pX
+	  endif
+	endif
+	enddo
+	if(allocated(mat1)) then
+		mat2 = mat1
+	else
+		mat1 = mat2
+	endif
+	
+	! mat1x(1:5,:) = mat1(1:5,:)
+	! mat2x(1:5,:) = mat2(1:5,:)
+	close(1)
+end subroutine
+
+
+
+! subroutine foo(px,mat1,mat2)
+! implicit none
+  ! real(8), intent(inout) :: px
+  ! real(8), intent(inout) :: mat1(10,3),mat2(10,3)
+  ! real(8),allocatable :: mm1x(:,:),mm2x(:,:)
+  
+  ! call testAlloc(px,mm1x,mm2x)
+  ! ! mat1 = mat1x
+  ! ! mat2 = mat2x
+
+! end subroutine 
+
+!!!bark beatle disturbance calculations 	
+subroutine pBarkBeatle(standInfo,nLayers,parBbeatle,spruceIDs,nSpIDs,probBbeatle)
+	implicit none
+	logical :: spruceLayer(nLayers)
+	integer, intent(in) :: nLayers,nSpIDs
+	real(8), intent(in) :: standInfo(3,nLayers),spruceIDs(nSpIDs) !standInfo first argument is species, age and BA by layer
+	real(8), intent(inout) :: parBbeatle(4),probBbeatle
+	integer :: i
+	real(8) :: ba(nLayers), age(nLayers),species(nLayers)
+	real(8) :: BAspruce,ageMaxSpruce,BAspruceShare,BAtot
+	real(8) :: par_BAshare,par_PIba,par_PIage,par_PIdrought,PI_age,PI_ba,PI_drought
+
+ba = standInfo(3,:)
+age = standInfo(2,:)
+species = standInfo(1,:)
+BAtot = sum(ba)
+BAspruce = 0.d0
+ageMaxSpruce = 0.d0
+BAspruceShare = 0.d0
+par_BAshare = parBbeatle(1) !0.3
+par_PIage = parBbeatle(2) !0.25
+par_PIba = parBbeatle(3) !0.15
+par_PIdrought = parBbeatle(4) !0.3
+
+do i =  1,nLayers
+	spruceLayer(i) = any(spruceIDs .eq. int(species(i)))
+	if(spruceLayer(i)) then
+		BAspruce = BAspruce + BA(i)
+		ageMaxSpruce = max(0.d0,age(i))
+		BAspruceShare = BAspruceShare + BA(i)/BAtot
+	endif
+end do
+
+PI_ba = min(1.d0, 0.2 + 0.8*(BAspruce-40)**2/40**2)
+ 
+PI_age = min(1.d0, 0.2+ageMaxSpruce/100)
+
+PI_drought=0.d0
+
+probBbeatle = par_BAshare*BAspruceShare + par_PIage*PI_age + par_PIba*PI_ba + par_PIdrought*PI_drought
+ 
+end subroutine
+
