@@ -1,6 +1,7 @@
-subroutine initBiomasses(pCrobas,initVar,siteType,biomasses) 
+subroutine initBiomasses(pCrobas,initVar,siteType,biomasses,nVar,nPar) 
 	implicit none
-    integer, parameter :: nVar=54, npar=47
+	
+	integer, intent(in) :: nVar,nPar
 	real (kind=8), parameter :: pi = 3.1415927
 	real (kind=8), intent(in) :: pCrobas(npar),initVar(7), siteType
 	real (kind=8), intent(inout) :: biomasses(nvar)
@@ -2354,3 +2355,11 @@ probBbeatle = par_BAshare*BAspruceShare + par_PIage*PI_age + par_PIba*PI_ba + pa
  
 end subroutine
 
+!update parameter value as linear function of sitetype
+subroutine linearUpdateParam(pars,siteType,par_New) 
+	implicit none
+	real (kind=8), intent(in) :: pars(2), siteType
+	real (kind=8), intent(inout) :: par_New
+	 !!!calculate reineke parameter as a function of siteType
+	 par_New = pars(1) + pars(2) * siteType 
+endsubroutine

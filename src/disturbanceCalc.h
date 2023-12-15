@@ -68,6 +68,12 @@ dN=0.d0
 	 par_fAa = param(45)
 	 par_fAb = param(46)
 	 par_fAc = param(47)
+	 
+ 	 !!!!update kRein and cR	 
+	 !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
+	 if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
+	 !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+	 if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
 
 	if (year > maxYearSite) then
 	  STAND(2) = 0. !!newX
