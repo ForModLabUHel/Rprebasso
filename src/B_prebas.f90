@@ -14,7 +14,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=49, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=53, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -378,6 +378,12 @@ do ij = 1 , nLayers 		!loop Species
  par_fAc = param(47)
 ! do siteNo = 1, nSites  !loop sites
 
+!!!!update kRein and cR	 
+!!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
+if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
+!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+
 ! initialize site variables
 !  sitetype = STAND(3)
 
@@ -604,6 +610,13 @@ exud(ij) = 0.d0
  par_fAa = param(45)
  par_fAb = param(46)
  par_fAc = param(47)
+ 
+!!!!update kRein and cR	 
+!!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
+if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
+!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+
 ! do siteNo = 1, nSites  !start site loop
 
 if (year > maxYearSite) then
@@ -1391,6 +1404,12 @@ if(defaultThin == 1.) then
     par_Cr2 = 0.!param(24)
     par_rhof = par_rhof1 * stand_all(5,ij) + par_rhof2
 	Nold = stand_all(17,ij)
+	
+	!!!!update kRein and cR	 
+	!!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
+	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
+	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+	if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
 	
 	if(thinningType == 1. .or. thinningType == 2.) then
 		! N = number of trees in the current layer after thinning

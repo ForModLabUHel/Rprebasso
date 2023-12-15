@@ -13,7 +13,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 
 implicit none
 
-integer, parameter :: nVar=54,npar=49!, nSp=3
+integer, parameter :: nVar=54,npar=53!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
 
@@ -73,7 +73,7 @@ do i = 1,nSites
 	species = int(initVar(i,1,ijj))
 		! initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
 			! initVar(i,6,ijj))**pCrobas(11,species))!A = p_ksi/p_rhof * Lc^p_z
-	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1),multiOut(i,1,3,ijj,2))
+	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1),multiOut(i,1,3,ijj,2),nVar,nSp)
  enddo
 enddo
 do i = 1,nSites
