@@ -112,6 +112,7 @@ InitMultiSite <- function(nYearsMS,
                           ingrowth = FALSE
                           ){  
   
+  if(nrow(pCROBAS!=53)) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   nSites <- length(nYearsMS)
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)

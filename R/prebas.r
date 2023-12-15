@@ -186,6 +186,7 @@ prebas <- function(nYears,
                    HcModV = HcModV_def #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
               ){
   
+  if(nrow(pCROBAS!=53)) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   ###process weather###
   if(length(PAR) >= (nYears*365)){
     PAR = PAR[1:(nYears*365)]
