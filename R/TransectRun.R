@@ -129,7 +129,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         ingrowth = FALSE
 ) {
   
-  if(nrow(pCROBAS!=53)) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
