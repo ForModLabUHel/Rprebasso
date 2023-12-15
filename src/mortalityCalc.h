@@ -52,7 +52,7 @@ if (mortMod==1. .or. mortMod==3.) then
 
 	!!!!update kRein and cR	 
 	! calculate CNration
-	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, stand(3),pECMmod(6:8))
+	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, siteInfo(3),pECMmod(6:8))
 	!!!!update par_kRein as a function of CN if parameters (param(50>-999.))) are are provided 
 	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),CN,par_kRein) 
 	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
@@ -291,7 +291,7 @@ dN=0.d0
 
 	!!!!update kRein and cR	 
 	! calculate CNration
-	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, stand(3),pECMmod(6:8))
+	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, siteInfo(3),pECMmod(6:8))
 	!!!!update par_kRein as a function of CN if parameters (param(50>-999.))) are are provided 
 	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),CN,par_kRein) 
 	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
