@@ -2298,11 +2298,11 @@ output(12:13) = bgW
 
 end subroutine fAPARgvByVtypes
 
-!update parameter value as linear function of sitetype
-subroutine linearUpdateParam(pars,siteType,par_New) 
+!update parameter value as linear function of some variable (for instance site type or CN ratio)
+subroutine linearUpdateParam(pars,varX,par_New) 
 implicit none
-real (kind=8), intent(in) :: pars(2), siteType
+real (kind=8), intent(in) :: pars(2), varX
 real (kind=8), intent(inout) :: par_New
-!!!calculate reineke parameter as a function of siteType
-par_New = pars(1) + pars(2) * siteType 
+
+par_New = pars(1) + pars(2) * varX
 endsubroutine

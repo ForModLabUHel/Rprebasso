@@ -69,11 +69,13 @@ dN=0.d0
 	 par_fAb = param(46)
 	 par_fAc = param(47)
 	 
- 	 !!!!update kRein and cR	 
-	 !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-	 if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-	 !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-	 if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+	!!!!update kRein and cR	 
+	! calculate CNration
+	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, stand(3),pECMmod(6:8))
+	!!!!update par_kRein as a function of CN if parameters (param(50>-999.))) are are provided 
+	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),CN,par_kRein) 
+	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+	if(param(52)>-999.d0) call linearUpdateParam(param(52:53),CN,par_cR) 
 
 	if (year > maxYearSite) then
 	  STAND(2) = 0. !!newX

@@ -378,11 +378,13 @@ do ij = 1 , nLayers 		!loop Species
  par_fAc = param(47)
 ! do siteNo = 1, nSites  !loop sites
 
-!!!!update kRein and cR	 
-!!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+	!!!!update kRein and cR	 
+	! calculate CNration
+	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, stand(3),pECMmod(6:8))
+	!!!!update par_kRein as a function of CN if parameters (param(50>-999.))) are are provided 
+	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),CN,par_kRein) 
+	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+	if(param(52)>-999.d0) call linearUpdateParam(param(52:53),CN,par_cR) 
 
 ! initialize site variables
 !  sitetype = STAND(3)
@@ -611,11 +613,13 @@ exud(ij) = 0.d0
  par_fAb = param(46)
  par_fAc = param(47)
  
-!!!!update kRein and cR	 
-!!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+	!!!!update kRein and cR	 
+	! calculate CNration
+	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, stand(3),pECMmod(6:8))
+	!!!!update par_kRein as a function of CN if parameters (param(50>-999.))) are are provided 
+	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),CN,par_kRein) 
+	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
+	if(param(52)>-999.d0) call linearUpdateParam(param(52:53),CN,par_cR) 
 
 ! do siteNo = 1, nSites  !start site loop
 
@@ -1406,10 +1410,12 @@ if(defaultThin == 1.) then
 	Nold = stand_all(17,ij)
 	
 	!!!!update kRein and cR	 
-	!!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
+	! calculate CNration
+	if(param(50)>-999.d0 .or. param(52)>-999.d0) call CNratio(CN, latitude, stand(3),pECMmod(6:8))
+	!!!!update par_kRein as a function of CN if parameters (param(50>-999.))) are are provided 
+	if(param(50)>-999.d0) call linearUpdateParam(param(50:51),CN,par_kRein) 
 	!!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-	if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+	if(param(52)>-999.d0) call linearUpdateParam(param(52:53),CN,par_cR) 
 	
 	if(thinningType == 1. .or. thinningType == 2.) then
 		! N = number of trees in the current layer after thinning
