@@ -165,7 +165,7 @@ InitMultiSite <- function(nYearsMS,
     # if(is.na(Ainits[xd])) {
   if(length(AinitsNA)>0){
     Ainits[AinitsNA] = max(round(6 + 2* siteInfo[AinitsNA,3] - 0.005*ETSmean[siteInfo[AinitsNA,2]] + 2.25+2),2)
-    multiInitClearCut[xd,5] = Ainits[xd] #999.
+    multiInitClearCut[AinitsNA,5] = Ainits[AinitsNA] #999.
   }
     # }
   # } 
