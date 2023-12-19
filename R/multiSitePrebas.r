@@ -214,19 +214,12 @@ InitMultiSite <- function(nYearsMS,
   }
   xx <- min(10,nYearsX)
   Ainits <- multiInitClearCut[,5]
-  AinitsNA <- which(is.na(Ainits))
-
-  if(length(AinitsNA)>0){
-    Ainits[AinitsNA] = max(round(6 + 2* siteInfo[AinitsNA,3] - 0.005*ETSmean[siteInfo[AinitsNA,2]] + 2.25+2),2)
-    multiInitClearCut[AinitsNA,5] = Ainits[AinitsNA] #999.
-  }
-  
-  # for(xd in 1:nSites){
-  #   if(is.na(Ainits[xd])) {
-  #     Ainits[xd] = max(round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],1:xx]) + 2.25+2),2)
-  #     multiInitClearCut[xd,5] = Ainits[xd] #999.
-  #   }
-  # } 
+  for(xd in 1:nSites){
+    if(is.na(Ainits[xd])) {
+      Ainits[xd] = max(round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],1:xx]) + 2.25+2),2)
+      multiInitClearCut[xd,5] = Ainits[xd] #999.
+    }
+  } 
   ETSthres <- 1000; ETSmean <- rowMeans(multiETS)
   if(smoothETS==1. & maxYears > 1){
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
