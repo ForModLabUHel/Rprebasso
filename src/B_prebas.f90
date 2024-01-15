@@ -1022,7 +1022,7 @@ endif
 		 !!!check if ingrowth and calculate the number of trees
 		 if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then 
 		  if(fAPARtrees<0.7) then 
-			BA = pi*((0.5/200)**2)*(1.5d0/fAPARtrees)
+			BA = pi*((0.5/200.)**2)*min(400./fAPARtrees,4000.)
 		  else
 			BA = 0.d0
 		  endif	
