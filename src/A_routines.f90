@@ -2366,29 +2366,3 @@ subroutine linearUpdateParam(pars,siteType,par_New)
 	 par_New = pars(1) + pars(2) * siteType 
 endsubroutine
 
-
-subroutine calc_wrisk(spec, h, tsincethin, wspeed, openedge, soiltype, shallowsoil, sitefert, tsum, damdens, &
-  wriskvalue, wriskvalue0)
-  IMPLICIT NONE
-  REAL (kind=8), intent(inout) ::  wriskvalue, wriskvalue0
-  REAL (kind=8), intent(in) :: h, wspeed, tsum
-  !REAL (kind=8) :: wriskvalue0
-  INTEGER, intent(in) :: spec !1 pine, 2 spruce, 3 other
-  INTEGER, intent(in) :: tsincethin ! time since last thinning in years
-  INTEGER, intent(in) :: openedge ! 0 = no open edge, 1 = open edge
-  INTEGER, intent(in) :: soiltype ! 0 = mineral, coarse; 1 = mineral, fine; 2 = organic
-  INTEGER, intent(in) :: shallowsoil ! 1 = <30cm
-  INTEGER, intent(in) :: sitefert ! 0 = infertile, 1 = fertile 
-  INTEGER, intent(in) :: damdens ! damage density ratio; 3 classes, set to 0 for now
-
-
-wriskvalue0 = -14.690 + &
-              log(h*10)*1.661 + & !height in dm  
-              log(wspeed)*0.749 + & !10 a max windspeed in m/s
-              log(tsum/100)*0.096 + &!effective temp sum (100 degree days)
-              openedge * 0.310 + &
-              shallowsoil * 0.214 - &
-              sitefert * 0.425
-              
-              wriskvalue = exp(wriskvalue0) / (1.0 + exp(wriskvalue0))
-end subroutine calc_wrisk
