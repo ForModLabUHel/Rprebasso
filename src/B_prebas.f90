@@ -147,7 +147,7 @@ modOut(1,:,:,:) = output(1,:,:,:)
 soilC = 0.
 countThinning = 1
 !pars = pPRELES
-pPRELES(1:3) = pars(1:3) = siteInfo(8:10)
+pars(1:3) = siteInfo(8:10)
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
