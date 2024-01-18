@@ -50,6 +50,7 @@
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param ingrowth # flag to simulate ingrowth
+#' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #' 
 #' @importFrom plyr aaply
 #'
@@ -126,7 +127,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         p0currClim = NA,
                         TcurrClim = NA,
                         PcurrClim = NA,
-                        ingrowth = FALSE
+                        ingrowth = FALSE,
+                        soilPar = NA #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
 ) {
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -164,6 +166,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar <- aperm(array(c(3, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
+  
+  if(!all(is.na(soilPar))) siteInfo[,10:12] <- soilPar 
   
   if (species == "Mixed" & all(is.na(initVar))) {
     initVar <- array(NA, dim = c(7, 7, 3))
