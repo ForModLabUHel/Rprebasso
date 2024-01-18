@@ -146,7 +146,7 @@ modOut = 0.
 modOut(1,:,:,:) = output(1,:,:,:)
 soilC = 0.
 countThinning = 1
-!pars = pPRELES
+pars = pPRELES
 pars(1:3) = siteInfo(8:10)
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 pars(24) = siteInfo(4)!SWinit
@@ -524,8 +524,8 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    GVout(year,1) = fAPARgvX !store fAPAR GV
  	! if(fAPARsite>0.) then
 
-	 pars(4:23) = pPRELES(4:23)
-     pars(28:30) = pPRELES(28:30)
+	 ! pars(4:23) = pPRELES(4:23)
+     ! pars(28:30) = pPRELES(28:30)
 
    if(layerPRELES == 0) then
 
