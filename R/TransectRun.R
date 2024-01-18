@@ -24,6 +24,33 @@
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param multiNthin 
+#' @param GVrun 
+#' @param pHcMod 
+#' @param etmodel 
+#' @param pYASSO 
+#' @param pAWEN 
+#' @param fixBAinitClearcut 
+#' @param initCLcutRatio 
+#' @param multiP0 
+#' @param soilC 
+#' @param weatherYasso 
+#' @param litterSize 
+#' @param soilCtot 
+#' @param inDclct 
+#' @param inAclct 
+#' @param yassoRun 
+#' @param smoothP0 
+#' @param smoothETS 
+#' @param smoothYear 
+#' @param tapioPars 
+#' @param thdPer 
+#' @param limPer 
+#' @param ftTapioPar 
+#' @param tTapioPar 
+#' @param thinInt 
+#' @param latitude 
+#' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #'
 #' @importFrom plyr aaply
 #'
@@ -100,7 +127,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         alpharNcalc=FALSE,
                         p0currClim = NA,
                         TcurrClim = NA,
-                        PcurrClim = NA
+                        PcurrClim = NA,
+                        soilPar = NA #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
                         ) {
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -138,7 +166,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     initVar <- aperm(array(c(3, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
     siteInfo[, 8:9] <- 1 # even-aged pure forests
   }
-
+  
+  if(!all(is.na(soilPar))) siteInfo[,10:12] <- soilPar 
+  
   if (species == "Mixed" & all(is.na(initVar))) {
     initVar <- array(NA, dim = c(7, 7, 3))
     initVar[, , 1] <- matrix(c(1, NA, initSeedling.def), 7, 7, byrow = T)
