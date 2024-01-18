@@ -14,8 +14,8 @@
 #define PI 3.1415926535
 #define NUMBER_OF_MODEL_PARAMETERS 38
 
-int K;
-int vectorlength;
+extern int K;
+extern int vectorlength;
 
 /* Site soil and other parameters, some in input, some calculated in code */
 typedef struct p1 {  
