@@ -27,24 +27,14 @@ wrisk0 = -14.690 + &
   
 !categorical variables with more than two levels externalised:              
 
-! time since thinning; reference: 0-5a
+!!! time since thinning; reference: 0-5a
 if (tsincethin>5 .AND. tsincethin <= 10) wrisk0 = wrisk0 - 0.298
 if (tsincethin>10)  wrisk0 = wrisk0 - 0.844
 ! soiltype; reference: mineral, coarse
 if (soiltype == 1)  wrisk0 = wrisk0 - 0.356 !mineral, fine
 if (soiltype == 2)  wrisk0 = wrisk0 - 0.216!organic
 
-
-
-! !species & height interaction
-! if (spec == 2)  wrisk0 = wrisk0 - 8.494
-! if (spec == 2)  wrisk0 = wrisk0 + LOG(h*10)*1.634
-! 
-! if (spec == 3)  wrisk0 = wrisk0 - 9.314
-! if (spec == 3)  wrisk0 = wrisk0 + LOG(h*10)*1.625
-! ! 
-
-! species & spec/h interaction
+!!! species & spec/h interaction (ref: pine/1)
 IF (spec == 2) THEN
   wrisk0 = wrisk0 - 8.494
   wrisk0 = wrisk0 + LOG(h*10)*1.634
@@ -53,7 +43,7 @@ ELSEIF (spec == 3) THEN
   wrisk0 = wrisk0 + LOG(h*10)*1.625
 ENDIF
 
-! damage density (& logit transformation)
+! DAMAGE DENSITY (& logit transformation)
 ! spatial density of wind-disturbed NFI plots relative to all NFI plots
 !!! SEE SUPPLEMENTYRY INFO 1 of Suvanto et al. 2019
 ! for prediction, the model is run for each damage density class individually 
