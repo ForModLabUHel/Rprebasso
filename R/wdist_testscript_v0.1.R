@@ -2,7 +2,7 @@
 # source: Suvanto et al 2019
 # Demo/testing script
 # jh, 1/24
-if(FALSE){ # workaround to be able to build/install package 
+if(TRUE){ # workaround to be able to build/install package 
   #library(Rprebasso)
 # Test inputs & var explanation
 spec <- 1 # 1 pine, 2 spruce, 3 other
