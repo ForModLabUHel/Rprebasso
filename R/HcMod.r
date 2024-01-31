@@ -142,6 +142,20 @@ HcModDef[[4]] <-function(inputs){
   return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
 
+###default HCmodel for fasy Boreal
+HcModDef[[12]] <-function(inputs){ 
+  pValues=inputs[1:7]
+  H=inputs[8]
+  D=inputs[9]
+  age=inputs[10]
+  BA_sp=inputs[11]
+  BA_tot=inputs[12]
+  N_tot = inputs[13]
+  Hc_sim <-  H/(1+exp(pValues[1]+pValues[2]*N_tot/1000+
+                        pValues[3]*log(BA_tot)+pValues[4]*D/H+pValues[5]*log(H)))
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
+} 
+
 ###default HCmodel for eugl and eugrur
 HcModDef[[6]] <- HcModDef[[9]] <- HcModDef[[11]]<-function(inputs){ 
   pValues=inputs[1:7]
