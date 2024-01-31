@@ -208,7 +208,7 @@ pHcM[,10] <- c(2.896205,-0.166704,0.046865,-0.056031,-1.238669,-0.418347,0.)
 pHcM[1:5,11] <- c(-1.067271, -0.017684, 0.07708,	-0.619978,0.045046)
 
 litterSizeDef <- matrix(0.,3,nparsAll,dimnames = list(NULL,speciesNam))
-litterSizeDef[1,] <- c(10,10,5,10,10,7,7,7,7,10,7)
+litterSizeDef[1,] <- c(10,10,5,10,10,7,7,7,7,10,7,10)
 litterSizeDef[2,] <- 2
 
 ClCut_birch <- matrix(NA,2,4)
