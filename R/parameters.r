@@ -136,7 +136,7 @@ pPRELESpipi<-c(991,0.337,0.04,3,0.783982507431094,5.40766132920764,-8.7289391919
 # pPRELESall <- matrix(NA, nrow = length(pPREL),ncol(pCROB))
 pLUEtrees <- c(rep(pPREL[5],3),pPRELESfasy[5],pPRELESpipi[5],
                pPRELESeugl[5],pPRELES.Df.DBF[5],pPRELES.Df.DBF[5],
-               pPRELESeugl[5],pPRELESpiabDE[5],pPRELES.Df.DBF[5])
+               pPRELESeugl[5],pPRELESpiabDE[5],pPRELES.Df.DBF[5],pPRELESfasy[5])
 names(pLUEtrees) <- colnames(pCROB)
 pLUEgv <- pPREL[5]
 
