@@ -267,7 +267,7 @@ endif
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
 		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
 		fertThin,flagFert(i),nYearsFert,oldLayer,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-		disturbanceON, siteInfoDist(i,:), outDist(i,ij,:)
+		disturbanceON, siteInfoDist(i,:), outDist(i,ij,:))
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations
