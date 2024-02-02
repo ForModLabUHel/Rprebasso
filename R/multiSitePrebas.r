@@ -843,7 +843,7 @@ if(ageHarvPrior>0){
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
 
-  prebas <- .Fortran("regionMod",
+  prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
@@ -907,12 +907,12 @@ if(ageHarvPrior>0){
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
-                     LUEgv = as.double(multiSiteInit$LUEgv),
-                     disturbanceON = as.logical(disturbanceON),
-                     siteInfoDist = as.matrix(siteInfoDist),
-                     outDist = as.array(outDist)
+                     LUEgv = as.double(multiSiteInit$LUEgv)#,
+                     # disturbanceON = as.logical(disturbanceON),
+                     # siteInfoDist = as.matrix(siteInfoDist),
+                     # outDist = as.array(outDist)
   )
-  class(prebas) <- "regionMod"
+  class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
     prebas$totHarv <- apply(rescalVbyArea,2,sum)
@@ -1032,7 +1032,7 @@ reStartRegionPrebas <- function(multiSiteInit,
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
   
-  prebas <- .Fortran("regionMod",
+  prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
@@ -1101,7 +1101,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      siteInfoDist = as.matrix(siteInfoDist),
                      outDist = as.array(outDist)
   )
-  class(prebas) <- "regionMod"
+  class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
     prebas$totHarv <- apply(rescalVbyArea,2,sum)
