@@ -26,7 +26,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
  !disturbances
  logical, intent(in) :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
- real (kind=8), intent(in) :: siteInfoDist(nSites,4), 
+ real (kind=8), intent(in) :: siteInfoDist(nSites,4)
  real (kind=8) :: outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
