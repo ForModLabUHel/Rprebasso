@@ -10,7 +10,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
 		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod,pECMmod,& 
-		layerPRELES,LUEtrees,LUEgv)
+		layerPRELES,LUEtrees,LUEgv,disturbanceON, siteInfoDist, outDist)
 
 implicit none
 
@@ -33,6 +33,9 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
  real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP),energyCuts(nSites)	!!energCuts
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
 					!from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
+
+logical, intent(in) :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
+integer, intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
  !!! fertilization parameters
  integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
@@ -97,7 +100,8 @@ do i = 1,nSites
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
 		GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
-		fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv) !energyCut)
+		fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
+		disturbanceON, siteInfoDist(i,:), outDist(i,1:nYears(i),:))
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do

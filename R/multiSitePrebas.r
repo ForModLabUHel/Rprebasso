@@ -109,7 +109,8 @@ InitMultiSite <- function(nYearsMS,
                           p0currClim = NA,
                           TcurrClim = NA,
                           PcurrClim = NA,
-                          ingrowth = FALSE
+                          ingrowth = FALSE,
+                          siteInfoDist = NA ###if not NA Disturbance modules are activated
                           ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -562,7 +563,8 @@ if(alpharNcalc){
     layerPRELES = layerPRELES,
     LUEtrees = LUEtrees,
     LUEgv = LUEgv,
-    alpharNcalc=alpharNcalc
+    alpharNcalc=alpharNcalc,
+    siteInfoDist = siteInfoDist
   )
   return(multiSiteInit)
 }
@@ -660,6 +662,20 @@ multiPrebas <- function(multiSiteInit,
                         nYearsFert = 20,
                         oldLayer=0){
   
+###check and activate disturbance modules  
+  if(!exists(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  ####initialize disturbance module if exists
+  if(all(is.na(siteInfoDist))){
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,nSites,4)
+    outDist = array(0,dim=c(nSites,max(nYearsMS),10))
+  }else{
+    disturbanceON = TRUE
+    #siteInfoDist = matrix(0,nSites,4)
+    outDist = array(0,dim=c(nSites,max(nYearsMS),10))
+  }
+  
+  
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -724,7 +740,10 @@ multiPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
-                     LUEgv = as.double(multiSiteInit$LUEgv)
+                     LUEgv = as.double(multiSiteInit$LUEgv),
+                     disturbanceON = as.logical(disturbanceON),
+                     siteInfoDist = as.matrix(siteInfoDist),
+                     outDist = as.array(outDist)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -777,6 +796,19 @@ regionPrebas <- function(multiSiteInit,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
                          startSimYear=1
 ){
+  ###disturbance modules activation
+  if(!exists(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  ####initialize disturbance module if exists
+  if(all(is.na(siteInfoDist))){
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,nSites,4)
+    outDist = array(0,dim=c(nSites,max(nYearsMS),10))
+  }else{
+    disturbanceON = TRUE
+    #siteInfoDist = matrix(0,nSites,4)
+    outDist = array(0,dim=c(nSites,max(nYearsMS),10))
+  }
+
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
@@ -875,7 +907,10 @@ if(ageHarvPrior>0){
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
-                     LUEgv = as.double(multiSiteInit$LUEgv)
+                     LUEgv = as.double(multiSiteInit$LUEgv),
+                     disturbanceON = as.logical(disturbanceON),
+                     siteInfoDist = as.matrix(siteInfoDist),
+                     outDist = as.array(outDist)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -936,6 +971,20 @@ reStartRegionPrebas <- function(multiSiteInit,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
                          startSimYear
 ){
+  
+  ###disturbance modules activation
+  if(!exists(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  ####initialize disturbance module if exists
+  if(all(is.na(siteInfoDist))){
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,nSites,4)
+    outDist = array(0,dim=c(nSites,max(nYearsMS),10))
+  }else{
+    disturbanceON = TRUE
+    #siteInfoDist = matrix(0,nSites,4)
+    outDist = array(0,dim=c(nSites,max(nYearsMS),10))
+  }
+  
   
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -1047,7 +1096,10 @@ reStartRegionPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
-                     LUEgv = as.double(multiSiteInit$LUEgv)
+                     LUEgv = as.double(multiSiteInit$LUEgv),
+                     disturbanceON = as.logical(disturbanceON),
+                     siteInfoDist = as.matrix(siteInfoDist),
+                     outDist = as.array(outDist)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

@@ -183,10 +183,22 @@ prebas <- function(nYears,
                    p0currClim = NA,
                    TcurrClim = NA,
                    PcurrClim = NA,
-                   HcModV = HcModV_def #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
+                   HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
+                   siteInfoDist = NA
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  
+  ####initialize disturbance module if exists
+  if(is.na(siteInfoDist)){
+    disturbanceON = FALSE
+    siteInfoDist = rep(0,4)
+    outDist = matrix(0,nYears,10)
+  }else{
+    disturbanceON = TRUE
+    #siteInfoDist = matrix(0,nSites,4)
+    outDist = matrix(0,nYears,10)
+  }
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -422,7 +434,10 @@ prebas <- function(nYears,
                      pECMmod = as.numeric(pECMmod),
                      layerPRELES = as.integer(layerPRELES),
                      LUEtrees = as.double(LUEtrees),
-                     LUEgv = as.double(LUEgv)
+                     LUEgv = as.double(LUEgv),
+                     disturbanceON = as.logical(disturbanceON),
+                     siteInfoDist = as.double(siteInfoDist),
+                     outDist = as.matrix(outDist)
                      )
   class(prebas) <- "prebas"
   return(prebas)

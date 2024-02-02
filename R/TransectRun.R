@@ -128,7 +128,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         TcurrClim = NA,
                         PcurrClim = NA,
                         ingrowth = FALSE,
-                        soilPar = NA #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
+                        soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
+                        siteInfoDist = NA
 ) {
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -252,7 +253,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     p0currClim = p0currClim,
     TcurrClim = TcurrClim,
     PcurrClim = PcurrClim,
-    ingrowth = ingrowth
+    ingrowth = ingrowth,
+    siteInfoDist = siteInfoDist
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   TransectOut <- multiPrebas(initPrebas)

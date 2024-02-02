@@ -10,7 +10,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
 	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod, & 
-	 layerPRELES,LUEtrees,LUEgv)
+	 layerPRELES,LUEtrees,LUEgv,disturbanceON, siteInfoDist, outDist)
 
 implicit none
 
@@ -28,6 +28,10 @@ implicit none
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
+!disturbances
+ logical, intent(in) :: disturbanceON
+ integer, intent(inout) :: siteInfoDist(4), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+ 
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
  integer, intent(in) :: oldLayer,layerPRELES
@@ -126,9 +130,6 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  !!user thinnings
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
-
-!disturbances
- logical :: disturbanceON = .false.
 
 
   ! open(1,file="test1.txt")
