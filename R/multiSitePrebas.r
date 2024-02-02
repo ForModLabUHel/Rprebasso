@@ -907,8 +907,8 @@ if(ageHarvPrior>0){
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
-                     LUEgv = as.double(multiSiteInit$LUEgv)#,
-                     # disturbanceON = as.logical(disturbanceON),
+                     LUEgv = as.double(multiSiteInit$LUEgv),
+                     disturbanceON = as.logical(disturbanceON)#,
                      # siteInfoDist = as.matrix(siteInfoDist),
                      # outDist = as.array(outDist)
   )
