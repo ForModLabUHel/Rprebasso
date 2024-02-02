@@ -663,7 +663,7 @@ multiPrebas <- function(multiSiteInit,
                         oldLayer=0){
   
 ###check and activate disturbance modules  
-  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
@@ -797,7 +797,7 @@ regionPrebas <- function(multiSiteInit,
                          startSimYear=1
 ){
   ###disturbance modules activation
-  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
@@ -973,7 +973,7 @@ reStartRegionPrebas <- function(multiSiteInit,
 ){
   
   ###disturbance modules activation
-  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
