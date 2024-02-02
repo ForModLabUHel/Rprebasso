@@ -668,11 +668,11 @@ multiPrebas <- function(multiSiteInit,
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
-    outDist = array(0,dim=c(multiSiteInit$nSites,max(nYearsMS),10))
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     disturbanceON = TRUE
     #siteInfoDist = matrix(0,nSites,4)
-    outDist = array(0,dim=c(multiSiteInit$nSites,max(nYearsMS),10))
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
   
@@ -802,11 +802,11 @@ regionPrebas <- function(multiSiteInit,
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
-    outDist = array(0,dim=c(multiSiteInit$nSites,max(nYearsMS),10))
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     disturbanceON = TRUE
     #siteInfoDist = matrix(0,nSites,4)
-    outDist = array(0,dim=c(multiSiteInit$nSites,max(nYearsMS),10))
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
 
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
@@ -978,11 +978,11 @@ reStartRegionPrebas <- function(multiSiteInit,
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
-    outDist = array(0,dim=c(multiSiteInit$nSites,max(nYearsMS),10))
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     disturbanceON = TRUE
     #siteInfoDist = matrix(0,nSites,4)
-    outDist = array(0,dim=c(multiSiteInit$nSites,max(nYearsMS),10))
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
   
