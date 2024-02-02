@@ -843,7 +843,7 @@ if(ageHarvPrior>0){
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
 
-  prebas <- .Fortran("regionPrebas",
+  prebas <- .Fortran("regionMod",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
@@ -912,7 +912,7 @@ if(ageHarvPrior>0){
                      siteInfoDist = as.matrix(siteInfoDist),
                      outDist = as.array(outDist)
   )
-  class(prebas) <- "regionPrebas"
+  class(prebas) <- "regionMod"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
     prebas$totHarv <- apply(rescalVbyArea,2,sum)
@@ -1032,7 +1032,7 @@ reStartRegionPrebas <- function(multiSiteInit,
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
   
-  prebas <- .Fortran("regionPrebas",
+  prebas <- .Fortran("regionMod",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
@@ -1101,7 +1101,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      siteInfoDist = as.matrix(siteInfoDist),
                      outDist = as.array(outDist)
   )
-  class(prebas) <- "regionPrebas"
+  class(prebas) <- "regionMod"
   if(prebas$maxNlayers>1){
     rescalVbyArea <- prebas$multiOut[,,37,,1] * prebas$areas
     prebas$totHarv <- apply(rescalVbyArea,2,sum)
