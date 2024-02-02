@@ -1,7 +1,8 @@
 !Disturbance module
 
-!!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+if(.false.) then !if XX everything is switch off for the moment
 
+!!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 if (disturbanceON) then 
   ! BAmort = 0.d0
   ! pMort = 0.2d0
@@ -198,3 +199,4 @@ dN=0.d0
 	
 endif !if disturbanceON
 ! endif
+endif !end if XX switch off the modules
