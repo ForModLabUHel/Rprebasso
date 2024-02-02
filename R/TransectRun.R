@@ -257,6 +257,6 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     siteInfoDist = siteInfoDist
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
-  TransectOut <- multiPrebas(initPrebas)
+  TransectOut <- regionPrebas(initPrebas)
   return(TransectOut)
 }

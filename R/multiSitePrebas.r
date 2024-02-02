@@ -908,8 +908,8 @@ if(ageHarvPrior>0){
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
                      LUEgv = as.double(multiSiteInit$LUEgv),
-                     disturbanceON = as.logical(disturbanceON)#,
-                     # siteInfoDist = as.matrix(siteInfoDist),
+                     disturbanceON = as.logical(disturbanceON),
+                     siteInfoDist = as.matrix(siteInfoDist)#,
                      # outDist = as.array(outDist)
   )
   class(prebas) <- "regionPrebas"
