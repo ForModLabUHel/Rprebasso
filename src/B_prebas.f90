@@ -107,6 +107,7 @@ implicit none
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
+ ! real (kind=8) :: W_froot_t0(nLayers), Wrtot
 !variables for random mortality calculations & disturbances
 real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 !!ECMmodelling
@@ -551,6 +552,8 @@ endif
 endif
 !enddo !! end site loop
 
+! Wrtot = sum(STAND_all(25,:))
+! W_froot_t0 = STAND_all(25,:)
 do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
  species = int(max(1.,stand(4)))
@@ -782,11 +785,13 @@ if (N>0.) then
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
+
+555   	continue
 			
         !Height growth-----------------------
 		f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
 		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+				(par_z+1)/par_z * W_bs + beta0 * W_c) + betaC * W_s)
 		dH = max(0.,((H-Hc) * f1/f2))
 		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
 		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
@@ -797,7 +802,7 @@ if (N>0.) then
 		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
 			gammaC = 1.
 			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+				(par_z+1)/par_z * W_bs + beta0 * W_c) + betaC * W_s)
 			dH = max(0.,((H-Hc) * f1/f2))
 			mort = 888.
 		endif
@@ -837,7 +842,7 @@ endif
             dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
             dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
             dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
-            dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
+            dWdb = max(0.,W_branch/Lc * (par_z+1)/par_z * gammaC * dH - Wdb/Tdb)
 
 ! determine N demand and N uptake
 		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH + wf_STKG / par_vf
@@ -847,6 +852,85 @@ endif
 		Sc = N * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		St = N * beta0 * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		Gw = dWw + Sb + Sc + St + theta * W_wsap
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! added stuff for N calculations
+
+	  call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
+	  
+! par_zb = 1 for Hyungwoo calculations
+! par_zb = 0 for Umax = 1
+! par_zb = -Umax for Umax calculations
+		
+	  ncount = ncount + 1
+	  if(par_zb .lt. -0.01) then
+			nitpar(7) = - par_zb 
+		else
+			nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000.
+	  endif
+	  
+	  if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
+			
+
+      call Nitrogen(Gf,Gr,Gw,STAND_all(25,:),sum(STAND_all(25,:)), siteType, species, latitude, CN, Nup,Ndem,nitpar, pECMmod)
+
+! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
+	 if(par_zb .lt. -0.01 ) then
+
+!	  write(1,*) siteInfo(1), year, S_fol,S_fr
+	   if(Nup.lt.Ndem*1.001)then
+		 if(Ndem.gt.0.)then
+			 if(ncount < 6)then
+				 nppCost = Nup / Ndem * nppCost
+				 goto 555
+			 else
+				 ncount = 0
+			 endif
+		 endif
+	   endif
+	   
+	 endif
+	   
+   !update par_alfar based on weather (modOut(year,3,ij,2))
+   ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
+   ! it has to be updated for locations 
+   
+   if(par_H0max .gt. 0) then
+   
+   if(year.eq.1) then
+   
+!	apu = modOut(year,3,ij,2) * (p0 / fTaweNH(4)) / (par_gamma) 
+	apu = min(0.85, modOut(year,3,ij,2) * (par_gamma) )
+	
+		else
+		
+		apu = modOut(year,3,ij,2)
+		
+	endif
+   
+  ! choose between full effect (first line; N availability increases) and p0 effect (second line; N availability does not increase)
+  ! and choose between smootehed or non-smoothed
+  
+
+!    modOut(year+1,3,ij,2) = apu + ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
+!	modOut(year+1,3,ij,2) = ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) ) ! non-smoothed
+!	modOut(year+1,3,ij,2) = min(0.85 ,(par_gamma) * modOut(1,3,ij,2) ) ! constant change for allocation under constant weather of new kind
+!	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
+	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
+	
+	   
+   endif
+
+! ! use devise 1 to print in case it is not in use otherwise
+	! if(par_zb .lt. 1) then 
+	! write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup / nitpar(7), Ndem , fAPARtrees
+	! endif
+	! write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
+	
+! end of added stuff for N calculations
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
+
 
 !!  Update state variables
           H = H + step * dH
