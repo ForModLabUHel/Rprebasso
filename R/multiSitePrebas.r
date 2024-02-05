@@ -49,7 +49,8 @@ InitMultiSite <- function(nYearsMS,
                           alpharNcalc=FALSE,
                           p0currClim = NA,
                           TcurrClim = NA,
-                          PcurrClim = NA
+                          PcurrClim = NA,
+                          alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
 ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -388,8 +389,21 @@ InitMultiSite <- function(nYearsMS,
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
     fTratio <- fT/fT0 
-    alpharNfact <- p0ratio / fTratio
-    alpharNfact[which(is.na(alpharNfact))] <- 0
+
+    ###calculate rolling average
+    fTrollMean <- fT
+    kx=5 ####this is the lag for the rolling average, maybe it could be an input
+    ###fill first values
+    fTrollMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
+    fTrollMean[,1:(kx-1)] <- fTrollMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
+    # calculate rollingmean
+    fTrollMean[,kx:ncol(fT)] <- t(apply(fT,1,k=kx,rollmean))
+    fTratioRollmean <- fTrollMean/fT0
+    
+    if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
+    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratioRollmean 
+    if(alpharVersion == 2) alpharNfact <- p0ratio      
+    if(!alpharVersion == 3) alpharNfact <- 1             
     
     for(ijj in 1:nClimID){
       # siteXs <- which(siteInfo[,2] == ijj)
@@ -398,12 +412,13 @@ InitMultiSite <- function(nYearsMS,
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
       if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
     }
-    ####alphar is smoothed using a running average of 10 years
-    if(maxNlayers==1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,1,2],1,mean)
-    if(maxNlayers>1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,,2],c(1,3),mean)
-    for(ijj in 2:maxYears){
-      multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
-    }
+    ##this is not needed anymore because we smooth fT
+    # ####alphar is smoothed using a running average of 10 years
+    # if(maxNlayers==1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,1,2],1,mean)
+    # if(maxNlayers>1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,,2],c(1,3),mean)
+    # for(ijj in 2:maxYears){
+    #   multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
+    # }
   } 
   
   multiSiteInit <- list(

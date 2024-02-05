@@ -51,6 +51,7 @@
 #' @param thinInt 
 #' @param latitude 
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
+#' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
 #'
 #' @importFrom plyr aaply
 #'
@@ -128,7 +129,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         p0currClim = NA,
                         TcurrClim = NA,
                         PcurrClim = NA,
-                        soilPar = NA #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
+                        soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
+                        alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
                         ) {
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -252,7 +254,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     alpharNcalc=alpharNcalc,
     p0currClim = p0currClim,
     TcurrClim = TcurrClim,
-    PcurrClim = PcurrClim
+    PcurrClim = PcurrClim,
+    alpharVersion = alpharVersion
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
   TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
