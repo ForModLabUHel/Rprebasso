@@ -315,7 +315,7 @@ prebas <- function(nYears,
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
     if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratioRollmean 
     if(alpharVersion == 2) alpharNfact <- p0ratio      
-    if(alpharVersion == 3) alpharNfact <- p0ratio; alpharNfact <- 1             
+    if(alpharVersion == 3) alpharNfact <- rep(1,length(p0ratio))
     
     alpharNfact <- p0ratio * fTratio
     if(maxNlayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfact
