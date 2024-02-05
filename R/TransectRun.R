@@ -51,6 +51,7 @@
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param ingrowth # flag to simulate ingrowth
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
+#' @param modVersion # model version to use in the simulations it can be multiSite or region
 #' 
 #' @importFrom plyr aaply
 #'
@@ -129,9 +130,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         PcurrClim = NA,
                         ingrowth = FALSE,
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
-                        siteInfoDist = NA
+                        siteInfoDist = NA,
+                        modVersion = "multiSite"
 ) {
   
+  if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
   nSites <- 7
@@ -257,6 +260,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     siteInfoDist = siteInfoDist
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
-  TransectOut <- regionPrebas(initPrebas)
+  
+  if(modVersion=="region") TransectOut <- regionPrebas(initPrebas)
+  if(modVersion=="multiSite") TransectOut <- multiPrebas(initPrebas)
+  
   return(TransectOut)
 }
