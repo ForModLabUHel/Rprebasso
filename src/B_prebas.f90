@@ -30,7 +30,7 @@ implicit none
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
 !disturbances
  logical, intent(in) :: disturbanceON
- integer, intent(inout) :: siteInfoDist(4), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+ real (kind=8), intent(inout) :: siteInfoDist(4), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
