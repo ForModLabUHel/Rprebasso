@@ -392,7 +392,7 @@ InitMultiSite <- function(nYearsMS,
 
     ###calculate rolling average
     fTrollMean <- fT
-    kx=5 ####this is the lag for the rolling average, maybe it could be an input
+    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
     ###fill first values
     fTrollMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
     fTrollMean[,1:(kx-1)] <- fTrollMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
@@ -403,7 +403,7 @@ InitMultiSite <- function(nYearsMS,
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
     if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratioRollmean 
     if(alpharVersion == 2) alpharNfact <- p0ratio      
-    if(!alpharVersion == 3) alpharNfact <- 1             
+    if(alpharVersion == 3) alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
     
     for(ijj in 1:nClimID){
       # siteXs <- which(siteInfo[,2] == ijj)
