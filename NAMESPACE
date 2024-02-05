@@ -1,4 +1,5 @@
 useDynLib(Rprebasso)
 exportPattern("^[[:alpha:]]+")
-importFrom(plyr,aaply,zoo)
+importFrom(plyr,aaply)
 importFrom(abind,abind)
+importFrom(zoo,rollmean)
