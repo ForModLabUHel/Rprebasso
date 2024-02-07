@@ -760,7 +760,7 @@ if (N>0.) then
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
 
-if(modOut(1,1,1,1) ==1. ) write(1,*) 224,modOut(1:5,3,:,2)
+
 			! ECM modelling
 			if(ECMmod==1) then !!!ECMmodelling
 			    normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
@@ -807,7 +807,7 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 224,modOut(1:5,3,:,2)
 			dH = max(0.,((H-Hc) * f1/f2))
 			mort = 888.
 		endif
-if(modOut(1,1,1,1) ==1. ) write(1,*) 223,modOut(1:5,3,:,2)
+
   
  !-----------------------------------
         !crown rise
@@ -864,7 +864,7 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 ! par_zb = 1 for Hyungwoo calculations
 ! par_zb = 0 for Umax = 1
 ! par_zb = -Umax for Umax calculations
-		
+if(modOut(1,1,1,1) ==1. ) write(1,*) 223,modOut(1:5,3,:,2)		
 	  ncount = ncount + 1
 	  if(par_zb .lt. -0.01) then
 			nitpar(7) = - par_zb 
@@ -874,9 +874,9 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 	  
 	  if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
 			
-
+if(modOut(1,1,1,1) ==1. ) write(1,*) 224,modOut(1:5,3,:,2)
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,:),sum(STAND_all(25,:)), siteType, species, latitude, CN, Nup,Ndem,nitpar, pECMmod)
-
+if(modOut(1,1,1,1) ==1. ) write(1,*) 225,modOut(1:5,3,:,2)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
 	 if(par_zb .lt. -0.01 ) then
 
@@ -893,7 +893,7 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 	   endif
 	   
 	 endif
-	   
+	   if(modOut(1,1,1,1) ==1. ) write(1,*) 226,modOut(1:5,3,:,2)
    !update par_alfar based on weather (modOut(year,3,ij,2))
    ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
    ! it has to be updated for locations 
@@ -910,7 +910,7 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 		apu = modOut(year,3,ij,2)
 		
 	endif
-   
+   if(modOut(1,1,1,1) ==1. ) write(1,*) 227,modOut(1:5,3,:,2)
   ! choose between full effect (first line; N availability increases) and p0 effect (second line; N availability does not increase)
   ! and choose between smootehed or non-smoothed
   
@@ -921,7 +921,7 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 !	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
 	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
 	
-	   
+	   if(modOut(1,1,1,1) ==1. ) write(1,*) 228,modOut(1:5,3,:,2)
    endif
 
 ! ! use devise 1 to print in case it is not in use otherwise
