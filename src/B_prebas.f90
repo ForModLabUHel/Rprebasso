@@ -331,7 +331,7 @@ ETSmean = ETSmean + (ETS-ETSmean)/20.
 
 ! !calculate reneike and random mortality
 ! include 'mortalityCalc.h'
-if(modOut(1,1,1,1) ==1. ) write(1,*) modOut(1:nYears,3,:,:)
+if(modOut(1,1,1,1) ==1. ) write(1,*) modOut(1:5,3,:,2)
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
  species = int(max(1.,stand(4)))
@@ -470,6 +470,7 @@ do ij = 1 , nLayers 		!loop Species
 
  STAND_all(:,ij)=STAND
 end do !!!!!!!end loop layers
+if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 
 !!!calculate species weight for photosynthesis
 !do siteNo = 1, nSites
