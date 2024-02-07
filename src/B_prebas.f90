@@ -708,8 +708,6 @@ if (N>0.) then
   par_mf = par_mf0* normFactP0
   par_mw = par_mw0* normFactP0
   
-  if(modOut(1,1,1,1) ==1. ) write(1,*) 111,modOut(1:5,3,:,2)
-
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
@@ -857,14 +855,12 @@ endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! added stuff for N calculations
-if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 
 	  call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
 	  
 ! par_zb = 1 for Hyungwoo calculations
 ! par_zb = 0 for Umax = 1
 ! par_zb = -Umax for Umax calculations
-if(modOut(1,1,1,1) ==1. ) write(1,*) 223,modOut(1:5,3,:,2)		
 	  ncount = ncount + 1
 	  if(par_zb .lt. -0.01) then
 			nitpar(7) = - par_zb 
@@ -874,9 +870,7 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 223,modOut(1:5,3,:,2)
 	  
 	  if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
 			
-if(modOut(1,1,1,1) ==1. ) write(1,*) 224,modOut(1:5,3,:,2)
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,:),sum(STAND_all(25,:)), siteType, species, latitude, CN, Nup,Ndem,nitpar, pECMmod)
-if(modOut(1,1,1,1) ==1. ) write(1,*) 225,modOut(1:5,3,:,2)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
 	 if(par_zb .lt. -0.01 ) then
 
@@ -893,7 +887,6 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 225,modOut(1:5,3,:,2)
 	   endif
 	   
 	 endif
-	   if(modOut(1,1,1,1) ==1. ) write(1,*) 226,modOut(1:5,3,:,2)
    !update par_alfar based on weather (modOut(year,3,ij,2))
    ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
    ! it has to be updated for locations 
@@ -910,7 +903,6 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 225,modOut(1:5,3,:,2)
 		apu = modOut(year,3,ij,2)
 		
 	endif
-   if(modOut(1,1,1,1) ==1. ) write(1,*) 227,modOut(1:5,3,:,2)
   ! choose between full effect (first line; N availability increases) and p0 effect (second line; N availability does not increase)
   ! and choose between smootehed or non-smoothed
   
@@ -919,9 +911,8 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 225,modOut(1:5,3,:,2)
 !	modOut(year+1,3,ij,2) = ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) ) ! non-smoothed
 !	modOut(year+1,3,ij,2) = min(0.85 ,(par_gamma) * modOut(1,3,ij,2) ) ! constant change for allocation under constant weather of new kind
 !	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
-	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
+!	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
 	
-	   if(modOut(1,1,1,1) ==1. ) write(1,*) 228,modOut(1:5,3,:,2)
    endif
 
 ! ! use devise 1 to print in case it is not in use otherwise
@@ -932,8 +923,6 @@ if(modOut(1,1,1,1) ==1. ) write(1,*) 225,modOut(1:5,3,:,2)
 	
 ! end of added stuff for N calculations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
- if(modOut(1,1,1,1) ==1. ) write(1,*) 333,modOut(1:5,3,:,2)
-
 
 !!  Update state variables
           H = H + step * dH
