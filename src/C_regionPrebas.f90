@@ -5,27 +5,39 @@
 subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
 		nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
-		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
+		weatherPRELES,DOY,pPRELES, soilCinOut,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
-		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,startSimYear,ECMmod,pECMmod, & 
-		layerPRELES,LUEtrees,LUEgv,disturbanceON)!, siteInfoDist, outDist)
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
+		ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, & 
+		layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+! pre-flag-grouping version:
+! subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
+! 		nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
+! 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
+! 		weatherPRELES,DOY,pPRELES,etmodel, soilCinOut,pYasso,&
+! 		pAWEN,weatherYasso,litterSize,soilCtotInOut, &
+! 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
+! 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,cuttingArea,compHarv,thinInt, &
+! 		ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,startSimYear,ECMmod,pECMmod, & 
+! 		layerPRELES,LUEtrees,LUEgv,disturbanceON)!, siteInfoDist, outDist)
+
+
 
 implicit none
 
 integer, parameter :: nVar=54,npar=53!, nSp=3
 real (kind=8), parameter :: pi = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
-integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,oldLayer,layerPRELES
+integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,layerPRELES !oldLayer fvec
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,startSimYear
 integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
- integer, intent(in) :: DOY(365),etmodel, ECMmod
+ integer, intent(in) :: DOY(365)!,etmodel, ECMmod fvec
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
  !disturbances
- logical, intent(in) :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
+ logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
  real (kind=8) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
@@ -44,7 +56,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 					!from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
  real (kind=8), intent(inout) :: energyCuts(nSites)	!!energCuts
  !!!ground vegetation
- integer, intent(in) :: gvRun			!!!ground vegetation
+ !integer, intent(in) :: gvRun			!!!ground vegetation fvec
  real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV			!!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
@@ -62,11 +74,25 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  
 
 !!! fertilization parameters
- integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ !integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 fvec
  integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
  real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites), siteOrdX(nSites)
+
+ integer :: etmodel, gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags fvec
+ integer, intent(inout) :: prebasFlags(6)
+
+!!! 'un-vectorise' flags, fvec
+etmodel = prebasFlags(1)
+gvRun = prebasFlags(2)
+fertThin = prebasFlags(3)
+oldLayer = prebasFlags(4)
+ECMmod = prebasFlags(5)
+if(prebasFlags(6)==0) disturbanceON = .FALSE.
+if(prebasFlags(6)==1) disturbanceON = .TRUE.
+
+
 
 !!!!initialize run
 ! multiOut = 0.
@@ -256,18 +282,40 @@ endif
 		! write(1,*) thinningX(1:az,:)
 		! close(2)
 	 ! endif
-	output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
-		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+   
+   ! flag vectorisation: original version 
+	! output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
+	! 	call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+	! 	thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
+	! 	fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
+	! 	weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
+	! 	soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
+	! 	litterSize,soilCtot(i,ij),&
+	! 	defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
+	! 	dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
+	! 	tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
+	! 	fertThin,flagFert(i),nYearsFert,oldLayer,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
+	! 	disturbanceON, siteInfoDist(i,:), outDist(i,ij,:))
+
+  ! flag vectorisation: prebasFlag version  fvec
+
+    call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
-		weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &
+		weatherPRELES(climID,ij,:,:),DOY,pPRELES, &
 		soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
 		litterSize,soilCtot(i,ij),&
 		defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
 		dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
-		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),GVrun,thinInt(i), &
-		fertThin,flagFert(i),nYearsFert,oldLayer,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-		disturbanceON, siteInfoDist(i,:), outDist(i,ij,:))
+		tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
+		flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
+		siteInfoDist(i,:), outDist(i,ij,:), prebasFlags)
+    
+    
+    
+    
+    
+    
  	! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
 	! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
 	!!!if oldLayer is active import siteType and alfar from the single site simulations simulations

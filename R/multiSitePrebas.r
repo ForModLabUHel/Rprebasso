@@ -679,11 +679,26 @@ multiPrebas <- function(multiSiteInit,
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
+  
 
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
 
+  
+  #### vectorisation of flags ####
+  # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
+  
+  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
+                              multiSiteInit$GVrun),     #int  
+                              fertThin,
+                              oldLayer,
+                              multiSiteInit$ECMmod,
+                              disturbanceSwitch)
+  
+  
+  
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -708,7 +723,7 @@ multiPrebas <- function(multiSiteInit,
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
                      pPRELES=as.matrix(multiSiteInit$pPRELES),
-                     etmodel=as.integer(multiSiteInit$etmodel),
+                     #etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
                      pYASSO=as.double(multiSiteInit$pYASSO),
                      pAWEN = as.matrix(multiSiteInit$pAWEN),
@@ -729,21 +744,23 @@ multiPrebas <- function(multiSiteInit,
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
-                     GVrun = as.integer(multiSiteInit$GVrun),
+                     #GVrun = as.integer(multiSiteInit$GVrun),
                      thinInt=as.double(multiSiteInit$thinInt),
-                     fertThin = as.integer(fertThin),
+                     #fertThin = as.integer(fertThin),
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
-                     oldLayer=as.integer(oldLayer),
+                     #oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
-                     ECMmod=as.integer(multiSiteInit$ECMmod),
+                     #ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
                      LUEgv = as.double(multiSiteInit$LUEgv),
-                     disturbanceON = as.logical(disturbanceON),
+                     #disturbanceON = as.logical(disturbanceON),
                      siteInfoDist = as.matrix(siteInfoDist),
-                     outDist = as.array(outDist)
+                     outDist = as.array(outDist),
+                     prebasFlags = as.integer(prebasFlags)
+                      
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -797,7 +814,7 @@ regionPrebas <- function(multiSiteInit,
                          startSimYear=1
 ){
   ###disturbance modules activation
-  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
@@ -805,7 +822,7 @@ regionPrebas <- function(multiSiteInit,
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     disturbanceON = TRUE
-    #siteInfoDist = matrix(0,nSites,4)
+    siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
 
@@ -843,7 +860,20 @@ if(ageHarvPrior>0){
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
 
-  prebas <- .Fortran("regionPrebas",
+  
+  #### vectorisation of flags ####
+  # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
+  
+  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
+                              multiSiteInit$GVrun,     #int  
+                              multiSiteInit$fertThin,
+                              oldLayer,
+                              multiSiteInit$ECMmod,
+                              disturbanceSwitch))
+                              
+  
+    prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
@@ -871,7 +901,7 @@ if(ageHarvPrior>0){
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
                      pPRELES=as.matrix(multiSiteInit$pPRELES),
-                     etmodel=as.integer(multiSiteInit$etmodel),
+                     #etmodel=as.integer(multiSiteInit$etmodel), #fvec
                      soilC = as.array(multiSiteInit$soilC),
                      pYASSO=as.double(multiSiteInit$pYASSO),
                      pAWEN = as.matrix(multiSiteInit$pAWEN),
@@ -892,25 +922,27 @@ if(ageHarvPrior>0){
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
-                     GVrun = as.integer(multiSiteInit$GVrun),
+                     #GVrun = as.integer(multiSiteInit$GVrun), #fvec
                      cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv),
                      thinInt=as.double(multiSiteInit$thinInt),
                      ageHarvPrior = as.double(ageHarvPrior),
-                     fertThin = as.integer(fertThin),
+                     #fertThin = as.integer(fertThin),
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert),
-                     oldLayer=as.integer(oldLayer),
+                     #oldLayer=as.integer(oldLayer),#fvec
                      mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear),
-                     ECMmod=as.integer(multiSiteInit$ECMmod),
+                     #ECMmod=as.integer(multiSiteInit$ECMmod),#fvec
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
                      LUEgv = as.double(multiSiteInit$LUEgv),
-                     disturbanceON = as.logical(disturbanceON)#,
-                     #siteInfoDist = as.matrix(siteInfoDist)#,
-                     # outDist = as.array(outDist)
+                     siteInfoDist = as.matrix(siteInfoDist),
+                     outDist = as.array(outDist),
+                     prebasFlags = as.integer(prebasFlags)
+                     #disturbanceSwitch = as.logical(disturbanceON)#fvec
+                    
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -973,8 +1005,10 @@ reStartRegionPrebas <- function(multiSiteInit,
 ){
   
   ###disturbance modules activation
-  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  #if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   ####initialize disturbance module if exists
+  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
@@ -1060,7 +1094,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
                      pPRELES=as.matrix(multiSiteInit$pPRELES),
-                     etmodel=as.integer(multiSiteInit$etmodel),
+                     #etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
                      pYASSO=as.double(multiSiteInit$pYASSO),
                      pAWEN = as.matrix(multiSiteInit$pAWEN),
@@ -1081,25 +1115,26 @@ reStartRegionPrebas <- function(multiSiteInit,
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
-                     GVrun = as.integer(multiSiteInit$GVrun),
+                     #GVrun = as.integer(multiSiteInit$GVrun),
                      cutAreas=as.matrix(cutAreas),
                      compHarv=as.double(compHarv),
                      thinInt=as.double(multiSiteInit$thinInt),
                      ageHarvPrior = as.double(ageHarvPrior),
-                     fertThin = as.integer(fertThin),
+                     #fertThin = as.integer(fertThin),
                      flagFert = as.integer(rep(0,multiSiteInit$nSites)),
                      nYearsFert = as.integer(nYearsFert),
-                     oldLayer=as.integer(oldLayer),
+                     #oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
                      startSimYear = as.integer(startSimYear),
-                     ECMmod=as.integer(multiSiteInit$ECMmod),
+                     #ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      layerPRELES = as.integer(multiSiteInit$layerPRELES),
                      LUEtrees = as.double(multiSiteInit$LUEtrees),
                      LUEgv = as.double(multiSiteInit$LUEgv),
-                     disturbanceON = as.logical(disturbanceON),
+                     #disturbanceON = as.logical(disturbanceON),
                      siteInfoDist = as.matrix(siteInfoDist),
-                     outDist = as.array(outDist)
+                     outDist = as.array(outDist),
+                     prebasFlags = as.integer(prebasFlags)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

@@ -5,12 +5,13 @@
 subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
 		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
-		weatherPRELES,DOY,pPRELES,etmodel, soilC,pYasso,&
+		weatherPRELES,DOY,pPRELES, soilC,pYasso,&
 		pAWEN,weatherYasso,litterSize,soilCtot, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
-		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,GVrun,thinInt, &
-		fertThin,flagFert,nYearsFert,protect,mortMod,ECMmod,pECMmod,& 
-		layerPRELES,LUEtrees,LUEgv,disturbanceON, siteInfoDist, outDist)
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
+	  flagFert,nYearsFert,protect,mortMod,pECMmod,& 
+		layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+
 
 implicit none
 
@@ -20,7 +21,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
- integer, intent(in) :: DOY(365),etmodel,ECMmod,layerPRELES
+ integer, intent(in) :: DOY(365),layerPRELES !, ECMmod fvec
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7),mortMod(2)
  real (kind=8), intent(inout) :: siteInfo(nSites,10),thdPer(nSites),limPer(nSites)
@@ -34,16 +35,16 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
 					!from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
 
-logical, intent(in) :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
+logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
 real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
  !!! fertilization parameters
- integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ !integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 fvec
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
 
 !!!ground vegetation
- integer, intent(in) :: gvRun			!!!ground vegetation
+ !integer, intent(in) :: gvRun			!!!ground vegetation fvec
  real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV			!!!ground vegetation
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
@@ -57,6 +58,19 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,
  real (kind=8) :: output(maxYears,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),mortModX
  real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
+
+ integer :: etmodel, gvRun, fertThin, ECMmod !not direct inputs anymore, but in prebasFlags fvec
+ integer, intent(inout) :: prebasFlags(6)
+
+!!! 'un-vectorise' flags, fvec
+etmodel = prebasFlags(1)
+gvRun = prebasFlags(2)
+fertThin = prebasFlags(3)
+!   oldLayer = prebasFlags(4)
+ECMmod = prebasFlags(5)
+if(prebasFlags(6)==0) disturbanceON = .FALSE.
+if(prebasFlags(6)==1) disturbanceON = .TRUE.
+
 
 !!!!initialize run
 ! multiOut = 0.

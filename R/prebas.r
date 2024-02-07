@@ -141,7 +141,7 @@ prebas <- function(nYears,
                    pYASSO = pYAS,
                    pAWEN = parsAWEN,
                    # PREBASversion = 0,
-                   etmodel = 0,
+                   #etmodel = 0,
                    siteInfo = NA,
                    thinning=NA,
                    initClearcut = initSeedling.def,
@@ -168,13 +168,13 @@ prebas <- function(nYears,
                    limPer=0.5,
                    ftTapioPar = ftTapio,
                    tTapioPar = tTapio,
-                   GVrun = 1, ###flag for Ground vegetation model 1-> runs the GV model
+                   #GVrun = 1, ###flag for Ground vegetation model 1-> runs the GV model
                    thinInt=-999.,
-                   fertThin=0.,
+                   #fertThin=0.,
                    nYearsFert=20,
                    protect=0,
                    mortMod=1,
-                   ECMmod=0, #flag for ECM modelling MAkela et al.2022
+                   #ECMmod=0, #flag for ECM modelling MAkela et al.2022
                    pECMmod=parsECMmod,
                    layerPRELES = 0,
                    LUEtrees = pLUEtrees,
@@ -382,6 +382,17 @@ prebas <- function(nYears,
     }
   } 
   
+  #### vectorisation of flags ####
+  # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
+  
+  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  prebasFlags <- as.integer(c(etmodel, #int
+                            GVrun),     #int  
+                            fertThin,
+                            oldLayer,
+                            multiSiteInit$ECMmod,
+                            disturbanceSwitch)
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -402,7 +413,7 @@ prebas <- function(nYears,
                      weather=as.array(weatherPreles),
                      DOY= as.integer(1:365),
                      pPRELES=as.numeric(pPRELES),
-                     etmodel = as.integer(etmodel),
+                     #etmodel = as.integer(etmodel), #fvec
                      soilC = as.array(soilC),
                      pYASSO=as.numeric(pYASSO),
                      pAWEN = as.matrix(pAWEN),
@@ -423,21 +434,22 @@ prebas <- function(nYears,
                      ftTapioPar = as.array(ftTapioPar),
                      tTapioPar = as.array(tTapioPar),
                      GVout = matrix(0,nYears,5),
-                     GVrun = as.integer(GVrun),
+                     #GVrun = as.integer(GVrun), #fvec
                      thinInt = as.double(thinInt),
-                     fertThin = as.integer(fertThin),
+                     #fertThin = as.integer(fertThin), #fvec
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
                      protect = as.integer(protect),
                      mortMod = as.integer(mortMod),
-                     ECMmod = as.integer(ECMmod),
+                    # ECMmod = as.integer(ECMmod), # fvec
                      pECMmod = as.numeric(pECMmod),
                      layerPRELES = as.integer(layerPRELES),
                      LUEtrees = as.double(LUEtrees),
                      LUEgv = as.double(LUEgv),
-                     disturbanceON = as.logical(disturbanceON),
+                    # disturbanceON = as.logical(disturbanceON), #fvec
                      siteInfoDist = as.double(siteInfoDist),
-                     outDist = as.matrix(outDist)
+                     outDist = as.matrix(outDist),
+                     prebasFlags = as.integer(prebasFlags)
                      )
   class(prebas) <- "prebas"
   return(prebas)
