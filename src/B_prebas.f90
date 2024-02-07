@@ -331,7 +331,6 @@ ETSmean = ETSmean + (ETS-ETSmean)/20.
 
 ! !calculate reneike and random mortality
 ! include 'mortalityCalc.h'
-if(modOut(1,1,1,1) ==1. ) write(1,*) modOut(1:5,3,:,2)
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
  species = int(max(1.,stand(4)))
@@ -470,7 +469,6 @@ do ij = 1 , nLayers 		!loop Species
 
  STAND_all(:,ij)=STAND
 end do !!!!!!!end loop layers
-if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 
 !!!calculate species weight for photosynthesis
 !do siteNo = 1, nSites
@@ -710,7 +708,8 @@ if (N>0.) then
   par_mf = par_mf0* normFactP0
   par_mw = par_mw0* normFactP0
   
-  
+  if(modOut(1,1,1,1) ==1. ) write(1,*) 111,modOut(1:5,3,:,2)
+
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
@@ -932,6 +931,7 @@ endif
 	
 ! end of added stuff for N calculations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
+ if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 
 
 !!  Update state variables
@@ -1024,6 +1024,7 @@ else
   STAND(7) = STAND(7) + step
 endif
 endif
+ if(modOut(1,1,1,1) ==1. ) write(1,*) 333,modOut(1:5,3,:,2)
 
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
