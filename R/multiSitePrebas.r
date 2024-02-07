@@ -406,7 +406,6 @@ InitMultiSite <- function(nYearsMS,
     if(alpharVersion == 3) alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
     
     for(ijj in 1:nClimID){
-      # siteXs <- which(siteInfo[,2] == ijj)
       siteXs <- which(siteInfo[,2]==ijj)
       if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
@@ -420,7 +419,7 @@ InitMultiSite <- function(nYearsMS,
     #   multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
     # }
   } 
-  
+
   multiSiteInit <- list(
     multiOut = multiOut,
     multiEnergyWood = multiEnergyWood,
@@ -477,7 +476,8 @@ InitMultiSite <- function(nYearsMS,
     ETSstart = ETSstart,
     pCN_alfar = pCN_alfar,
     latitude = latitude,
-    alpharNcalc=alpharNcalc
+    alpharNcalc=alpharNcalc,
+    alpharNfact = alpharNfact
   )
   return(multiSiteInit)
 }
@@ -526,6 +526,18 @@ multiPrebas <- function(multiSiteInit,
                               multiSiteInit$multiOut[siteXs,,3,ijj,1]
                               ,pars=multiSiteInit$pECMmod[6:8])
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
+    }
+  }
+  ###alpharNCalc 
+  if(multiSiteInit$alpharNcalc){
+    for(ijj in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers==1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          multiSiteInit$multiOut[siteXs,,3,,2] * multiSiteInit$alpharNfact[ijj,]
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],1,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
     }
   }
   

@@ -168,6 +168,7 @@ ETSmean = ETSstart !initialise ETSmean using the starting value
  modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
  modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
+ if modOut(1,1,1,1) ==1. ) write(modOut(1:nYears,3,:,:),*)
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
   modOut(:,7,i,1) = initVar(2,i) ! assign initAge !age can be made species specific assigning different ages to different species
