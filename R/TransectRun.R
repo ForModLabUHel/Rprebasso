@@ -52,7 +52,8 @@
 #' @param latitude 
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-#'
+#' @param modVersion # model version to use in the simulations it can be multiSite or region
+#' 
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
@@ -130,9 +131,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         TcurrClim = NA,
                         PcurrClim = NA,
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
-                        alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                        alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                        modVersion = "multiSite"
                         ) {
   
+  if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
   nSites <- 7
@@ -259,6 +262,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
   
-  TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
+  if(modVersion=="region") TransectOut <- regionPrebas(initPrebas,fertThin = fertThin)
+  if(modVersion=="multiSite") TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
   return(TransectOut)
 }

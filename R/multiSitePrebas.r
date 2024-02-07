@@ -550,8 +550,6 @@ multiPrebas <- function(multiSiteInit,
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
 
-  print(multiSiteInit$multiOut[1,1:10,3,1,2])
-  
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -708,6 +706,19 @@ regionPrebas <- function(multiSiteInit,
     }
   }
   
+  ###alpharNCalc 
+  if(multiSiteInit$alpharNcalc){
+    for(ijj in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers==1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          multiSiteInit$multiOut[siteXs,,3,,2] * multiSiteInit$alpharNfact[ijj,]
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],1,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+    }
+  }
+
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -890,6 +901,19 @@ reStartRegionPrebas <- function(multiSiteInit,
   }
   
   
+  ###alpharNCalc 
+  if(multiSiteInit$alpharNcalc){
+    for(ijj in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers==1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          multiSiteInit$multiOut[siteXs,,3,,2] * multiSiteInit$alpharNfact[ijj,]
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],1,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+    }
+  }
+
   # if(FALSE){
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)

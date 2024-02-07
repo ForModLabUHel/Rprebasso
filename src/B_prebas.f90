@@ -911,7 +911,7 @@ endif
 !	modOut(year+1,3,ij,2) = ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) ) ! non-smoothed
 !	modOut(year+1,3,ij,2) = min(0.85 ,(par_gamma) * modOut(1,3,ij,2) ) ! constant change for allocation under constant weather of new kind
 !	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
-!	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
+	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
 	
    endif
 
