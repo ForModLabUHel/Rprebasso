@@ -418,7 +418,9 @@ InitMultiSite <- function(nYearsMS,
     # for(ijj in 2:maxYears){
     #   multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
     # }
-  } 
+  }else{
+    alpharNfact=NA
+  }
 
   multiSiteInit <- list(
     multiOut = multiOut,
@@ -540,7 +542,6 @@ multiPrebas <- function(multiSiteInit,
           sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
     }
   }
-  
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -548,6 +549,8 @@ multiPrebas <- function(multiSiteInit,
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
+
+  print(multiSiteInit$multiOut[1,1:10,3,1,2])
   
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
