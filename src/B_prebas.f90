@@ -760,7 +760,7 @@ if (N>0.) then
 			W_bs =  par_rhow * A * N * betab * Lc
 			W_crs = par_rhow * beta0 * A * H * N !W_stem * (beta0 - 1.)	!coarse root biomass
 
-
+if(modOut(1,1,1,1) ==1. ) write(1,*) 224,modOut(1:5,3,:,2)
 			! ECM modelling
 			if(ECMmod==1) then !!!ECMmodelling
 			    normFactETS = 1. + par_aETS * (ETS-ETS_ref)/ETS_ref
@@ -807,7 +807,7 @@ if (N>0.) then
 			dH = max(0.,((H-Hc) * f1/f2))
 			mort = 888.
 		endif
-
+if(modOut(1,1,1,1) ==1. ) write(1,*) 223,modOut(1:5,3,:,2)
   
  !-----------------------------------
         !crown rise
@@ -857,6 +857,7 @@ endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! added stuff for N calculations
+if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
 
 	  call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
 	  
@@ -931,7 +932,7 @@ endif
 	
 ! end of added stuff for N calculations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
- if(modOut(1,1,1,1) ==1. ) write(1,*) 222,modOut(1:5,3,:,2)
+ if(modOut(1,1,1,1) ==1. ) write(1,*) 333,modOut(1:5,3,:,2)
 
 
 !!  Update state variables
@@ -1024,8 +1025,7 @@ else
   STAND(7) = STAND(7) + step
 endif
 endif
- if(modOut(1,1,1,1) ==1. ) write(1,*) 333,modOut(1:5,3,:,2)
-
+ 
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
