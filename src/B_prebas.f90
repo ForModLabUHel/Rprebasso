@@ -534,7 +534,7 @@ endif
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
 
-   TAir = mean(weatherPRELES(year,:,2))
+   TAir = sum(weatherPRELES(year,:,2))/365.
    Precip = sum(weatherPRELES(year,:,4))
    
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
