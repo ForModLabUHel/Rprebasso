@@ -893,16 +893,16 @@ endif
    
    if(par_H0max .gt. 0) then
    
-   if(year.eq.1) then
+   ! if(year.eq.1) then
    
-!	apu = modOut(year,3,ij,2) * (p0 / fTaweNH(4)) / (par_gamma) 
-	apu = min(0.85, modOut(year,3,ij,2) * (par_gamma) )
+! !	apu = modOut(year,3,ij,2) * (p0 / fTaweNH(4)) / (par_gamma) 
+	! apu = min(0.85, modOut(year,3,ij,2) * (par_gamma) )
 	
-		else
+		! else
 		
-		apu = modOut(year,3,ij,2)
+		! apu = modOut(year,3,ij,2)
 		
-	endif
+	! endif
   ! choose between full effect (first line; N availability increases) and p0 effect (second line; N availability does not increase)
   ! and choose between smootehed or non-smoothed
   
@@ -911,7 +911,7 @@ endif
 !	modOut(year+1,3,ij,2) = ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) ) ! non-smoothed
 !	modOut(year+1,3,ij,2) = min(0.85 ,(par_gamma) * modOut(1,3,ij,2) ) ! constant change for allocation under constant weather of new kind
 !	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
-	modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
+	! modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
 	
    endif
 
