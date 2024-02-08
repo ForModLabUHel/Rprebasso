@@ -50,7 +50,8 @@ InitMultiSite <- function(nYearsMS,
                           p0currClim = NA,
                           TcurrClim = NA,
                           PcurrClim = NA,
-                          alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                          alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                          Umax0 = NA
 ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -383,27 +384,32 @@ InitMultiSite <- function(nYearsMS,
   if(alpharNcalc){
     ###initialize alfar
     if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,10),1])
+    Umax0 <- p0currClim/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
     p0ratio <- multiP0[,,1]/p0currClim
     if(all(is.na(TcurrClim))) TcurrClim <- apply(weatherYasso[,1:min(10,maxYears),1],1,mean)
     if(all(is.na(PcurrClim))) PcurrClim <- apply(weatherYasso[,1:min(10,maxYears),2],1,mean)
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
     fTratio <- fT/fT0 
-
-    ###calculate rolling average
-    fTrollMean <- fT
-    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
-    ###fill first values
-    fTrollMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
-    fTrollMean[,1:(kx-1)] <- fTrollMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
-    # calculate rollingmean
-    fTrollMean[,kx:ncol(fT)] <- t(apply(fT,1,k=kx,rollmean))
-    fTratioRollmean <- fTrollMean/fT0
+    Umax0fT0 <- Umax0/fT0
+    print(Umax0fT0)
     
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
-    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratioRollmean 
+    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
     if(alpharVersion == 2) alpharNfact <- p0ratio      
     if(alpharVersion == 3) alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
+    
+    ###calculate rolling average
+    alpharNfactMean <- alpharNfact
+    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
+    ###fill first values
+    alpharNfactMean[,1:(kx-1)] <- t(apply(alpharNfact[,1:(kx-1)],1,cumsum))
+    alpharNfactMean[,1:(kx-1)] <- alpharNfactMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(alpharNfact))
+    # calculate rollingmean
+    alpharNfactMean[,kx:ncol(alpharNfact)] <- t(apply(alpharNfactMean,1,k=kx,rollmean))
+    alpharNfact <- alpharNfactMean
+
+    
     
     for(ijj in 1:nClimID){
       siteXs <- which(siteInfo[,2]==ijj)
@@ -421,6 +427,8 @@ InitMultiSite <- function(nYearsMS,
   }else{
     alpharNfact=NA
   }
+  
+  if(all(is.na(Umax0))) Umax0fT0 <- rep(0,nSites)
 
   multiSiteInit <- list(
     multiOut = multiOut,
@@ -479,7 +487,8 @@ InitMultiSite <- function(nYearsMS,
     pCN_alfar = pCN_alfar,
     latitude = latitude,
     alpharNcalc=alpharNcalc,
-    alpharNfact = alpharNfact
+    alpharNfact = alpharNfact,
+    Umax0fT0 = Umax0fT0
   )
   return(multiSiteInit)
 }
@@ -605,7 +614,8 @@ multiPrebas <- function(multiSiteInit,
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude)
+                     latitude=as.double(multiSiteInit$latitude),
+                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -790,7 +800,8 @@ regionPrebas <- function(multiSiteInit,
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude)
+                     latitude=as.double(multiSiteInit$latitude),
+                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -985,7 +996,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude)
+                     latitude=as.double(multiSiteInit$latitude),
+                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude,Umax0fT0)
 
 implicit none
 
@@ -24,7 +24,7 @@ implicit none
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
- real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude
+ real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude,Umax0fT0
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -114,7 +114,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4), ncount,apu
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4), ncount,apu,TAir, fT,Umax,Precio
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -534,6 +534,9 @@ endif
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
 
+   TAir = mean(weatherPRELES(year,:,2))
+   Precip = sum(weatherPRELES(year,:,4))
+   
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
    STAND_all(22,:) = prelesOut(2)  	!ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
@@ -862,13 +865,15 @@ endif
 ! par_zb = 0 for Umax = 1
 ! par_zb = -Umax for Umax calculations
 	  ncount = ncount + 1
-	  if(par_zb .lt. -0.01) then
-			nitpar(7) = - par_zb 
-		else
-			nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000.
-	  endif
-	  
-	  if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
+	  ! if(par_zb .lt. -0.01) then
+			! nitpar(7) = - par_zb 
+		! else
+			!nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000. !!!!this should be Umax = Umax0*P00/CNratio fT/fT0
+	  ! endif
+	  fT = exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  Umax = Umax0fT0 * fT 
+	  nitpar(7) = Umax
+	  ! if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
 			
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,:),sum(STAND_all(25,:)), siteType, species, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
