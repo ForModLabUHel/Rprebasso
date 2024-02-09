@@ -108,14 +108,29 @@ do i = 1,nSites
 	  call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
 		initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
-		P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES,etmodel, &
+		P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES, &
 		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
 		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
-		GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
-		fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-		disturbanceON, siteInfoDist(i,:), outDist(i,1:nYears(i),:))
+		GVout(i,1:nYears(i),:),thinInt(i), &
+		flagFert,nYearsFert,protect,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
+		siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags)
+    
+    ! pre flag vectorisatio:
+    ! call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+    ! thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
+    ! initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
+    ! P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES,etmodel, &
+    ! soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
+    ! litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
+    ! ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
+    ! multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
+    ! GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
+    ! fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
+    ! disturbanceON, siteInfoDist(i,:), outDist(i,1:nYears(i),:))
+    
+    
 		
 		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
