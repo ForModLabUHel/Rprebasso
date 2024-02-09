@@ -566,7 +566,9 @@ if(alpharNcalc){
     alpharNcalc=alpharNcalc,
     siteInfoDist = siteInfoDist
   )
-  return(multiSiteInit)
+
+
+    return(multiSiteInit)
 }
 
 #' Title
@@ -663,7 +665,9 @@ multiPrebas <- function(multiSiteInit,
                         oldLayer=0){
   
 ###check and activate disturbance modules  
-  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
+  
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
@@ -671,7 +675,7 @@ multiPrebas <- function(multiSiteInit,
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     disturbanceON = TRUE
-    #siteInfoDist = matrix(0,nSites,4)
+    siteInfoDist = multiSiteInit$siteInfoDist
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
@@ -813,8 +817,12 @@ regionPrebas <- function(multiSiteInit,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
                          startSimYear=1
 ){
+  
+  
   ###disturbance modules activation
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
+  
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
@@ -826,6 +834,7 @@ regionPrebas <- function(multiSiteInit,
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
 
+  
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
@@ -1005,17 +1014,16 @@ reStartRegionPrebas <- function(multiSiteInit,
 ){
   
   ###disturbance modules activation
-  #if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
-  ####initialize disturbance module if exists
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
-  
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
+
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     disturbanceON = TRUE
-    #siteInfoDist = matrix(0,nSites,4)
+    siteInfoDist = multiSiteInit$siteInfoDist
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
