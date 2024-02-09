@@ -49,7 +49,9 @@ InitMultiSite <- function(nYearsMS,
                           alpharNcalc=FALSE,
                           p0currClim = NA,
                           TcurrClim = NA,
-                          PcurrClim = NA
+                          PcurrClim = NA,
+                          alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                          Umax0 = NA
 ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -382,30 +384,51 @@ InitMultiSite <- function(nYearsMS,
   if(alpharNcalc){
     ###initialize alfar
     if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,10),1])
+    Umax0 <- p0currClim/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
     p0ratio <- multiP0[,,1]/p0currClim
     if(all(is.na(TcurrClim))) TcurrClim <- apply(weatherYasso[,1:min(10,maxYears),1],1,mean)
     if(all(is.na(PcurrClim))) PcurrClim <- apply(weatherYasso[,1:min(10,maxYears),2],1,mean)
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
     fTratio <- fT/fT0 
-    alpharNfact <- p0ratio / fTratio
-    alpharNfact[which(is.na(alpharNfact))] <- 0
+    Umax0fT0 <- Umax0/fT0
+    
+    if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
+    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
+    if(alpharVersion == 2) alpharNfact <- p0ratio      
+    if(alpharVersion == 3) alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
+    
+    ###calculate rolling average
+    alpharNfactMean <- alpharNfact
+    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
+    ###fill first values
+    alpharNfactMean[,1:(kx-1)] <- t(apply(alpharNfact[,1:(kx-1)],1,cumsum))
+    alpharNfactMean[,1:(kx-1)] <- alpharNfactMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(alpharNfact))
+    # calculate rollingmean
+    alpharNfactMean[,kx:ncol(alpharNfact)] <- t(apply(alpharNfactMean,1,k=kx,rollmean))
+    alpharNfact <- alpharNfactMean
+
+    
     
     for(ijj in 1:nClimID){
-      # siteXs <- which(siteInfo[,2] == ijj)
       siteXs <- which(siteInfo[,2]==ijj)
       if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
       if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
     }
-    ####alphar is smoothed using a running average of 10 years
-    if(maxNlayers==1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,1,2],1,mean)
-    if(maxNlayers>1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,,2],c(1,3),mean)
-    for(ijj in 2:maxYears){
-      multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
-    }
-  } 
+    ##this is not needed anymore because we smooth fT
+    # ####alphar is smoothed using a running average of 10 years
+    # if(maxNlayers==1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,1,2],1,mean)
+    # if(maxNlayers>1) multiOut[,1,3,,2] <-  apply(multiOut[,1:10,3,,2],c(1,3),mean)
+    # for(ijj in 2:maxYears){
+    #   multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
+    # }
+  }else{
+    alpharNfact=NA
+  }
   
+  if(all(is.na(Umax0))) Umax0fT0 <- rep(0,nSites)
+
   multiSiteInit <- list(
     multiOut = multiOut,
     multiEnergyWood = multiEnergyWood,
@@ -462,7 +485,9 @@ InitMultiSite <- function(nYearsMS,
     ETSstart = ETSstart,
     pCN_alfar = pCN_alfar,
     latitude = latitude,
-    alpharNcalc=alpharNcalc
+    alpharNcalc=alpharNcalc,
+    alpharNfact = alpharNfact,
+    Umax0fT0 = Umax0fT0
   )
   return(multiSiteInit)
 }
@@ -513,7 +538,18 @@ multiPrebas <- function(multiSiteInit,
       multiSiteInit$multiOut[siteXs,,3,ijj,2] <-  alfar_p1* exp(alfar_p2*CNratioSites) 
     }
   }
-  
+  ###alpharNCalc 
+  if(multiSiteInit$alpharNcalc){
+    for(ijj in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers==1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          multiSiteInit$multiOut[siteXs,,3,,2] * multiSiteInit$alpharNfact[ijj,]
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],1,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+    }
+  }
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -521,7 +557,7 @@ multiPrebas <- function(multiSiteInit,
   ####avoid species = 0  replace with species 1 when layer is empty
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
-  
+
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -577,7 +613,8 @@ multiPrebas <- function(multiSiteInit,
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude)
+                     latitude=as.double(multiSiteInit$latitude),
+                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -678,6 +715,19 @@ regionPrebas <- function(multiSiteInit,
     }
   }
   
+  ###alpharNCalc 
+  if(multiSiteInit$alpharNcalc){
+    for(ijj in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers==1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          multiSiteInit$multiOut[siteXs,,3,,2] * multiSiteInit$alpharNfact[ijj,]
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],1,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+    }
+  }
+
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -749,7 +799,8 @@ regionPrebas <- function(multiSiteInit,
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude)
+                     latitude=as.double(multiSiteInit$latitude),
+                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -860,6 +911,19 @@ reStartRegionPrebas <- function(multiSiteInit,
   }
   
   
+  ###alpharNCalc 
+  if(multiSiteInit$alpharNcalc){
+    for(ijj in 1:multiSiteInit$nClimID){
+      siteXs <- which(multiSiteInit$siteInfo[,2]==ijj)
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers==1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          multiSiteInit$multiOut[siteXs,,3,,2] * multiSiteInit$alpharNfact[ijj,]
+      if(length(siteXs)==1 & multiSiteInit$maxNlayers>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],1,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+      if(length(siteXs)>1) multiSiteInit$multiOut[siteXs,,3,,2] <- 
+          sweep(multiSiteInit$multiOut[siteXs,,3,,2],2,multiSiteInit$alpharNfact[ijj,],FUN="*") 
+    }
+  }
+
   # if(FALSE){
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
@@ -931,7 +995,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude)
+                     latitude=as.double(multiSiteInit$latitude),
+                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

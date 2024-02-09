@@ -2194,7 +2194,7 @@ call CNratio(CN, latitude, st,pars(6:8))
     ff = 0.7
 	fr = 0.7
 	fw = 0.0
-	Umax = 30	
+	Umax = nitpar(7)
 	kN = 0.001
 
  !calculate Ndem
@@ -2306,3 +2306,5 @@ real (kind=8), intent(inout) :: par_New
 
 par_New = pars(1) + pars(2) * varX
 endsubroutine
+
+

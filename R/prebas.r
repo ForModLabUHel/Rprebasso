@@ -52,6 +52,7 @@
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
+#' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
 #'
 #' @return
 #' @export
@@ -106,7 +107,8 @@ prebas <- function(nYears,
                    p0currClim = NA,
                    TcurrClim = NA,
                    PcurrClim = NA,
-                   HcModV = HcModV_def #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
+                   HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
+                   alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -299,12 +301,31 @@ prebas <- function(nYears,
     fT0 <- fTfun(TcurrClim,PcurrClim)
     fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
     fTratio <- fT/fT0 
+    
+    ###calculate rolling average
+    fTrollMean <- fT
+    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
+    ###fill first values
+    fTrollMean[1:(kx-1)] <- cumsum(fT[1:(kx-1)])
+    fTrollMean[1:(kx-1)] <- fTrollMean[1:(kx-1)]/(1:(kx-1))
+    # calculate rollingmean
+    fTrollMean[kx:length(fT)] <- rollmean(fT,kx)
+    fTratioRollmean <- fTrollMean/fT0
+    
+    if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
+    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratioRollmean 
+    if(alpharVersion == 2) alpharNfact <- p0ratio      
+    if(alpharVersion == 3) alpharNfact <- rep(1,length(p0ratio))
+    
     alpharNfact <- p0ratio * fTratio
-    if(maxNlayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
+    if(maxNlayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
-    ####alphar is smoothed using a running average of 10 years
-    if(maxNlayers==1) output[1,3,,2] <- mean(output[1:10,3,1,2])
-    if(maxNlayers>1) output[1,3,,2] <- apply(output[1:10,3,,2],2,mean)
+
+    ##This is not needed anymore because we smooth fT
+    # ####alphar is smoothed using a running average of 10 years
+    # if(maxNlayers==1) output[1,3,1,2] <- mean(output[1:10,3,1,2])
+    # if(maxNlayers>1) output[1,3,,2] <- apply(output[1:10,3,,2],2,mean)
+    ##
     for(ijj in 2:maxYears){
       output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
     }

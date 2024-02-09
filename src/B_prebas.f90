@@ -9,7 +9,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude,Umax0fT0)
 
 implicit none
 
@@ -24,7 +24,7 @@ implicit none
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
- real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude
+ real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude,Umax0fT0
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -107,13 +107,14 @@ implicit none
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
+ ! real (kind=8) :: W_froot_t0(nLayers), Wrtot
 !variables for random mortality calculations & disturbances
 real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8)
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4), ncount,apu,TAir, fT,Umax,Precip
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -167,6 +168,7 @@ ETSmean = ETSstart !initialise ETSmean using the starting value
  modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
  modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
+ 
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
   modOut(:,7,i,1) = initVar(2,i) ! assign initAge !age can be made species specific assigning different ages to different species
@@ -329,7 +331,6 @@ ETSmean = ETSmean + (ETS-ETSmean)/20.
 
 ! !calculate reneike and random mortality
 ! include 'mortalityCalc.h'
-
 do ij = 1 , nLayers 		!loop Species
  STAND=STAND_all(:,ij)
  species = int(max(1.,stand(4)))
@@ -533,6 +534,9 @@ endif
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
 
+   TAir = sum(weatherPRELES(year,:,2))/365.
+   Precip = sum(weatherPRELES(year,:,4))
+   
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
    STAND_all(22,:) = prelesOut(2)  	!ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
@@ -551,6 +555,8 @@ endif
 endif
 !enddo !! end site loop
 
+! Wrtot = sum(STAND_all(25,:))
+! W_froot_t0 = STAND_all(25,:)
 do ij = 1 , nLayers
  STAND=STAND_all(:,ij)
  species = int(max(1.,stand(4)))
@@ -705,7 +711,6 @@ if (N>0.) then
   par_mf = par_mf0* normFactP0
   par_mw = par_mw0* normFactP0
   
-  
   par_rhof0 = par_rhof1 * ETS_ref + par_rhof2 ! rho: pipe model parameter for foliage
   par_rhof = par_rhof1 * ETS + par_rhof2
   par_vf = par_vf0 / (1. + par_aETS * (ETS-ETS_ref)/ETS_ref)
@@ -782,11 +787,13 @@ if (N>0.) then
 	  S_branch = max(0.,S_branch + Wdb/Tdb)
 		
 	  ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
+
+555   	continue
 			
         !Height growth-----------------------
 		f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
 		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+				(par_z+1)/par_z * W_bs + beta0 * W_c) + betaC * W_s)
 		dH = max(0.,((H-Hc) * f1/f2))
 		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
 		Gr = par_z * W_froot/(H-Hc) * (1-gammac)*dH
@@ -797,7 +804,7 @@ if (N>0.) then
 		elseif(f2<=0. .or. Gf<0. .or. Gr < 0.) then
 			gammaC = 1.
 			f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
-				par_zb *W_bs + beta0 * W_c) + betaC * W_s)
+				(par_z+1)/par_z * W_bs + beta0 * W_c) + betaC * W_s)
 			dH = max(0.,((H-Hc) * f1/f2))
 			mort = 888.
 		endif
@@ -837,7 +844,7 @@ endif
             dWsh = max(0.,par_rhow * par_z * A/Lc * dHc * Hc * N	+ theta*(W_c + W_s))
             dW_bh = max(0.,W_bs*theta - W_bh * gammaC * dH / Lc) 
             dW_crh = max(0.,W_crs*theta + par_z * W_c * beta0 / Lc * gammaC * dH)
-            dWdb = max(0.,W_branch/Lc * par_zb * gammaC * dH - Wdb/Tdb)
+            dWdb = max(0.,W_branch/Lc * (par_z+1)/par_z * gammaC * dH - Wdb/Tdb)
 
 ! determine N demand and N uptake
 		Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH + wf_STKG / par_vf
@@ -847,6 +854,80 @@ endif
 		Sc = N * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		St = N * beta0 * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		Gw = dWw + Sb + Sc + St + theta * W_wsap
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! added stuff for N calculations
+
+	  call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
+	  
+! par_zb = 1 for Hyungwoo calculations
+! par_zb = 0 for Umax = 1
+! par_zb = -Umax for Umax calculations
+	  ncount = ncount + 1
+	  ! if(par_zb .lt. -0.01) then
+			! nitpar(7) = - par_zb 
+		! else
+			!nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000. !!!!this should be Umax = Umax0*P00/CNratio fT/fT0
+	  ! endif
+	  fT = exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  Umax = Umax0fT0 * fT 
+	  nitpar(7) = Umax
+	  ! if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
+			
+      call Nitrogen(Gf,Gr,Gw,STAND_all(25,:),sum(STAND_all(25,:)), siteType, species, latitude, CN, Nup,Ndem,nitpar, pECMmod)
+! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
+	 if(par_zb .lt. -0.01 ) then
+
+!	  write(1,*) siteInfo(1), year, S_fol,S_fr
+	   if(Nup.lt.Ndem*1.001)then
+		 if(Ndem.gt.0.)then
+			 if(ncount < 6)then
+				 nppCost = Nup / Ndem * nppCost
+				 goto 555
+			 else
+				 ncount = 0
+			 endif
+		 endif
+	   endif
+	   
+	 endif
+   !update par_alfar based on weather (modOut(year,3,ij,2))
+   ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
+   ! it has to be updated for locations 
+   
+   if(par_H0max .gt. 0) then
+   
+   ! if(year.eq.1) then
+   
+! !	apu = modOut(year,3,ij,2) * (p0 / fTaweNH(4)) / (par_gamma) 
+	! apu = min(0.85, modOut(year,3,ij,2) * (par_gamma) )
+	
+		! else
+		
+		! apu = modOut(year,3,ij,2)
+		
+	! endif
+  ! choose between full effect (first line; N availability increases) and p0 effect (second line; N availability does not increase)
+  ! and choose between smootehed or non-smoothed
+  
+
+!    modOut(year+1,3,ij,2) = apu + ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
+!	modOut(year+1,3,ij,2) = ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) ) ! non-smoothed
+!	modOut(year+1,3,ij,2) = min(0.85 ,(par_gamma) * modOut(1,3,ij,2) ) ! constant change for allocation under constant weather of new kind
+!	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
+	! modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
+	
+   endif
+
+! ! use devise 1 to print in case it is not in use otherwise
+	! if(par_zb .lt. 1) then 
+	! write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup / nitpar(7), Ndem , fAPARtrees
+	! endif
+	! write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
+	
+! end of added stuff for N calculations
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
 
 !!  Update state variables
           H = H + step * dH
@@ -938,7 +1019,7 @@ else
   STAND(7) = STAND(7) + step
 endif
 endif
-
+ 
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
