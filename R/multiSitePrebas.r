@@ -392,7 +392,6 @@ InitMultiSite <- function(nYearsMS,
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
     fTratio <- fT/fT0 
     Umax0fT0 <- Umax0/fT0
-    print(Umax0fT0)
     
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
     if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
