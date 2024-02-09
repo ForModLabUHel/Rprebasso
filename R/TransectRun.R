@@ -131,8 +131,10 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
                         siteInfoDist = NA,
                         modVersion = "multiSite"
-                        
+
 ) {
+
+  
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   
