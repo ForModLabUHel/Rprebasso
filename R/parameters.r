@@ -562,3 +562,12 @@ tTapio[5,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
 
 ###default value for the Hc model selection. 1 uses the pipemodel: HcPipeMod() function
 HcModV_def <- 1
+
+
+####parameters for initSoilC_fromTot
+p_awenhShares = matrix(c(0.11834072, 0.01319755,0.01803129,0.31275768,0.53767276,
+                         0.11183261, 0.01126449,0.01384130,0.43093341,0.43212819,
+                         0.09561724, 0.01032713,0.01208845,0.31249050, 0.56947668), nrow = 5,ncol=3)
+
+p_organShares = c(0.28920272, 0.08197648, 0.62882080)
+
