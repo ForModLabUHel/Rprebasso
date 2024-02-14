@@ -38,7 +38,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
  !disturbances
  logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
- real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+ real (kind=8), intent(inout):: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
@@ -81,7 +81,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites), siteOrdX(nSites)
 
  integer :: etmodel, gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags fvec
- integer, intent(inout) :: prebasFlags(6)
+ integer, intent(in) :: prebasFlags(6)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)

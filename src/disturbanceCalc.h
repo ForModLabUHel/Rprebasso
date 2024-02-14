@@ -1,5 +1,63 @@
 !Disturbance module
 
+!!!! WIND RISK CALCULATIONS !!!!
+! switched on by disturbanceON (in B_prebas), that in turn is switched on if there's siteInfoDist input in e.g. TransectRuns
+! currently 'plugged in':
+!   siteInfoDist: wspeed, tsincethin, soiltype, shallowsoil
+!   dom layer spec, h
+!   sitetype, tempsum
+!   NOTE: tsincethin as of now static, controlled by siteInfoDist inputs
+!         counter needs to be set to 0 in all thinning events, +1 if there are none
+!   NOTE: openedge (at least one neighbouring stand <5m) currently not implemented
+!         postponed, requires dynamic spacially explicit info (e.g. via lookup table)
+
+! PREPARING WIND RISK INPUTS
+! dev: outDist(,X) 1 = dom layer #; 2 dom layer spec; 3 dom layer h, 4 sitetype, 5 ETS; 6-10 wind risks
+outDist(year,1) = 1 !dominant layer
+outDist(year,2) = STAND_all(4,1) ! species, layer 1
+outDist(year,3) = STAND_all(11,1) !h, layer 1
+outDist(year,4) = STAND_all(3,1) ! sitetype
+outDist(year,5) = STAND_all(5,1) ! ETS/tempsum
+
+! layer-level data: spec & h of dominant layer
+IF(nLayers>1) THEN !if there's more than one layer
+  do i = 2, nLayers !loop through them
+     if (STAND_all(11,i) > outDist(year,3)) then !higher than previous ones
+        outDist(year,1) = i ! set new dom layer dim
+        outDist(year,2) = STAND_all(4,i) !set new spec
+        outDist(year,3) = STAND_all(11,i) !set new h
+     end if
+  end do
+end if
+
+! setting wrisks to 0 (subroutine inout), to be simplified
+wrisk5dd1 = 0
+wrisk5dd2 = 0
+wrisk5dd3 = 0
+wrisk0 = 0
+wrisk5 = 0
+wrisk = 0
+
+! WINDRISK SUBROUTINE
+!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
+!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
+call windrisk(siteInfoDist, INT(outDist(year,2)), outDist(year,3), 0, outDist(year,4), outDist(year,5), &
+  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+
+!assigning risks
+outDist(year,6) = wrisk5dd1 !5a, damage density class 1
+outDist(year,7) = wrisk5dd2 !5a, damage density class 2
+outDist(year,8) = wrisk5dd3 !5a, damage density class 3
+outDist(year,9) = wrisk5 !5a, frequency weighted average
+outDist(year,10) = wrisk !1a
+
+!!!! END WIND RISK CALCULATIONS
+
+!endif
+
+
+
+
 if(.false.) then !if XX everything is switch off for the moment
 
 !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 

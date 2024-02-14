@@ -137,6 +137,10 @@ real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
 integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
 integer, intent(in) :: prebasFlags(6)
+REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
+REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
+
+
 !!! 'un-vectorise' flags, fvec
 etmodel = int(prebasFlags(1))
 gvRun = int(prebasFlags(2))
@@ -145,6 +149,10 @@ oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
 if(prebasFlags(6)==0) disturbanceON = .FALSE.
 if(prebasFlags(6)==1) disturbanceON = .TRUE.
+
+! 
+! outDist(1,1) = prebasFlags(6)
+! outDist(1,2) = siteInfoDist(2)
 
 
 

@@ -23,7 +23,7 @@ TransectRun(
   pYASSO = pYAS,
   pAWEN = parsAWEN,
   multiInitClearCut = NA,
-  fixBAinitClarcut = 1,
+  fixBAinitClearcut = 1,
   initCLcutRatio = NA,
   multiP0 = NA,
   soilC = NA,
@@ -37,7 +37,7 @@ TransectRun(
   smoothP0 = 1,
   smoothETS = 1,
   smoothYear = 5,
-  HcModV = 2,
+  HcModV = HcModV_def,
   tapioPars = pTapio,
   thdPer = NA,
   limPer = NA,
@@ -48,7 +48,15 @@ TransectRun(
   ECMmod = 0,
   layerPRELES = 0,
   LUEtrees = pLUEtrees,
-  LUEgv = pLUEgv
+  LUEgv = pLUEgv,
+  alpharNcalc = FALSE,
+  p0currClim = NA,
+  TcurrClim = NA,
+  PcurrClim = NA,
+  ingrowth = FALSE,
+  soilPar = NA,
+  siteInfoDist = NA,
+  modVersion = "multiSite"
 )
 }
 \arguments{
@@ -88,7 +96,7 @@ TransectRun(
 
 \item{multiInitClearCut}{A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'}
 
-\item{fixBAinitClarcut}{}
+\item{fixBAinitClearcut}{}
 
 \item{initCLcutRatio}{}
 
@@ -116,7 +124,7 @@ TransectRun(
 
 \item{smoothYear}{}
 
-\item{HcModV}{}
+\item{HcModV}{flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1}
 
 \item{tapioPars}{}
 
@@ -139,6 +147,22 @@ TransectRun(
 \item{LUEtrees}{light use efficiency parameters for tree species}
 
 \item{LUEgv}{light use efficiency parameter for ground vegetation}
+
+\item{alpharNcalc}{#alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake}
+
+\item{p0currClim}{# vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.}
+
+\item{TcurrClim}{# vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.}
+
+\item{PcurrClim}{# vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.}
+
+\item{ingrowth}{# flag to simulate ingrowth}
+
+\item{soilPar}{# input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values}
+
+\item{siteInfoDist}{# UNDER DEVELOPMENT! external data for wind risk modelling. Switches on wind risk calculations; output: outDist. Matrix with dims(nSites, 4): 1 = 10a max windspeed, m/s; 2: time since thining (years; for initialisation, but currently used throughout simulations); 3: soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic); 4: shallow soil (0 = F, >30cm; 1 = T, <30cm)}
+
+\item{modVersion}{# model version to use in the simulations it can be multiSite or region}
 }
 \value{
 The output from multiPrebas()

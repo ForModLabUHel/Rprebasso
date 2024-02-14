@@ -1,7 +1,7 @@
-subroutine windrisk(wDistSiteInfo, spec, h, openedge, sitetype, tsum, &
+subroutine windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
   wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
   IMPLICIT NONE
-  REAL (kind=8), intent(inout) ::  wDistSiteInfo(12) ! 5-year wind risk (suvanto output), pre-logit value, annual risk
+  REAL (kind=8), intent(inout) ::  siteInfoDist(4) ! 5-year wind risk (suvanto output), pre-logit value, annual risk
   REAL (kind=8), intent(inout) ::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
   REAL (kind=8), intent(inout) :: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
   REAL (kind=8), intent(in) :: h ! input in m, converted to dm 
@@ -15,10 +15,10 @@ subroutine windrisk(wDistSiteInfo, spec, h, openedge, sitetype, tsum, &
   INTEGER :: shallowsoil ! 1 = <30cm
   INTEGER :: sitefert ! site fertility, reclassified from sitetype (1:3 fertile / 1, 4:5 infertile/0)
   
-  wspeed = wDistSiteInfo(1)
-  tsincethin = INT(wDistSiteInfo(2))
-  soiltype = INT(wDistSiteInfo(3))
-  shallowsoil = INT(wDistSiteInfo(4))
+  wspeed = siteInfoDist(1)
+  tsincethin = INT(siteInfoDist(2))
+  soiltype = INT(siteInfoDist(3))
+  shallowsoil = INT(siteInfoDist(4))
   
     IF (sitetype <= 3) sitefert = 1 !convert sitetypes to fert class
     IF (sitetype > 3) sitefert = 0

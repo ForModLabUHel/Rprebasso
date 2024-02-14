@@ -52,9 +52,11 @@
 #' @param ingrowth # flag to simulate ingrowth
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #' @param modVersion # model version to use in the simulations it can be multiSite or region
+#' @param siteInfoDist # UNDER DEVELOPMENT! external data for wind risk modelling. Switches on wind risk calculations; output: outDist. Matrix with dims(nSites, 4): 1 = 10a max windspeed, m/s; 2: time since thining (years; for initialisation, but currently used throughout simulations); 3: soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic); 4: shallow soil (0 = F, >30cm; 1 = T, <30cm)
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
+
 #' @export
 #'
 #' @examples 
@@ -259,7 +261,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     PcurrClim = PcurrClim,
     ingrowth = ingrowth,
     siteInfoDist = siteInfoDist
-  )
+    )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   

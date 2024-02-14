@@ -54,6 +54,9 @@
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
+#' @param prebasFlags vector of flags to reduce number of
+#'
+#'
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -141,7 +144,7 @@ prebas <- function(nYears,
                    pYASSO = pYAS,
                    pAWEN = parsAWEN,
                    # PREBASversion = 0,
-                   #etmodel = 0,
+                   etmodel = 0,
                    siteInfo = NA,
                    thinning=NA,
                    initClearcut = initSeedling.def,
@@ -168,13 +171,13 @@ prebas <- function(nYears,
                    limPer=0.5,
                    ftTapioPar = ftTapio,
                    tTapioPar = tTapio,
-                   #GVrun = 1, ###flag for Ground vegetation model 1-> runs the GV model
+                   GVrun = 1, ###flag for Ground vegetation model 1-> runs the GV model
                    thinInt=-999.,
-                   #fertThin=0.,
+                   fertThin=0.,
                    nYearsFert=20,
                    protect=0,
                    mortMod=1,
-                   #ECMmod=0, #flag for ECM modelling MAkela et al.2022
+                   ECMmod=0, #flag for ECM modelling MAkela et al.2022
                    pECMmod=parsECMmod,
                    layerPRELES = 0,
                    LUEtrees = pLUEtrees,

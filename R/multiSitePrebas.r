@@ -663,6 +663,7 @@ multiPrebas <- function(multiSiteInit,
                         fertThin = 0,
                         nYearsFert = 20,
                         oldLayer=0){
+
   
 ###check and activate disturbance modules  
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
@@ -679,6 +680,9 @@ multiPrebas <- function(multiSiteInit,
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
+  print("Multiprebas, post-init")
+  print(disturbanceON)
+  print(siteInfoDist)
   
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
@@ -695,12 +699,15 @@ multiPrebas <- function(multiSiteInit,
   
   disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
-                              multiSiteInit$GVrun),     #int  
+                              multiSiteInit$GVrun,     #int  
                               fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
-                              disturbanceSwitch)
+                              disturbanceSwitch))
   
+  print("Multiprebas, flags")
+  print(prebasFlags)
+  print(siteInfoDist)
   
   
   prebas <- .Fortran("multiPrebas",
@@ -766,6 +773,7 @@ multiPrebas <- function(multiSiteInit,
                      prebasFlags = as.integer(prebasFlags)
                       
   )
+
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
@@ -822,7 +830,6 @@ regionPrebas <- function(multiSiteInit,
   ###disturbance modules activation
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
-  
   ####initialize disturbance module if exists
   if(all(is.na(siteInfoDist))){
     disturbanceON = FALSE
@@ -876,13 +883,12 @@ if(ageHarvPrior>0){
   disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
                               multiSiteInit$GVrun,     #int  
-                              multiSiteInit$fertThin,
+                              fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
                               disturbanceSwitch))
-                              
-  
-    prebas <- .Fortran("regionPrebas",
+
+prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),

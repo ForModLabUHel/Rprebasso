@@ -52,7 +52,13 @@ prebas(
   pECMmod = parsECMmod,
   layerPRELES = 0,
   LUEtrees = pLUEtrees,
-  LUEgv = pLUEgv
+  LUEgv = pLUEgv,
+  alpharNcalc = FALSE,
+  p0currClim = NA,
+  TcurrClim = NA,
+  PcurrClim = NA,
+  HcModV = HcModV_def,
+  siteInfoDist = NA
 )
 }
 \arguments{
@@ -140,7 +146,7 @@ prebas(
 
 \item{protect}{flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)}
 
-\item{mortMod}{flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models}
+\item{mortMod}{flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models. If one value is provided the same model is applied to managed and unmanaged (those forests where both ClCut and defaultThin are set to 0) forests. If two values are provided ,for example c(1,3), the first model is applied to managed forests and the second to unmanaged forests.}
 
 \item{ECMmod}{flag for activation of the ectomycoryzal model (ECMmod=1). see Makela et al. 2022}
 
@@ -151,6 +157,18 @@ prebas(
 \item{LUEtrees}{light use efficiency parameters for tree species}
 
 \item{LUEgv}{light use efficiency parameter for ground vegetation}
+
+\item{alpharNcalc}{#alphar calculations based on Nitrogen availability. Default value is FALSE (no nitrogen impact). = True calculates N uptake}
+
+\item{p0currClim}{# average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.}
+
+\item{TcurrClim}{# average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.}
+
+\item{PcurrClim}{# average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.}
+
+\item{HcModV}{flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1}
+
+\item{prebasFlags}{vector of flags to reduce number of}
 }
 \value{
 soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr

@@ -9,7 +9,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 		pAWEN,weatherYasso,litterSize,soilCtot, &
 		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
 		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
-	  flagFert,nYearsFert,protect,mortMod,pECMmod,& 
+	  flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
 		layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
 
 
@@ -17,7 +17,7 @@ implicit none
 
 integer, parameter :: nVar=54,npar=53!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
-integer, intent(in) :: nYears(nSites),nLayers(nSites),protect
+integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither in prebas subroutine nor multiPrebas() R function
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
@@ -71,7 +71,8 @@ ECMmod = prebasFlags(5)
 if(prebasFlags(6)==0) disturbanceON = .FALSE.
 if(prebasFlags(6)==1) disturbanceON = .TRUE.
 
-
+!outDist(:,:,:) = 99!prebasFlags(6)
+!outDist(1,10) = siteInfoDist(1,1)
 !!!!initialize run
 ! multiOut = 0.
 ! open(1,file="test1.txt")
@@ -114,7 +115,7 @@ do i = 1,nSites
 		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
 		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
 		GVout(i,1:nYears(i),:),thinInt(i), &
-		flagFert,nYearsFert,protect,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
+		flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
 		siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags)
     
     ! pre flag vectorisatio:
