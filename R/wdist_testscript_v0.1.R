@@ -109,14 +109,6 @@ t2$siteInfoDist
 t2$disturbanceON
 
 
-
-
-
-
-
-
-t2$multiOut[1,1,42,1,2]
-
 # vars in outDist[site, year, var]:
 #domlayer, domspec, domh, sitetype, tsum, wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk5, wrisk
 
@@ -127,16 +119,27 @@ ggplot()+
   geom_line(aes(x=1:100, y=t2$multiOut[1,,varx,2,1], col="H spruce"))+
   geom_line(aes(x=1:100, y=t2$multiOut[1,,varx,3,1], col="H birch"))+
   geom_line(aes(x=1:100, y=t2$outDist[1,,10]*1000, col="annual wrisk (‰)"))+
-  geom_line(aes(x=1:100, y=t2$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)")) # ETS fluctuations explains variation in wrisk
-    
+  geom_line(aes(x=1:100, y=t2$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)"))+ # ETS fluctuations explains variation in wrisk
+    ggtitle("no mgmt, tsincethin implemented (init=1)")
 
 
 
-#### implementing tsincethin
+#### IMPLEMENTING TSINCETHIN
 
+## MANUAL THINNINGS 
+
+
+# SWITCHING ON DIST
+sid <- matrix(0, 7,4)
+sid[,1] <- 12.2 #wspeed
+sid[,2] <- 1 #time since thinning (currently fixed to input value throughout simulations)
+sid[,3] <- 0 # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
+sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
+
+# ... and thinning
 
 thins <- array(0, dim=c(7,2,11))
-thins[,1,1] <- 50 #yos
+thins[,1,1] <- 80 #yos
 thins[,1,2] <- 1 #spec
 thins[,1,3] <- 1 #layer
 thins[,1,4] <- 1 #h
@@ -150,13 +153,54 @@ thins[,1,11] <- 1 # share harvested
 
 thins[2,,]
 
-t2<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
+t3<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
 
-plot(t2$multiOut[1,,"BA",1,1])
+plot(t3$multiOut[1,,"BA",1,1])
 
-t2$outDist[1,,]
-t2$siteInfoDist
-?TransectRun
+t3$outDist[1,,]
+t3$siteInfoDist
+
+
+varx <- "H"
+ggplot()+
+  geom_line(aes(x=1:100, y=t3$multiOut[1,,varx,1,1], col="H pine"))+
+  geom_line(aes(x=1:100, y=t3$multiOut[1,,varx,2,1], col="H spruce"))+
+  geom_line(aes(x=1:100, y=t3$multiOut[1,,varx,3,1], col="H birch"))+
+  geom_line(aes(x=1:100, y=t3$outDist[1,,10]*1000, col="annual wrisk (‰)"))+
+  geom_line(aes(x=1:100, y=t3$outDist[1,,6]/10, col="tsincethin (10a)"))+
+  geom_line(aes(x=1:100, y=t3$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)"))+ # ETS fluctuations explains variation in wrisk
+  ggtitle("Man thin (yos 80): tsincethin implemented")
+
+
+
+
+#### DEFAULT / TAPIO THINNINGS
+# SWITCHING ON DIST
+sid <- matrix(0, 7,4)
+sid[,1] <- 12.2 #wspeed
+sid[,2] <- 1 #time since thinning (currently fixed to input value throughout simulations)
+sid[,3] <- 0 # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
+sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
+
+
+
+t4<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 1)
+
+plot(t4$multiOut[1,,"BA",1,1])
+
+t4$outDist[1,,]
+t4$siteInfoDist
+
+
+varx <- "H"
+ggplot()+
+  geom_line(aes(x=1:100, y=t4$multiOut[1,,varx,1,1], col="H pine"))+
+  geom_line(aes(x=1:100, y=t4$multiOut[1,,varx,2,1], col="H spruce"))+
+  geom_line(aes(x=1:100, y=t4$multiOut[1,,varx,3,1], col="H birch"))+
+  geom_line(aes(x=1:100, y=t4$outDist[1,,10]*1000, col="annual wrisk (‰)"))+
+  geom_line(aes(x=1:100, y=t4$outDist[1,,6]/10, col="tsincethin (10a)"))+
+  geom_line(aes(x=1:100, y=t4$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)"))+ # ETS fluctuations explains variation in wrisk
+  ggtitle("Man thin (yos 80): tsincethin implemented")
 
 
 

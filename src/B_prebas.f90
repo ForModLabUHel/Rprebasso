@@ -1419,6 +1419,9 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
+   
+   siteInfoDist(2) = 0
+
  !!!fertilization at thinning
 	if(fertThin == 3 .and. flagFert<1 .and. siteType>3. .and. siteType<6.) then 
 		flagFert=1
