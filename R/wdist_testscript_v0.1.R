@@ -109,6 +109,12 @@ t2$siteInfoDist
 t2$disturbanceON
 
 
+
+
+
+
+
+
 t2$multiOut[1,1,42,1,2]
 
 # vars in outDist[site, year, var]:
@@ -123,6 +129,36 @@ ggplot()+
   geom_line(aes(x=1:100, y=t2$outDist[1,,10]*1000, col="annual wrisk (‰)"))+
   geom_line(aes(x=1:100, y=t2$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)")) # ETS fluctuations explains variation in wrisk
     
+
+
+
+#### implementing tsincethin
+
+
+thins <- array(0, dim=c(7,2,11))
+thins[,1,1] <- 50 #yos
+thins[,1,2] <- 1 #spec
+thins[,1,3] <- 1 #layer
+thins[,1,4] <- 1 #h
+thins[,1,5] <- 1 #dbh
+thins[,1,6] <- 0.7 #ba
+thins[,1,7] <- 1 #hc
+thins[,1,8] <- 1 # 1 = fractions
+thins[,1,9] <- -999 #density
+thins[,1,10] <- -999 # sapw area
+thins[,1,11] <- 1 # share harvested
+
+thins[2,,]
+
+t2<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
+
+plot(t2$multiOut[1,,"BA",1,1])
+
+t2$outDist[1,,]
+t2$siteInfoDist
+?TransectRun
+
+
 
 } # end of if(false) workaround
 

@@ -218,6 +218,7 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
   VmortDist=0.
+  siteInfoDist(2) = siteInfoDist(2)+1
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
@@ -991,13 +992,18 @@ endif
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 
+
 !set species from thinning matrix (strart)
 	 species = int(thinning(countThinning,2))
 	 stand(4) = thinning(countThinning,2)
 !set species from thinning matrix (end)
 
+
 	! if(year >= yearX) then
 		STAND_tot = STAND
+    IF (thinning(countThinning,6) < STAND_tot(13)) siteInfoDist(2) = 0
+    ! IF (thinning(countThinning,6) < STAND_tot(13)) outDist(year,6) = 0
+
 		if(thinning(countThinning,9) .NE. -999) then
 		 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
 		endif

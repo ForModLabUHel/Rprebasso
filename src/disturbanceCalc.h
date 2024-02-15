@@ -45,7 +45,7 @@ call windrisk(siteInfoDist, INT(outDist(year,2)), outDist(year,3), 0, outDist(ye
   wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
 
 !assigning risks
-outDist(year,6) = wrisk5dd1 !5a, damage density class 1
+outDist(year,6) = siteInfoDist(2) ! tsincethin, developing
 outDist(year,7) = wrisk5dd2 !5a, damage density class 2
 outDist(year,8) = wrisk5dd3 !5a, damage density class 3
 outDist(year,9) = wrisk5 !5a, frequency weighted average
