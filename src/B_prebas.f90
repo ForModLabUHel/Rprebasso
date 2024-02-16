@@ -875,7 +875,7 @@ endif
 	  nitpar(7) = Umax
 	  ! if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
 			
-      call Nitrogen(Gf,Gr,Gw,STAND_all(25,:),sum(STAND_all(25,:)), siteType, species, latitude, CN, Nup,Ndem,nitpar, pECMmod)
+      call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
 	 if(par_zb .lt. -0.01 ) then
 
