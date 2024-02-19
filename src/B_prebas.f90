@@ -14,7 +14,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=53, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=62, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -114,7 +114,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(8), fTaweNH(4), ncount,apu,TAir, fT,Umax,Precip
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(10), fTaweNH(4), ncount,apu,TAir, fT,Umax,Precip
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -872,9 +872,13 @@ endif
 	  ! endif
 	  fT = exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
 	  Umax = Umax0fT0 * fT 
-	  nitpar(7) = Umax
+	  
+	  !!!update parameters for Nitrogen calculations
+	  nitpar(1:9) = param(54:62)
+	  nitpar(10) = Umax
+	  
 	  ! if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
-			
+	  		
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
 	 if(par_zb .lt. -0.01 ) then

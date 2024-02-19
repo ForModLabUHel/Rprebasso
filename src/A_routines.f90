@@ -2171,7 +2171,7 @@ fTaweNH(3) = temH
 subroutine Nitrogen(Gf,Gr,Gw,Wr,Wrtot,st, latitude, CN, Nup,Ndem,nitpar, pars)
 implicit none
 
-	real(8),intent(in) :: Gf, Gr, Gw, Wr, Wrtot, st, latitude, nitpar(8), pars(12)
+	real(8),intent(in) :: Gf, Gr, Gw, Wr, Wrtot, st, latitude, nitpar(10), pars(12)
 	real(8),intent(out) :: Nup, Ndem
 	!parameters
 	real(8) :: nf, nr, nw, ff, fr, fw, Umax, kN, CN
@@ -2188,15 +2188,15 @@ implicit none
 	! 
 
 call CNratio(CN, latitude, st,pars(6:8))	
-	nf = (1.6725 - 0.012 * CN) / 50.
-	nr = 0.8 * nf	
-	nw = 0.2 * nf
-    ff = 0.7
-	fr = 0.7
-	fw = 0.0
-	Umax = nitpar(7)
-	kN = 0.001
-
+	nf = (nitpar(1) - nitpar(2) * CN) / nitpar(3)
+	nr = nitpar(4) * nf	
+	nw = nitpar(5) * nf
+    ff = nitpar(6)
+	fr = nitpar(7)
+	fw = nitpar(8)
+	kN = nitpar(9)
+    Umax = nitpar(10)
+	
  !calculate Ndem
  Ndem = nf * (1.0 - ff) * Gf + nr * (1.0 - fr) * Gr + nw * (1.0 - fw) * Gw
  if (Wrtot.gt.0.) then

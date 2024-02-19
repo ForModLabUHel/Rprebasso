@@ -14,7 +14,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53!, nSp=3
+integer, parameter :: nVar=54,npar=62!, nSp=3
 real (kind=8), parameter :: pi = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,oldLayer
