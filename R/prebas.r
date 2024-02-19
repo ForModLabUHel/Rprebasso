@@ -111,7 +111,7 @@ prebas <- function(nYears,
                    alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
               ){
   
-  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
   
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the site")

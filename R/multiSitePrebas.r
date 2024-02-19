@@ -54,7 +54,7 @@ InitMultiSite <- function(nYearsMS,
                           Umax0 = NA
 ){  
   
-  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
   
   nSites <- length(nYearsMS)
   
