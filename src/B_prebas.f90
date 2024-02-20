@@ -35,7 +35,11 @@ implicit none
 !disturbances
  logical :: disturbanceON !fvec
  real (kind=8), intent(inout) :: siteInfoDist(4), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+ real (kind=8) :: rndm !random number for disturbance sampling
+ integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
+real (kind=8) :: sc1vols(87), sc2vols(15), sc3vols(6)
  
+  
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
  integer, intent(in) :: layerPRELES !oldLayer, fvec

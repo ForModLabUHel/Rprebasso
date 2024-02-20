@@ -83,7 +83,7 @@ ggplot(data=htest[h<=35,], aes(x=h, y=wrisk/5, col=as.factor(spec)))+
 #### TESTING WITHIN PREBAS (TRANSECTRUNS) ####
 
 # dist switched off (via omission of siteInfoDist input)
-t<- TransectRun(modVersion="region", species = "Mixed", SiteType = 1)
+t<- TransectRun(modVersion="multiSite", species = "Mixed", SiteType = 1)
 # plot(t$multiOut[3,,30,1,1])
 
 t$siteInfoDist
@@ -155,7 +155,9 @@ thins[2,,]
 
 t3<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
 
-plot(t3$multiOut[1,,"BA",1,1])
+t3$outDist[1,,7:9]
+
+#plot(t3$multiOut[1,,"BA",1,1])
 
 t3$outDist[1,,]
 t3$siteInfoDist
