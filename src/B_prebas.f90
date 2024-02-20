@@ -870,7 +870,7 @@ endif
 		! else
 			!nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000. !!!!this should be Umax = Umax0*P00/CNratio fT/fT0
 	  ! endif
-	  fT = exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  fT = fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
 	  Umax = Umax0fT0 * fT 
 	  
 	  !!!update parameters for Nitrogen calculations
