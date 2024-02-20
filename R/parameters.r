@@ -11,7 +11,7 @@ parNames_pCROB <- c("cR","rhow","sla","k","vf","vr","c","mf","mr","mw",
   "fAa","fAb","fAc","minDdeadWood","minPerDeadWood",
   "int_kRein(siteType)","slope_kRein(siteType)",
   "int_cR(siteType)","slope_cR(siteType)",
-  "nf_p1","nf_p2","nf_p3","nr","nw","ff","fr","fw","kN") ###Nitrogen parameters
+  "nf_p1","nf_p2","nf_p3","nr0","nw0","ff0","fr0","fw0","kN0") ###Nitrogen parameters
 pCROB <- matrix(NA,length(parNames_pCROB),length(speciesNam),dimnames = list(NULL,speciesNam))
 rownames(pCROB) <-  parNames_pCROB
 
