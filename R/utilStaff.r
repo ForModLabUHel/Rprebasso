@@ -789,8 +789,22 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
   }
   
 
-  fTfun <- function(TAir, precip){
-    fT <- exp(0.059*TAir - 0.001*TAir^2)* (1-exp(-1.858*precip))
+  fTfun <- function(TAir, precip, Tampl){
+    
+    te <- rep(0,4)
+    # temperature annual cycle approximation
+    te[1] = TAir+4*Tampl*(1/sqrt(2.0)-1)/pi
+    te[2] = TAir-4*Tampl/sqrt(2.0)/pi
+    te[3] = TAir+4*Tampl*(1-1/sqrt(2.0))/pi
+    te[4] = TAir+4*Tampl/sqrt(2.0)/pi
+    
+    # Average temperature dependence
+    temGeneral = mean(exp(0.059*te+ 0.001*te^2.0))
+     
+    
+    #add precipitation dependence
+    fT = temGeneral *(1.0 - exp(-1.858*precip/1000.0))
+    
     return(fT)
   }
   
