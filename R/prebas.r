@@ -390,11 +390,11 @@ prebas <- function(nYears,
   
   disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(etmodel, #int
-                            GVrun),     #int  
+                            GVrun,     #int  
                             fertThin,
-                            oldLayer,
+                            0,
                             multiSiteInit$ECMmod,
-                            disturbanceSwitch)
+                            disturbanceSwitch))
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
