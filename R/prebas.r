@@ -393,7 +393,7 @@ prebas <- function(nYears,
                             GVrun,     #int  
                             fertThin,
                             0,
-                            multiSiteInit$ECMmod,
+                            ECMmod,
                             disturbanceSwitch))
   
   prebas <- .Fortran("prebas",
