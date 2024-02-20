@@ -680,9 +680,7 @@ multiPrebas <- function(multiSiteInit,
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
-  print("Multiprebas, post-init")
-  print(disturbanceON)
-  print(siteInfoDist)
+
   
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
@@ -705,9 +703,7 @@ multiPrebas <- function(multiSiteInit,
                               multiSiteInit$ECMmod,
                               disturbanceSwitch))
   
-  print("Multiprebas, flags")
-  print(prebasFlags)
-  print(siteInfoDist)
+
   
   
   prebas <- .Fortran("multiPrebas",

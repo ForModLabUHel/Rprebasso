@@ -584,6 +584,8 @@ endif
 	! multiOut(siteX,ij,37,2,1)
 ! if(siteInfo(siteX,1) == 454702.) write(2,*) "remaining 3", multiOut(siteX,ij,11,3,1), multiOut(siteX,ij,13,3,1), &
 	! multiOut(siteX,ij,37,3,1)
+  siteInfoDist(siteX,2) = 0 ! restart time since thinning // TO BE TESTED!!
+
 
 	 roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)* thinFact *areas(siteX) !!energCuts
      multiOut(siteX,ij,2,1,2) = 4. !!!flag for thinning compensation

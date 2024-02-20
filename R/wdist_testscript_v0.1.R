@@ -204,6 +204,24 @@ ggplot()+
 
 
 
+#### COMPENSATION HARVESTS ####
+?TransectRun
+
+t5in<- TransectRun(modVersion = "region", SiteType=3, species="multi")
+t5in$multiInitVar
+?regionPrebas
+?InitMultiSite()
+
+
+
+
+
+t5in$m
+
+regionPrebas()
+
+
+
 } # end of if(false) workaround
 
 
