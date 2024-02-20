@@ -867,3 +867,22 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
   
   return(prebOut)
 }
+
+
+#' initSoilC_fromTot
+#' this function splits the soilC in the AWENH pools used in YASSO. 
+#' the output can then be used in PREBAS runs as initial soilC 
+#' 
+#' @param soilCTot 
+#' @param organShares 
+#' @param awenhShares 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+initSoilC_fromTot <- function(soilCTot,organShares=p_organShares, awenhShares=p_awenhShares){
+  soilC_byOregans <- soilCTot * organShares
+  soilC_byOregans_awenh <- sweep(awenhShares,2,soilC_byOregans,FUN = "*")
+  return(soilC_byOregans_awenh)
+}
