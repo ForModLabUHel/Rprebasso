@@ -54,6 +54,9 @@
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
+#' @param prebasFlags vector of flags to reduce number of
+#'
+#'
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -382,6 +385,17 @@ prebas <- function(nYears,
     }
   } 
   
+  #### vectorisation of flags ####
+  # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
+  
+  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  prebasFlags <- as.integer(c(etmodel, #int
+                            GVrun),     #int  
+                            fertThin,
+                            oldLayer,
+                            multiSiteInit$ECMmod,
+                            disturbanceSwitch)
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -402,7 +416,7 @@ prebas <- function(nYears,
                      weather=as.array(weatherPreles),
                      DOY= as.integer(1:365),
                      pPRELES=as.numeric(pPRELES),
-                     etmodel = as.integer(etmodel),
+                     #etmodel = as.integer(etmodel), #fvec
                      soilC = as.array(soilC),
                      pYASSO=as.numeric(pYASSO),
                      pAWEN = as.matrix(pAWEN),
@@ -423,21 +437,22 @@ prebas <- function(nYears,
                      ftTapioPar = as.array(ftTapioPar),
                      tTapioPar = as.array(tTapioPar),
                      GVout = matrix(0,nYears,5),
-                     GVrun = as.integer(GVrun),
+                     #GVrun = as.integer(GVrun), #fvec
                      thinInt = as.double(thinInt),
-                     fertThin = as.integer(fertThin),
+                     #fertThin = as.integer(fertThin), #fvec
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
                      protect = as.integer(protect),
                      mortMod = as.integer(mortMod),
-                     ECMmod = as.integer(ECMmod),
+                    # ECMmod = as.integer(ECMmod), # fvec
                      pECMmod = as.numeric(pECMmod),
                      layerPRELES = as.integer(layerPRELES),
                      LUEtrees = as.double(LUEtrees),
                      LUEgv = as.double(LUEgv),
-                     disturbanceON = as.logical(disturbanceON),
+                    # disturbanceON = as.logical(disturbanceON), #fvec
                      siteInfoDist = as.double(siteInfoDist),
-                     outDist = as.matrix(outDist)
+                     outDist = as.matrix(outDist),
+                     prebasFlags = as.integer(prebasFlags)
                      )
   class(prebas) <- "prebas"
   return(prebas)

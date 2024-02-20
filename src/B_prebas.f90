@@ -5,12 +5,16 @@
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      nThinning,maxYearSite,fAPAR,initClearcut,&
      fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,&
-     etmodel, soilCinOut,pYasso,pAWEN,weatherYasso,&
+     soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
-     ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod, & 
-	 layerPRELES,LUEtrees,LUEgv,disturbanceON, siteInfoDist, outDist)
+     ftTapio,tTapio,GVout,thinInt, &
+	 flagFert,nYearsFert,mortMod,pECMmod, & 
+	 layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+
+
+
+
 
 implicit none
 
@@ -20,7 +24,7 @@ implicit none
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
- integer, intent(in) :: DOY(365), etmodel, ECMmod
+ integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
@@ -29,14 +33,14 @@ implicit none
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
 !disturbances
- logical, intent(in) :: disturbanceON
+ logical :: disturbanceON !fvec
  real (kind=8), intent(inout) :: siteInfoDist(4), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
- integer, intent(in) :: oldLayer,layerPRELES
+ integer, intent(in) :: layerPRELES !oldLayer, fvec
 !!! fertilization parameters
- integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
+ !integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 fvec
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
@@ -50,7 +54,7 @@ implicit none
 
 !!!ground vegetation variables
  real (kind=8) :: AWENgv(4)  !!! ground vegetation, Yasso params.
- integer, intent(in) :: gvRun !!! flag for including ground vegetation
+ !integer :: gvRun !!! flag for including ground vegetation !fvec
  real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
@@ -131,6 +135,26 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
+integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
+integer, intent(in) :: prebasFlags(6)
+REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
+REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
+
+
+!!! 'un-vectorise' flags, fvec
+etmodel = int(prebasFlags(1))
+gvRun = int(prebasFlags(2))
+fertThin = int(prebasFlags(3))
+oldLayer = int(prebasFlags(4))
+ECMmod = int(prebasFlags(5))
+if(prebasFlags(6)==0) disturbanceON = .FALSE.
+if(prebasFlags(6)==1) disturbanceON = .TRUE.
+
+! 
+! outDist(1,1) = prebasFlags(6)
+! outDist(1,2) = siteInfoDist(2)
+
+
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
@@ -194,6 +218,7 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
   VmortDist=0.
+  siteInfoDist(2) = siteInfoDist(2)+1
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
@@ -967,13 +992,18 @@ endif
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 
+
 !set species from thinning matrix (strart)
 	 species = int(thinning(countThinning,2))
 	 stand(4) = thinning(countThinning,2)
 !set species from thinning matrix (end)
 
+
 	! if(year >= yearX) then
 		STAND_tot = STAND
+    IF (thinning(countThinning,6) < STAND_tot(13)) siteInfoDist(2) = 0
+    ! IF (thinning(countThinning,6) < STAND_tot(13)) outDist(year,6) = 0
+
 		if(thinning(countThinning,9) .NE. -999) then
 		 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
 		endif
@@ -1389,6 +1419,9 @@ if(defaultThin == 1.) then
 
 
  if(doThin) then
+   
+   siteInfoDist(2) = 0
+
  !!!fertilization at thinning
 	if(fertThin == 3 .and. flagFert<1 .and. siteType>3. .and. siteType<6.) then 
 		flagFert=1

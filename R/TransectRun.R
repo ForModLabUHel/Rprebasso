@@ -52,10 +52,11 @@
 #' @param ingrowth # flag to simulate ingrowth
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #' @param modVersion # model version to use in the simulations it can be multiSite or region
-#' 
+#' @param siteInfoDist # UNDER DEVELOPMENT! external data for wind risk modelling. Switches on wind risk calculations; output: outDist. Matrix with dims(nSites, 4): 1 = 10a max windspeed, m/s; 2: time since thining (years; for initialisation, but currently used throughout simulations); 3: soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic); 4: shallow soil (0 = F, >30cm; 1 = T, <30cm)
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
+
 #' @export
 #'
 #' @examples 
@@ -132,10 +133,12 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
                         siteInfoDist = NA,
                         modVersion = "multiSite"
+
 ) {
+
   
-  if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
@@ -258,7 +261,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     PcurrClim = PcurrClim,
     ingrowth = ingrowth,
     siteInfoDist = siteInfoDist
-  )
+    )
+
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   
   if(modVersion=="region") TransectOut <- regionPrebas(initPrebas)
