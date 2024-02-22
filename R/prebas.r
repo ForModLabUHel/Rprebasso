@@ -105,10 +105,10 @@ prebas <- function(nYears,
                    latitude = NULL,
                    alpharNcalc=FALSE,
                    p0currClim = NA,
-                   TcurrClim = NA,
-                   PcurrClim = NA,
+                   fT0AvgCurrClim = NA, ####vector with temperature, precipitation and Tampl at currentclimate
                    HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
-                   alpharVersion = 1 ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                   alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
+                   yearsCurrClimAv = 30
               ){
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -294,42 +294,54 @@ prebas <- function(nYears,
 
   if(alpharNcalc){
     ###initialize alfar
-    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,10),1])
-    p0ratio <- multiP0[,,1]/p0currClim
-    if(all(is.na(TcurrClim))) TcurrClim <- mean(weatherYasso[1:min(10,maxYears),1])
-    if(all(is.na(PcurrClim))) PcurrClim <- mean(weatherYasso[1:min(10,maxYears),2])
-    fT0 <- fTfun(TcurrClim,PcurrClim)
-    fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
+    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,yearsCurrClimAv),1])
+    P00CN <- p0currClim/CNratio(latitude = latitude, st = siteInfo[3], pars = pECMmod[6:8])
+    p0ratio <- P0[,1]/p0currClim
+    
+    fT <- fTfun(weatherYasso[,1],weatherYasso[,2],weatherYasso[,3])
+    if(all(is.na(fT0AvgCurrClim))){
+      fT0 <- mean(fT[1:min(yearsCurrClimAv,maxYears)])
+    }else{
+      fT0 <- fT0AvgCurrClim
+    }
+    # fT0 <- fTfun(TcurrClim,PcurrClim,TamplCurrClim)
     fTratio <- fT/fT0 
     
-    ###calculate rolling average
-    fTrollMean <- fT
-    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
-    ###fill first values
-    fTrollMean[1:(kx-1)] <- cumsum(fT[1:(kx-1)])
-    fTrollMean[1:(kx-1)] <- fTrollMean[1:(kx-1)]/(1:(kx-1))
-    # calculate rollingmean
-    fTrollMean[kx:length(fT)] <- rollmean(fT,kx)
-    fTratioRollmean <- fTrollMean/fT0
-    
+
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
-    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratioRollmean 
+    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
     if(alpharVersion == 2) alpharNfact <- p0ratio      
-    if(alpharVersion == 3) alpharNfact <- rep(1,length(p0ratio))
+    if(alpharVersion == 3) alpharNfact <- rep(1,length(fTratio))
     
+    ###calculate rolling average
+    alpharNfactMean <- alpharNfact
+    fTMean <- fTratio
+    kx=min(maxYears,smoothYear) ####this is the lag for the rolling average, maybe it could be an input
+    ###fill first values
+    alpharNfactMean[1:(kx-1)] <- cumsum(alpharNfact[1:(kx-1)])
+    alpharNfactMean[1:(kx-1)] <- alpharNfactMean[1:(kx-1)]/(1:(kx-1))
+    fTMean[1:(kx-1)] <- cumsum(fT[1:(kx-1)])
+    fTMean[1:(kx-1)] <- fTMean[1:(kx-1)]/(1:(kx-1))
+    # calculate rolling mean
+    alpharNfactMean[kx:length(alpharNfact)] <- rollmean(alpharNfactMean,k=kx)
+    alpharNfact <- alpharNfactMean
+    fTMean[kx:length(fT)] <- rollmean(fTMean,k=kx)
+    #fT <- fTMean
+    
+    output[,5,,2] <- 0
     alpharNfact <- p0ratio * fTratio
     if(maxNlayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfact
     if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
+    if(maxNlayers==1) output[,55,1,2] <- fTrollMean
+    if(maxNlayers>1) output[,55,,2] <- sweep(output[,55,,2],1,fTrollMean,FUN="+") 
 
-    ##This is not needed anymore because we smooth fT
-    # ####alphar is smoothed using a running average of 10 years
-    # if(maxNlayers==1) output[1,3,1,2] <- mean(output[1:10,3,1,2])
-    # if(maxNlayers>1) output[1,3,,2] <- apply(output[1:10,3,,2],2,mean)
-    ##
-    for(ijj in 2:maxYears){
-      output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
-    }
-  } 
+    # for(ijj in 2:maxYears){
+    #   output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
+    # }
+  }else{
+    alpharNfact=NA
+    pCROBAS[41,] = 0
+  }
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
@@ -382,7 +394,8 @@ prebas <- function(nYears,
                      ECMmod = as.integer(ECMmod),
                      pECMmod = as.numeric(pECMmod),
                      ETSstart = as.double(ETSstart),
-                     latitude = as.double(latitude)
+                     latitude = as.double(latitude),
+                     P00CN = as.double(P00CN)
   )
   class(prebas) <- "prebas"
   return(prebas)

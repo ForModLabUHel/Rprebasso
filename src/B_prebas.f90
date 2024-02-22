@@ -9,12 +9,12 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude,Umax0fT0)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude,P00CN)
 
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=62, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=57, npar=64, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -24,7 +24,7 @@ implicit none
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
- real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude,Umax0fT0
+ real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude,P00CN
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -78,7 +78,7 @@ implicit none
  real (kind=8) :: par_alfar5, par_etab, par_k, par_vf, par_vr, par_sla, &
       par_mf, par_mr, par_mw, par_vf0, mrFact, par_vr0 ! parameters filled from Crobas-vector
  real (kind=8) :: par_z, par_rhos, par_cR, par_x, Light, MeanLight(nLayers), &
-      par_mf0,par_mr0,par_mw0,par_zb !par_zb: ratio between dead branches l and mean pipe lenght
+      par_mf0,par_mr0,par_mw0,par_NUptakeSwitch !par_zb: ratio between dead branches l and mean pipe lenght
  ! Light is light at canopy bottom, MeanLight is layer-specific mean. Calculated by &
  ! Llight extinction subroutine.
  real (kind=8) :: par_sarShp, par_S_branchMod ! crobas param
@@ -114,7 +114,8 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(10), fTaweNH(4), ncount,apu,TAir, fT,Umax,Precip
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(10), fTaweNH(4)
+ real (kind=8) :: ncount,apu,TAir, fTratio,Umax,Precip, Nout(3,nLayers,2)
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -614,7 +615,7 @@ exud(ij) = 0.d0
  par_Cr2 = 0.!param(24)
  par_sla0 = param(39)
  par_tsla = param(40)
- par_zb = param(41)
+ par_NUptakeSwitch = param(41)
  par_fAa = param(45)
  par_fAb = param(46)
  par_fAc = param(47)
@@ -859,19 +860,23 @@ endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! added stuff for N calculations
 
-	  call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
+	 ! call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
 	  
-! par_zb = 1 for Hyungwoo calculations
-! par_zb = 0 for Umax = 1
-! par_zb = -Umax for Umax calculations
+! par_NUptakeSwitch = 1 for Hyungwoo calculations
+! par_NUptakeSwitch = 0 for Umax = 1
+! par_NUptakeSwitch = -Umax for Umax calculations
 	  ncount = ncount + 1
 	  ! if(par_zb .lt. -0.01) then
-			! nitpar(7) = - par_zb 
+			! nitpar(7) = - par_NUptakeSwitch 
 		! else
 			!nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000. !!!!this should be Umax = Umax0*P00/CNratio fT/fT0
 	  ! endif
-	  fT = fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
-	  Umax = Umax0fT0 * fT 
+	  fTratio = output(year,55,1,2) !fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  if(par_NUptakeSwitch == 1.0) then
+		Umax = (param(63) + param(64)* P00CN) * fTratio !(param(63) + param(64)* P00CN) =Umax0   ; fTratio = fT/fT0
+	  else
+	    Umax = 1.0
+	  endif
 	  
 	  !!!update parameters for Nitrogen calculations
 	  nitpar(1:9) = param(54:62)
@@ -881,7 +886,7 @@ endif
 	  		
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
-	 if(par_zb .lt. -0.01 ) then
+	 if(par_NUptakeSwitch == 1.0 ) then
 
 !	  write(1,*) siteInfo(1), year, S_fol,S_fr
 	   if(Nup.lt.Ndem*1.001)then
@@ -900,7 +905,7 @@ endif
    ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
    ! it has to be updated for locations 
    
-   if(par_H0max .gt. 0) then
+   ! if(par_H0max .gt. 0) then
    
    ! if(year.eq.1) then
    
@@ -922,14 +927,20 @@ endif
 !	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
 	! modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
 	
-   endif
+   ! endif
 
 ! ! use devise 1 to print in case it is not in use otherwise
 	! if(par_zb .lt. 1) then 
-	! write(1,*) siteInfo(1), year, Gf, Gr, Gw, W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, Nup / nitpar(7), Ndem , fAPARtrees
+	! write(1,*) siteInfo(1), year, Gf, Gr, Gw,  Nup, Ndem,Umax, CN,fTratio !,W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, fAPARtrees
 	! endif
 	! write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
 	
+	Nout(1,ij,1) = Gf
+	Nout(2,ij,1) = Gr
+	Nout(3,ij,1) = Gw
+	Nout(1,ij,2) = Nup
+	Nout(2,ij,2) = Ndem
+	Nout(3,ij,2) = Umax
 ! end of added stuff for N calculations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
 
@@ -1673,6 +1684,7 @@ endif
 
 
 outt(:,:,1) = STAND_all
+outt(55:57,:,:) = Nout
 
 modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),4,:,:) = outt(4,:,:) !update species

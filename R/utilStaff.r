@@ -106,9 +106,9 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_fWoody','Litter_cWoody','V',
                'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"VroundWood","WroundWood","soilC",
                "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh", "NEP"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
-               "Wbh","Wcrh")
+               "Wbh","Wcrh","Gf/Nup", "Gr/Ndem", "Gw/Umax")
 
-  getVarNam <- function(){
+getVarNam <- function(){
     return(varNames)
 }
 
@@ -791,16 +791,18 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
 
   fTfun <- function(TAir, precip, Tampl){
     
-    te <- rep(0,4)
     # temperature annual cycle approximation
-    te[1] = TAir+4*Tampl*(1/sqrt(2.0)-1)/pi
-    te[2] = TAir-4*Tampl/sqrt(2.0)/pi
-    te[3] = TAir+4*Tampl*(1-1/sqrt(2.0))/pi
-    te[4] = TAir+4*Tampl/sqrt(2.0)/pi
+    te1 = TAir+4*Tampl*(1/sqrt(2.0)-1)/pi
+    te2 = TAir-4*Tampl/sqrt(2.0)/pi
+    te3 = TAir+4*Tampl*(1-1/sqrt(2.0))/pi
+    te4 = TAir+4*Tampl/sqrt(2.0)/pi
     
     # Average temperature dependence
-    temGeneral = mean(exp(0.059*te+ 0.001*te^2.0))
-     
+    te1 = exp(0.059*te1+ 0.001*te1^2.0)
+    te2 = exp(0.059*te2+ 0.001*te2^2.0)
+    te3 = exp(0.059*te3+ 0.001*te3^2.0)
+    te4 = exp(0.059*te4+ 0.001*te4^2.0)
+    temGeneral = (te1+te2+te3+te4)/4
     
     #add precipitation dependence
     fT = temGeneral *(1.0 - exp(-1.858*precip/1000.0))

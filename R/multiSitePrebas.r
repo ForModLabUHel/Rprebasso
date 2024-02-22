@@ -48,14 +48,15 @@ InitMultiSite <- function(nYearsMS,
                           latitude=NULL, #vector of latitudes of sites
                           alpharNcalc=FALSE,
                           p0currClim = NA,
-                          TcurrClim = NA,
-                          PcurrClim = NA,
+                          fT0AvgCurrClim = NA, ####a  vector (climID) fT0 calculated with the annual mean of fTfun for current climate data
                           alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-                          Umax0 = NA
+                          P00CN = NA,
+                          yearsCurrClimAv = 30
 ){  
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
   
+
   nSites <- length(nYearsMS)
   
   if(is.null(latitude) & ECMmod==1){
@@ -383,15 +384,18 @@ InitMultiSite <- function(nYearsMS,
   
   if(alpharNcalc){
     ###initialize alfar
-    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,10),1])
-    Umax0 <- p0currClim/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
+    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,yearsCurrClimAv),1])
+    P00CN <- p0currClim/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
     p0ratio <- multiP0[,,1]/p0currClim
-    if(all(is.na(TcurrClim))) TcurrClim <- apply(weatherYasso[,1:min(10,maxYears),1],1,mean)
-    if(all(is.na(PcurrClim))) PcurrClim <- apply(weatherYasso[,1:min(10,maxYears),2],1,mean)
-    fT0 <- fTfun(TcurrClim,PcurrClim)
-    fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2])
-    fTratio <- fT/fT0 
-    Umax0fT0 <- Umax0/fT0
+    fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2],weatherYasso[,,3])
+    if(all(is.na(fT0AvgCurrClim))){
+      fT0 <- rowMeans(fT[,1:min(yearsCurrClimAv,maxYears)])
+    }else{
+      fT0 <- fT0AvgCurrClim
+    }
+    # fT0 <- fTfun(TcurrClim,PcurrClim,TamplCurrClim)
+    fTratio <- sweep(fT,1,fT0,FUN="/")  
+    # Umax0fT0 <- Umax0/fT0
     
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
     if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
@@ -400,21 +404,30 @@ InitMultiSite <- function(nYearsMS,
     
     ###calculate rolling average
     alpharNfactMean <- alpharNfact
-    kx=min(maxYears,5) ####this is the lag for the rolling average, maybe it could be an input
+    fTMean <- fTratio
+    kx=min(maxYears,smoothYear) ####this is the lag for the rolling average, maybe it could be an input
     ###fill first values
     alpharNfactMean[,1:(kx-1)] <- t(apply(alpharNfact[,1:(kx-1)],1,cumsum))
     alpharNfactMean[,1:(kx-1)] <- alpharNfactMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(alpharNfact))
-    # calculate rollingmean
+    fTMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
+    fTMean[,1:(kx-1)] <- fTMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
+    # calculate rolling mean
     alpharNfactMean[,kx:ncol(alpharNfact)] <- t(apply(alpharNfactMean,1,k=kx,rollmean))
     alpharNfact <- alpharNfactMean
-
+    fTMean[,kx:ncol(fT)] <- t(apply(fTMean,1,k=kx,rollmean))
+    #fT <- fTMean
     
-    
+    # multiOut[,,5,,2] <- 0
     for(ijj in 1:nClimID){
       siteXs <- which(siteInfo[,2]==ijj)
+    ###fill alphar rolling mean
       if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
       if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
+    ###fill fT rolling mean
+      if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,55,,2] <- fTMean[ijj,]
+      if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,55,,2] <- sweep(multiOut[siteXs,,55,,2],1,fTMean[ijj,],FUN="+") 
+      if(length(siteXs)>1) multiOut[siteXs,,5,,2] <- sweep(multiOut[siteXs,,55,,2],2,fTMean[ijj,],FUN="+") 
     }
     ##this is not needed anymore because we smooth fT
     # ####alphar is smoothed using a running average of 10 years
@@ -425,9 +438,10 @@ InitMultiSite <- function(nYearsMS,
     # }
   }else{
     alpharNfact=NA
+    pCROBAS[41,] = 0
   }
   
-  if(all(is.na(Umax0))) Umax0fT0 <- rep(0,nSites)
+  if(all(is.na(P00CN))) P00CN <- rep(0,nSites)
 
   multiSiteInit <- list(
     multiOut = multiOut,
@@ -487,7 +501,7 @@ InitMultiSite <- function(nYearsMS,
     latitude = latitude,
     alpharNcalc=alpharNcalc,
     alpharNfact = alpharNfact,
-    Umax0fT0 = Umax0fT0
+    P00CN = P00CN
   )
   return(multiSiteInit)
 }
@@ -614,7 +628,7 @@ multiPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      latitude=as.double(multiSiteInit$latitude),
-                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
+                     P00CN=as.double(multiSiteInit$P00CN)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -800,7 +814,7 @@ regionPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      latitude=as.double(multiSiteInit$latitude),
-                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
+                     P00CN=as.double(multiSiteInit$P00CN)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -996,7 +1010,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      latitude=as.double(multiSiteInit$latitude),
-                     Umax0fT0=as.double(multiSiteInit$Umax0fT0)
+                     P00CN=as.double(multiSiteInit$P00CN)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

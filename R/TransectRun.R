@@ -22,8 +22,7 @@
 #' @param weatherInput ##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations
 #' @param alpharNcalc #alphar calculations based on Nitrogen availability
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
-#' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
-#' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param fT0AvgCurrClim = NA, ####a  vector (climID) fT0 calculated with the annual mean of fTfun for current climate data
 #' @param multiNthin 
 #' @param GVrun 
 #' @param pHcMod 
@@ -128,8 +127,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203),
                         alpharNcalc=FALSE,
                         p0currClim = NA,
-                        TcurrClim = NA,
-                        PcurrClim = NA,
+                        fT0AvgCurrClim = NA, ####a  matrix(climID,3) with temperature, precipitation and Tampl for each climate ID for
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
                         alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
                         modVersion = "multiSite"
@@ -256,8 +254,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     latitude = latitude,
     alpharNcalc=alpharNcalc,
     p0currClim = p0currClim,
-    TcurrClim = TcurrClim,
-    PcurrClim = PcurrClim,
+    fT0AvgCurrClim = fT0AvgCurrClim,
     alpharVersion = alpharVersion
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
