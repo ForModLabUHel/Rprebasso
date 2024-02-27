@@ -138,7 +138,12 @@ implicit none
 		 par_sla0 = param(39)
 		 par_tsla = param(40)
 		 age = STAND_all(7,i)
-		 par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+		 if(par_tsla .gt. 0.) then
+			par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+		 else
+			par_sla = par_sla
+		 endif
+
 	 
 		 ht(i) = STAND_all(11,i)   ! H
 		 hc(i) = STAND_all(14,i)   ! Hc
