@@ -398,25 +398,33 @@ InitMultiSite <- function(nYearsMS,
     # Umax0fT0 <- Umax0/fT0
     
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
-    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
-    if(alpharVersion == 2) alpharNfact <- p0ratio      
-    if(alpharVersion == 3) alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
+    if(!alpharVersion %in% 2:3){
+      alpharNfact <- p0ratio/fTratio 
+      UmaxFactor <- fTratio
+    } 
+    if(alpharVersion == 2){
+      alpharNfact <- p0ratio      
+      UmaxFactor <- 1
+    } 
+    if(alpharVersion == 3){
+      alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
+      UmaxFactor <- p0ratio
+    } 
     
     ###calculate rolling average
     alpharNfactMean <- alpharNfact
-    fTMean <- fTratio
+    UmaxFactorMean <- UmaxFactor
     kx=min(maxYears,smoothYear) ####this is the lag for the rolling average, maybe it could be an input
     ###fill first values
     alpharNfactMean[,1:(kx-1)] <- t(apply(alpharNfact[,1:(kx-1)],1,cumsum))
     alpharNfactMean[,1:(kx-1)] <- alpharNfactMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(alpharNfact))
-    fTMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
-    fTMean[,1:(kx-1)] <- fTMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
+    UmaxFactorMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
+    UmaxFactorMean[,1:(kx-1)] <- UmaxFactorMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
     # calculate rolling mean
     alpharNfactMean[,kx:ncol(alpharNfact)] <- t(apply(alpharNfactMean,1,k=kx,rollmean))
     alpharNfact <- alpharNfactMean
-    fTMean[,kx:ncol(fT)] <- t(apply(fTMean,1,k=kx,rollmean))
-    #fT <- fTMean
-    
+    UmaxFactorMean[,kx:ncol(fT)] <- t(apply(UmaxFactorMean,1,k=kx,rollmean))
+   
     # multiOut[,,5,,2] <- 0
     for(ijj in 1:nClimID){
       siteXs <- which(siteInfo[,2]==ijj)
@@ -424,10 +432,10 @@ InitMultiSite <- function(nYearsMS,
       if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,3,,2] <- multiOut[siteXs,,3,,2] * alpharNfact[ijj,]
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],1,alpharNfact[ijj,],FUN="*") 
       if(length(siteXs)>1) multiOut[siteXs,,3,,2] <- sweep(multiOut[siteXs,,3,,2],2,alpharNfact[ijj,],FUN="*") 
-    ###fill fT rolling mean
-      if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,55,,2] <- fTMean[ijj,]
-      if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,55,,2] <- sweep(multiOut[siteXs,,55,,2],1,fTMean[ijj,],FUN="+") 
-      if(length(siteXs)>1) multiOut[siteXs,,5,,2] <- sweep(multiOut[siteXs,,55,,2],2,fTMean[ijj,],FUN="+") 
+    ###fill UmaxFactor rolling mean (i.e., the factor to be multiplied to Umax0 to compute Umxa)
+      if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,55,,2] <- UmaxFactorMean[ijj,]
+      if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,55,,2] <- sweep(multiOut[siteXs,,55,,2],1,UmaxFactorMean[ijj,],FUN="+") 
+      if(length(siteXs)>1) multiOut[siteXs,,5,,2] <- sweep(multiOut[siteXs,,55,,2],2,UmaxFactorMean[ijj,],FUN="+") 
     }
     ##this is not needed anymore because we smooth fT
     # ####alphar is smoothed using a running average of 10 years

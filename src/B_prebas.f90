@@ -115,7 +115,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
  real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(10), fTaweNH(4)
- real (kind=8) :: ncount,apu,TAir, fTratio,Umax,Precip, Nout(3,nLayers,2)
+ real (kind=8) :: ncount,apu,TAir, UmaxFactor,Umax,Precip, Nout(3,nLayers,2)
 
 !fix parameters
  real (kind=8) :: qcTOT0,Atot,fAPARprel(365)
@@ -879,9 +879,9 @@ endif
 		! else
 			!nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000. !!!!this should be Umax = Umax0*P00/CNratio fT/fT0
 	  ! endif
-	  fTratio = output(year,55,1,2) !fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  UmaxFactor = output(year,55,1,2) !fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
 	  if(par_NUptakeSwitch == 1.0) then
-		Umax = (param(63) + param(64)* P00CN) * fTratio !(param(63) + param(64)* P00CN) =Umax0   ; fTratio = fT/fT0
+		Umax = (param(63) + param(64)* P00CN) * UmaxFactor !(param(63) + param(64)* P00CN) =Umax0   ; UmaxFactor = fT/fT0
 	  else
 	    Umax = 1.0
 	  endif
@@ -939,7 +939,7 @@ endif
 
 ! ! use devise 1 to print in case it is not in use otherwise
 	! if(par_zb .lt. 1) then 
-	! write(1,*) siteInfo(1), year, Gf, Gr, Gw,  Nup, Ndem,Umax, CN,fTratio !,W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, fAPARtrees
+	! write(1,*) siteInfo(1), year, Gf, Gr, Gw,  Nup, Ndem,Umax, CN,UmaxFactor !,W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, fAPARtrees
 	! endif
 	! write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
 	

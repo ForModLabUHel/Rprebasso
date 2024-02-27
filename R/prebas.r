@@ -309,31 +309,39 @@ prebas <- function(nYears,
     
 
     if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
-    if(!alpharVersion %in% 2:3) alpharNfact <- p0ratio/fTratio 
-    if(alpharVersion == 2) alpharNfact <- p0ratio      
-    if(alpharVersion == 3) alpharNfact <- rep(1,length(fTratio))
+    if(!alpharVersion %in% 2:3){
+      alpharNfact <- p0ratio/fTratio 
+      UmaxFactor <- fTratio
+    } 
+    if(alpharVersion == 2){
+      alpharNfact <- p0ratio      
+      UmaxFactor <- 1
+    } 
+    if(alpharVersion == 3){
+      alpharNfact <- alpharNfact <- rep(1,length(fTratio))
+      UmaxFactor <- p0ratio
+    } 
     
     ###calculate rolling average
     alpharNfactMean <- alpharNfact
-    fTMean <- fTratio
+    UmaxFactorMean <- UmaxFactor
     kx=min(maxYears,smoothYear) ####this is the lag for the rolling average, maybe it could be an input
     ###fill first values
     alpharNfactMean[1:(kx-1)] <- cumsum(alpharNfact[1:(kx-1)])
     alpharNfactMean[1:(kx-1)] <- alpharNfactMean[1:(kx-1)]/(1:(kx-1))
-    fTMean[1:(kx-1)] <- cumsum(fT[1:(kx-1)])
-    fTMean[1:(kx-1)] <- fTMean[1:(kx-1)]/(1:(kx-1))
+    UmaxFactorMean[1:(kx-1)] <- cumsum(fT[1:(kx-1)])
+    UmaxFactorMean[1:(kx-1)] <- UmaxFactorMean[1:(kx-1)]/(1:(kx-1))
     # calculate rolling mean
     alpharNfactMean[kx:length(alpharNfact)] <- rollmean(alpharNfactMean,k=kx)
     alpharNfact <- alpharNfactMean
-    fTMean[kx:length(fT)] <- rollmean(fTMean,k=kx)
-    #fT <- fTMean
+    UmaxFactorMean[kx:length(fT)] <- rollmean(UmaxFactorMean,k=kx)
     
     output[,5,,2] <- 0
-    alpharNfact <- p0ratio * fTratio
-    if(maxNlayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfact
-    if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
-    if(maxNlayers==1) output[,55,1,2] <- fTrollMean
-    if(maxNlayers>1) output[,55,,2] <- sweep(output[,55,,2],1,fTrollMean,FUN="+") 
+    # alpharNfact <- p0ratio * fTratio
+    if(maxNlayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfactMean
+    if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfactMean,FUN="*") 
+    if(maxNlayers==1) output[,55,1,2] <- UmaxFactorMean
+    if(maxNlayers>1) output[,55,,2] <- sweep(output[,55,,2],1,UmaxFactorMean,FUN="+") 
 
     # for(ijj in 2:maxYears){
     #   output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
