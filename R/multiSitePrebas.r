@@ -404,7 +404,7 @@ InitMultiSite <- function(nYearsMS,
     } 
     if(alpharVersion == 2){
       alpharNfact <- p0ratio      
-      UmaxFactor <- 1
+      UmaxFactor <- matrix(1,nrow(p0ratio),ncol(p0ratio))
     } 
     if(alpharVersion == 3){
       alpharNfact <- matrix(1,nrow(p0ratio),ncol(p0ratio))
@@ -418,12 +418,12 @@ InitMultiSite <- function(nYearsMS,
     ###fill first values
     alpharNfactMean[,1:(kx-1)] <- t(apply(alpharNfact[,1:(kx-1)],1,cumsum))
     alpharNfactMean[,1:(kx-1)] <- alpharNfactMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(alpharNfact))
-    UmaxFactorMean[,1:(kx-1)] <- t(apply(fT[,1:(kx-1)],1,cumsum))
+    UmaxFactorMean[,1:(kx-1)] <- t(apply(UmaxFactorMean[,1:(kx-1)],1,cumsum))
     UmaxFactorMean[,1:(kx-1)] <- UmaxFactorMean[,1:(kx-1)]/rep(1:(kx-1),each=nrow(fT))
     # calculate rolling mean
     alpharNfactMean[,kx:ncol(alpharNfact)] <- t(apply(alpharNfactMean,1,k=kx,rollmean))
     alpharNfact <- alpharNfactMean
-    UmaxFactorMean[,kx:ncol(fT)] <- t(apply(UmaxFactorMean,1,k=kx,rollmean))
+    UmaxFactorMean[,kx:ncol(UmaxFactorMean)] <- t(apply(UmaxFactorMean,1,k=kx,rollmean))
    
     # multiOut[,,5,,2] <- 0
     for(ijj in 1:nClimID){
