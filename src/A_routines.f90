@@ -2371,3 +2371,19 @@ subroutine linearUpdateParam(pars,siteType,par_New)
 	 par_New = pars(1) + pars(2) * siteType 
 endsubroutine
 
+
+!!calculate the soil moisture index to be used in the bark beatle disturbance calculations
+subroutine SMIfromPRELES(GPP,fW,SMI)
+   real (kind=8), intent(in) :: GPP(365),fW(365)
+   real (kind=8), intent(out) :: SMI
+   integer :: startSeason(1),endSeason(1)
+
+   ! open(1,file="test1.txt")
+   startSeason = findloc(GPP > 0,.TRUE.) !!!!day of vegetation starting season based on positive GPP
+   endSeason =findloc(GPP > 0,.TRUE.,BACK = .TRUE.) !!!!day of vegetation ending season based on positive GPP
+   SMI = sum(fW(startSeason(1):endSeason(1)))/(endSeason(1)-startSeason(1)+1)
+   
+   ! write(1,*) startSeason, endSeason,SMI
+   
+   ! close(1) 
+endsubroutine
