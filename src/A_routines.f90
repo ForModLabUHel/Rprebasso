@@ -136,8 +136,12 @@ implicit none
 		 par_sla0 = param(39)
 		 par_tsla = param(40)
 		 age = STAND_all(7,i)
-		 par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
-	 
+		 if(par_tsla .gt. 0.) then
+			par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+		 else
+			par_sla = par_sla
+		 endif
+
 		 ht(i) = STAND_all(11,i)   ! H
 		 hc(i) = STAND_all(14,i)   ! Hc
 		 h(i) = ht(i) - hc(i)        ! Lc
@@ -2312,18 +2316,19 @@ par_New = pars(1) + pars(2) * varX
 endsubroutine
 
 
-! !!find start and end of growing season 
-! subroutine SMIfromPRELES(GPP,fW,SMI)
-   ! real (kind=8), intent(in) :: GPP(365),fW(365)
-   ! real (kind=8), intent(out) :: SMI
-   ! integer :: startSeason(1),endSeason(1)
+
+!!calculate the soil moisture index to be used in the bark beatle disturbance calculations
+subroutine SMIfromPRELES(GPP,fW,SMI)
+   real (kind=8), intent(in) :: GPP(365),fW(365)
+   real (kind=8), intent(out) :: SMI
+   integer :: startSeason(1),endSeason(1)
 
    ! open(1,file="test1.txt")
-   ! startSeason = findloc(GPP > 0,.TRUE.) !!!!day of vegetation starting season based on positive GPP
-   ! endSeason =findloc(GPP > 0,.TRUE.,BACK = .TRUE.) !!!!day of vegetation ending season based on positive GPP
-   ! SMI = sum(fW(startSeason(1):endSeason(1)))/(endSeason(1)-startSeason(1)+1)
+   startSeason = findloc(GPP > 0,.TRUE.) !!!!day of vegetation starting season based on positive GPP
+   endSeason =findloc(GPP > 0,.TRUE.,BACK = .TRUE.) !!!!day of vegetation ending season based on positive GPP
+   SMI = sum(fW(startSeason(1):endSeason(1)))/(endSeason(1)-startSeason(1)+1)
    
    ! write(1,*) startSeason, endSeason,SMI
    
-! close(1) 
-! endsubroutine
+   ! close(1) 
+endsubroutine
