@@ -436,7 +436,11 @@ do ij = 1 , nLayers 		!loop Species
   Light = STAND(36)
   V = stand(30)
   ! mort = stand(40)
-  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  if(par_tsla .gt. 0.) then
+   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  else
+   par_sla = par_sla
+  endif
 
  if (N>0.) then
 
@@ -721,7 +725,11 @@ else
   S_fol = STAND(26)
   S_fr = STAND(27)
   S_branch = STAND(28)
-  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  if(par_tsla .gt. 0.) then
+   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  else
+   par_sla = par_sla
+  endif
 
   rc = Lc / (H-1.3) !crown ratio
   B = BA / N
