@@ -7,13 +7,13 @@ if(FALSE){ # workaround to be able to build/install package
 
 #### FORTRAN SUBROUTINE DIRECT TESTING ####  
 # Test inputs & var explanation
-spec <- 2 # 1 pine, 2 spruce, 3 other
-tsincethin <- 1# time since last thinning in years; ref: 0:5)
+spec <- 1 # 1 pine, 2 spruce, 3 other
+tsincethin <- 8# time since last thinning in years; ref: 0:5)
 openedge <- 0 # 0 = no open edge, 1 = open edge; ref: 0
 soiltype <- 0 # 0 = mineral, coarse; 1 = mineral, fine; 2 = organic; ref: 0
 shallowsoil <- 0 # 0 = soil depth >30cm, 1 = <30cm; ref: 0
 sitetype <- 4 # prebas site type 1:5 (converted to site fertility with 1:3 as fertile, 4:5 as infertile (ref)
-h <- 28.686949 # in m, avg: 16.4
+h <-  12.96333 # in m, avg: 16.4
 wspeed <- 12.2 # m/s (10a max), avg: 12.2
 tsum <- 1187 # effective temperature sum in degree days (note: 100 dd in Suvanto 2019)
 
@@ -81,12 +81,20 @@ ggplot(data=htest[h<=35,], aes(x=h, y=wrisk/5, col=as.factor(spec)))+
   ggtitle("Annual wind disturbance risk")
 
 #### TESTING WITHIN PREBAS (TRANSECTRUNS) ####
+t0<- TransectRun()
+
+t0$multiOut[1,,12,1,1]
+
+
+?TransectRun
+
 
 # dist switched off (via omission of siteInfoDist input)
 t<- TransectRun(modVersion="multiSite", species = "Mixed", SiteType = 1)
 # plot(t$multiOut[3,,30,1,1])
 
 t$siteInfoDist
+t$outDist
 varx <- "H"
 ggplot()+
   geom_line(aes(x=1:100, y=t$multiOut[1,,varx,1,1], col="H pine"))+
@@ -139,7 +147,7 @@ sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
 # ... and thinning
 
 thins <- array(0, dim=c(7,2,11))
-thins[,1,1] <- 80 #yos
+thins[,1,1] <- 90 #yos
 thins[,1,2] <- 1 #spec
 thins[,1,3] <- 1 #layer
 thins[,1,4] <- 1 #h
@@ -151,15 +159,88 @@ thins[,1,9] <- -999 #density
 thins[,1,10] <- -999 # sapw area
 thins[,1,11] <- 1 # share harvested
 
-thins[2,,]
+thins[1,,]
 
-t3<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
+t3<- TransectRun(siteInfoDist=sid, modVersion="region", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
+t3$outDist[1,80:100,]
+yod1<- which(t3$outDist[1,,7]==1)[1]
+yod1
 
-t3$outDist[1,,7:9]
+
+
+
+
+
+devout<- fread("wdistdev.txt")
+names(devout) <- c("site", "year", "wriskl1", "wriskl2", "wriskl3", "distweight1", "distweight2", "distweight3", "dvolshare1", "dvolshare2", "dvolshare3", "vdam1", "vdam2", "vdam3", "vperba1", "vperba2", "vperba3", "badam1", "badam2", "badam3")
+setkey(devout, site, year)
+devout[site==1 & year==yod1,]
+devout[site==1 & year%in%c(yod1-1,yod1)]
+
+
+
+
+
+t3$multiOut[1,,11,,1]
+t3$multiOut[1,,17,,1]
+t3$multiOut[1,yod1,11,,1]
+
+t3$outDist[1,yod1,]
+t3$outDist[1,,]
+
+
+sum(t3$multiOut[1,yod1,30,,1]*t3$outDist[1,yod1,9]) # total disturbed volume prior to allocation to layers (mout vol * predicted share of vol damaged)
+sum(devout[site==1 & year==yod1, .(badam1, badam2, badam3)]*t3$multiOut[1,yod1,30,,1]/t3$multiOut[1,yod1,13,,1]) # total disturbed volume from dist ba POST layer allocation
+t3$multiOut[1,yod1,30,,1] # layer vol at time of dist
+devout[site==1 & year==yod1, .(badam1, badam2, badam3)]*t3$multiOut[1,yod1,30,,1]/t3$multiOut[1,yod1,13,,1]# disturbed vol per layer
+
+#########
+
+
+t3$multiOut[1,yod1,13,,1]
+t3$multiOut[1,yod1,30,,1]/t3$multiOut[1,yod1,13,,1]
+  
+  
+  devout[site==1 & year==yod1, .(badam1, badam2, badam3)]*t3$multiOut[1,yod1,30,,1]/t3$multiOut[1,yod1,13,,1]
+
+  sum(t3$multiOut[1,yod1,30,,1])*t3$outDist[1,yod1,9]
+
+  sum(devout[site==1 & year==yod1, .(badam1, badam2, badam3)]*t3$multiOut[1,yod1,30,,1]/t3$multiOut[1,yod1,13,,1])
+  
+  
+  
+
+t3$multiOut[1,yod1,30,,1]/sum(t3$multiOut[1,yod1,30,,1])
+
+sum(t3$multiOut[1,yod1,30,,1])*t3$outDist[1,yod1,9]
+
+devout[site==1 & year==yod1, .(wriskl1, wriskl2, wriskl3)]/devout[site==1 & year==yod1, sum(wriskl1, wriskl2, wriskl3)]
+
+
+
+
+# !! WORKS!! 
+# however, this distributes the damages only according to wind risk, not considering how prominent a layer is - i.e. if a layer accounts for 10% of the total wind risk, it is assigned 10% of damaged volum, even if it just has 1% of growing stock...
+# update: accounted for now.
+
+
+# wriskLayers(:, 2) = STAND_all(30,:)/sum(STAND_all(30,:)) !share of V
+# wriskLayers(:, 3) = wriskLayers(:,1)/sum(wriskLayers(:,1)) !share of wrisk
+# wriskLayers(:, 4) = wriskLayers(:,2)*wriskLayers(:,3) !share of affected V
+# wriskLayers(:, 5) = STAND_all(30,:)/STAND_all(13,:)!V per ba
+# wriskLayers(:, 6) = wriskLayers(:,5)*wriskLayers(i, 4)!affected ba
+
+
+#t3$outDist[1,,7:9]
 
 #plot(t3$multiOut[1,,"BA",1,1])
 
-t3$outDist[1,,]
+t3$outDist[1,80:100,]
+t3$multiOut
+
+# works! if there's a disturbance, the wrisk of the non-dominant layers are calculated (for dev purposes: for layers with h > dom h - 15)
+# (outdist[,,1:nlayers], here 3...)
+
 t3$siteInfoDist
 
 
@@ -203,25 +284,6 @@ ggplot()+
   geom_line(aes(x=1:100, y=t4$outDist[1,,6]/10, col="tsincethin (10a)"))+
   geom_line(aes(x=1:100, y=t4$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)"))+ # ETS fluctuations explains variation in wrisk
   ggtitle("Man thin (yos 80): tsincethin implemented")
-
-
-
-#### COMPENSATION HARVESTS ####
-?TransectRun
-
-t5in<- TransectRun(modVersion = "region", SiteType=3, species="multi")
-t5in$multiInitVar
-?regionPrebas
-?InitMultiSite()
-
-
-
-
-
-t5in$m
-
-regionPrebas()
-
 
 
 } # end of if(false) workaround
