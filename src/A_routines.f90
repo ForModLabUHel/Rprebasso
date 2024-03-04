@@ -2376,14 +2376,19 @@ endsubroutine
 subroutine SMIfromPRELES(GPP,fW,SMI)
   real (kind=8), intent(in) :: GPP(365),fW(365)
  real (kind=8), intent(out) :: SMI
- integer :: startSeason(1),endSeason(1),startX, endX
+ integer :: startSeason, endSeason
 
-   ! open(1,file="test1.txt")
-  startSeason = findloc(GPP > 0) !!!!day of vegetation starting season based on positive GPP
-  endSeason =findloc(GPP > 0,BACK = .TRUE.) !!!!day of vegetation ending season based on positive GPP
-  ! startX = startSeason(1)
-  ! endX = endSeason(1)
-  SMI = sum(fW(startX:endX))/(endX-startX+1)
+ startSeason = 1
+   do while (GPP(startSeason) <= 0. .and. startSeason < 366)
+    startSeason = startSeason + 1
+   enddo
+   
+ endSeason = 365
+   do while (GPP(endSeason) <= 0. .and. endSeason > 1)
+    endSeason = endSeason - 1
+   enddo
+  
+  SMI = sum(fW(startSeason:endSeason))/(endSeason-startSeason+1)
    
    ! write(1,*) startSeason, endSeason,SMI
    
