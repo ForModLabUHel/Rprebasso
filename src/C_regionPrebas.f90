@@ -72,6 +72,8 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
  
+!!!!fAPAR minimum for ingrowth calculations
+real (kind=8) :: minFapar,fAparFactor=0.9
 
 !!! fertilization parameters
  !integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 fvec
@@ -299,6 +301,10 @@ endif
 	! 	disturbanceON, siteInfoDist(i,:), outDist(i,ij,:))
 
   ! flag vectorisation: prebasFlag version  fvec
+    
+	!!calculate minimum fAPAR of last 15 years to be used in ingrowth(if active) calculations
+	call minFaparCalc(fAPAR(i,:),ij,minFapar,fAparFactor)
+	fAPAR(i,ij) = minFapar
 
   if(disturbanceON) THEN
     write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open

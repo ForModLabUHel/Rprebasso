@@ -138,7 +138,12 @@ implicit none
 		 par_sla0 = param(39)
 		 par_tsla = param(40)
 		 age = STAND_all(7,i)
-		 par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+		 if(par_tsla .gt. 0.) then
+			par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+		 else
+			par_sla = par_sla
+		 endif
+
 	 
 		 ht(i) = STAND_all(11,i)   ! H
 		 hc(i) = STAND_all(14,i)   ! Hc
@@ -2364,5 +2369,47 @@ subroutine linearUpdateParam(pars,siteType,par_New)
 	real (kind=8), intent(inout) :: par_New
 	 !!!calculate reineke parameter as a function of siteType
 	 par_New = pars(1) + pars(2) * siteType 
+endsubroutine
+
+
+!!calculate the soil moisture index to be used in the bark beatle disturbance calculations
+! subroutine SMIfromPRELES(GPP,fW,SMI)
+!   real (kind=8), intent(in) :: GPP(365),fW(365)
+!  real (kind=8), intent(out) :: SMI
+!  integer :: startSeason(1),endSeason(1),startX, endX
+
+   ! open(1,file="test1.txt")
+!   startSeason = findloc(GPP > 0,.TRUE.) !!!!day of vegetation starting season based on positive GPP
+ ! endSeason =findloc(GPP > 0,.TRUE.,BACK = .TRUE.) !!!!day of vegetation ending season based on positive GPP
+!   startX = startSeason(1)
+!  endX = endSeason(1)
+!   SMI = sum(fW(startX:endX))/(endX-startX+1)
+   
+   ! write(1,*) startSeason, endSeason,SMI
+   
+   ! close(1) 
+! endsubroutine
+
+!!calculate minimum fAPAR of last 15 years
+subroutine minFaparCalc(fAPARtrees,nYears,minFapar,fAparFactor)
+   integer, intent(in) :: nYears
+   real (kind=8), intent(in) :: fAPARtrees(nYears), fAparFactor
+   real (kind=8), intent(out) :: minFapar
+   integer :: lastYears = 5 !lastYears are the number of years before the current years that should not be considered in the minimum fAPAR calculations
+   integer :: maxYears =15 !maxYears are the total number of years before the current years that should be considered in the minimum fAPAR calculations
+   integer :: firstYear
+   
+   if(nYears <= lastYears) minFapar = minval(fAPARtrees)*fAparFactor
+   if(nYears > lastYears .and. nYears <= int((maxYears - lastYears)/2)) minFapar = minval(fAPARtrees(1:(nYears-5)))*fAparFactor
+   if(nYears > lastYears .and. nYears > int((maxYears - lastYears)/2)) then
+	 if((nYears-maxYears+1) < 0) then
+		firstYear=1
+		minFapar = minval(fAPARtrees(firstYear:(nYears-5)))*fAparFactor
+	 else
+		firstYear = nYears-maxYears+1
+		minFapar = minval(fAPARtrees(firstYear:(nYears-5)))	
+	 endif
+   endif
+	   
 endsubroutine
 

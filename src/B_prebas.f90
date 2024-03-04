@@ -14,13 +14,11 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 
 
 
-
-
 implicit none
 
 !! Constants
  integer, parameter :: nVar=54, npar=53, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
- real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
+ real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
@@ -69,7 +67,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
 
 !! Parameters internal to the model
- real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5)  !!!state of the GV at the last year
+ real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5), minFapar  !!!state of the GV at the last year
  real (kind=8) :: fAPARlayers(1+nLayers), LUElayers(1+nLayers),LUEsite
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
@@ -438,7 +436,11 @@ do ij = 1 , nLayers 		!loop Species
   Light = STAND(36)
   V = stand(30)
   ! mort = stand(40)
-  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  if(par_tsla .gt. 0.) then
+   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  else
+   par_sla = par_sla
+  endif
 
  if (N>0.) then
 
@@ -548,6 +550,9 @@ if (year <= maxYearSite) then
    endif
 
 if(isnan(fAPARgvX)) fAPARgvX = 0.
+
+!!calculate minimum fAPAR of last 15 years to be used in ingrowth(if active) calculations
+	call minFaparCalc(fAPAR,year,minFapar,fAparFactor)
 
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
    fAPARsite = fAPARtrees + fAPARgvX
@@ -723,7 +728,11 @@ else
   S_fol = STAND(26)
   S_fr = STAND(27)
   S_branch = STAND(28)
-  par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  if(par_tsla .gt. 0.) then
+   par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
+  else
+   par_sla = par_sla
+  endif
 
   rc = Lc / (H-1.3) !crown ratio
   B = BA / N
@@ -1058,11 +1067,7 @@ endif
 		 
 		 !!!check if ingrowth and calculate the number of trees
 		 if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then 
-		  ! if(fAPARtrees<0.7) then 
-			BA = pi*((0.5d0/200.d0)**2.d0)*min((500.d0/fAPARtrees),4000.d0)
-		  ! else
-			! BA = 0.d0
-		  ! endif	
+		  BA = pi*((0.5d0/200.d0)**2.d0)*min((500.d0/minFapar),4000.d0)
 		 else
 		  BA = thinning(countThinning,6)
 		 endif
