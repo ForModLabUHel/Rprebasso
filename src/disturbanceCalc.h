@@ -160,22 +160,26 @@ write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4
   if (disturbanceON) then !x2
    ! BAmort = 0.d0
    ! pMort = 0.2d0
-   perBAmort = 0.0d0
-   call pDistTest(ETS,1200.0d0,pMort) !!!calculate probability of fire to occur in this stand
-   call random_number(randX)
-   if(randX < pMort)  call intTest(pMort,perBAmort) !!!calculate the intensity of possible fire of fire to occur in this stand
+   BAdist = wriskLayers(:,6) !disturbed layer ba/layer ba
 
- ! calculate probability of the disturbance to occur and
- ! the intensity of the disturbance
-   perBAmort = 0. ! deactivate Francesco's randomised mortality, seems to be very active and reduces n < 1 over rotation
-   if(perBAmort > 0.0d0 .OR. maxval(wriskLayers(:,1)) > 0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
+ !   call pDistTest(ETS,1200.0d0,pMort) !!!calculate probability of fire to occur in this stand
+ !   call random_number(randX)
+ !   if(randX < pMort)  call intTest(pMort,perBAmort) !!!calculate the intensity of possible fire of fire to occur in this stand
+ ! 
+ ! ! calculate probability of the disturbance to occur and
+ ! ! the intensity of the disturbance
+ !   perBAmort = 0. ! deactivate Francesco's randomised mortality, seems to be very active and reduces n < 1 over rotation
+ !if(perBAmort > 0.0d0 .OR. maxval(wriskLayers(:,1)) > 0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
+   if(sum(BAdist) > 0.0d0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
 
-   BA_tot = sum(STAND_all(13,:))
-   BAr = STAND_all(13,:)/BA_tot
+   !BA_tot = sum(STAND_all(13,:))
+   !BAr = STAND_all(13,:)/BA_tot
 
  	  ! perBAmort = 0.1
        ! write(1,*) "disturbance", year, pMort, perBAmort
  	do ij = 1 , nLayers 		!loop Species xl1
+    
+    BAmort = BAdist(ij)
     dN=0.d0
  	 STAND=STAND_all(:,ij)
  	 species = int(stand(4))
@@ -274,15 +278,18 @@ write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4
  	! Mortality - use random model from siilipehto et al. 2020
  		 Vold = stand(30)
  		 Nold = stand(17)
- 		 BAmort = perBAmort * BA
+ 		! BAmort = perBAmort * BA
 
 
 
-    if(BAmort > 0. .and. maxval(wriskLayers(:,1)) == 0) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
- 		 dN = -Nold * (BAmort/(BA/BAr(ij)))
-    elseif(maxval(wriskLayers(:,1)) > 0) then !wdimp define dN based on layer-level disturbed ba
-    !  dN = -Nold * (BAmort/(BA/BAr(ij)))
-      dN = -Nold * (wriskLayers(ij,6)/BA) !disturbed layer ba/layer ba
+    if(BAmort > 0.) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
+!      if(BAmort(ij) > 0. .and. maxval(wriskLayers(:,1)) == 0) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
+ 		 !dN = -Nold * (BAmort/(BA/BAr(ij)))
+     dN = -Nold * (BAmort/BA)
+     
+    ! elseif(maxval(wriskLayers(:,1)) > 0) then !wdimp define dN based on layer-level disturbed ba
+    ! !  dN = -Nold * (BAmort/(BA/BAr(ij)))
+    !   dN = -Nold * (wriskLayers(ij,6)/BA) !disturbed layer ba/layer ba
     else
  		 dN = 0.	
  		endif

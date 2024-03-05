@@ -143,6 +143,9 @@ integer, intent(in) :: prebasFlags(6)
 REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
 REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
 REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol 
+REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
+
+
 
 
 !!! 'un-vectorise' flags, fvec

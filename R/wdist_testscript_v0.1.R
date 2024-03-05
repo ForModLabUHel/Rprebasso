@@ -136,10 +136,9 @@ ggplot()+
 
 ## MANUAL THINNINGS 
 
-
 # SWITCHING ON DIST
 sid <- matrix(0, 7,4)
-sid[,1] <- 12.2 #wspeed
+sid[,1] <- 30 #wspeed
 sid[,2] <- 1 #time since thinning (currently fixed to input value throughout simulations)
 sid[,3] <- 0 # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
 sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
@@ -164,9 +163,16 @@ thins[1,,]
 t3<- TransectRun(siteInfoDist=sid, modVersion="region", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
 t3$outDist[1,80:100,]
 yod1<- which(t3$outDist[1,,7]==1)[1]
+yods<- which(t3$outDist[1,,7]==1)
 yod1
 
+t3$outDist[1,yod1,9] # share of vol directly damaged
+1-sum(t3$multiOut[1,(yod1),30,,1])/sum(t3$multiOut[1,(yod1-1),30,,1]) # same calculated from mout
+# diff due to growth? mortality? --- probably growth, more pronounced in young stands
 
+
+
+1-(sum(t3$multiOut[1,(yod1),30,,1])-(sum(t3$multiOut[1,(yod1-1),30,,1])-sum(t3$multiOut[1,(yod1-2),30,,1])))/sum(t3$multiOut[1,(yod1-1),30,,1])
 
 
 
@@ -175,11 +181,67 @@ devout<- fread("wdistdev.txt")
 names(devout) <- c("site", "year", "wriskl1", "wriskl2", "wriskl3", "distweight1", "distweight2", "distweight3", "dvolshare1", "dvolshare2", "dvolshare3", "vdam1", "vdam2", "vdam3", "vperba1", "vperba2", "vperba3", "badam1", "badam2", "badam3")
 setkey(devout, site, year)
 devout[site==1 & year==yod1,]
-devout[site==1 & year%in%c(yod1-1,yod1)]
+#devout[site==1 & year%in%c(yod1-1,yod1)]
+
+t3$multiOut[1,(yod1-3):yod1,30,,1]
+
+
+
+t3$multiOut[1,(yod1-1):yod1,30,,1]
+vdt <- data.table(t3$multiOut[1,,30,,1])
+vdt[, year:=1:100]
+vdtl = melt(vdt, id.vars = "year",
+             measure.vars = c("layer 1", "layer 2", "layer 3"))
+names(vdtl) <- c("year", "layer", "vol")
+
+ggplot()+
+  geom_line(data=vdtl, aes(x=year, y=vol, col=layer))+
+  geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
+
+
+
+vdt <- data.table(t3$multiOut[1,,11,,1])
+vdt[, year:=1:100]
+vdtl = melt(vdt, id.vars = "year",
+            measure.vars = c("layer 1", "layer 2", "layer 3"))
+names(vdtl) <- c("year", "layer", "vol")
+
+ggplot()+
+  geom_line(data=vdtl, aes(x=year, y=vol, col=layer))+
+  geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
 
 
 
 
+
+
+#?geom_vline
+
+dwdt <- data.table(t3$multiOut[1,,8,,1])
+dwdt[, year:=1:100]
+dwdtl = melt(dwdt, id.vars = "year",
+            measure.vars = c("layer 1", "layer 2", "layer 3"))
+names(dwdtl) <- c("year", "layer", "deadw")
+
+ggplot()+
+  geom_line(data=dwdtl, aes(x=year, y=deadw, col=layer))+
+  geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
+
+
+varx <- 11
+
+dwdt <- data.table(t3$multiOut[1,,varx,,1])
+dwdt[, year:=1:100]
+dwdtl = melt(dwdt, id.vars = "year",
+             measure.vars = c("layer 1", "layer 2", "layer 3"))
+names(dwdtl) <- c("year", "layer", "deadw")
+
+ggplot()+
+  geom_line(data=dwdtl, aes(x=year, y=deadw, col=layer))+
+  geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
+
+t3$multiOut[1,,11,3,1]
+t3$mortMod
 
 t3$multiOut[1,,11,,1]
 t3$multiOut[1,,17,,1]
