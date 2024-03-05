@@ -93,7 +93,7 @@ oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 if(prebasFlags(6)==0) disturbanceON = .FALSE.
 if(prebasFlags(6)==1) disturbanceON = .TRUE.
-if(prebasFlags(6)==1) open(1, file="wdistdev.txt")
+!if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
 
 
 
@@ -1014,7 +1014,7 @@ soilCinOut = soilC
 soilCtotInOut = soilCtot
     ! open(1,file="test1.txt")
 	! write(1,*) i,ij,ijj,nSites, "end"
-	if(disturbanceON) close(1) !wd_devout; activate to write txt file with additional wdist modelling process variables into working directoy
+!	if(disturbanceON) close(1) !to write wdistdev output
 
 end subroutine
 

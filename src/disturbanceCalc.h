@@ -140,7 +140,7 @@ wriskLayers(:, 4) = vdam * wriskLayers(:, 3)  ! plot-level damaged volume alloca
 wriskLayers(:, 5) = STAND_all(30,:)/STAND_all(13,:)!V per ba
 wriskLayers(:, 6) = wriskLayers(:, 4)/wriskLayers(:,5)! convert affected vol to affected ba
 
-write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6)
+!write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
 
 !!! END DISTRIBUTE SHARE OF VOLUME DISTURBED TO LAYERS !!!
 
