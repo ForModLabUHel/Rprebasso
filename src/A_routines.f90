@@ -2373,22 +2373,27 @@ endsubroutine
 
 
 !!calculate the soil moisture index to be used in the bark beatle disturbance calculations
-! subroutine SMIfromPRELES(GPP,fW,SMI)
-!   real (kind=8), intent(in) :: GPP(365),fW(365)
-!  real (kind=8), intent(out) :: SMI
-!  integer :: startSeason(1),endSeason(1),startX, endX
+subroutine SMIfromPRELES(GPP,fW,SMI)
+  real (kind=8), intent(in) :: GPP(365),fW(365)
+ real (kind=8), intent(out) :: SMI
+ integer :: startSeason, endSeason
 
-   ! open(1,file="test1.txt")
-!   startSeason = findloc(GPP > 0,.TRUE.) !!!!day of vegetation starting season based on positive GPP
- ! endSeason =findloc(GPP > 0,.TRUE.,BACK = .TRUE.) !!!!day of vegetation ending season based on positive GPP
-!   startX = startSeason(1)
-!  endX = endSeason(1)
-!   SMI = sum(fW(startX:endX))/(endX-startX+1)
+ startSeason = 1
+   do while (GPP(startSeason) <= 0. .and. startSeason < 366)
+    startSeason = startSeason + 1
+   enddo
+   
+ endSeason = 365
+   do while (GPP(endSeason) <= 0. .and. endSeason > 1)
+    endSeason = endSeason - 1
+   enddo
+  
+  SMI = sum(fW(startSeason:endSeason))/(endSeason-startSeason+1)
    
    ! write(1,*) startSeason, endSeason,SMI
    
    ! close(1) 
-! endsubroutine
+endsubroutine
 
 !!calculate minimum fAPAR of last 15 years
 subroutine minFaparCalc(fAPARtrees,nYears,minFapar,fAparFactor)
@@ -2399,7 +2404,7 @@ subroutine minFaparCalc(fAPARtrees,nYears,minFapar,fAparFactor)
    integer :: maxYears =15 !maxYears are the total number of years before the current years that should be considered in the minimum fAPAR calculations
    integer :: firstYear
    
-   if(nYears <= lastYears) minFapar = minval(fAPARtrees)*fAparFactor
+   if(nYears <= lastYears) minFapar = fAPARtrees(1)*fAparFactor
    if(nYears > lastYears .and. nYears <= int((maxYears - lastYears)/2)) minFapar = minval(fAPARtrees(1:(nYears-5)))*fAparFactor
    if(nYears > lastYears .and. nYears > int((maxYears - lastYears)/2)) then
 	 if((nYears-maxYears+1) < 0) then
