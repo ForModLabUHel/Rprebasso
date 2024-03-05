@@ -93,6 +93,7 @@ oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 if(prebasFlags(6)==0) disturbanceON = .FALSE.
 if(prebasFlags(6)==1) disturbanceON = .TRUE.
+!if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
 
 
 
@@ -304,6 +305,12 @@ endif
 	!!calculate minimum fAPAR of last 15 years to be used in ingrowth(if active) calculations
 	call minFaparCalc(fAPAR(i,:),ij,minFapar,fAparFactor)
 	fAPAR(i,ij) = minFapar
+
+  if(disturbanceON) THEN
+    write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
+    !write(1,*) i, ij !wdist dev output: writing site & year
+  endif
+
 
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -953,7 +960,10 @@ end do !end Year loop
     ! open(1,file="test1.txt")
 	! write(1,*) i, "of", nSites,"loop1"
 	! close(1)
+
+  
   do ij = startSimYear, maxYears 
+  
     do ijj = 1,nLayers(i)
 	  ! multiOut(i,ij,38,ijj,1) = sum(multiOut(i,1:ij,30,ijj,2)) + &
 		! sum(multiOut(i,1:ij,42,ijj,1)) + multiOut(i,ij,30,ijj,1)
@@ -1004,7 +1014,7 @@ soilCinOut = soilC
 soilCtotInOut = soilCtot
     ! open(1,file="test1.txt")
 	! write(1,*) i,ij,ijj,nSites, "end"
-	! close(1)
+!	if(disturbanceON) close(1) !to write wdistdev output
 
 end subroutine
 
