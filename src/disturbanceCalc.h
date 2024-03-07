@@ -147,7 +147,7 @@ do layer = 1, nLayers
   !if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) outDist(year, 1) = 999. !checking
 end do
 
-outDist(year, 1:nLayers) = wriskLayers(:, 6)
+!outDist(year, 1:nLayers) = wriskLayers(:, 6)
 
 
 !write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
