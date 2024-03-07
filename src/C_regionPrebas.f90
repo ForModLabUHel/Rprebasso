@@ -307,7 +307,7 @@ endif
 	fAPAR(i,ij) = minFapar
 
   if(disturbanceON) THEN
-    write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
+    ! write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
     !write(1,*) i, ij !wdist dev output: writing site & year
   endif
 
