@@ -140,13 +140,16 @@ wriskLayers(:, 4) = vdam * wriskLayers(:, 3)  ! plot-level damaged volume alloca
 wriskLayers(:, 5) = STAND_all(30,:)/STAND_all(13,:)!V per ba
 wriskLayers(:, 6) = wriskLayers(:, 4)/wriskLayers(:,5)! convert affected vol to affected ba
 
-outDist(year, 1:nLayers) = wriskLayers(:, 6)
 
 do layer = 1, nLayers
   !if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) !old version
   if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) wriskLayers(layer, 6) = 0. ! NaN check (div by 0) NaN is not equal to itself...
-  if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) outDist(year, 1) = 999. !checking
+  !if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) outDist(year, 1) = 999. !checking
 end do
+
+outDist(year, 1:nLayers) = wriskLayers(:, 6)
+
+
 !write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
 
 !!! END DISTRIBUTE SHARE OF VOLUME DISTURBED TO LAYERS !!!
