@@ -176,7 +176,7 @@ end do
  !   perBAmort = 0. ! deactivate Francesco's randomised mortality, seems to be very active and reduces n < 1 over rotation
  !if(perBAmort > 0.0d0 .OR. maxval(wriskLayers(:,1)) > 0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
   ! outDist(year,1) = sum(BAdist)
-   if(sum(BAdist) > 0.0d0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
+   if(maxval(BAdist) > 0.0d0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
 
    !BA_tot = sum(STAND_all(13,:))
    !BAr = STAND_all(13,:)/BA_tot
