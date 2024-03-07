@@ -12,7 +12,7 @@
 
 ! PREPARING WIND RISK INPUTS
 ! dev: outDist(,X) 1 = dom layer #; 2 dom layer spec; 3 dom layer h, 4 sitetype, 5 ETS; 6-10 wind risks
-outDist(year,1) = 1 !dominant layer
+outDist(year,1) = 1. !dominant layer
 outDist(year,2) = STAND_all(4,1) ! species, layer 1
 outDist(year,3) = STAND_all(11,1) !h, layer 1
 outDist(year,4) = STAND_all(3,1) ! sitetype
@@ -140,6 +140,10 @@ wriskLayers(:, 4) = vdam * wriskLayers(:, 3)  ! plot-level damaged volume alloca
 wriskLayers(:, 5) = STAND_all(30,:)/STAND_all(13,:)!V per ba
 wriskLayers(:, 6) = wriskLayers(:, 4)/wriskLayers(:,5)! convert affected vol to affected ba
 
+do layer = 1, nLayers
+  if(isnan(wriskLayers(layer, 6))) wriskLayers(layer, 6) = 0.
+end do
+
 !write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
 
 !!! END DISTRIBUTE SHARE OF VOLUME DISTURBED TO LAYERS !!!
@@ -170,6 +174,7 @@ wriskLayers(:, 6) = wriskLayers(:, 4)/wriskLayers(:,5)! convert affected vol to 
  ! ! the intensity of the disturbance
  !   perBAmort = 0. ! deactivate Francesco's randomised mortality, seems to be very active and reduces n < 1 over rotation
  !if(perBAmort > 0.0d0 .OR. maxval(wriskLayers(:,1)) > 0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
+  ! outDist(year,1) = sum(BAdist)
    if(sum(BAdist) > 0.0d0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
 
    !BA_tot = sum(STAND_all(13,:))
