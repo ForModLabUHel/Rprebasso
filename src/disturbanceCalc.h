@@ -117,7 +117,7 @@ if(outDist(year,7)==1) then ! wind disturbance occurs
 wriskLayers(:,:) = 0
 IF(outDist(year,7) == 1 .AND. nLayers>1) THEN !if there's a wind disturbance and more than one layer
   do i = 1, nLayers !loop through them
-     if (STAND_all(11,i) > outDist(year,3)-15) then !within 3 m of highest stand (which the total wind risk is based on) !!! NOTE: 15 to check if it works (otherwise rarely invoked in multi-spec transectruns)
+     if (STAND_all(11,i) > outDist(year,3)-5) then !within 5 m of highest layer (which the total wind risk is based on) !!! 
      call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), & !calculate layer wind risk
        wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
        wriskLayers(i, 1) = wrisk  
