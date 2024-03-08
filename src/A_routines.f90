@@ -1534,7 +1534,6 @@ do site = 1, nSites
 	! leac,soilC(site,(year+1),:,2,layer),stSt)
    call mod5c(pYasso,t,weatherYasso(climIDs(site),year,:),soilC(site,year,:),AWENH,litSize, &
 	leac,soilC(site,(year+1),:),stSt)
-
   
  enddo
 enddo
