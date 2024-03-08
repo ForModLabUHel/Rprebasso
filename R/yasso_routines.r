@@ -1077,7 +1077,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
                           soilCgv=as.array(soilCgv))$soilCgv
       
       
-      soilC[,,,1,1] = soilC[,,,1,1] + soilCgv
+      soilC[,,,3,1] = soilC[,,,3,1] + soilCgv
     }
     
     ###update model output fluxes
