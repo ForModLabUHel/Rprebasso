@@ -95,8 +95,6 @@ if(prebasFlags(6)==0) disturbanceON = .FALSE.
 if(prebasFlags(6)==1) disturbanceON = .TRUE.
 !if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
 
-
-
 !!!!initialize run
 ! multiOut = 0.
 yearXrepl = 0.
@@ -344,13 +342,13 @@ endif
 
 	
 	!!!if fertilization at thinning is active,  increase siteType
-	if(flagFert(i)==0 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
+	if(flagFert(i) == 1 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
 
 		yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(i,3)-1.)
-		call calcAlfar(multiOut(i,ij,3,1:nLayers(i),:),initVar(i,1,1:nLayers(i)),pCrobas, &
+		multiOut(i,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(i,3)-1.)
+		call calcAlfar(multiOut(i,(ij-1),3,1:nLayers(i),:),initVar(i,1,1:nLayers(i)),pCrobas, &
 				nLayers(i),alfarFert,allSP,nYearsFert,npar)
-		multiOut(i,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		multiOut(i,(ij):(ij+yearsFert-1),3,:,2) = alfarFert(1:yearsFert,:)
 		flagFert(i)=2
 	endif
 
@@ -670,12 +668,12 @@ endif
      enddo !ijj layers loop
 	 
  	!!!if fertilization at thinning is active,  decrease siteType
-	if(flagFert(siteX)==0 .and. fertThin>0 .and. siteInfo(siteX,3)>3. .and. siteInfo(siteX,3)<6.) then 
+	if(flagFert(siteX)==1 .and. fertThin>0 .and. siteInfo(siteX,3)>3. .and. siteInfo(siteX,3)<6.) then 
 		yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
-		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
-		call calcAlfar(multiOut(siteX,ij,3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
+		multiOut(siteX,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
+		call calcAlfar(multiOut(siteX,(ij-1),3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
 				nLayers(siteX),alfarFert,allSP,nYearsFert,npar)
-		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		multiOut(siteX,(ij):(ij+yearsFert-1),3,:,2) = alfarFert(1:yearsFert,:)
 		flagFert(siteX)=2
 	endif
 
@@ -930,13 +928,13 @@ endif
 	! if(siteInfo(siteX,1)==35.) write(1,*) ij,multiOut(siteX,ij,11,:,1)
 	
 	 	!!!if fertilization at thinning is active,  increase siteType
-	if(flagFert(siteX)==0 .and. fertThin>0 .and. siteInfo(siteX,3)>3. .and. siteInfo(siteX,3)<6.) then 
+	if(flagFert(siteX)==1 .and. fertThin>0 .and. siteInfo(siteX,3)>3. .and. siteInfo(siteX,3)<6.) then 
 
 		yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
-		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
-		call calcAlfar(multiOut(siteX,ij,3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
+		multiOut(siteX,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
+		call calcAlfar(multiOut(siteX,(ij-1),3,1:nLayers(siteX),:),initVar(siteX,1,1:nLayers(siteX)),pCrobas, &
 				nLayers(siteX),alfarFert,allSP,nYearsFert,npar)
-		multiOut(siteX,(ij+1):(ij+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		multiOut(siteX,(ij):(ij+yearsFert-1),3,:,2) = alfarFert(1:yearsFert,:)
 		flagFert(siteX)=2
 	endif
 
