@@ -1907,8 +1907,9 @@ subroutine calcAlfarFert(siteTAlpha,latitude,species,pCrobas,nLayers,nSp,nYearsF
 			
 		else 
 		
-			alfarUnfert(i) = pCrobas(int(max(20+min(siteTAlpha(1,i,1),5.),21.)),int(max(species(i),1.)))
-			alfarFert(i) = pCrobas(int(max(20+min(siteTAlpha(1,i,1),5.)-1.,21.)),int(max(species(i),1.)))
+			alfarUnfert(i) = pCrobas(int(max(20+min(siteTypeOrig,5.),21.)),int(max(species(i),1.)))
+			alfarFert(i) = pCrobas(int(max(20+min(siteTypeOrig,5.)-deltaSiteTypeFert,21.)), &
+			 int(max(species(i),1.)))
 			! write(*,*) i,siteTAlpha(i,1),species(i),alfarFert(i), alfarUnfert(i)
 			siteTAlpha(1:(nYearsFert/2),i,2) = alfarFert(i)
 			slope = (alfarUnfert(i) - alfarFert(i))/(nYearsFert/2.d0-0.d0)
