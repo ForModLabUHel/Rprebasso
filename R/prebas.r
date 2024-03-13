@@ -108,7 +108,10 @@ prebas <- function(nYears,
                    fT0AvgCurrClim = NA, ####vector with temperature, precipitation and Tampl at currentclimate
                    HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
                    alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-                   yearsCurrClimAv = 30
+                   yearsCurrClimAv = 30,
+                   yearFert=NULL,
+                   deltaSiteTypeFert = 1,
+                   P00CN = NA
               ){
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -338,10 +341,10 @@ prebas <- function(nYears,
     
     output[,5,,2] <- 0
     # alpharNfact <- p0ratio * fTratio
-    if(maxNlayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfactMean
-    if(maxNlayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfactMean,FUN="*") 
-    if(maxNlayers==1) output[,55,1,2] <- UmaxFactorMean
-    if(maxNlayers>1) output[,55,,2] <- sweep(output[,55,,2],1,UmaxFactorMean,FUN="+") 
+    if(nLayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfactMean
+    if(nLayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfactMean,FUN="*") 
+    if(nLayers==1) output[,55,1,2] <- UmaxFactorMean
+    if(nLayers>1) output[,55,,2] <- sweep(output[,55,,2],1,UmaxFactorMean,FUN="+") 
 
     # for(ijj in 2:maxYears){
     #   output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
@@ -350,6 +353,33 @@ prebas <- function(nYears,
     alpharNfact=NA
     pCROBAS[41,] = 0
   }
+  
+  ###modify alphar if fertilization is included
+  if(!is.null(yearFert)){
+    species <- output[1,4,,1]
+    nSp <- ncol(pCROBAS)
+    npar <- nrow(pCROBAS)
+    parsCN <- pECMmod[6:8]
+    siteTypeOrig <- siteInfo[3]
+    
+    maxYearSim = min((nYears-yearFert+1),nYearsFert)
+    siteTAlpha <- output[yearFert:(maxYearSim+yearFert-1),3,,]
+    
+    output[yearFert:(maxYearSim+yearFert-1),3,,] <- .Fortran("calcAlfarFert",
+                             siteTAlpha = as.array(siteTAlpha),
+                             latitude = as.double(latitude),
+                             species = as.double(species),
+                             pCrobas = as.matrix(pCROBAS),
+                             nLayers = as.integer(nLayers),
+                             nSp=as.integer(nSp),
+                             nYearsFert=as.integer(nYearsFert),
+                             npar=as.integer(npar),
+                             siteTypeOrig=as.double(siteTypeOrig),
+                             deltaSiteTypeFert=as.double(deltaSiteTypeFert),
+                             parsCN=as.double(parsCN))$siteTAlpha
+  } 
+  
+  if(is.na(P00CN)) P00CN <- 0
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
@@ -398,7 +428,7 @@ prebas <- function(nYears,
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
                      protect = as.integer(protect),
-                     mortMod = as.integer(mortMod),
+                     mortMod = as.double(mortMod),
                      ECMmod = as.integer(ECMmod),
                      pECMmod = as.numeric(pECMmod),
                      ETSstart = as.double(ETSstart),

@@ -1908,9 +1908,13 @@ subroutine calcAlfarFert(siteTAlpha,latitude,species,pCrobas,nLayers,nSp,nYearsF
 		else 
 		
 			alfarUnfert(i) = pCrobas(int(max(20+min(siteTypeOrig,5.),21.)),int(max(species(i),1.)))
-			alfarFert(i) = pCrobas(int(max(20+min(siteTypeOrig,5.)-deltaSiteTypeFert,21.)), &
-			 int(max(species(i),1.)))
-			! write(*,*) i,siteTAlpha(i,1),species(i),alfarFert(i), alfarUnfert(i)
+			if(deltaSiteTypeFert<1.) then !!!this is not used in fertilization at thinning
+				alfarFert(i) = alfarUnfert(i) * deltaSiteTypeFert
+			else
+				alfarFert(i) = pCrobas(int(max(20+min(siteTypeOrig,5.)-deltaSiteTypeFert,21.)), &
+					int(max(species(i),1.)))
+			endif 
+
 			siteTAlpha(1:(nYearsFert/2),i,2) = alfarFert(i)
 			slope = (alfarUnfert(i) - alfarFert(i))/(nYearsFert/2.d0-0.d0)
 			interc = alfarFert(i)! - slope*1.
@@ -2339,4 +2343,31 @@ subroutine SMIfromPRELES(GPP,fW,SMI)
    ! write(1,*) startSeason, endSeason,SMI
    
    ! close(1) 
+endsubroutine
+
+
+subroutine calcAlfarFert_MultiSite(siteTAlpha,latitude,species,pCrobas,nLayers,nSp,&
+		nYearsFert,npar,siteTypeOrig,deltaSiteTypeFert,parsCN,nSites,nYears,yearFert)
+
+	implicit none
+	integer, intent(in) :: nSp,nYearsFert,npar,nSites,nLayers,nYears,yearFert(nSites)
+	real(8),intent(inout) :: siteTAlpha(nSites,nYears,nLayers,2),pCrobas(npar,nSp)
+	real(8),intent(inout) :: siteTypeOrig(nSites),deltaSiteTypeFert(nSites)
+	real(8),intent(inout) :: species(nSites,nLayers),latitude(nSites),parsCN(3)
+	! integer,intent(inout) :: year!,ind(3,2)
+	integer :: i,it,maxYearSim
+	real(8) :: alfarUnfert(nLayers), alfarFert(nLayers),slope,interc,SiteTypeFert,siteType(nYearsFert,nLayers),CN
+	real(8) :: siteTAlphaX(nYearsFert,nLayers,2)
+	
+	
+	do i = 1,nSites
+		siteTAlphaX(:,:,:) = 1.
+		maxYearSim = min((nYears-yearFert(i)+1),nYearsFert)
+		siteTAlphaX(1:maxYearSim,:,:) = siteTAlpha(i,yearFert(i):(maxYearSim+yearFert(i)-1),:,:)
+		call calcAlfarFert(siteTAlphaX,latitude(i),species(i,:),pCrobas,nLayers, & 
+				nSp,nYearsFert,npar,siteTypeOrig(i),deltaSiteTypeFert(i),parsCN)
+
+		siteTAlpha(i,yearFert(i):(maxYearSim+yearFert(i)-1),:,:) = siteTAlphaX(1:maxYearSim,:,:)
+
+	end do
 endsubroutine

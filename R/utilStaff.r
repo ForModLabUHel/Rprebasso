@@ -905,4 +905,3 @@ getVarNam <- function(){
       return(GVout)
     }
   }
-  

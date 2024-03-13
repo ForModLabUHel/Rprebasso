@@ -517,6 +517,8 @@ InitMultiSite <- function(nYearsMS,
 multiPrebas <- function(multiSiteInit,
                         fertThin = 0,
                         nYearsFert = 20,
+                        yearFert=NULL,
+                        deltaSiteTypeFert = 1,
                         oldLayer=0){
   ###initialize siteType
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
@@ -580,6 +582,40 @@ multiPrebas <- function(multiSiteInit,
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
 
+###modify alphar if fertilization is included
+if(!is.null(yearFert)){
+  nSites <- multiSiteInit$nSites
+  nLayers <- multiSiteInit$maxNlayers
+  species <- multiSiteInit$multiOut[,1,4,,1]
+  siteTAlpha <- multiSiteInit$multiOut[,,3,,]
+  nSp <- ncol(multiSiteInit$pCROBAS)
+  npar <- nrow(multiSiteInit$pCROBAS)
+  parsCN <- multiSiteInit$pECMmod[6:8]
+  
+  nYears=multiSiteInit$maxYears
+  if(length(yearFert)==1) yearFert <- rep(yearFert,nSites)
+  if(length(deltaSiteTypeFert)==1) deltaSiteTypeFert <- rep(deltaSiteTypeFert,nSites)
+  
+  siteTypeOrig <- multiSiteInit$siteInfo[,3]
+  
+  multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite",
+                   siteTAlpha = as.array(siteTAlpha),
+                   latitude = as.double(multiSiteInit$latitude),
+                   species = as.double(species),
+                   pCrobas = as.matrix(multiSiteInit$pCROBAS),
+                   nLayers = as.integer(nLayers),
+                   nSp=as.integer(nSp),
+                   nYearsFert=as.integer(nYearsFert),
+                   npar=as.integer(npar),
+                   siteTypeOrig=as.double(siteTypeOrig),
+                   deltaSiteTypeFert=as.double(deltaSiteTypeFert),
+                   parsCN=as.double(parsCN),
+                   nSites=as.integer(nSites),
+                   nYears=as.integer(nYears),
+                   yearFert=as.integer(yearFert))$siteTAlpha
+} 
+  
+  
   prebas <- .Fortran("multiPrebas",
                      multiOut = as.array(multiSiteInit$multiOut),
                      nSites = as.integer(multiSiteInit$nSites),
@@ -665,8 +701,10 @@ regionPrebas <- function(multiSiteInit,
                          #####the sites are ordered according to the siteType and
                          ###priority is given to the sites where age is lower then ageHarvPrior
                          siteOrder=NA,
-                         fertThin = 0.,
+                         fertThin = 0,
                          nYearsFert = 20,
+                         yearFert=NULL,
+                         deltaSiteTypeFert = 1,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
                          startSimYear=1
 ){
@@ -758,6 +796,39 @@ regionPrebas <- function(multiSiteInit,
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
   
+  ###modify alphar if fertilization is included
+  if(!is.null(yearFert)){
+    nSites <- multiSiteInit$nSites
+    nLayers <- multiSiteInit$maxNlayers
+    species <- multiSiteInit$multiOut[,1,4,,1]
+    siteTAlpha <- multiSiteInit$multiOut[,,3,,]
+    nSp <- ncol(multiSiteInit$pCROBAS)
+    npar <- nrow(multiSiteInit$pCROBAS)
+    parsCN <- multiSiteInit$pECMmod[6:8]
+    
+    nYears=multiSiteInit$maxYears
+    if(length(yearFert)==1) yearFert <- rep(yearFert,nSites)
+    if(length(deltaSiteTypeFert)==1) deltaSiteTypeFert <- rep(deltaSiteTypeFert,nSites)
+    
+    siteTypeOrig <- multiSiteInit$siteInfo[,3]
+    
+    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite",
+                                              siteTAlpha = as.array(siteTAlpha),
+                                              latitude = as.double(multiSiteInit$latitude),
+                                              species = as.double(species),
+                                              pCrobas = as.matrix(multiSiteInit$pCROBAS),
+                                              nLayers = as.integer(nLayers),
+                                              nSp=as.integer(nSp),
+                                              nYearsFert=as.integer(nYearsFert),
+                                              npar=as.integer(npar),
+                                              siteTypeOrig=as.double(siteTypeOrig),
+                                              deltaSiteTypeFert=as.double(deltaSiteTypeFert),
+                                              parsCN=as.double(parsCN),
+                                              nSites=as.integer(nSites),
+                                              nYears=as.integer(nYears),
+                                              yearFert=as.integer(yearFert))$siteTAlpha
+  } 
+
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
@@ -862,6 +933,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                                 siteOrder=NA,
                                 fertThin = 0.,
                                 nYearsFert = 20,
+                                yearFert=NULL,
+                                deltaSiteTypeFert = 1,
                                 oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
                                 startSimYear
 ){
@@ -954,6 +1027,39 @@ reStartRegionPrebas <- function(multiSiteInit,
   multiSiteInit$multiInitVar[,1,][which(multiSiteInit$multiInitVar[,1,]==0)] <- 1
   multiSiteInit$multiOut[,,4,,1][which(multiSiteInit$multiOut[,,4,,1]==0)] = 1
   
+  ###modify alphar if fertilization is included
+  if(!is.null(yearFert)){
+    nSites <- multiSiteInit$nSites
+    nLayers <- multiSiteInit$maxNlayers
+    species <- multiSiteInit$multiOut[,1,4,,1]
+    siteTAlpha <- multiSiteInit$multiOut[,,3,,]
+    nSp <- ncol(multiSiteInit$pCROBAS)
+    npar <- nrow(multiSiteInit$pCROBAS)
+    parsCN <- multiSiteInit$pECMmod[6:8]
+    
+    nYears=multiSiteInit$maxYears
+    if(length(yearFert)==1) yearFert <- rep(yearFert,nSites)
+    if(length(deltaSiteTypeFert)==1) deltaSiteTypeFert <- rep(deltaSiteTypeFert,nSites)
+    
+    siteTypeOrig <- multiSiteInit$siteInfo[,3]
+    
+    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite",
+                                              siteTAlpha = as.array(siteTAlpha),
+                                              latitude = as.double(multiSiteInit$latitude),
+                                              species = as.double(species),
+                                              pCrobas = as.matrix(multiSiteInit$pCROBAS),
+                                              nLayers = as.integer(nLayers),
+                                              nSp=as.integer(nSp),
+                                              nYearsFert=as.integer(nYearsFert),
+                                              npar=as.integer(npar),
+                                              siteTypeOrig=as.double(siteTypeOrig),
+                                              deltaSiteTypeFert=as.double(deltaSiteTypeFert),
+                                              parsCN=as.double(parsCN),
+                                              nSites=as.integer(nSites),
+                                              nYears=as.integer(nYears),
+                                              yearFert=as.integer(yearFert))$siteTAlpha
+  } 
+
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),

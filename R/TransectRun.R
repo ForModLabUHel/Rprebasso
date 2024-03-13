@@ -130,8 +130,12 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         fT0AvgCurrClim = NA, ####a  matrix(climID,3) with temperature, precipitation and Tampl for each climate ID for
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
                         alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-                        modVersion = "multiSite"
-                        ) {
+                        modVersion = "multiSite",
+                        nYearsFert = 20,
+                        yearFert=NULL,
+                        deltaSiteTypeFert = 1,
+                        oldLayer=0
+                        ){
   
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -259,8 +263,21 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
 
-  if(modVersion=="region") TransectOut <- regionPrebas(initPrebas,fertThin = fertThin)
-  if(modVersion=="multiSite") TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
-
+  if(modVersion=="region"){
+    TransectOut <- regionPrebas(initPrebas,
+                                fertThin = fertThin,
+                                nYearsFert = nYearsFert,
+                                yearFert=yearFert,
+                                deltaSiteTypeFert = deltaSiteTypeFert,
+                                oldLayer=oldLayer)
+  } 
+  if(modVersion=="multiSite"){
+    TransectOut <- multiPrebas(initPrebas,
+                               fertThin = fertThin,
+                               nYearsFert = nYearsFert,
+                               yearFert=yearFert,
+                               deltaSiteTypeFert = deltaSiteTypeFert,
+                               oldLayer=oldLayer)
+  } 
   return(TransectOut)
 }
