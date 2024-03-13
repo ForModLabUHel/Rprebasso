@@ -47,7 +47,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,nLayers)
+ real(8) :: alfarFert(nYearsFert,nLayers,2)
 !! define arguments, inputs and outputs
  real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp)! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
  real (kind=8), intent(in) :: thinInt !parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
@@ -122,7 +122,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
 !variables for random mortality calculations & disturbances
-real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
+real (kind=8) :: Nmort, BAmort, VmortDist(nLayers),deltaSiteTypeFert=1.
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m,normFactETS !normFactP,normFactETS,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
@@ -1443,9 +1443,9 @@ if(defaultThin == 1.) then
 
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = max(1.,siteType-1.)
-		call calcAlfar(modOut(year,3,:,:),initVar(1,:),pCrobas, &
-				nLayers,alfarFert,nSp,nYearsFert,npar)
-		modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		call calcAlfar(sitetype,initVar(1,:),pCrobas, &
+				nLayers,alfarFert,nSp,nYearsFert,npar,deltaSiteTypeFert)
+		modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:,2)
 	endif
 !!!end fertilization at thinning
 

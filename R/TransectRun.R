@@ -133,7 +133,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilPar = NA, #### input a matrix with soil depth, FC, WP, for each site if NA uses the default values
                         siteInfoDist = NA,
                         modVersion = "multiSite",
-                        fertThin=0.
+                        nYearsFert = 20,
+                        yearFert=NULL,
+                        deltaSiteTypeFert = 1,
+                        fertThin=0.,
+                        oldLayer=0
 ) {
 
   
@@ -265,8 +269,21 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
   
-  if(modVersion=="region") TransectOut <- regionPrebas(initPrebas,fertThin = fertThin)
-  if(modVersion=="multiSite") TransectOut <- multiPrebas(initPrebas,fertThin = fertThin)
-  
+  if(modVersion=="region"){
+    TransectOut <- regionPrebas(initPrebas,
+                                fertThin = fertThin,
+                                nYearsFert = nYearsFert,
+                                yearFert=yearFert,
+                                deltaSiteTypeFert = deltaSiteTypeFert,
+                                oldLayer=oldLayer)
+  } 
+  if(modVersion=="multiSite"){
+    TransectOut <- multiPrebas(initPrebas,
+                               fertThin = fertThin,
+                               nYearsFert = nYearsFert,
+                               yearFert=yearFert,
+                               deltaSiteTypeFert = deltaSiteTypeFert,
+                               oldLayer=oldLayer)
+  }  
   return(TransectOut)
 }
