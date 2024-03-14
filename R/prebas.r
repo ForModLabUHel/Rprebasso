@@ -156,7 +156,7 @@ prebas <- function(nYears,
     initCLcutRatio <- rep(1/nLayers,nLayers)
   }
   
-  varNam <- getVarNam()
+  varNam <- varNames
   nVar <- length(varNam)
   
   layerNam <- paste("layer",1:nLayers)
@@ -356,14 +356,14 @@ prebas <- function(nYears,
   
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
-    species <- output[1,4,,1]
+    species <- initVar[1,,]
     nSp <- ncol(pCROBAS)
     npar <- nrow(pCROBAS)
     parsCN <- pECMmod[6:8]
     siteTypeOrig <- siteInfo[3]
     
     maxYearSim = min((nYears-yearFert+1),nYearsFert)
-    siteTAlpha <- output[yearFert:(maxYearSim+yearFert-1),3,,]
+    siteTAlpha <- array(0,dim=c(nYearsFert,nLayers,2))
     
     output[yearFert:(maxYearSim+yearFert-1),3,,] <- .Fortran("calcAlfarFert",
                              siteTAlpha = as.array(siteTAlpha),
@@ -376,7 +376,7 @@ prebas <- function(nYears,
                              npar=as.integer(npar),
                              siteTypeOrig=as.double(siteTypeOrig),
                              deltaSiteTypeFert=as.double(deltaSiteTypeFert),
-                             parsCN=as.double(parsCN))$siteTAlpha
+                             parsCN=as.double(parsCN))$siteTAlpha[1:maxYearSim,,]
   } 
   
   if(is.na(P00CN)) P00CN <- 0
