@@ -1988,6 +1988,7 @@ subroutine calcAlfar(siteTypeOriginal,species,pCrobas,nLayers,siteTalfar,nSp,nYe
 				int(max(species(i),1.)))
 		endif
 		! write(*,*) i,siteTAlpha(i,1),species(i),alfarFert(i), alfarUnfert(i)
+		siteTalfar(:,i,1) = max(0.,siteTypeOriginal-1)
 		siteTalfar(1:(nYearsFert/2),i,2) = alfarFert(i)
 		slope = (alfarUnfert(i) - alfarFert(i))/(nYearsFert/2+1.-0.)
 		interc = alfarFert(i) - slope*1.
