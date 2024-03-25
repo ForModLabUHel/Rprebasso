@@ -47,7 +47,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
  integer, intent(inout) :: flagFert !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,nLayers)
+ real(8) :: alfarFert(nYearsFert,nLayers,2)
 !! define arguments, inputs and outputs
  real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp)! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
  real (kind=8), intent(in) :: thinInt !parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
@@ -122,7 +122,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
 !variables for random mortality calculations & disturbances
-real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
+real (kind=8) :: Nmort, BAmort, VmortDist(nLayers),deltaSiteTypeFert=1.
 !!ECMmodelling
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m,normFactETS !normFactP,normFactETS,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
@@ -576,7 +576,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
 		etmodel)		!type of ET model
 
-  !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
+   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)  	!ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
    ! STAND_all(41,:) = prelesOut(16)  !summerSW 
@@ -624,6 +624,8 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
      pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
    endif
+   
+    outt(46,1,2)  = prelesOut(7)
 
 endif
 !enddo !! end site loop
@@ -1226,7 +1228,6 @@ endif
 		endif
 	! endif
 	countThinning = countThinning + 1
-
  
    End If
  End If
@@ -1292,8 +1293,8 @@ if (ClCut == 1.) then
    
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
 										stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
-	outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/),ij,2) = &
-		stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/),ij)
+	outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij,2) = &
+		stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij)
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1333,8 +1334,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
 										stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
-	outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/),ij,2) = &
-		stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54/),ij)
+	outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij,2) = &
+		stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij)
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1442,9 +1443,9 @@ if(defaultThin == 1.) then
 
 		yearsFert = max(1,min((nYears) - year,nYearsFert))
 		modOut((year+1):(year+yearsFert),3,:,1) = max(1.,siteType-1.)
-		call calcAlfar(modOut(year,3,:,:),initVar(1,:),pCrobas, &
-				nLayers,alfarFert,nSp,nYearsFert,npar)
-		! modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:)
+		call calcAlfar(sitetype,initVar(1,:),pCrobas, &
+				nLayers,alfarFert,nSp,nYearsFert,npar,deltaSiteTypeFert)
+		modOut((year+1):(year+yearsFert),3,:,2) = alfarFert(1:yearsFert,:,2)
 	endif
 !!!end fertilization at thinning
 

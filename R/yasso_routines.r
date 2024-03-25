@@ -624,131 +624,269 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
   
   if(all(is.na(litterSize))) litterSize=prebOut$litterSize
   
-  Tmean <- apply(prebOut$weatherYasso[,,1],1,mean)
-  Pre <- apply(prebOut$weatherYasso[,,2],1,mean)
-  Tamp <- apply(prebOut$weatherYasso[,,3],1,mean)
-  
-  nLayers <- dim(prebOut$multiOut)[4]
-  nSites <- dim(prebOut$multiOut)[1]
-  species <- prebOut$multiOut[,1,4,,1]
-  climIDs <- prebOut$siteInfo[,2]
-  nYears <- dim(prebOut$multiOut)[2]
-  
-  if(GVrun==1){
-    ###calculate steady state C for gv
-    fAPAR <- prebOut$fAPAR
-    fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
-    ###calculate soil C for gv
-    fAPARgv <- litGV <- wGV <- matrix(0,nSites,nYears)
-    fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
-    fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
-    fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
-    AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),4))
-    soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
-    p0 = prebOut$multiOut[,,6,1,1]
-    ETSy = prebOut$multiOut[,,5,1,1]
-
-    AWENgv <- .Fortran("multiGV",
-                       fAPAR=as.matrix(fAPAR),
-                       ETS=as.matrix(ETSy),
-                       siteType = as.double(prebOut$siteInfo[,3]),
-                       fAPARgv=as.matrix(fAPARgv),
-                       litGV=as.matrix(litGV),
-                       p0=as.matrix(p0),
-                       AWENgv=as.array(AWENgv[,,1:4]),
-                       nYears = as.integer(nYears),
-                       nSites = as.integer(nSites),
-                       wGV=as.matrix(wGV))$AWENgv
+  ##for single site run  
+  if(class(prebOut)=="prebas"){
     
-    # for(ij in 1:nYears){
-    #   AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
-    #                                               prebOut$multiOut[i,ij,5,1,1],
-    #                                               prebOut$siteInfo[i,3],
-    #                                               0,
-    #                                               0,
-    #                                               prebOut$multiOut[i,ij,6,1,1],
-    #                                               rep(0,4))[[7]]))
-    # }
-    AWENgv2 <- apply(AWENgv,c(1,3),mean,na.rm=T)
+    Tmean <- mean(prebOut$weatherYasso[,1])
+    Pre <- mean(prebOut$weatherYasso[,2])
+    Tamp <- mean(prebOut$weatherYasso[,3])
     
+    nLayers <- prebOut$nLayers
+    # nSites <- dim(prebOut$multiOut)[1]
+    species <- prebOut$output[1,4,,1]
+    # climIDs <- prebOut$siteInfo[,2]
+    nYears <- prebOut$nYears
     
-    ###calculate steady state soil C per GV
-    # ststGV <- matrix(NA,nSites,5)
-    climIDs <- prebOut$siteInfo[,2]
-    ststGV <- t(sapply(1:nSites, function(ij) .Fortran("mod5c",
-             pYAS,1.,colMeans(prebOut$weatherYasso[climIDs[ij],,]),
-           rep(0,5),c(AWENgv2[ij,],0),litterSize=0,leac=0.,rep(0,5),
-                                         stSt=1.)[[8]]))
-  }
-  if(nLayers>1){
-    litter <- array(0.,dim=c(nSites, nLayers, 3))
-    litter[,,1] <- apply(prebOut$multiOut[,,26,,1],c(1,3),mean,na.rm=T) + 
-      apply(prebOut$multiOut[,,27,,1],c(1,3),mean,na.rm=T)
-    litter[,,2] <- apply(prebOut$multiOut[,,28,,1],c(1,3),mean,na.rm=T)
-    litter[,,3] <- apply(prebOut$multiOut[,,29,,1],c(1,3),mean,na.rm=T)
+    if(GVrun==1){
+      ###calculate steady state C for gv
+      fAPAR <- prebOut$fAPAR
+      ###calculate soil C for gv
+      fAPARgv <- litGV <- wGV <- rep(0,nYears)
+      fAPAR[which(is.na(prebOut$fAPAR))] <- 0.
+      fAPAR[which(prebOut$fAPAR>1)] <- 1.
+      fAPAR[which(prebOut$fAPAR<0)] <- 0.
+      AWENgv <- matrix(0.,length(prebOut$fAPAR),4)
+      soilCgv <- matrix(0.,(nYears+1),5)
+      p0 = prebOut$output[,6,1,1]
+      ETSy = prebOut$output[,5,1,1]
+      
+      
+      AWENgv <- .Fortran("multiGV",
+                         fAPAR=as.double(fAPAR),
+                         ETS=as.double(ETSy),
+                         siteType = as.double(prebOut$siteInfo[3]),
+                         fAPARgv=as.double(fAPARgv),
+                         litGV=as.double(litGV),
+                         p0=as.double(p0),
+                         AWENgv=as.matrix(AWENgv[,1:4]),
+                         nYears = as.integer(nYears),
+                         nSites = as.integer(1),
+                         wGV=as.double(wGV))$AWENgv
+      
+      # for(ij in 1:nYears){
+      #   AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
+      #                                               prebOut$multiOut[i,ij,5,1,1],
+      #                                               prebOut$siteInfo[i,3],
+      #                                               0,
+      #                                               0,
+      #                                               prebOut$multiOut[i,ij,6,1,1],
+      #                                               rep(0,4))[[7]]))
+      # }
+      AWENgv2 <- colMeans(AWENgv)
+      
+      
+      ###calculate steady state soil C per GV
+      # ststGV <- matrix(NA,nSites,5)
+      # climIDs <- prebOut$siteInfo[,2]
+      ststGV <- .Fortran("mod5c",
+                         as.double(pYAS),as.double(1.),
+                         as.double(colMeans(prebOut$weatherYasso)),
+                         as.double(rep(0,5)),
+                         as.double(c(AWENgv2,0)),
+                         litterSize = as.double(0),
+                         leac = as.double(0.),
+                         as.double(rep(0,5)),
+                         stSt=as.double(1.))[[8]]
+    }
+    if(nLayers>1){
+      litter <- matrix(0.,nLayers, 3)
+      litter[,1] <- apply(prebOut$output[,26,,1],2,mean,na.rm=T) + 
+        apply(prebOut$output[,27,,1],2,mean,na.rm=T)
+      litter[,2] <- apply(prebOut$output[,28,,1],2,mean,na.rm=T)
+      litter[,3] <- apply(prebOut$output[,29,,1],2,mean,na.rm=T)
+      species <- prebOut$output[1,4,,1]
+      # climIDs <- prebOut$siteInfo[2]
+      # litterSize <- prebOut$litterSize
+      nSp <- ncol(parsAWEN)
+      weatherYasso <- colMeans(prebOut$weatherYasso)
+      # nClimID <- dim(prebOut$weatherYasso)[1]
+      soilC <- array(0.,dim=c(5,3,nLayers))
+      
+      soilC <- .Fortran("StstYasso",
+                        litter = as.matrix(litter),
+                        litterSize = as.matrix(litterSize),
+                        nLayers = as.integer(nLayers), 
+                        nSites = as.integer(1), 
+                        nSp = as.integer(nSp),
+                        species = as.double(species),
+                        nClimID = as.integer(1),
+                        climIDs = as.integer(1),
+                        pAWEN = as.matrix(pAWEN),
+                        pYASSO=as.double(pYASSO),
+                        weatherYasso = as.double(weatherYasso),
+                        soilC = as.array(soilC)
+      )$soilC
+      
+      ####add gvsoilc to first layer foliage soilC
+      # check in normal runs where ground vegetation soilC is calculated
+      if(GVrun==1){
+        soilC[,3,1] <- soilC[,3,1] + ststGV
+      }  
+    }else{
+      # print("stXX_GV function needs to be coded for one layer prebas outut")
+      litter <- rep(NA, 3)
+      litter[1] <- mean(prebOut$output[,26,1,1],na.rm=T) + 
+        mean(prebOut$output[,27,1,1],na.rm=T)
+      litter[2] <- mean(prebOut$output[,28,1,1],1,na.rm=T)
+      litter[3] <- mean(prebOut$output[,29,1,1],1,na.rm=T)
+      species <- prebOut$output[1,4,1,1]
+      # climIDs <- prebOut$siteInfo[2]
+      # litterSize <- prebOut$litterSize
+      nSp <- ncol(parsAWEN)
+      weatherYasso <- colMeans(prebOut$weatherYasso)
+      # nClimID <- prebOut$nClimID
+      soilC <- array(0.,dim=c(5,3,nLayers))
+      
+      soilC <- .Fortran("StstYasso",
+                        litter = as.double(litter),
+                        litterSize = as.matrix(litterSize),
+                        nLayers = as.integer(nLayers), 
+                        nSites = as.integer(1), 
+                        nSp = as.integer(nSp),
+                        species = as.double(species),
+                        nClimID = as.integer(1),
+                        climIDs = as.integer(1),
+                        pAWEN = as.matrix(pAWEN),
+                        pYASSO=as.double(pYASSO),
+                        weatherYasso = as.double(weatherYasso),
+                        soilC = as.array(soilC)
+      )$soilC
+      
+      ####add gvsoilc to first layer foliage soilC
+      # check in normal runs where ground vegetation soilC is calculated
+      if(GVrun==1){
+        soilC[,3,1] <- soilC[,3,1] + ststGV
+      }  
+    }
+    
+  }else{    ##for multi site run  
+    
+    Tmean <- apply(prebOut$weatherYasso[,,1],1,mean)
+    Pre <- apply(prebOut$weatherYasso[,,2],1,mean)
+    Tamp <- apply(prebOut$weatherYasso[,,3],1,mean)
+    
+    nLayers <- dim(prebOut$multiOut)[4]
+    nSites <- dim(prebOut$multiOut)[1]
     species <- prebOut$multiOut[,1,4,,1]
     climIDs <- prebOut$siteInfo[,2]
-    # litterSize <- prebOut$litterSize
-    nSp <- ncol(parsAWEN)
-    weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
-    nClimID <- dim(prebOut$weatherYasso)[1]
-    soilC <- array(0.,dim=c(nSites,5,3,nLayers))
+    nYears <- dim(prebOut$multiOut)[2]
     
-    soilC <- .Fortran("StstYasso",
-                      litter = as.array(litter),
-                      litterSize = as.matrix(litterSize),
-                      nLayers = as.integer(nLayers), 
-                      nSites = as.integer(nSites), 
-                      nSp = as.integer(nSp),
-                      species = as.matrix(species),
-                      nClimID = as.integer(nClimID),
-                      climIDs = as.integer(climIDs),
-                      pAWEN = as.matrix(pAWEN),
-                      pYASSO=as.double(pYASSO),
-                      weatherYasso = as.matrix(weatherYasso),
-                      soilC = as.array(soilC)
-    )$soilC
-    
-    ####add gvsoilc to first layer foliage soilC
-    # check in normal runs where ground vegetation soilC is calculated
     if(GVrun==1){
-      soilC[,,1,1] <- soilC[,,1,1] + ststGV
-    }  
-  }else{
-    # print("stXX_GV function needs to be coded for one layer prebas outut")
-    litter <- array(NA,dim=c(nSites, 3))
-    litter[,1] <- apply(prebOut$multiOut[,,26,1,1],1,mean,na.rm=T) + 
-      apply(prebOut$multiOut[,,27,1,1],1,mean,na.rm=T)
-    litter[,2] <- apply(prebOut$multiOut[,,28,1,1],1,mean,na.rm=T)
-    litter[,3] <- apply(prebOut$multiOut[,,29,1,1],1,mean,na.rm=T)
-    species <- prebOut$multiOut[,1,4,1,1]
-    climIDs <- prebOut$siteInfo[,2]
-    # litterSize <- prebOut$litterSize
-    nSp <- ncol(parsAWEN)
-    weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
-    nClimID <- prebOut$nClimID
-    soilC <- array(0.,dim=c(nSites,5,3,nLayers))
-    
-    soilC <- .Fortran("StstYasso",
-                      litter = as.array(litter),
-                      litterSize = as.matrix(litterSize),
-                      nLayers = as.integer(nLayers), 
-                      nSites = as.integer(nSites), 
-                      nSp = as.integer(nSp),
-                      species = as.matrix(species),
-                      nClimID = as.integer(nClimID),
-                      climIDs = as.integer(climIDs),
-                      pAWEN = as.matrix(pAWEN),
-                      pYASSO=as.double(pYASSO),
-                      weatherYasso = as.matrix(weatherYasso),
-                      soilC = as.array(soilC)
-    )$soilC
-    
-    ####add gvsoilc to first layer foliage soilC
-    # check in normal runs where ground vegetation soilC is calculated
-    if(GVrun==1){
-      soilC[,,1,1] <- soilC[,,1,1] + ststGV
-    }  
+      ###calculate steady state C for gv
+      fAPAR <- prebOut$fAPAR
+      fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
+      ###calculate soil C for gv
+      fAPARgv <- litGV <- wGV <- matrix(0,nSites,nYears)
+      fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
+      fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
+      fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
+      AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),4))
+      soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
+      p0 = prebOut$multiOut[,,6,1,1]
+      ETSy = prebOut$multiOut[,,5,1,1]
+      
+      AWENgv <- .Fortran("multiGV",
+                         fAPAR=as.matrix(fAPAR),
+                         ETS=as.matrix(ETSy),
+                         siteType = as.double(prebOut$siteInfo[,3]),
+                         fAPARgv=as.matrix(fAPARgv),
+                         litGV=as.matrix(litGV),
+                         p0=as.matrix(p0),
+                         AWENgv=as.array(AWENgv[,,1:4]),
+                         nYears = as.integer(nYears),
+                         nSites = as.integer(nSites),
+                         wGV=as.matrix(wGV))$AWENgv
+      
+      # for(ij in 1:nYears){
+      #   AWENgv[,ij,] <- t(sapply(1:nrow(fAPAR), function(i) .Fortran("fAPARgv",fAPAR[i,ij],
+      #                                               prebOut$multiOut[i,ij,5,1,1],
+      #                                               prebOut$siteInfo[i,3],
+      #                                               0,
+      #                                               0,
+      #                                               prebOut$multiOut[i,ij,6,1,1],
+      #                                               rep(0,4))[[7]]))
+      # }
+      AWENgv2 <- apply(AWENgv,c(1,3),mean,na.rm=T)
+      
+      
+      ###calculate steady state soil C per GV
+      # ststGV <- matrix(NA,nSites,5)
+      climIDs <- prebOut$siteInfo[,2]
+      ststGV <- t(sapply(1:nSites, function(ij) .Fortran("mod5c",
+                                                         pYAS,1.,colMeans(prebOut$weatherYasso[climIDs[ij],,]),
+                                                         rep(0,5),c(AWENgv2[ij,],0),litterSize=0,leac=0.,rep(0,5),
+                                                         stSt=1.)[[8]]))
+    }
+    if(nLayers>1){
+      litter <- array(0.,dim=c(nSites, nLayers, 3))
+      litter[,,1] <- apply(prebOut$multiOut[,,26,,1],c(1,3),mean,na.rm=T) + 
+        apply(prebOut$multiOut[,,27,,1],c(1,3),mean,na.rm=T)
+      litter[,,2] <- apply(prebOut$multiOut[,,28,,1],c(1,3),mean,na.rm=T)
+      litter[,,3] <- apply(prebOut$multiOut[,,29,,1],c(1,3),mean,na.rm=T)
+      species <- prebOut$multiOut[,1,4,,1]
+      climIDs <- prebOut$siteInfo[,2]
+      # litterSize <- prebOut$litterSize
+      nSp <- ncol(parsAWEN)
+      weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
+      nClimID <- dim(prebOut$weatherYasso)[1]
+      soilC <- array(0.,dim=c(nSites,5,3,nLayers))
+      
+      soilC <- .Fortran("StstYasso",
+                        litter = as.array(litter),
+                        litterSize = as.matrix(litterSize),
+                        nLayers = as.integer(nLayers), 
+                        nSites = as.integer(nSites), 
+                        nSp = as.integer(nSp),
+                        species = as.matrix(species),
+                        nClimID = as.integer(nClimID),
+                        climIDs = as.integer(climIDs),
+                        pAWEN = as.matrix(pAWEN),
+                        pYASSO=as.double(pYASSO),
+                        weatherYasso = as.matrix(weatherYasso),
+                        soilC = as.array(soilC)
+      )$soilC
+      
+      ####add gvsoilc to first layer foliage soilC
+      # check in normal runs where ground vegetation soilC is calculated
+      if(GVrun==1){
+        soilC[,,3,1] <- soilC[,,3,1] + ststGV
+      }  
+    }else{
+      # print("stXX_GV function needs to be coded for one layer prebas outut")
+      litter <- array(NA,dim=c(nSites, 3))
+      litter[,1] <- apply(prebOut$multiOut[,,26,1,1],1,mean,na.rm=T) + 
+        apply(prebOut$multiOut[,,27,1,1],1,mean,na.rm=T)
+      litter[,2] <- apply(prebOut$multiOut[,,28,1,1],1,mean,na.rm=T)
+      litter[,3] <- apply(prebOut$multiOut[,,29,1,1],1,mean,na.rm=T)
+      species <- prebOut$multiOut[,1,4,1,1]
+      climIDs <- prebOut$siteInfo[,2]
+      # litterSize <- prebOut$litterSize
+      nSp <- ncol(parsAWEN)
+      weatherYasso <- apply(prebOut$weatherYasso,c(1,3),mean)
+      nClimID <- prebOut$nClimID
+      soilC <- array(0.,dim=c(nSites,5,3,nLayers))
+      
+      soilC <- .Fortran("StstYasso",
+                        litter = as.array(litter),
+                        litterSize = as.matrix(litterSize),
+                        nLayers = as.integer(nLayers), 
+                        nSites = as.integer(nSites), 
+                        nSp = as.integer(nSp),
+                        species = as.matrix(species),
+                        nClimID = as.integer(nClimID),
+                        climIDs = as.integer(climIDs),
+                        pAWEN = as.matrix(pAWEN),
+                        pYASSO=as.double(pYASSO),
+                        weatherYasso = as.matrix(weatherYasso),
+                        soilC = as.array(soilC)
+      )$soilC
+      
+      ####add gvsoilc to first layer foliage soilC
+      # check in normal runs where ground vegetation soilC is calculated
+      if(GVrun==1){
+        soilC[,,3,1] <- soilC[,,3,1] + ststGV
+      }  
+    }
   }
   return(soilC)
 }
@@ -757,116 +895,224 @@ stXX_GV <- function(prebOut, GVrun,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWE
 
 ####Wrapper function for YASSO runs (fortran version) with PREBAS inputs
 yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS, 
-                    litterSize = NA, pAWEN=parsAWEN,runGV=1){
+                          litterSize = NA, pAWEN=parsAWEN,runGV=1){
   ###litter is array with dimensions:(nSites, nYears, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
   ####species is a matrix dims= nSites,nLayers
   #### initSoilC is array dim=nSites,5,3,nLayers;;!!! third dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
   #### weatherYasso dims=nClimID, nYears, 3; dim 3 are weather inputs Tmean precip Tampl
   ###### climIDs vector of climIDs(nSites)
   ##### litterSize dimensions of litterfall matrix (nrow=3(stem,branch,fineLit), ncol=nSp) 
-  nSites <- prebOut$nSites
-  nYears <- dim(prebOut$multiOut)[2]
-  nLayers <- dim(prebOut$multiOut)[4]
-  litter <- array(NA,dim=c(nSites, nYears, nLayers, 3))
-  litter[,,,1] <- prebOut$multiOut[,,26,,1] + prebOut$multiOut[,,27,,1]
-  litter[,,,2] <- prebOut$multiOut[,,28,,1]
-  litter[,,,3] <- prebOut$multiOut[,,29,,1]
-  litter[which(is.na(litter))] <- 0.
-  species <- prebOut$multiOut[,1,4,,1]
-  climIDs <- prebOut$siteInfo[,2]
-  if(all(is.na(litterSize))) litterSize <- prebOut$litterSize
-  nSp <- ncol(parsAWEN)
-  nClimID <- prebOut$nClimID
-  soilC <- array(0., dim=c(nSites,(nYears+1),5,3,nLayers))
-  soilC[,1,,,] <- initSoilC
   
-  soilC <- .Fortran("runYasso",
-                    litter = as.array(litter),
-                    litterSize = as.array(litterSize),
-                    nYears = as.integer(nYears),
-                    nLayers = as.integer(nLayers), 
-                    nSites = as.integer(nSites), 
-                    nSp = as.integer(nSp),
-                    species = as.matrix(species),
-                    nClimID = as.integer(nClimID),
-                    climIDs = as.integer(climIDs),
-                    pAWEN = as.matrix(pAWEN),
-                    pYASSO=as.double(pYASSO),
-                    weatherYasso = as.array(prebOut$weatherYasso),
-                    soilC = as.array(soilC)
-  )$soilC
-  
-  if(runGV==1){
-    ###calculate soil C for gv
-    fAPAR <- prebOut$fAPAR
-    fAPARgv <- litGV <- wGV <- matrix(0,nSites,nYears)
-    fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
-    fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
-    fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
-    AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),5))
-    soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
-    p0 = prebOut$multiOut[,,6,1,1]
-    ETSy = prebOut$multiOut[,,5,1,1]
+  ##for single site run  
+  if(class(prebOut)=="prebas"){
     
-    AWENgv[,,1:4] <- .Fortran("multiGV",
-                       fAPAR=as.matrix(fAPAR),
-                       ETS=as.matrix(ETSy),
-                       siteType = as.double(prebOut$siteInfo[,3]),
-                       fAPARgv=as.matrix(fAPARgv),
-                       litGV=as.matrix(litGV),
-                       p0=as.matrix(p0),
-                       AWENgv=as.array(AWENgv[,,1:4]),
-                       nYears = as.integer(nYears),
-                       nSites = as.integer(nSites),
-                       wGV=as.matrix(wGV))$AWENgv
+    # nSites <- prebOut$nSites
+    nYears <- prebOut$nYears
+    nLayers <- prebOut$nLayers
+    litter <- array(NA,dim=c(nYears, nLayers, 3))
+    litter[,,1] <- prebOut$output[,26,,1] + prebOut$output[,27,,1]
+    litter[,,2] <- prebOut$output[,28,,1]
+    litter[,,3] <- prebOut$output[,29,,1]
+    litter[which(is.na(litter))] <- 0.
+    species <- prebOut$output[1,4,,1]
+    # climIDs <- prebOut$siteInfo[,2]
+    if(all(is.na(litterSize))) litterSize <- prebOut$litterSize
+    nSp <- ncol(parsAWEN)
+    # nClimID <- prebOut$nClimID
+    soilC <- array(0., dim=c((nYears+1),5,3,nLayers))
+    soilC[1,,,] <- initSoilC
     
-    soilCgv <- .Fortran("runYassoAWENin",
-                        AWENin=as.array(AWENgv),
-                        nYears=as.integer(nYears),  
-                        nSites=as.integer(nSites), 
-                        litSize=as.double(0.),
-                        nClimID=as.integer(nClimID),
-                        climIDs=as.integer(climIDs),
-                        pYasso=as.double(pYASSO),
-                        climate=as.matrix(prebOut$weatherYasso),
-                        soilCgv=as.array(soilCgv))$soilCgv
+    soilC <- .Fortran("runYasso",
+                      litter = as.array(litter),
+                      litterSize = as.matrix(litterSize),
+                      nYears = as.integer(nYears),
+                      nLayers = as.integer(nLayers), 
+                      nSites = as.integer(1), 
+                      nSp = as.integer(nSp),
+                      species = as.matrix(species),
+                      nClimID = as.integer(1),
+                      climIDs = as.integer(1),
+                      pAWEN = as.matrix(pAWEN),
+                      pYASSO=as.double(pYASSO),
+                      weatherYasso = as.matrix(prebOut$weatherYasso),
+                      soilC = as.array(soilC)
+    )$soilC
     
+    if(runGV==1){
+      ###calculate soil C for gv
+      fAPAR <- prebOut$fAPAR
+      fAPARgv <- litGV <- wGV <- rep(0,nYears)
+      fAPAR[which(is.na(prebOut$fAPAR))] <- 0.
+      fAPAR[which(prebOut$fAPAR>1)] <- 1.
+      fAPAR[which(prebOut$fAPAR<0)] <- 0.
+      AWENgv <- matrix(0.,length(prebOut$fAPAR),5)
+      soilCgv <- matrix(0.,(nYears+1),5)
+      p0 = prebOut$output[,6,1,1]
+      ETSy = prebOut$output[,5,1,1]
+      
+      AWENgv[,1:4] <- .Fortran("multiGV",
+                               fAPAR=as.double(fAPAR),
+                               ETS=as.double(ETSy),
+                               siteType = as.double(prebOut$siteInfo[3]),
+                               fAPARgv=as.double(fAPARgv),
+                               litGV=as.matrix(litGV),
+                               p0=as.matrix(p0),
+                               AWENgv=as.matrix(AWENgv[,1:4]),
+                               nYears = as.integer(nYears),
+                               nSites = as.integer(1),
+                               wGV=as.double(wGV))$AWENgv
+      
+      soilCgv <- .Fortran("runYassoAWENin",
+                          AWENin=as.matrix(AWENgv),
+                          nYears=as.integer(nYears),  
+                          nSites=as.integer(1), 
+                          litSize=as.double(0.),
+                          nClimID=as.integer(1),
+                          climIDs=as.integer(1),
+                          pYasso=as.double(pYASSO),
+                          climate=as.matrix(prebOut$weatherYasso),
+                          soilCgv=as.matrix(soilCgv))$soilCgv
+      
+      
+      soilC[,,3,1] = soilC[,,3,1] + soilCgv
+    }
     
-    soilC[,,,1,1] = soilC[,,,1,1] + soilCgv
+    ###update model output fluxes
+    soilByLay <- apply(soilC,c(1,4),sum)
+    
+    prebOut$soilC <- soilC[2:(nYears+1),,,]
+    prebOut$soilCtot <- apply(soilC[2:(nYears+1),,,],1,sum)
+    
+    if(nLayers == 1){
+      margins <- c(1)
+    }else{
+      margins <- c(1,4)
+    }
+    prebOut$output[,39,,1] <- apply(prebOut$soilC,margins,sum)
+    
+    if(nLayers == 1){
+      margins <- c(1)
+    }else{
+      margins <- c(1,3)
+    }
+    #Rh calculations
+    prebOut$output[,45,,1] <- (soilByLay[1:nYears,] - soilByLay[2:(nYears+1),] +
+                                 apply(prebOut$output[1:nYears,26:29,,1],margins,sum))/10 ###/10 converts kgC/ha to gC/m2
+    ###add GVlitter to first layer of multiout of Rh
+    prebOut$output[,45,1,1] <- apply(AWENgv,1,sum)/10 + prebOut$output[,45,1,1] 
+    ##NEP calculations
+    prebOut$output[,46,,1] <-  prebOut$output[,44,,1] - prebOut$output[,9,,1] - 
+      prebOut$output[,45,,1]
+    ###add GVnpp to first layer of multiout of NEP  
+    prebOut$output[,46,1,1] = prebOut$output[,46,1,1] +
+      prebOut$GVout[,5]
+    
+  }else{    ##for multi site run  
+    
+    nSites <- prebOut$nSites
+    nYears <- dim(prebOut$multiOut)[2]
+    nLayers <- dim(prebOut$multiOut)[4]
+    litter <- array(NA,dim=c(nSites, nYears, nLayers, 3))
+    litter[,,,1] <- prebOut$multiOut[,,26,,1] + prebOut$multiOut[,,27,,1]
+    litter[,,,2] <- prebOut$multiOut[,,28,,1]
+    litter[,,,3] <- prebOut$multiOut[,,29,,1]
+    litter[which(is.na(litter))] <- 0.
+    species <- prebOut$multiOut[,1,4,,1]
+    climIDs <- prebOut$siteInfo[,2]
+    if(all(is.na(litterSize))) litterSize <- prebOut$litterSize
+    nSp <- ncol(parsAWEN)
+    nClimID <- prebOut$nClimID
+    soilC <- array(0., dim=c(nSites,(nYears+1),5,3,nLayers))
+    soilC[,1,,,] <- initSoilC
+    
+    soilC <- .Fortran("runYasso",
+                      litter = as.array(litter),
+                      litterSize = as.array(litterSize),
+                      nYears = as.integer(nYears),
+                      nLayers = as.integer(nLayers), 
+                      nSites = as.integer(nSites), 
+                      nSp = as.integer(nSp),
+                      species = as.matrix(species),
+                      nClimID = as.integer(nClimID),
+                      climIDs = as.integer(climIDs),
+                      pAWEN = as.matrix(pAWEN),
+                      pYASSO=as.double(pYASSO),
+                      weatherYasso = as.array(prebOut$weatherYasso),
+                      soilC = as.array(soilC)
+    )$soilC
+    
+    if(runGV==1){
+      ###calculate soil C for gv
+      fAPAR <- prebOut$fAPAR
+      fAPARgv <- litGV <- wGV <- matrix(0,nSites,nYears)
+      fAPAR[which(is.na(prebOut$fAPAR),arr.ind = T)] <- 0.
+      fAPAR[which(prebOut$fAPAR>1,arr.ind = T)] <- 1.
+      fAPAR[which(prebOut$fAPAR<0,arr.ind = T)] <- 0.
+      AWENgv <- array(0.,dim=c(dim(prebOut$fAPAR),5))
+      soilCgv <- array(0.,dim=c(nSites,(nYears+1),5))
+      p0 = prebOut$multiOut[,,6,1,1]
+      ETSy = prebOut$multiOut[,,5,1,1]
+      
+      AWENgv[,,1:4] <- .Fortran("multiGV",
+                                fAPAR=as.matrix(fAPAR),
+                                ETS=as.matrix(ETSy),
+                                siteType = as.double(prebOut$siteInfo[,3]),
+                                fAPARgv=as.matrix(fAPARgv),
+                                litGV=as.matrix(litGV),
+                                p0=as.matrix(p0),
+                                AWENgv=as.array(AWENgv[,,1:4]),
+                                nYears = as.integer(nYears),
+                                nSites = as.integer(nSites),
+                                wGV=as.matrix(wGV))$AWENgv
+      
+      soilCgv <- .Fortran("runYassoAWENin",
+                          AWENin=as.array(AWENgv),
+                          nYears=as.integer(nYears),  
+                          nSites=as.integer(nSites), 
+                          litSize=as.double(0.),
+                          nClimID=as.integer(nClimID),
+                          climIDs=as.integer(climIDs),
+                          pYasso=as.double(pYASSO),
+                          climate=as.matrix(prebOut$weatherYasso),
+                          soilCgv=as.array(soilCgv))$soilCgv
+      
+      
+      soilC[,,,3,1] = soilC[,,,3,1] + soilCgv
+    }
+    
+    ###update model output fluxes
+    soilByLay <- apply(soilC,c(1:2,5),sum)
+    
+    prebOut$soilC <- soilC[,2:(nYears+1),,,]
+    prebOut$soilCtot <- apply(soilC[,2:(nYears+1),,,],1:2,sum)
+    
+    if(nLayers == 1){
+      margins <- c(1:2)
+    }else{
+      margins <- c(1:2,5)
+    }
+    prebOut$multiOut[,,39,,1] <- apply(prebOut$soilC,margins,sum)
+    
+    if(nLayers == 1){
+      margins <- c(1:2)
+    }else{
+      margins <- c(1:2,4)
+    }
+    #Rh calculations
+    prebOut$multiOut[,,45,,1] <- (soilByLay[,1:nYears,] - soilByLay[,2:(nYears+1),] +
+                                    apply(prebOut$multiOut[,1:nYears,26:29,,1],margins,sum))/10 ###/10 converts kgC/ha to gC/m2
+    ###add GVlitter to first layer of multiout of Rh
+    prebOut$multiOut[,,45,1,1] <- apply(AWENgv,1:2,sum)/10 + prebOut$multiOut[,,45,1,1] 
+    ##NEP calculations
+    prebOut$multiOut[,,46,,1] <-  prebOut$multiOut[,,44,,1] - prebOut$multiOut[,,9,,1] - 
+      prebOut$multiOut[,,45,,1]
+    ###add GVnpp to first layer of multiout of NEP  
+    prebOut$multiOut[,,46,1,1] = prebOut$multiOut[,,46,1,1] +
+      prebOut$GVout[,,5]
   }
-  
-  ###update model output fluxes
-  soilByLay <- apply(soilC,c(1:2,5),sum)
-  
-  prebOut$soilC <- soilC[,2:(nYears+1),,,]
-  prebOut$soilCtot <- apply(soilC[,2:(nYears+1),,,],1:2,sum)
-  
-  if(nLayers == 1){
-    margins <- c(1:2)
-  }else{
-    margins <- c(1:2,5)
-  }
-  prebOut$multiOut[,,39,,1] <- apply(prebOut$soilC,margins,sum)
-  
-  if(nLayers == 1){
-    margins <- c(1:2)
-  }else{
-    margins <- c(1:2,4)
-  }
-  #Rh calculations
-  prebOut$multiOut[,,45,,1] <- (soilByLay[,1:nYears,] - soilByLay[,2:(nYears+1),] +
-                                  apply(prebOut$multiOut[,1:nYears,26:29,,1],margins,sum))/10 ###/10 converts kgC/ha to gC/m2
-  ###add GVlitter to first layer of multiout of Rh
-  prebOut$multiOut[,,45,1,1] <- apply(AWENgv,1:2,sum)/10 + prebOut$multiOut[,,45,1,1] 
-  ##NEP calculations
-  prebOut$multiOut[,,46,,1] <-  prebOut$multiOut[,,44,,1] - prebOut$multiOut[,,9,,1] - 
-    prebOut$multiOut[,,45,,1]
-  ###add GVnpp to first layer of multiout of NEP  
-  prebOut$multiOut[,,46,1,1] = prebOut$multiOut[,,46,1,1] +
-    prebOut$GVout[,,5]
-  
   return(prebOut)
 }
+
 
 
 #' initSoilC_fromTot
