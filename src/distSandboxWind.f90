@@ -1,4 +1,4 @@
-subroutine windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
+subroutine windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, tsincethin, &
   wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
   IMPLICIT NONE
   REAL (kind=8), intent(inout) ::  siteInfoDist(4) ! 5-year wind risk (suvanto output), pre-logit value, annual risk
@@ -10,13 +10,13 @@ subroutine windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
   INTEGER, intent(in) :: openedge ! 0 = no open edge, 1 = open edge
   INTEGER, intent(in) :: sitetype ! prebas site types; reclassified to site fertility: 0 = infertile, 1 = fertile 
   REAL (kind=8) :: wspeed ! localised 10 a max windspeed (m/s), Venäläinen 2017
-  INTEGER :: tsincethin ! time since last thinning in years, categorised into 0-5, 6-10, >10 below
+  INTEGER, intent(in) :: tsincethin ! time since last thinning in years, categorised into 0-5, 6-10, >10 below
   INTEGER :: soiltype ! 0 = mineral, coarse; 1 = mineral, fine; 2 = organic
   INTEGER :: shallowsoil ! 1 = <30cm
   INTEGER :: sitefert ! site fertility, reclassified from sitetype (1:3 fertile / 1, 4:5 infertile/0)
   
   wspeed = siteInfoDist(1)
-  tsincethin = INT(siteInfoDist(2))
+  !tsincethin = INT(siteInfoDist(2))
   soiltype = INT(siteInfoDist(3))
   shallowsoil = INT(siteInfoDist(4))
   

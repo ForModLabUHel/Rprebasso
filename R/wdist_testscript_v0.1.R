@@ -100,8 +100,16 @@ ggplot()+
   geom_line(aes(x=1:100, y=t$multiOut[1,,varx,1,1], col="H pine"))+
   geom_line(aes(x=1:100, y=t$multiOut[1,,varx,2,1], col="H spruce"))+
   geom_line(aes(x=1:100, y=t$multiOut[1,,varx,3,1], col="H birch"))
+################################
+################################
+################################
 
-  
+
+
+
+
+
+
 # SWITCHING ON DIST
 sid <- matrix(0, 7,4)
 sid[,1] <- 12.2 #wspeed
@@ -138,13 +146,13 @@ ggplot()+
 
 # SWITCHING ON DIST
 sid <- matrix(0, 7,4)
-sid[,1] <- 30 #wspeed
+sid[,1] <- 12.2 #wspeed
 sid[,2] <- 1 #time since thinning (currently fixed to input value throughout simulations)
 sid[,3] <- 0 # soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic)
 sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
 
 # ... and thinning
-
+trtest <- function(){
 thins <- array(0, dim=c(7,2,11))
 thins[,1,1] <- 90 #yos
 thins[,1,2] <- 1 #spec
@@ -162,9 +170,72 @@ thins[1,,]
 
 t3<- TransectRun(siteInfoDist=sid, modVersion="region", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0, multiThin=thins, multiNthin = rep(2,7))
 t3$outDist[1,80:100,]
-yod1<- which(t3$outDist[1,,7]==1)[1]
-yods<- which(t3$outDist[1,,7]==1)
-yod1
+yod1<- which(t3$outDist[1,,4]>0)[1]
+yods<- which(t3$outDist[1,,4]>0)
+print(yod1)
+}
+
+trtest()
+
+
+
+
+
+
+t3$outDist[1,,]
+
+t3$multiOut[1,, "V", , 1]
+
+
+t3$multiOut[1,, 4, , 1]
+
+52.9136816 - 51.3262712
+
+51.3262712-49.7864831
+
+t3$multiOut[1,, 11, , 1]
+
+ 
+t3$outDist[1,,]
+#domlayer, domspec, domh, sitetype, ets, tsincethin, distoccurs, sevclass, reldistvol, wrisk
+
+#outDist
+# domspec, tsincethin, wrisk, sevclass, dvol, salvlog, mgmtreact
+
+# wdistproc
+# domlayer, domspec, domh, distoccurs, sevclass, reldistvol, wrisk
+
+
+t3$outDist[1,,]
+
+
+t3$multiOut[1,,29,,1 ] #litter
+t3$multiOut[1,(yod1-5):(yod1+5),29,,1 ]
+t3$multiOut[1,(yod1-5):(yod1+5),42,,1 ]
+t3$multiOut[1,(yod1-5):(yod1+5),37,,1 ]
+t3$multiOut[1,(yod1-5):(yod1+5),30,,2 ]
+
+t3$multiOut[1,,42,,1 ]
+
+
+
+
+t3$multiOut[1,74,37,,1]
+t3$multiOut[1,74,30,,1]
+t3$multiOut[1,74,30,,2]
+
+
+t3$multiOut[1,60:70,29,,1]
+t3$multiOut[1,60:70,42,,1]
+
+
+
+
+t3$multiOut[1,(yod1-5):(yod1+5),30,,1 ] #litter
+t3$multiOut[1,(yod1-5):(yod1+5),37,,1 ] #litter
+
+
+
 
 t3$outDist[1,yod1,9] # share of vol directly damaged
 1-sum(t3$multiOut[1,(yod1),30,,1])/sum(t3$multiOut[1,(yod1-1),30,,1]) # same calculated from mout
@@ -184,6 +255,8 @@ devout[site==1 & year==yod1,]
 #devout[site==1 & year%in%c(yod1-1,yod1)]
 
 t3$multiOut[1,(yod1-3):yod1,30,,1]
+t3$multiOut[1,(yod1-3):yod1,13,,1]
+t3$multiOut[1,(yod1-3):yod1,42,,1]
 
 
 
@@ -198,24 +271,7 @@ ggplot()+
   geom_line(data=vdtl, aes(x=year, y=vol, col=layer))+
   geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
 
-
-
-vdt <- data.table(t3$multiOut[1,,11,,1])
-vdt[, year:=1:100]
-vdtl = melt(vdt, id.vars = "year",
-            measure.vars = c("layer 1", "layer 2", "layer 3"))
-names(vdtl) <- c("year", "layer", "vol")
-
-ggplot()+
-  geom_line(data=vdtl, aes(x=year, y=vol, col=layer))+
-  geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
-
-
-
-
-
-
-#?geom_vline
+?geom_vline
 
 dwdt <- data.table(t3$multiOut[1,,8,,1])
 dwdt[, year:=1:100]
@@ -228,20 +284,6 @@ ggplot()+
   geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
 
 
-varx <- 11
-
-dwdt <- data.table(t3$multiOut[1,,varx,,1])
-dwdt[, year:=1:100]
-dwdtl = melt(dwdt, id.vars = "year",
-             measure.vars = c("layer 1", "layer 2", "layer 3"))
-names(dwdtl) <- c("year", "layer", "deadw")
-
-ggplot()+
-  geom_line(data=dwdtl, aes(x=year, y=deadw, col=layer))+
-  geom_vline(aes(xintercept=yods, col="wind disturbance"), linetype=2)
-
-t3$multiOut[1,,11,3,1]
-t3$mortMod
 
 t3$multiOut[1,,11,,1]
 t3$multiOut[1,,17,,1]
