@@ -92,9 +92,8 @@ do i = 1,nSites
 enddo
 
 do i = 1,nSites
- ! write(*,*) i
+
  output(:,:,:,:) = multiOut(i,:,:,:,:)
- ! write(1,*) i
 
 	climID = siteInfo(i,2)
 	defaultThinX = defaultThin(i)
