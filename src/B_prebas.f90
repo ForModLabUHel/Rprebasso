@@ -37,8 +37,10 @@ implicit none
  integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
 real (kind=8) :: sc1vols(87), sc2vols(15), sc3vols(6)
 real (kind=8) :: wriskLayers(nLayers, 6)
+!!! wind dist / salvlog development
+real (kind=8) :: siteInfoDisttemp(10) !to replace siteinfodist
+real (kind=8) :: wdistproc(7) !to replace siteinfodist
 
-  
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
  integer, intent(in) :: layerPRELES !oldLayer, fvec
@@ -225,7 +227,9 @@ ETSmean = sum(ETSy)/nYears
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
   VmortDist=0.
-  siteInfoDist(2) = siteInfoDist(2)+1
+  
+siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind disturbance model predictor)
+
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
   !if (year == int(min(yearX, nYears))) then ! yearX is the running simulation year when stand is initialized after clearcut
@@ -1020,7 +1024,6 @@ endif
 	! if(year >= yearX) then
 		STAND_tot = STAND
     IF (thinning(countThinning,6) < STAND_tot(13)) siteInfoDist(2) = 0
-    ! IF (thinning(countThinning,6) < STAND_tot(13)) outDist(year,6) = 0
 
 		if(thinning(countThinning,9) .NE. -999) then
 		 thinning(countThinning,6) = thinning(countThinning,9) * (pi*((D/2./100.)**2.))
@@ -1434,7 +1437,7 @@ if(defaultThin == 1.) then
 
  if(doThin) then
    
-   siteInfoDist(2) = 0
+   siteInfoDist(2) = 0 !reset counter for time since thinning (wind dist model predictor)
 
  !!!fertilization at thinning
 	if(fertThin == 3 .and. flagFert<1 .and. siteType>3. .and. siteType<6.) then 
