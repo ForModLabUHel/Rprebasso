@@ -1255,7 +1255,7 @@ endif
   age = stand_all(7,layer)
 
   if ((D > D_clearcut) .or. (age > A_clearcut).or. outdist(max(INT(year-1),1), 9) == 1.) then
- 
+    outdist(year, 9) = 2. !set disturbance-induced cc flag to 2 (= 'conducted') otherwise, this triggers clearcuts over and over again...)
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   thinClx(year,2) = 1 !flag for clearcut
    !if fertilization at thinning is active reset flagFert
