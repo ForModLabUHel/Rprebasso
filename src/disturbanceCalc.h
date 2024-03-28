@@ -71,9 +71,8 @@ if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
 !step 2: severity class (for now with shares/probabilities from post-storm inventory )
 if (outDist(year,4)==1) then 
   call random_number(rndm) ! leave sevclass at 1 or increase based on sampling
-  !outDist(year,8) = 1 !set sevclass to 1 
   if(rndm <= 0.13888889) outDist(year,4) = 2 
-  if(rndm <= 0.05555556) outDist(year,4) = 3 !these are now sampled even if there's no disturbance occuring; keep for dev purposes, only calculate when dist occurres in final version
+  if(rndm <= 0.05555556) outDist(year,4) = 3 
 endif
 
   ! step 3: sample from severity class-specific set of relative disturbed volumes
@@ -202,11 +201,13 @@ if (outDist(year,4)>0.) then !in case of disturbance
   endif
 
   ! cc in severely disturbed sites (putting in action to come...)
-  if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDisttemp(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
+  !if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDisttemp(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
+  if((wdistproc(4)>=0.2 .OR. outDist(year,4)==3) .AND. siteInfoDisttemp(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
     call random_number(rndm)
     if(rndm<=siteInfoDisttemp(10)) then
        outDist(year,9) = 1. !indicate clearcut
        outDist(year,8) = 0. !nullify possible mgmtreact prioritisation (to avoid double-accounting in output analysis)
+    
     endif
   endif  
 endif ! end salvlog/mgmtrect module

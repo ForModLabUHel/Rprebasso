@@ -1247,14 +1247,14 @@ endif
   endif
  domSp = maxloc(STAND_all(13,1:ll))
  layer = int(domSp(1))
-if (ClCut == 1.) then
+ if (ClCut == 1. .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year
   species = int(max(1.,stand_all(4,layer)))
   D_clearcut = inDclct(species)
   A_clearcut = inAclct(species)
   D = stand_all(12,layer)
   age = stand_all(7,layer)
 
- if ((D > D_clearcut) .or. (age > A_clearcut)) then
+  if ((D > D_clearcut) .or. (age > A_clearcut).or. outdist(max(INT(year-1),1), 9) == 1.) then
  
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
   thinClx(year,2) = 1 !flag for clearcut

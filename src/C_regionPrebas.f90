@@ -307,6 +307,8 @@ endif
   if(disturbanceON) THEN
     ! write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
     !write(1,*) i, ij !wdist dev output: writing site & year
+    outDist(i, ij, 9) = outDist(i, max(INT(ij-1),1), 9) ! transfer last year's wind disturbance induced clearcut flag to current year (as wind dist calc happens only after clearcut routines)
+    outDist(i, max(INT(ij-1),1), 9) = 0.
   endif
 
 
