@@ -3,14 +3,14 @@
 !subroutine bridging  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
-    nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
-    nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
-    weatherPRELES,DOY,pPRELES, soilC,pYasso,&
-    pAWEN,weatherYasso,litterSize,soilCtot, &
-    defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
-    tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
-    flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+		nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
+		nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
+		weatherPRELES,DOY,pPRELES, soilC,pYasso,&
+		pAWEN,weatherYasso,litterSize,soilCtot, &
+		defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
+		tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
+	  flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
+		layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
 
 
 implicit none
@@ -28,12 +28,12 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
- real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
+ real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)	!initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
- real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP),energyCuts(nSites)  !!energCuts
+ real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP),energyCuts(nSites)	!!energCuts
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
-          !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
+					!from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
 
 logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
 real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
@@ -44,8 +44,8 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
 
 !!!ground vegetation
- !integer, intent(in) :: gvRun      !!!ground vegetation fvec
- real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV      !!!ground vegetation
+ !integer, intent(in) :: gvRun			!!!ground vegetation fvec
+ real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV			!!!ground vegetation
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
@@ -84,10 +84,10 @@ multiEnergyWood = 0.
 !soilCtot = soilCtotInOut
 do i = 1,nSites
  do ijj = 1,nLayers(i)
-  species = int(initVar(i,1,ijj))
-!    initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
-!      initVar(i,6,ijj))**pCrobas(11,species))!A = p_ksi/p_rhof * Lc^p_z
-  call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1),nVar,npar)
+	species = int(initVar(i,1,ijj))
+!		initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
+!			initVar(i,6,ijj))**pCrobas(11,species))!A = p_ksi/p_rhof * Lc^p_z
+	call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),siteInfo(i,3),multiOut(i,1,:,ijj,1),nVar,npar)
  enddo
 enddo
 
@@ -95,27 +95,27 @@ do i = 1,nSites
 
  output(:,:,:,:) = multiOut(i,:,:,:,:)
 
-  climID = siteInfo(i,2)
-  defaultThinX = defaultThin(i)
-  ClCutX = ClCut(i)
-  
-  !!!##set mortality model for managed and unmanaged forests
-  mortModX = mortMod(1) !!mortality model to be used in the managed forests
-  if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
-  
-  thinningX = thinning(i,:,:)
-  ! nYears(i) = nYears(i)
-    call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
-    thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
-    initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
-    P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES, &
-    soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
-    litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
-    ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
-    multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
-    GVout(i,1:nYears(i),:),thinInt(i), &
-    flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags)
+	climID = siteInfo(i,2)
+	defaultThinX = defaultThin(i)
+	ClCutX = ClCut(i)
+	
+	!!!##set mortality model for managed and unmanaged forests
+	mortModX = mortMod(1) !!mortality model to be used in the managed forests
+	if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
+	
+	thinningX = thinning(i,:,:)
+	! nYears(i) = nYears(i)
+	  call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+		thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
+		initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
+		P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES, &
+		soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
+		litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
+		ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
+		multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
+		GVout(i,1:nYears(i),:),thinInt(i), &
+		flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
+		siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags)
     
     ! pre flag vectorisatio:
     ! call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
@@ -131,8 +131,8 @@ do i = 1,nSites
     ! disturbanceON, siteInfoDist(i,:), outDist(i,1:nYears(i),:))
     
     
-    
-    multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
+		
+		multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
  ! close(1)
 end subroutine
