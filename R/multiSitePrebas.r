@@ -302,7 +302,7 @@ InitMultiSite <- function(nYearsMS,
         if(length(negLayers)>0){
           siteXss <- unique(negLayers[,1])
           print(multiInitVar[siteXss,6,][negLayers])
-          multiInitVar[siteXss,6,][negLayers]<- 0.1
+          multiInitVar[,6,][negLayers]<- 0.1
         }
       }
       warning("check, some Lc is negative it was replaced by 0.1.")
@@ -310,6 +310,8 @@ InitMultiSite <- function(nYearsMS,
       print(siteXss)
     } 
   }
+  
+
   
   multiInitVar[,7,][which(is.na(multiInitVar[,7,]))] <- 0.
   multiInitVar[,7,][which(multiInitVar[,7,]<=0)] <-
