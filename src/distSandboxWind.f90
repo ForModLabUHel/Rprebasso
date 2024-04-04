@@ -158,25 +158,25 @@ end subroutine
 ! end subroutine
 
 ! 
-! subroutine move_element_to_front(vector, index, n)
-!     implicit none
-!     integer, intent(inout) :: vector(:)
-!     integer, intent(in) :: index, n
-!     integer :: temp, i
-! 
-!     ! Check if index is valid
-!     if (index < 1 .or. index > n) then
-!         print *, "Error: Index out of bounds"
-!         return
-!     end if
-! 
-!     ! Move the element to the front
-!     temp = vector(index)
-!     do i = index, 2, -1
-!         vector(i) = vector(i-1)
-!     end do
-!     vector(1) = temp
-! end subroutine move_element_to_front
+subroutine move_element_to_front(vector, index, n)
+    implicit none
+    integer, intent(inout) :: vector(:)
+    integer, intent(in) :: index, n
+    integer :: temp, i
+
+    ! Check if index is valid
+    if (index < 1 .or. index > n) then
+        print *, "Error: Index out of bounds"
+        return
+    end if
+
+    ! Move the element to the front
+    temp = vector(index)
+    do i = index, 2, -1
+        vector(i) = vector(i-1)
+    end do
+    vector(1) = temp
+end subroutine move_element_to_front
 
 
 ! subroutine move_element_to_front(siteorder, index, nsites, siteordertemp)
