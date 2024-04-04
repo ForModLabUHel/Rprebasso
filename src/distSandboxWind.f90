@@ -140,6 +140,90 @@ end subroutine
 
 
 
+! subroutine prioritiseDistReact(siteOrder, outDist, nsites)
+!   IMPLICIT NONE
+!   REAL (kind=8), intent(inout) ::  outDist(nSites, 10) 
+!   INTEGER, intent(inout) ::  siteOrder(nSites)
+!   INTEGER, intent(in) :: nSites !1 pine, 2 spruce, 3 o
+! 
+! 
+! do i = 1, nSites
+!   if (outDist(i, 7) == 1) then
+!     siteOrder()
+! 
+! 
+! end do
+! 
+! 
+! end subroutine
+
+! 
+! subroutine move_element_to_front(vector, index, n)
+!     implicit none
+!     integer, intent(inout) :: vector(:)
+!     integer, intent(in) :: index, n
+!     integer :: temp, i
+! 
+!     ! Check if index is valid
+!     if (index < 1 .or. index > n) then
+!         print *, "Error: Index out of bounds"
+!         return
+!     end if
+! 
+!     ! Move the element to the front
+!     temp = vector(index)
+!     do i = index, 2, -1
+!         vector(i) = vector(i-1)
+!     end do
+!     vector(1) = temp
+! end subroutine move_element_to_front
+
+
+! subroutine move_element_to_front(siteorder, index, nsites, siteordertemp)
+!     implicit none
+!     integer, intent(inout) :: siteorder(nsites)
+!     integer, intent(in) :: index, nsites
+!     integer :: temp, i
+!     integer, intent(inout) :: siteordertemp(nsites)
+! 
+!     ! Check if index is valid
+!     if (index < 1 .or. index > nsites) then
+!         print *, "Error: Index out of bounds"
+!         return
+!     end if
+! 
+!     ! Move the element to the front
+!     siteordertemp(1) = siteorder(index) ! put focus site id to top
+!     do i = 1, index-1 ! shift all siteids in siteorder prior to index one down 
+!         siteordertemp(i+1) = siteorder(i)
+!     end do
+!     siteordertemp((index+1):nsites) = siteorder((index+1):nsites) ! keep remaining siteorder as is 
+!     !vector(1) = temp
+! end subroutine move_element_to_front
+! 
+! 
+! subroutine move_siteid_to_top(siteorder, siteid, nsites, siteordertemp)
+!     implicit none
+!     integer, intent(inout) :: siteorder(nsites)
+!     integer, intent(in) :: siteid, nsites
+!     integer :: temp, i, index
+!     integer, intent(inout) :: siteordertemp(nsites)
+! 
+!     !index = findloc(siteorder, siteid) !find location of siteid in question within siteorder
+!     siteordertemp = abs(siteorder-siteid)
+!     index = minloc(siteordertemp(:)) !find location of siteid in question within siteorder !! findloc only in fortran 2008 and later
+! 
+!     ! Move the element to the front
+!     !siteordertemp(1) = siteorder(index) ! put focus site id to top
+!     !do i = 1, index-1 ! shift all siteids in siteorder prior to index one down 
+!     !    siteordertemp(i+1) = siteorder(i)
+!     !end do
+!     !siteordertemp((index+1):nsites) = siteorder((index+1):nsites) ! keep remaining siteorder as is 
+!     !vector(1) = temp
+! end subroutine move_siteid_to_top
+
+
+
 
 
 
