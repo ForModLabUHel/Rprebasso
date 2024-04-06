@@ -914,43 +914,6 @@ if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
 	   
 	 endif
 
- ! if(siteinfo(1)==3252460.) write(1,*) Gf,Gr, Gw,Nup,Ndem,Umax,P00CN,UmaxFactor
- ! if(siteinfo(1)==3252460.) write(2,*) Nup,Umax, P00CN,UmaxFactor,STAND_all(25,ij),sum(STAND_all(25,:)), Ndem
-
-   !update par_alfar based on weather (modOut(year,3,ij,2))
-   ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
-   ! it has to be updated for locations 
-   
-   ! if(par_H0max .gt. 0) then
-   
-   ! if(year.eq.1) then
-   
-! !	apu = modOut(year,3,ij,2) * (p0 / fTaweNH(4)) / (par_gamma) 
-	! apu = min(0.85, modOut(year,3,ij,2) * (par_gamma) )
-	
-		! else
-		
-		! apu = modOut(year,3,ij,2)
-		
-	! endif
-  ! choose between full effect (first line; N availability increases) and p0 effect (second line; N availability does not increase)
-  ! and choose between smootehed or non-smoothed
-  
-
-!    modOut(year+1,3,ij,2) = apu + ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
-!	modOut(year+1,3,ij,2) = ((p0 / fTaweNH(4)) / (par_gamma) * modOut(1,3,ij,2) ) ! non-smoothed
-!	modOut(year+1,3,ij,2) = min(0.85 ,(par_gamma) * modOut(1,3,ij,2) ) ! constant change for allocation under constant weather of new kind
-!	modOut(year+1,3,ij,2) = apu + ((p0 / par_gamma) * modOut(1,3,ij,2) - apu) / 10.0
-	! modOut(year+1,3,ij,2) = (par_gamma) * modOut(1,3,ij,2)  ! constant change for allocation under constant weather of new kind
-	
-   ! endif
-
-! ! use devise 1 to print in case it is not in use otherwise
-	! if(par_zb .lt. 1) then 
-	! write(1,*) siteInfo(1), year, Gf, Gr, Gw,  Nup, Ndem,Umax, CN,UmaxFactor !,W_froot, wf_STKG, ETSmean, CN, p0, par_alfar, fAPARtrees
-	! endif
-	! write(2,*) siteInfo(1), year, fTaweNH(1),fTaweNH(2),fTaweNH(3),fTaweNH(4)
-	
 	Nout(1,ij,1) = Gf
 	Nout(2,ij,1) = Gr
 	Nout(3,ij,1) = Gw
@@ -965,6 +928,9 @@ else
 	Nout(2,ij,2) = 0.
 	Nout(3,ij,2) = 0.
 endif
+
+ ! if(siteinfo(1)==3252460.) write(1,*) stand(7),H,Gf,Gr, Gw,Nup,Ndem,Umax,P00CN,UmaxFactor
+ ! if(siteinfo(1)==3252460.) write(2,*) stand(7),H,Nup,Umax, P00CN,UmaxFactor,STAND_all(25,ij),sum(STAND_all(25,:)), Ndem
 	
 ! end of added stuff for N calculations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
@@ -1057,6 +1023,12 @@ else
   STAND(42:44) = 0. !#!#
   STAND(47:nVar) = 0. !#!#
   STAND(7) = STAND(7) + step
+  	Nout(1,ij,1) = 0.
+	Nout(2,ij,1) = 0.
+	Nout(3,ij,1) = 0.
+	Nout(1,ij,2) = 0.
+	Nout(2,ij,2) = 0.
+	Nout(3,ij,2) = 0.
 endif
 endif
  
