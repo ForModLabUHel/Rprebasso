@@ -800,7 +800,7 @@ if (N>0.) then
 555   	continue
 			
         !Height growth-----------------------
-		f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
+		f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)!nppCost
 		f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
 				(par_z+1)/par_z * W_bs + beta0 * W_c) + betaC * W_s)
 		dH = max(0.,((H-Hc) * f1/f2))
@@ -863,11 +863,14 @@ endif
 		Sc = N * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		St = N * beta0 * par_rhow * A * par_z *  dHc * Hc / (H - Hc)
 		Gw = dWw + Sb + Sc + St + theta * W_wsap
-
+		! if(siteinfo(1)==3288584.) write(1,*) nppCost,dWw,Sb, Sc , St, theta, W_wsap
+		! if(siteinfo(1)==3288584.) write(1,*) par_z, wf_STKG,H,Hc,gammac,dH, par_vf
+		! if(siteinfo(1)==3288584.) write(1,*) par_z, W_froot,H,Hc,gammac,dH, par_vr
+		
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! added stuff for N calculations
-
+if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
 	 ! call fTyasso(pYasso,weatherYasso(Year,:),fTaweNH)
 	  
 ! par_NUptakeSwitch = 1 for Hyungwoo calculations
@@ -879,7 +882,8 @@ endif
 		! else
 			!nitpar(7) = 12 * P0yX(year,2) / (par_alfar) / 1000. !!!!this should be Umax = Umax0*P00/CNratio fT/fT0
 	  ! endif
-	  UmaxFactor = output(year,55,1,2) !fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  UmaxFactor = output(year,55,ij,2) !fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
+	  
 	  if(par_NUptakeSwitch == 1.0) then
 		Umax = (param(63) + param(64)* P00CN) * UmaxFactor !(param(63) + param(64)* P00CN) =Umax0   ; UmaxFactor = fT/fT0
 	  else
@@ -893,7 +897,7 @@ endif
 	  ! if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
 	  		
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
-! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency		  
+! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency	
 	 if(par_NUptakeSwitch == 1.0 ) then
 
 !	  write(1,*) siteInfo(1), year, S_fol,S_fr
@@ -909,6 +913,10 @@ endif
 	   endif
 	   
 	 endif
+
+ ! if(siteinfo(1)==3252460.) write(1,*) Gf,Gr, Gw,Nup,Ndem,Umax,P00CN,UmaxFactor
+ ! if(siteinfo(1)==3252460.) write(2,*) Nup,Umax, P00CN,UmaxFactor,STAND_all(25,ij),sum(STAND_all(25,:)), Ndem
+
    !update par_alfar based on weather (modOut(year,3,ij,2))
    ! use par_gamma for pfratio0 for the time being (they are not used for anything else)
    ! it has to be updated for locations 
@@ -949,6 +957,15 @@ endif
 	Nout(1,ij,2) = Nup
 	Nout(2,ij,2) = Ndem
 	Nout(3,ij,2) = Umax
+else
+	Nout(1,ij,1) = 0.
+	Nout(2,ij,1) = 0.
+	Nout(3,ij,1) = 0.
+	Nout(1,ij,2) = 0.
+	Nout(2,ij,2) = 0.
+	Nout(3,ij,2) = 0.
+endif
+	
 ! end of added stuff for N calculations
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
 

@@ -437,7 +437,7 @@ InitMultiSite <- function(nYearsMS,
     ###fill UmaxFactor rolling mean (i.e., the factor to be multiplied to Umax0 to compute Umxa)
       if(length(siteXs)==1 & maxNlayers==1) multiOut[siteXs,,55,,2] <- UmaxFactorMean[ijj,]
       if(length(siteXs)==1 & maxNlayers>1) multiOut[siteXs,,55,,2] <- sweep(multiOut[siteXs,,55,,2],1,UmaxFactorMean[ijj,],FUN="+") 
-      if(length(siteXs)>1) multiOut[siteXs,,5,,2] <- sweep(multiOut[siteXs,,55,,2],2,UmaxFactorMean[ijj,],FUN="+") 
+      if(length(siteXs)>1) multiOut[siteXs,,55,,2] <- sweep(multiOut[siteXs,,55,,2],2,UmaxFactorMean[ijj,],FUN="+") 
     }
     ##this is not needed anymore because we smooth fT
     # ####alphar is smoothed using a running average of 10 years

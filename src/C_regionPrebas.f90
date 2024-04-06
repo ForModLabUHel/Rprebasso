@@ -62,7 +62,9 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
  real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites), siteOrdX(nSites)
-real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
+ real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
+!!! Nitrogen 
+ real (kind=8) :: UmaxFactor(nSites,maxYears,maxNlayers)
 
 !!!!initialize run
 ! multiOut = 0.
@@ -78,6 +80,7 @@ tTapioX = tTapio
 ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
+UmaxFactor = multiOut(:,:,55,:,2)
 
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
@@ -254,6 +257,7 @@ endif
 		! close(2)
 	! endif
 	output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
+	output(1,55,1:nLayers(i),2) = UmaxFactor(i,ij,1:nLayers(i)) !!!reset heterotrophic respiration
 		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
