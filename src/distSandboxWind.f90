@@ -1,7 +1,7 @@
 subroutine windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, tsincethin, &
   wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
   IMPLICIT NONE
-  REAL (kind=8), intent(inout) ::  siteInfoDist(4) ! 5-year wind risk (suvanto output), pre-logit value, annual risk
+  REAL (kind=8), intent(inout) ::  siteInfoDist(10) ! 5-year wind risk (suvanto output), pre-logit value, annual risk
   REAL (kind=8), intent(inout) ::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
   REAL (kind=8), intent(inout) :: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
   REAL (kind=8), intent(in) :: h ! input in m, converted to dm 

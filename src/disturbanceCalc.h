@@ -174,37 +174,37 @@ end do
 
 ! salvlog/mgmtrect module
 ! additional parameters in siteInfoDist; for now, due to tab issue, hardcoded in siteInfoDisttemp
-siteInfoDisttemp(1:4) = siteInfoDist 
-siteInfoDisttemp(5) = 5. !salvlogthresh
-siteInfoDisttemp(6) = 1. !salvlogshare
-siteInfoDisttemp(7) = 0.9 !pHarvTrees
-siteInfoDisttemp(8) = 10. !mgmtreactthresh
-siteInfoDisttemp(9) = 1.  !mgmtreactshare
-siteInfoDisttemp(10) = 1.!sevdistccshare
+! siteInfoDisttemp(1:4) = siteInfoDist 
+! siteInfoDisttemp(5) = 5. !salvlogthresh
+! siteInfoDisttemp(6) = 1. !salvlogshare
+! siteInfoDisttemp(7) = 0.9 !pHarvTrees
+! siteInfoDisttemp(8) = 10. !mgmtreactthresh
+! siteInfoDisttemp(9) = 1.  !mgmtreactshare
+! siteInfoDisttemp(10) = 1.!sevdistccshare
 
 
 
 if (outDist(year,4)>0.) then !in case of disturbance 
   pHarvTrees = 0.
   ! salvage logging
-  if(vdam>=siteInfoDisttemp(5)) then
+  if(vdam>=siteInfoDist(5)) then
     call random_number(rndm)
-    if(rndm<=siteInfoDisttemp(6)) then 
-      pHarvTrees = siteInfoDisttemp(7)! if sampled for salvlog set pHarvTrees
+    if(rndm<=siteInfoDist(6)) then 
+      pHarvTrees = siteInfoDist(7)! if sampled for salvlog set pHarvTrees
       outDist(year,7) = 1. !indicate salvage logging in output
     endif
   endif
 
   !mgmtract/prioritisation in siteOrder
-  if(vdam>=siteInfoDisttemp(8)) then
+  if(vdam>=siteInfoDist(8)) then
     call random_number(rndm)
-    if(rndm<=siteInfoDisttemp(7)) outDist(year,8) = 1.! if sampled for mgmtreact
+    if(rndm<=siteInfoDist(7)) outDist(year,8) = 1.! if sampled for mgmtreact
   endif
 
   ! cc in severely disturbed sites (putting in action to come...)
-  if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDisttemp(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
+  if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDist(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
     call random_number(rndm)
-    if(rndm<=siteInfoDisttemp(10)) then
+    if(rndm<=siteInfoDist(10)) then
        outDist(year,9) = 1. !indicate clearcut
        outDist(year,8) = 0. !nullify possible mgmtreact prioritisation (to avoid double-accounting in output analysis)
     endif
