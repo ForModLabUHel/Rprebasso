@@ -175,12 +175,12 @@ end do
 ! salvlog/mgmtrect module
 ! additional parameters in siteInfoDist; for now, due to tab issue, hardcoded in siteInfoDisttemp
 siteInfoDisttemp(1:4) = siteInfoDist 
-siteInfoDisttemp(5) = 0. !salvlogthresh
-siteInfoDisttemp(6) = 0. !salvlogshare
-siteInfoDisttemp(7) = 0. !pHarvTrees
-siteInfoDisttemp(8) = 0. !mgmtreactthresh
-siteInfoDisttemp(9) = 0.  !mgmtreactshare
-siteInfoDisttemp(10) = 0.!sevdistccshare
+siteInfoDisttemp(5) = 5. !salvlogthresh
+siteInfoDisttemp(6) = 1. !salvlogshare
+siteInfoDisttemp(7) = 0.9 !pHarvTrees
+siteInfoDisttemp(8) = 10. !mgmtreactthresh
+siteInfoDisttemp(9) = 1.  !mgmtreactshare
+siteInfoDisttemp(10) = 1.!sevdistccshare
 
 
 

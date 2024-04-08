@@ -173,6 +173,12 @@ if(ij>1) then
   call changeOrder(siteOrdX,age, & 
           siteOrdX,nSites,ageMitigScen)
   siteOrder(:,ij) = int(siteOrdX)
+  
+  ! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
+  if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
+  call prioDistInSO(outDist(:, ij-1, :), nSites, siteOrder(:,ij))
+  endif
+  
  endif
 endif 
  do iz = 1,nSites
@@ -307,6 +313,14 @@ endif
   if(disturbanceON) THEN
     ! write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
     !write(1,*) i, ij !wdist dev output: writing site & year
+    !outDist(i, ij, 9) = outDist(i, max(INT(ij-1),1), 9) ! transfer last year's wind disturbance induced clearcut flag to current year (as wind dist calc happens only after clearcut routines)
+    
+    ! transfer last year's wind disturbance induced clearcut flag to current year (as wind dist calc happens only after clearcut routines)
+   if (outDist(i, max(INT(ij-1),1), 9) .eq. 1.) THEN
+      outDist(i, ij, 9) = 1.
+      outDist(i, max(INT(ij-1),1), 9) = 0.
+   
+   endif
   endif
 
 
