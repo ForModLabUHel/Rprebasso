@@ -898,7 +898,7 @@ if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
 	  		
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency	
-	 if(par_NUptakeSwitch == 1.0 ) then
+	 if(par_NUptakeSwitch < 2.5 ) then
 
 !	  write(1,*) siteInfo(1), year, S_fol,S_fr
 	   if(Nup.lt.Ndem*1.001)then

@@ -80,7 +80,7 @@ tTapioX = tTapio
 ftTapioX = ftTapio
 multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
 multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species 
-UmaxFactor = multiOut(:,:,55,:,2)
+UmaxFactor(:,:,:) = 0.
 
     ! open(1,file="test1.txt")
     ! open(2,file="test2.txt")
@@ -89,6 +89,9 @@ UmaxFactor = multiOut(:,:,55,:,2)
 ! write(2,*) "compHarv",compHarv
 !!inititialize A and biomasses
 do i = 1,nSites
+ UmaxFactor(i,:,1:nLayers(i)) = multiOut(i,:,55,1:nLayers(i),2)
+ if(nLayers(i) < maxNlayers)  multiOut(i,:,55,(nLayers(i)+1):maxNlayers,2) = 0.
+ 
  do ijj = 1,nLayers(i)
 	if(initVar(i,5,ijj) == 0.) then
 		initVar(i,7,ijj) = 0. 

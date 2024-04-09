@@ -69,6 +69,7 @@ multiEnergyWood = 0.
 !soilC = soilCinOut
 !soilCtot = soilCtotInOut
 do i = 1,nSites
+ if(nLayers(i) < maxNlayers)  multiOut(i,:,55,(nLayers(i)+1):maxNlayers,2) = 0.
  do ijj = 1,nLayers(i)
 	species = int(initVar(i,1,ijj))
 		! initVar(i,7,ijj) = max(0.,pCrobas(38,species)/pCrobas(15,species) * (initVar(i,3,ijj) -&
