@@ -884,7 +884,7 @@ if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
 	  ! endif
 	  UmaxFactor = output(year,55,ij,2) !fTaweNH(4)!exp(0.059*TAir-0.001*TAir**2) * (1-exp(-1.858*Precip))
 	  
-	  if(par_NUptakeSwitch == 1.0) then
+	  if(par_NUptakeSwitch > 0.) then
 		Umax = (param(63) + param(64)* P00CN) * UmaxFactor !(param(63) + param(64)* P00CN) =Umax0   ; UmaxFactor = fT/fT0
 	  else
 	    Umax = 1.0
@@ -898,7 +898,7 @@ if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
 	  		
       call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency	
-	 if(par_NUptakeSwitch < 2.5 ) then
+	 if(par_NUptakeSwitch > 0.) then
 
 !	  write(1,*) siteInfo(1), year, S_fol,S_fr
 	   if(Nup.lt.Ndem*1.001)then
@@ -911,7 +911,6 @@ if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
 			 endif
 		 endif
 	   endif
-	   
 	 endif
 
 	Nout(1,ij,1) = Gf
