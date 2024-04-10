@@ -469,7 +469,7 @@ InitMultiSite <- function(nYearsMS,
   
   dimnames(multiInitVar) <-  list(site=NULL,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
-  
+
   ###initialize siteType
   multiOut[,,3,,1] <- array(siteInfo[,3],dim=c(nSites,maxYears,maxNlayers))
   ###initialize alfar
@@ -681,9 +681,14 @@ multiPrebas <- function(multiSiteInit,
     siteInfoDist = multiSiteInit$siteInfoDist
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
+  
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
+  
   
 
-  
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -806,6 +811,8 @@ multiPrebas <- function(multiSiteInit,
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   prebas$alpharNcalc = multiSiteInit$alpharNcalc
+  dimnames(prebas$outDist) <- dimnames(outDist)
+  dimnames(prebas$siteinfoDist) <- dimnames(multiSiteInit$siteInfoDist)
   
   class(prebas) <- "multiPrebas"
   return(prebas)
@@ -870,7 +877,14 @@ regionPrebas <- function(multiSiteInit,
     siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
-
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
+  
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
+  
+  
+  
   
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -1095,6 +1109,13 @@ reStartRegionPrebas <- function(multiSiteInit,
     siteInfoDist = multiSiteInit$siteInfoDist
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
+  
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
+  
+  
   
   
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
@@ -1254,7 +1275,10 @@ reStartRegionPrebas <- function(multiSiteInit,
   
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
+  dimnames(prebas$siteInfoDist) <- dimnames(multiSiteInit$siteInfoDist)
+  dimnames(prebas$outDist) <- dimnames(multiSiteInit$outDist)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  
   return(prebas)
 }
 
