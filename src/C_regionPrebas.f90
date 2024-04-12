@@ -176,7 +176,7 @@ if(ij>1) then
  endif
 endif 
  do iz = 1,nSites
-   i=siteOrder(iz,ij)
+  i=siteOrder(iz,ij)
   ClCutX = ClCut(i)
   defaultThinX = defaultThin(i)
   energyCutX = energyCuts(i)    !!energCuts
@@ -188,7 +188,7 @@ endif
   endif
 
 !!!check if the limit has been exceeded if yes no harvest (thinning or clearcut will be performed)
-    if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
+  if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
    ClCutX = 0.
   endif
   if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
@@ -304,10 +304,10 @@ endif
   call minFaparCalc(fAPAR(i,:),ij,minFapar,fAparFactor)
   fAPAR(i,ij) = minFapar
 
-  if(disturbanceON) THEN
+  !if(disturbanceON) THEN
     ! write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
     !write(1,*) i, ij !wdist dev output: writing site & year
-  endif
+  !endif
 
 
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
