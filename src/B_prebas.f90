@@ -1246,7 +1246,7 @@ end do !!!!end loop species
 	endif
  domSp = maxloc(STAND_all(13,1:ll))
  layer = int(domSp(1))
-if (ClCut == 1.) then
+if (ClCut > 0.5) then
 	species = int(max(1.,stand_all(4,layer)))
 	D_clearcut = inDclct(species)
 	A_clearcut = inAclct(species)
