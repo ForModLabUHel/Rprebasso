@@ -404,9 +404,15 @@ endif ! end salvlog/mgmtrect module
      STAND(53) = W_bh
      STAND(54) = W_crh
      STAND(51) = Wdb
-
+!!!
+!! allocating salvage logging to current (regionPrebas harvlimit not met when site is checked or all mgmt switched off) or next year (some mgmt allowed / harvlimit exceeded)
+if(ClCut == 0. .and. defaultThin == 0.) then ! either mgmt switched off entirely or blocked due to harvest limit being met
+    outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
+elseif(ClCut > 0. .or. defaultThin > 0.) then 
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
-pHarvTrees = 0
+endif
+    !!!
+    
   endif !x6
 
      STAND(11) = H

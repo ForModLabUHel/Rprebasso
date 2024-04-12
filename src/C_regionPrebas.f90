@@ -155,6 +155,18 @@ do ij = startSimYear,maxYears
  roundWood = 0.
  energyWood = 0.  !!energCuts
  
+ 
+ ! counting last year's salvage logging from sites where tapio harvests were already stopped due to the harvest limit being met
+ ! towards current years roundwood aggregate. !salvnext
+ ! Note: salvage logging volumes only added to multiOut[,,37,,1] at the end of year loop to avoid double accounting
+ 
+ if(ij>1) then
+ if (disturbanceOn) roundwood = sum(multiOut(:,(ij-1),42,:,2)) !salvnext; 
+endif 
+ 
+ 
+ 
+ 
 if(ij>1) then
  if(ageMitigScen > 0.) then
   do i = 1,nSites
@@ -176,8 +188,9 @@ if(ij>1) then
   
   ! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
   if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
-  call prioDistInSO(outDist(:, ij-1, :), nSites, siteOrder(:,ij))
+  call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
   endif
+  
   
  endif
 endif 
@@ -319,8 +332,13 @@ endif
    if (outDist(i, max(INT(ij-1),1), 9) .eq. 1.) THEN
       outDist(i, ij, 9) = 1.
       outDist(i, max(INT(ij-1),1), 9) = 0.
-   
    endif
+
+
+
+
+
+  
   endif
 
 
@@ -337,9 +355,7 @@ endif
     siteInfoDist(i,:), outDist(i,ij,:), prebasFlags)
     
     
-    
-    
-    
+
     
    ! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
   ! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
@@ -353,6 +369,10 @@ endif
       multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
      multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
   endif  
+
+
+
+
 
   
   !!!if fertilization at thinning is active,  increase siteType
@@ -406,6 +426,10 @@ endif
   initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
   initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
   initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
+  
+
+  
+  
   ! initVar(i,8,1:nLayers(i)) = output(1,2,1:nLayers(i),1)  !!newX
   if(isnan(sum(output(1,37,1:nLayers(i),1)))) then
     roundWood = roundWood
@@ -966,7 +990,19 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
     ! open(1,file="test1.txt")
   ! write(1,*) ij, "end"
   ! close(1)
+  if (disturbanceON .eqv. .TRUE. .and. ij>1) THEN
+     !output(1,37,1:nLayers(i),1) = multiOut(i,(ij-1),42,1:nLayers(i),2) !salvnext: allocate last year's 'parked' salvage logging to ,,37,,11   
+     multiOut(:,ij,37,:,1) = multiOut(:,ij,37,:,1) + multiOut(:,(ij-1),42,:,2)
+     !multiOut(:,(ij),42,:,2) = multiOut(:,(ij-1),42,:,2)
+     !multiOut(:,(ij-1),42,:,2) = 0
+     !output(1,37,:,2) = 99.
+  endif
+
 end do !end Year loop 
+
+!multiOut(:,2:nYears,42,:,2) = multiOut(:,1:(nYears-1),42,:,2) !salvnext see if necessary
+
+
 
  do i = 1,nSites
     ! open(1,file="test1.txt")
