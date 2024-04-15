@@ -16,7 +16,7 @@ wdistproc(1) = 1. !dominant layer
 wdistproc(2) = STAND_all(4,1) ! species, layer 1
 wdistproc(3) = STAND_all(11,1) !h, layer 1
 
-outDist(year, 10) = STAND_all(11,2)
+!outDist(year, 10) = STAND_all(11,2)
 ! layer-level data: spec & h of dominant layer
 IF(nLayers>1) THEN !if there's more than one layer
   do i = 2, nLayers !loop through them
