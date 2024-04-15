@@ -206,7 +206,7 @@ if (outDist(year,4)>0.) then !in case of disturbance
     call random_number(rndm)
     if(rndm<=siteInfoDist(10)) then
        outDist(year,9) = 1. !indicate clearcut
-       outDist(year,8) = 0. !nullify possible mgmtreact prioritisation (to avoid double-accounting in output analysis)
+       outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
     endif
   endif  
 endif ! end salvlog/mgmtrect module
