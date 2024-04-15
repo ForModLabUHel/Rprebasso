@@ -160,10 +160,13 @@ do ij = startSimYear,maxYears
  ! towards current years roundwood aggregate. !salvnext
  ! Note: salvage logging volumes only added to multiOut[,,37,,1] at the end of year loop to avoid double accounting
  
- if(ij>1) then
- if (disturbanceOn) roundwood = sum(multiOut(:,(ij-1),42,:,2)) !salvnext; 
+ if(ij>1 .and. disturbanceOn .eqv. .TRUE.) then
+!roundwood = sum(multiOut(:,(ij-1),42,:,2)) !  needs to account for area...  
+   do ijj = 1, nSites
+     roundwood = roundwood + sum(multiOut(ijj,(ij-1),42,:,2))*areas(ijj)
+   enddo  
+   outDist(1, ij, 10) = roundwood
 endif 
- 
  
  
  
