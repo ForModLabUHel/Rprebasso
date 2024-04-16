@@ -286,7 +286,7 @@ subroutine prioDistInSO(outDist, nSites, siteOrder)
     ! fill priosites with siteids (outdist in 1:nsites order)
     ndistprio = 0
     do i = 1, nSites
-        if (INT(outDist(i, 7)) == 1) then
+        if (INT(outDist(i, 8)) == 1) then
             ndistprio = ndistprio + 1
             priosites(ndistprio) = i
         end if

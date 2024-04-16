@@ -165,7 +165,7 @@ do ij = startSimYear,maxYears
    do ijj = 1, nSites
      roundwood = roundwood + sum(multiOut(ijj,(ij-1),42,:,2))*areas(ijj)
    enddo  
-   outDist(1, ij, 10) = roundwood
+   outDist(1, ij, 10) = roundwood+1
 endif 
  
  
