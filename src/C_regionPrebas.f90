@@ -189,14 +189,18 @@ if(ij>1) then
           siteOrdX,nSites,ageMitigScen)
   siteOrder(:,ij) = int(siteOrdX)
   
-  ! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
-  if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
-  call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
-  endif
   
   
  endif
 endif 
+
+! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
+if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
+call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
+endif
+
+
+
  do iz = 1,nSites
    i=siteOrder(iz,ij)
   ClCutX = ClCut(i)
