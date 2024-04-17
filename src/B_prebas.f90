@@ -587,6 +587,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
   
   !store GPP
      GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
+	 if(GVout(year,1)<0.00000001) GVout(year,:) = 0. 
      STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite * coeff! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
 !initialize for next year  
