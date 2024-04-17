@@ -197,6 +197,9 @@ endif
 ! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
 if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
 call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
+siteOrder(1,ij) = 1
+
+
 endif
 
 
