@@ -201,7 +201,7 @@ endif
 if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
   !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
 !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
-call prioDistInSO(outDist(:, (ij-1), :), nSites, nYears, ij, siteOrder(:,:))
+call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
 !siteOrder(:,ij) = siteOrderX
 
 

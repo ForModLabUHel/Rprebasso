@@ -279,11 +279,11 @@ end subroutine find_row_indexes
 
 
 !subroutine prioDistInSO(outDist, nSites, siteOrder, siteOrderX)
-subroutine prioDistInSO(outDist, nSites, nYears, year, siteOrder)
+subroutine prioDistInSO(outDist, nSites, maxYears, year, siteOrder)
 
     implicit none
-    integer, intent(in) :: nSites, outDist(nSites, 10), year, nYears
-    integer, intent(inout) :: siteOrder(nSites,nYears)! , siteOrderX(nSites)
+    integer, intent(in) :: nSites, outDist(nSites, 10), year, maxYears
+    integer, intent(inout) :: siteOrder(nSites,maxYears)! , siteOrderX(nSites)
     integer :: i, ij, ijj, ndistprio, temp, index(1), siteid, siteordertemp(nSites), priosites(nSites)
     ! fill priosites with siteids (outdist in 1:nsites order)
     ndistprio = 0
@@ -305,8 +305,9 @@ subroutine prioDistInSO(outDist, nSites, nYears, year, siteOrder)
           end do
           siteordertemp((index(1)+1):nsites) = siteOrder((index(1)+1):nsites, year) ! keep remaining siteorder as is 
           siteOrder(:,year) = siteordertemp(:)
-          siteorder(1,year) = year! to see if anything happening here is in output
     end do
+    siteorder(1,year) = year! to see if anything happening here is in output
+
       end subroutine prioDistInSO
     
     
