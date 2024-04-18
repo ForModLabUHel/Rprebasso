@@ -304,7 +304,7 @@ subroutine prioDistInSO(outDist, nSites, nYears, year, siteOrder)
               siteordertemp(ijj+1) = siteOrder(ijj, year)
           end do
           siteordertemp((index(1)+1):nsites) = siteOrder((index(1)+1):nsites, year) ! keep remaining siteorder as is 
-          siteOrder (:,year) = siteordertemp
+          siteOrder(:,year) = siteordertemp(:)
     end do
       end subroutine prioDistInSO
     
