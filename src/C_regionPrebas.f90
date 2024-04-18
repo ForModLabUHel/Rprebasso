@@ -39,6 +39,9 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  !disturbances
  logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
  real (kind=8), intent(inout):: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+ !integer :: siteOrderX(nSites) ! for site order prio due to disturbance
+
+
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
@@ -196,8 +199,10 @@ endif
 
 ! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
 if (disturbanceOn .eqv. .TRUE. .and. ij > 1) then
-call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
-!siteOrder(1,ij) = 1
+  !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
+!call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
+call prioDistInSO(outDist(:, (ij-1), :), nSites, nYears, ij, siteOrder(:,:))
+!siteOrder(:,ij) = siteOrderX
 
 
 endif

@@ -278,10 +278,12 @@ subroutine find_row_indexes(matrix, n, row_indexes)
 end subroutine find_row_indexes
 
 
-subroutine prioDistInSO(outDist, nSites, siteOrder)
+!subroutine prioDistInSO(outDist, nSites, siteOrder, siteOrderX)
+subroutine prioDistInSO(outDist, nSites, nYears, year, siteOrder)
+
     implicit none
-    integer, intent(in) :: nSites, outDist(nSites, 10)
-    integer, intent(inout) :: siteOrder(nSites)
+    integer, intent(in) :: nSites, outDist(nSites, 10), year, nYears
+    integer, intent(inout) :: siteOrder(nSites,nYears)! , siteOrderX(nSites)
     integer :: i, ij, ijj, ndistprio, temp, index(1), siteid, siteordertemp(nSites), priosites(nSites)
     ! fill priosites with siteids (outdist in 1:nsites order)
     ndistprio = 0
@@ -294,16 +296,15 @@ subroutine prioDistInSO(outDist, nSites, siteOrder)
     ! for each of these, put siteid on top and shift those siteids above in sitorder one down
     do ij = 1, ndistprio
       siteid = priosites(ij)  
-          siteordertemp = abs(siteOrder-siteid)
+          siteordertemp = abs(siteOrder(:,year)-siteid)
            index = minloc(siteordertemp(:)) !find location of siteid in question within siteorder !! findloc only in fortran 2008 and later, workaround with abs/minloc
           ! Move the element to the front
-          siteordertemp(1) = siteOrder(index(1)) ! put focus site id to top
+          siteordertemp(1) = siteOrder(index(1), year) ! put focus site id to top
           do ijj = 1, index(1)-1 ! shift all siteids in siteorder prior to index one down 
-              siteordertemp(ijj+1) = siteOrder(ijj)
+              siteordertemp(ijj+1) = siteOrder(ijj, year)
           end do
-          siteordertemp((index(1)+1):nsites) = siteOrder((index(1)+1):nsites) ! keep remaining siteorder as is 
-          siteOrder(:) = siteordertemp(:)
-          siteOrder(2) = 2
+          siteordertemp((index(1)+1):nsites) = siteOrder((index(1)+1):nsites, year) ! keep remaining siteorder as is 
+          siteOrder (:,year) = siteordertemp
     end do
       end subroutine prioDistInSO
     
