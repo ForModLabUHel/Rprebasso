@@ -282,31 +282,37 @@ end subroutine find_row_indexes
 subroutine prioDistInSO(outDist, nSites, maxYears, year, siteOrder)
 
     implicit none
-    integer, intent(in) :: nSites, outDist(nSites, 10), year, maxYears
+    integer, intent(in) :: nSites, year, maxYears
     integer, intent(inout) :: siteOrder(nSites,maxYears)! , siteOrderX(nSites)
-    integer :: i, ij, ijj, ndistprio, temp, index(1), siteid, siteordertemp(nSites), priosites(nSites)
+    real (kind=8), intent(in) :: outDist(nSites, 10)
+    integer :: sitexx, distpriositexx, ndistprio, temp, index(1), siteid, siteordertemp(nSites), priosites(nSites)
     ! fill priosites with siteids (outdist in 1:nsites order)
     ndistprio = 0
-    do i = 1, nSites
-        if (INT(outDist(i, 8)) == 1) then
+    
+    do sitexx = 1, nSites
+        if (outDist(sitexx, 8) == 1.) then
             ndistprio = ndistprio + 1
-            priosites(ndistprio) = i
+            priosites(ndistprio) = sitexx
         end if
     end do
     ! for each of these, put siteid on top and shift those siteids above in sitorder one down
-    do ij = 1, ndistprio
-      siteid = priosites(ij)  
+    !write(1,*) ndistprio !tswrite
+    ! siteOrder(2,year) = ndistprio !troubleshooting: 
+    do distpriositexx = 1, ndistprio
+      siteid = priosites(distpriositexx)  
           siteordertemp = abs(siteOrder(:,year)-siteid)
            index = minloc(siteordertemp(:)) !find location of siteid in question within siteorder !! findloc only in fortran 2008 and later, workaround with abs/minloc
           ! Move the element to the front
           siteordertemp(1) = siteOrder(index(1), year) ! put focus site id to top
-          do ijj = 1, index(1)-1 ! shift all siteids in siteorder prior to index one down 
-              siteordertemp(ijj+1) = siteOrder(ijj, year)
+          do sitexx = 1, index(1)-1 ! shift all siteids in siteorder prior to index one down 
+              siteordertemp(sitexx+1) = siteOrder(sitexx, year)
           end do
           siteordertemp((index(1)+1):nsites) = siteOrder((index(1)+1):nsites, year) ! keep remaining siteorder as is 
+          !siteOrder(1,year) = year+1
+
           siteOrder(:,year) = siteordertemp(:)
     end do
-    siteorder(1,year) = year! to see if anything happening here is in output
+    ! to see if anything happening here is in output
 
       end subroutine prioDistInSO
     

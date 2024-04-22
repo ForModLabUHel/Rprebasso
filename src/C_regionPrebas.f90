@@ -96,7 +96,7 @@ oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 if(prebasFlags(6)==0) disturbanceON = .FALSE.
 if(prebasFlags(6)==1) disturbanceON = .TRUE.
-!if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
+!if(prebasFlags(6)==1) open(1, file="wdistdev.txt") !tswrite
 
 !!!!initialize run
 ! multiOut = 0.
@@ -1014,6 +1014,7 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
   endif
 
 end do !end Year loop 
+!if(disturbanceON)  close(1) !tswrite
 
 !multiOut(:,2:nYears,42,:,2) = multiOut(:,1:(nYears-1),42,:,2) !salvnext see if necessary
 
