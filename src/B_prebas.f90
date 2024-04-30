@@ -1027,6 +1027,7 @@ endif
 	layer = int(domSp(1))
 	species = int(max(1.,stand_all(4,layer)))
 	stand(4) = max(1.,stand_all(4,layer))
+	thinning(countThinning,2) = stand(4)
    endif
 !set species from thinning matrix (end)
 
