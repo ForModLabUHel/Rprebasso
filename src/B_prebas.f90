@@ -630,7 +630,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
    endif
    
-    outt(46,1,2)  = prelesOut(7)
+    outt(46,ij,2)  = prelesOut(7)
 
 endif
 !enddo !! end site loop
@@ -1726,7 +1726,21 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
  endif !end yassoRun if
- 
+
+ ! if(.true.)
+  ! Cpool_litter_wood
+  ! Cpool_litter_green
+  ! livegrass
+  ! soil_moisture
+  ! TAir
+  ! Tmin
+  ! Tmax
+  ! Precip
+  ! FDI
+  ! call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
+			! TAir,Tmin,Tmax,Precip,FDI)
+ ! endif
+ 			
 enddo !end year loop
 
 !soil and harvested volume outputs
