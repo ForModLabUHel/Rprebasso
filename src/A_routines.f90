@@ -442,7 +442,7 @@ implicit none
    END SUBROUTINE call_preles
  END INTERFACE
 
- real (kind=8), intent(in) :: weather(365,5),fAPAR(365)
+ real (kind=8), intent(inout) :: weather(365,5),fAPAR(365)
  real (kind=8), intent(out) :: prelesOut(16)!,p0
  real (kind=8), intent(inout) :: pars(30)
  integer, intent(in):: DOY(365), etmodel

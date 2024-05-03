@@ -1,6 +1,6 @@
 
 
-subroutine fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
+subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_moisture, & 
 			TAir,Tmin,Tmax,Precip,FDI) 
 ! livegrass = gv biomass
 ! Cpool_litter_wood = soilC woody component AWEN
@@ -9,12 +9,12 @@ subroutine fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture
   implicit none
   
   integer, parameter :: nDays=365
-  real (kind=8), intent(in) :: Cpool_litter_wood(nDays),Cpool_litter_green(nDays),livegrass
+  real (kind=8), intent(in) :: Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass
   real (kind=8), intent(in) :: soil_moisture, TAir(nDays), Tmin(nDays), Tmax(nDays), Precip(nDays)
   real (kind=8), intent(inout) :: FDI(nDays)
   real (kind=8) :: alpha_livegrass(nDays),NI(nDays),alpha_fuel(nDays)
   real (kind=8) :: char_alpha_fuel(nDays),rel_fuel_moisture(nDays)
-  real (kind=8) :: leaf_moisture
+  real (kind=8) :: leaf_moisture,Cpool_litter_wood(nDays),Cpool_litter_green(nDays)
   real (kind=8) :: SurfArea2Vol(3), moisture_scaling, frac_green_active, frac_1hr_wood, frac_10hr_wood
   real (kind=8) :: frac_100hr_wood, frac_1000hr_wood, moistfactor, moistfactor_livegrass
   real (kind=8) :: fuel_1hr(nDays),fuel_10hr(nDays),fuel_100hr(nDays),fuel_1000hr(nDays),fuel_1to100hr_sum(nDays)
@@ -23,6 +23,8 @@ subroutine fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture
   integer :: i
 
 !initialize
+ Cpool_litter_wood(:) = Cpool_litter_woodIn
+ Cpool_litter_green(:) = Cpool_litter_greenIn
  NI(:) = 0.0
  alpha_livegrass(:) = 0.0
  rel_fuel_moisture(:) = 0.0

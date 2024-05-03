@@ -146,6 +146,11 @@ REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-
 REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
 REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol 
 REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
+real (kind=8) :: dailySW(365)
+
+!fire disturbances
+real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
+real (kind=8) :: Tmin(365),Tmax(365),FDI(365)
 
 
 
@@ -579,7 +584,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
     etmodel)    !type of ET model
-
+	
    !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)    !ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
@@ -631,7 +636,8 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    endif
    
     outt(46,ij,2)  = prelesOut(7)
-
+    dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
+	
 endif
 !enddo !! end site loop
 
@@ -1727,18 +1733,18 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
  endif !end yassoRun if
 
- ! if(.true.)
-  ! Cpool_litter_wood
-  ! Cpool_litter_green
-  ! livegrass
-  ! soil_moisture
-  ! TAir
-  ! Tmin
-  ! Tmax
-  ! Precip
-  ! FDI
+!!!fire disturbance calculations
+ ! if(fireDistFlag) 
+  ! Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:)) 
+  ! Cpool_litter_green = sum(soilC((year+1),1:4,3,:))
+  ! livegrass = GVout(year,4)
+  ! soil_moisture(:) = 0.25!((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
+  ! Tmin = weatherPRELES(year,:,2) - 3.6
+  ! Tmax = weatherPRELES(year,:,2) + 3.7
+  ! FDI(:) = 0. 
   ! call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
-			! TAir,Tmin,Tmax,Precip,FDI)
+			! weatherPRELES(year,:,2),Tmin,Tmax,weatherPRELES(year,:,4),FDI)
+ ! write(1,*) year, FDI!,weatherPRELES(year,:,2),Tmin,weatherPRELES(year,:,4)
  ! endif
  			
 enddo !end year loop
