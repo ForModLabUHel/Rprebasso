@@ -1039,6 +1039,18 @@ endif
 !set species from thinning matrix (strart)
     species = int(thinning(countThinning,2))
     stand(4) = thinning(countThinning,2)
+!!!check if ingrowth and calculate dominant species
+   if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then 
+    domSp = maxloc(STAND_all(13,:))  
+    layer = int(domSp(1))
+    species = int(max(1.,stand_all(4,layer)))
+    stand(4) = max(1.,stand_all(4,layer))
+    thinning(countThinning,2) = stand(4)
+   endif
+!set species from thinning matrix (end)
+
+
+
 !set species from thinning matrix (end)
 
 	if(thinning(countThinning,9) .NE. -999) then
