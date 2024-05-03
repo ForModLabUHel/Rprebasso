@@ -635,7 +635,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
    endif
    
-    outt(46,ij,2)  = prelesOut(7)
+    outt(46,1,2)  = prelesOut(7)
     dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
 	
 endif
