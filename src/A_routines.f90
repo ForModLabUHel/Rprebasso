@@ -2326,48 +2326,6 @@ end subroutine
 
 ! end subroutine 
 
-!!!bark beatle disturbance calculations   
-subroutine pBarkBeatle(standInfo,nLayers,parBbeatle,spruceIDs,nSpIDs,probBbeatle)
-  implicit none
-  logical :: spruceLayer(nLayers)
-  integer, intent(in) :: nLayers,nSpIDs
-  real(8), intent(in) :: standInfo(3,nLayers),spruceIDs(nSpIDs) !standInfo first argument is species, age and BA by layer
-  real(8), intent(inout) :: parBbeatle(4),probBbeatle
-  integer :: i
-  real(8) :: ba(nLayers), age(nLayers),species(nLayers)
-  real(8) :: BAspruce,ageMaxSpruce,BAspruceShare,BAtot
-  real(8) :: par_BAshare,par_PIba,par_PIage,par_PIdrought,PI_age,PI_ba,PI_drought
-
-ba = standInfo(3,:)
-age = standInfo(2,:)
-species = standInfo(1,:)
-BAtot = sum(ba)
-BAspruce = 0.d0
-ageMaxSpruce = 0.d0
-BAspruceShare = 0.d0
-par_BAshare = parBbeatle(1) !0.3
-par_PIage = parBbeatle(2) !0.25
-par_PIba = parBbeatle(3) !0.15
-par_PIdrought = parBbeatle(4) !0.3
-
-do i =  1,nLayers
-  spruceLayer(i) = any(spruceIDs .eq. int(species(i)))
-  if(spruceLayer(i)) then
-    BAspruce = BAspruce + BA(i)
-    ageMaxSpruce = max(0.d0,age(i))
-    BAspruceShare = BAspruceShare + BA(i)/BAtot
-  endif
-end do
-
-PI_ba = min(1.d0, 0.2 + 0.8*(BAspruce-40)**2/40**2)
- 
-PI_age = min(1.d0, 0.2+ageMaxSpruce/100)
-
-PI_drought=0.d0
-
-probBbeatle = par_BAshare*BAspruceShare + par_PIage*PI_age + par_PIba*PI_ba + par_PIdrought*PI_drought
- 
-end subroutine
 
 !update parameter value as linear function of sitetype
 subroutine linearUpdateParam(pars,siteType,par_New) 
