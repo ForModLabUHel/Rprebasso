@@ -55,8 +55,8 @@
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #' @param prebasFlags vector of flags to reduce number of
-#'
-#'
+#' @param latitude latitude of the site
+#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -189,10 +189,14 @@ prebas <- function(nYears,
                    HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
                    siteInfoDist = NA,
                    yearFert=NULL,
-                   deltaSiteTypeFert = 1
+                   deltaSiteTypeFert = 1,
+                   latitude = NA,
+                   TsumSBBs = NA
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(is.na(latitude)) latitude = 65
+  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,3)
   
   ####initialize disturbance module if exists
   if(is.na(siteInfoDist)){
@@ -478,7 +482,9 @@ prebas <- function(nYears,
                     # disturbanceON = as.logical(disturbanceON), #fvec
                      siteInfoDist = as.double(siteInfoDist),
                      outDist = as.matrix(outDist),
-                     prebasFlags = as.integer(prebasFlags)
+                     prebasFlags = as.integer(prebasFlags),
+                     latitude = as.double(latitude),
+                     TsumSBBs = as.double(TsumSBBs)
                      )
   class(prebas) <- "prebas"
   return(prebas)

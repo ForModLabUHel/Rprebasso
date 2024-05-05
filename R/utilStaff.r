@@ -103,7 +103,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                'H','D', 'BA','Hc_base','Cw','Ac','N','npp','leff','keff','lproj','ET_preles','weight',
                'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_fWoody','Litter_cWoody','V',
                'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"VroundWood","WroundWood","soilC",
-               "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh", "NEP"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
+               "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh/SBBpob", "NEP/SMI"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
                "Wbh","Wcrh")
 
   getVarNam <- function(){

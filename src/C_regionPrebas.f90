@@ -10,7 +10,8 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
     defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, & 
-    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags,&
+	latitude, TsumSBBs)
 ! pre-flag-grouping version:
 ! subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
 !     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
@@ -47,7 +48,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
- real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
+ real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv,latitude(nSites), TsumSBBs(nSites,3)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
@@ -320,7 +321,7 @@ endif
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags)
+    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:))
     
     
     

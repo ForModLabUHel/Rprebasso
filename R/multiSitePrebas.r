@@ -52,6 +52,8 @@
 #' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param latitude latitude of the site
+#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #'
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -110,8 +112,9 @@ InitMultiSite <- function(nYearsMS,
                           TcurrClim = NA,
                           PcurrClim = NA,
                           ingrowth = FALSE,
-                          siteInfoDist = NA ###if not NA Disturbance modules are activated
-                          ){  
+                          siteInfoDist = NA, ###if not NA Disturbance modules are activated
+                          latitude = NA,
+                          TsumSBBs = NA){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
@@ -119,6 +122,7 @@ InitMultiSite <- function(nYearsMS,
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
+  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
@@ -564,7 +568,9 @@ if(alpharNcalc){
     LUEtrees = LUEtrees,
     LUEgv = LUEgv,
     alpharNcalc=alpharNcalc,
-    siteInfoDist = siteInfoDist
+    siteInfoDist = siteInfoDist,
+    latitude = latitude,
+    TsumSBBs = TsumSBBs
   )
 
 
@@ -798,9 +804,10 @@ multiPrebas <- function(multiSiteInit,
                      #disturbanceON = as.logical(disturbanceON),
                      siteInfoDist = as.matrix(siteInfoDist),
                      outDist = as.array(outDist),
-                     prebasFlags = as.integer(prebasFlags)
-                      
-  )
+                     prebasFlags = as.integer(prebasFlags),
+                     latitude = as.double(multiSiteInit$latitude),
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
+)
 
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -1016,9 +1023,10 @@ prebas <- .Fortran("regionPrebas",
                      LUEgv = as.double(multiSiteInit$LUEgv),
                      siteInfoDist = as.matrix(siteInfoDist),
                      outDist = as.array(outDist),
-                     prebasFlags = as.integer(prebasFlags)
+                     prebasFlags = as.integer(prebasFlags),
+                   latitude = as.double(multiSiteInit$latitude),
+                   TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
                      #disturbanceSwitch = as.logical(disturbanceON)#fvec
-                    
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -1242,7 +1250,9 @@ reStartRegionPrebas <- function(multiSiteInit,
                      #disturbanceON = as.logical(disturbanceON),
                      siteInfoDist = as.matrix(siteInfoDist),
                      outDist = as.array(outDist),
-                     prebasFlags = as.integer(prebasFlags)
+                     prebasFlags = as.integer(prebasFlags),
+                     latitude = as.double(multiSiteInit$latitude),
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

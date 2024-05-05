@@ -137,7 +137,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         yearFert=NULL,
                         deltaSiteTypeFert = 1,
                         fertThin=0.,
-                        oldLayer=0
+                        oldLayer=0,
+                        latitude = c(),
+                        TsumSBBs = matrix(-999.,7,3)
 ) {
 
   
@@ -264,7 +266,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     TcurrClim = TcurrClim,
     PcurrClim = PcurrClim,
     ingrowth = ingrowth,
-    siteInfoDist = siteInfoDist
+    siteInfoDist = siteInfoDist,
+    latitude = latitude,
+    TsumSBBs = TsumSBBs
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age

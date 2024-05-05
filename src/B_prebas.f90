@@ -10,7 +10,8 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,thinInt, &
    flagFert,nYearsFert,mortMod,pECMmod, & 
-   layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+   layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, & 
+   latitude, TsumSBBs)
 
 
 
@@ -24,7 +25,7 @@ implicit none
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
  integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
- real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv
+ real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(3)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
@@ -151,8 +152,8 @@ real (kind=8) :: dailySW(365)
 !fire disturbances
 real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
 real (kind=8) :: Tmin(365),Tmax(365),FDI(365)
-
-
+!BB disturbances
+real (kind=8) :: spruceStandVars(3),pBB(5), SMI
 
 
 !!! 'un-vectorise' flags, fvec
@@ -635,8 +636,9 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
    endif
    
-    outt(46,1,2)  = prelesOut(7)
-    dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
+    outt(46,1,2)  = prelesOut(7) !SMI
+    SMI = prelesOut(7) !SMI
+	dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
 	
 endif
 !enddo !! end site loop
@@ -1688,6 +1690,19 @@ endif
  if(disturbanceON) then
    include 'disturbanceCalc.h'
  endif
+ !!!!calculate bark beetle disturbance
+  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(3)) 
+  if(TsumSBBs(1)<=-998.) then   !!!initialize the first two years this will be done only in the first year of the simulations if the inputs are not provvided
+   TsumSBBs(1) = TsumSBBs(3)
+   TsumSBBs(2) = TsumSBBs(3)
+  endif
+  spruceVars(stand_all((/4,7,13/),:),nLayers,(/2.,10./),2,spruceStandVars)
+  riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
+  !update output
+  outt(45,1,2) = pBB(1)
+  TsumSBBs(1) = TsumSBBs(2)
+  TsumSBBs(2) = TsumSBBs(3)	
+!!!end calculate bark beetle disturbance  
 
 !add dead trees from disturbances
 STAND_all(42,:) = STAND_all(42,:) + VmortDist

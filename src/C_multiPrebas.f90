@@ -10,7 +10,8 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
     flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
+	latitude, TsumSBBs)
 
 
 implicit none
@@ -50,7 +51,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
- real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
+ real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2),latitude(nSites), TsumSBBs(nSites,3)
  real (kind=8), intent(inout) :: multiEnergyWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  ! real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -115,7 +116,7 @@ do i = 1,nSites
     multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
     GVout(i,1:nYears(i),:),thinInt(i), &
     flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags)
+    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags,latitude(i), TsumSBBs(i,:))
     
     ! pre flag vectorisatio:
     ! call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
