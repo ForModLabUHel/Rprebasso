@@ -1696,8 +1696,8 @@ endif
    TsumSBBs(1) = TsumSBBs(3)
    TsumSBBs(2) = TsumSBBs(3)
   endif
-  spruceVars(stand_all((/4,7,13/),:),nLayers,(/2.,10./),2,spruceStandVars)
-  riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
+  call spruceVars(stand_all((/4,7,13/),:),nLayers,(/2.,10./),2,spruceStandVars)
+  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
   !update output
   outt(45,1,2) = pBB(1)
   TsumSBBs(1) = TsumSBBs(2)
