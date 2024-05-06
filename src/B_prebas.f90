@@ -1750,16 +1750,18 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
 !!!fire disturbance calculations
  ! if(fireDistFlag) 
-  ! Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:)) 
-  ! Cpool_litter_green = sum(soilC((year+1),1:4,3,:))
-  ! livegrass = GVout(year,4)
-  ! soil_moisture(:) = 0.25!((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
-  ! Tmin = weatherPRELES(year,:,2) - 3.6
-  ! Tmax = weatherPRELES(year,:,2) + 3.7
-  ! FDI(:) = 0. 
-  ! call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
-			! weatherPRELES(year,:,2),Tmin,Tmax,weatherPRELES(year,:,4),FDI)
- ! write(1,*) year, FDI!,weatherPRELES(year,:,2),Tmin,weatherPRELES(year,:,4)
+  Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:)) 
+  Cpool_litter_green = sum(soilC((year+1),1:4,3,:)) * sum(outt(26,:,1))/sum(outt(26,:,1)+outt(27,:,1))
+  livegrass = 0.!GVout(year,4)
+  soil_moisture(:) = 0.25!((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
+  Tmin = weatherPRELES(year,:,2) - 3.6
+  Tmax = weatherPRELES(year,:,2) + 3.7
+  FDI(:) = 0. 
+  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
+			weatherPRELES(year,:,2),Tmin,Tmax,weatherPRELES(year,:,4),FDI)
+  modOut((year+1),47,:,2) = 0.
+  modOut((year+1),47,1,2) = maxval(FDI)
+ ! write(1,*) year, maxval(FDI)!,weatherPRELES(year,:,2),Tmin,weatherPRELES(year,:,4)
  ! endif
  			
 enddo !end year loop
