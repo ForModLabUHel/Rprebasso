@@ -123,6 +123,10 @@ InitMultiSite <- function(nYearsMS,
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
   if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
+  if(all(is.na(latitude))){
+    warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
+    latitude = rep(62,nSites)
+  }
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){

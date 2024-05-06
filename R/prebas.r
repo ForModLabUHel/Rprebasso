@@ -195,7 +195,10 @@ prebas <- function(nYears,
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
-  if(is.na(latitude)) latitude = 62
+  if(is.na(latitude)) {
+    latitude = 62
+    warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
+  }
   if(is.na(TsumSBBs)) TsumSBBs = rep(-999,3)
   
   ####initialize disturbance module if exists
