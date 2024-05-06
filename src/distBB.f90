@@ -93,8 +93,9 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   aage = 0.25
   aBA = 0.15
   adrought = max(1.-aspruceshare-aage-aBA,0.)
+  BAspruceFract=0.
   
-  BAspruceFract = BA_spruce/BAtot
+  if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
   x0 = 0.4
@@ -173,14 +174,16 @@ BAspruce = 0.d0
 ageMaxSpruce = 0.d0
 BAspruceShare = 0.d0
 
-do i =  1,nLayers
+if(BAtot>0.) then
+ do i =  1,nLayers
   spruceLayer(i) = any(spruceIDs .eq. int(species(i)))
   if(spruceLayer(i)) then
     BAspruce = BAspruce + BA(i)
     ageMaxSpruce = max(0.d0,age(i))
     BAspruceShare = BAspruceShare + BA(i)/BAtot
   endif
-end do
+ end do
+endif
 
  spruceStandVars(1) = BAspruce
  spruceStandVars(2) = ageMaxSpruce
