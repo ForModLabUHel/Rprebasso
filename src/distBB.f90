@@ -143,7 +143,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   x2 = 1.65
 
 ! SBB probability
-  pBB(1) =(1-exp(Tsums*x1*PI**x2)**gen)
+  pBB(1) =(1-exp(x1*PI**x2)**gen)
   pBB(2) = PI_spruceFract
   pBB(3) = PI_agespruce 
   pBB(4) = PI_BAspruce 
