@@ -198,7 +198,11 @@ if (outDist(year,4)>0.) then !in case of disturbance
   !mgmtract/prioritisation in siteOrder
   if(vdam>=siteInfoDist(8)) then
     call random_number(rndm)
-    if(rndm<=siteInfoDist(7)) outDist(year,8) = 1.! if sampled for mgmtreact
+    if(rndm<=siteInfoDist(7)) then
+      outDist(year,8) = 1.! if sampled for mgmtreact
+      pHarvTrees = siteInfoDist(7)! force salvlog as well (very unlikely to be omitted)
+      outDist(year,7) = 1.
+    endif
   endif
 
   ! cc in severely disturbed sites (putting in action to come...)
