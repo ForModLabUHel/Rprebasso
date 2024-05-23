@@ -1690,19 +1690,6 @@ endif
  if(disturbanceON) then
    include 'disturbanceCalc.h'
  endif
- !!!!calculate bark beetle disturbance
-  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(3)) 
-  if(TsumSBBs(1)<=-998.) then   !!!initialize the first two years this will be done only in the first year of the simulations if the inputs are not provvided
-   TsumSBBs(1) = TsumSBBs(3)
-   TsumSBBs(2) = TsumSBBs(3)
-  endif
-  call spruceVars(stand_all((/4,7,13/),:),nLayers,(/2.,10./),2,spruceStandVars)
-  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
-  !update output
-  outt(45,1,2) = pBB(1)
-  TsumSBBs(1) = TsumSBBs(2)
-  TsumSBBs(2) = TsumSBBs(3)	
-!!!end calculate bark beetle disturbance  
 
 !add dead trees from disturbances
 STAND_all(42,:) = STAND_all(42,:) + VmortDist
@@ -1713,6 +1700,21 @@ modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
+
+ !!!!calculate bark beetle disturbance
+  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(3)) 
+  if(TsumSBBs(1)<=-998.) then   !!!initialize the first two years this will be done only in the first year of the simulations if the inputs are not provvided
+   TsumSBBs(1) = TsumSBBs(3)
+   TsumSBBs(2) = TsumSBBs(3)
+  endif
+  call spruceVars(outt((/4,7,13/),:,1),nLayers,(/2,10/),2,spruceStandVars)
+  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
+  !update output
+  modOut((year+1),45,:,2) = 0.
+  modOut((year+1),45,1,2) = pBB(1)
+  TsumSBBs(1) = TsumSBBs(2)
+  TsumSBBs(2) = TsumSBBs(3)	
+!!!end calculate bark beetle disturbance  
 
  if(oldLayer==1) then 
   modOut((year+1),:,nLayers,:) = outt(:,nLayers,:) 
@@ -1761,7 +1763,6 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 			weatherPRELES(year,:,2),Tmin,Tmax,weatherPRELES(year,:,4),FDI)
   modOut((year+1),47,:,2) = 0.
   modOut((year+1),47,1,2) = maxval(FDI)
- ! write(1,*) year, maxval(FDI)!,weatherPRELES(year,:,2),Tmin,weatherPRELES(year,:,4)
  ! endif
  			
 enddo !end year loop

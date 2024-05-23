@@ -94,7 +94,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   aBA = 0.15
   adrought = max(1.-aspruceshare-aage-aBA,0.)
   BAspruceFract=0.
-  
+  pBB = 0.
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
@@ -131,24 +131,23 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
 
 ! GEN is the bark beetle generation index, which depends on temperature
    ! The previous year TsumSBB is used for bark beetle generations
-  gen = 0.  
-  if(TsumSBBs(2)<1.) gen = 0.
-  if(TsumSBBs(2) >= 1. .and. TsumSBBs(2) < 1.5) gen = 0.1
-  if(TsumSBBs(2) >= 1.5 .and. TsumSBBs(2) < 2.) gen = 0.2
-  if(TsumSBBs(2) >= 2. .and. TsumSBBs(2) < 2.5) gen = 0.6
-  if(TsumSBBs(2) >= 2.5) gen = 1
+  gen = 0.0d0  
+  if(TsumSBBs(2)<1.) gen = 0.0d0
+  if(TsumSBBs(2) >= 1.0d0 .and. TsumSBBs(2) < 1.5d0) gen = 0.1d0
+  if(TsumSBBs(2) >= 1.5d0 .and. TsumSBBs(2) < 2.0d0) gen = 0.2d0
+  if(TsumSBBs(2) >= 2.0d0 .and. TsumSBBs(2) < 2.5d0) gen = 0.6d0
+  if(TsumSBBs(2) >= 2.5d0) gen = 1.0d0
 
 ! probability function coefficients from Seild et al. 2007
   x1 = -1.51
   x2 = 1.65
 
 ! SBB probability
-  pBB(1) =(1-exp(x1*PI**x2)**gen)
+  pBB(1) =(1.0d0-exp(x1*PI**x2)**gen)
   pBB(2) = PI_spruceFract
   pBB(3) = PI_agespruce 
   pBB(4) = PI_BAspruce 
   pBB(5) = PI_SMITprev
-
 end subroutine
 
 
@@ -158,8 +157,8 @@ end subroutine
 subroutine spruceVars(standInfo,nLayers,spruceIDs,nSpIDs,spruceStandVars)
   implicit none
   logical :: spruceLayer(nLayers)
-  integer, intent(in) :: nLayers,nSpIDs
-  real(8), intent(in) :: standInfo(3,nLayers),spruceIDs(nSpIDs) !standInfo first argument is species, age and BA by layer
+  integer, intent(in) :: nLayers,nSpIDs,spruceIDs(nSpIDs)
+  real(8), intent(in) :: standInfo(3,nLayers) !standInfo first argument is species, age and BA by layer
   real(8), intent(inout) :: spruceStandVars(3)
   integer :: i
   real(8) :: ba(nLayers), age(nLayers),species(nLayers)
@@ -169,6 +168,7 @@ subroutine spruceVars(standInfo,nLayers,spruceIDs,nSpIDs,spruceStandVars)
 ba = standInfo(3,:)
 age = standInfo(2,:)
 species = standInfo(1,:)
+
 BAtot = sum(ba)
 BAspruce = 0.d0
 ageMaxSpruce = 0.d0
@@ -188,6 +188,6 @@ endif
  spruceStandVars(1) = BAspruce
  spruceStandVars(2) = ageMaxSpruce
  spruceStandVars(3) = BAtot
- 
+
 end subroutine
 
