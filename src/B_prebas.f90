@@ -212,6 +212,7 @@ ETSmean = sum(ETSy)/nYears
  modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
  modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
+ modOut(:,45,:,1) = 0. !set heterotrophic respiration to 0
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
   modOut(:,7,i,1) = initVar(2,i) ! assign initAge !age can be made species specific assigning different ages to different species
@@ -227,8 +228,8 @@ ETSmean = sum(ETSy)/nYears
   modOut(1,17,i,1) = 0. 
   modOut(1,35,i,1) = 0.
   endif
-  modOut(:,45,:,1) = 0.
  enddo
+  
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
