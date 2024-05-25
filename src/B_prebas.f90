@@ -169,6 +169,7 @@ ETSmean = ETSstart !initialise ETSmean using the starting value
  modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
  modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
+ modOut(:,45,:,1) = 0. !set heterotrophic respiration to 0
  
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
