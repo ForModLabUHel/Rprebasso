@@ -227,7 +227,7 @@ ETSmean = sum(ETSy)/nYears
   modOut(1,17,i,1) = 0. 
   modOut(1,35,i,1) = 0.
   endif
-
+  modOut(:,45,:,1) = 0.
  enddo
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
