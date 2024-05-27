@@ -207,7 +207,10 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
 !!!!! TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
 
  if(ageMitigScen > 0.) then ! age above which stand is deprioritised
+   outDist(1,1,10) = 77. !testing
   do i = 1,nSites ! site loop
+    outDist(i,2,10) = 88. !testing
+
    if(oldLayer==1) then 
     jj = max((nLayers(i)-1),1) ! exclude oldLayer from age considerations
    else
@@ -215,7 +218,7 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
    endif
    domSp = maxloc(multiOut(i,ij,13,1:jj,1)) ! find dominant spec (BA)
    layerX = int(domSp(1))
-  
+
   if(multiOut(i,ij,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold
     ! disable all management induced by disturbance
     siteInfoDist(i,5) = 999. !salvlogthresh
@@ -224,17 +227,12 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
     siteInfoDist(i,8) = 999. !mgmtreactthresh
     siteInfoDist(i,9) = 0.  !mgmtreactshare
     siteInfoDist(i,10) = 0.!sevdistccshare
+    outDist(i,ij,10) = 99. !testing
+
+    
   endif !(multiOut(i,ij,7,layerX,1) > ageMitigScen)
 enddo !i = 1,nSites
 endif !(disturbanceOn .eqv. .TRUE. .and. ij > 1)
- 
-
-
-
-
-
-
-
 !!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
 
 
