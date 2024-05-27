@@ -168,7 +168,7 @@ do ij = startSimYear,maxYears
    do ijj = 1, nSites
      roundwood = roundwood + sum(multiOut(ijj,(ij-1),42,:,2))*areas(ijj)
    enddo  
-   outDist(1, ij, 10) = roundwood+1
+   !outDist(1, ij, 10) = roundwood+1
 endif 
  
  
@@ -205,6 +205,7 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
 !siteOrder(:,ij) = siteOrderX
 
 !!!!! TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
+  outDist(1,1,10) = 33. !testing
 
  if(ageMitigScen > 0.) then ! age above which stand is deprioritised
    outDist(1,1,10) = 77. !testing
