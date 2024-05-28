@@ -9,7 +9,8 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,GVrun,thinInt, &
-	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart,latitude,P00CN)
+	 fertThin,flagFert,nYearsFert, oldLayer,mortMod,ECMmod,pECMmod,ETSstart, &
+	 latitude,P00CN, TsumSBBs)
 
 implicit none
 
@@ -25,6 +26,7 @@ implicit none
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12),latitude,P00CN
+ real (kind=8), intent(inout) :: TsumSBBs(3)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut	! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -127,6 +129,8 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  !!user thinnings
  real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
  real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
+ !BB disturbances
+ real (kind=8) :: spruceStandVars(3),pBB(5), SMI
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
@@ -552,6 +556,10 @@ endif
    GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
    if(GVout(year,1)<0.00000001) GVout(year,:) = 0.
    STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
+
+    outt(46,1,2)  = prelesOut(7) !SMI
+    SMI = prelesOut(7) !SMI
+	dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
 
 !initialize for next year  
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit

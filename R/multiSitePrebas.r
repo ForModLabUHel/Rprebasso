@@ -51,11 +51,12 @@ InitMultiSite <- function(nYearsMS,
                           fT0AvgCurrClim = NA, ####a  vector (climID) fT0 calculated with the annual mean of fTfun for current climate data
                           alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
                           P00CN = NA,
-                          yearsCurrClimAv = 30
+                          yearsCurrClimAv = 30,
+                          TsumSBBs = NA
 ){  
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
-  
+  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
 
   nSites <- length(nYearsMS)
   
@@ -511,7 +512,8 @@ InitMultiSite <- function(nYearsMS,
     latitude = latitude,
     alpharNcalc=alpharNcalc,
     alpharNfact = alpharNfact,
-    P00CN = P00CN
+    P00CN = P00CN,
+    TsumSBBs = TsumSBBs
   )
   return(multiSiteInit)
 }
@@ -674,7 +676,8 @@ if(!is.null(yearFert)){
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      latitude=as.double(multiSiteInit$latitude),
-                     P00CN=as.double(multiSiteInit$P00CN)
+                     P00CN=as.double(multiSiteInit$P00CN),
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
@@ -895,7 +898,8 @@ regionPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      latitude=as.double(multiSiteInit$latitude),
-                     P00CN=as.double(multiSiteInit$P00CN)
+                     P00CN=as.double(multiSiteInit$P00CN),
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){
@@ -1126,7 +1130,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      latitude=as.double(multiSiteInit$latitude),
-                     P00CN=as.double(multiSiteInit$P00CN)
+                     P00CN=as.double(multiSiteInit$P00CN),
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

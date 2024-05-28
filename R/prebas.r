@@ -53,7 +53,7 @@
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-#'
+#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #' @return
 #' @export
 #'
@@ -111,7 +111,8 @@ prebas <- function(nYears,
                    yearsCurrClimAv = 30,
                    yearFert=NULL,
                    deltaSiteTypeFert = 1,
-                   P00CN = NA
+                   P00CN = NA,
+                   TsumSBBs = NA
               ){
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -121,6 +122,7 @@ prebas <- function(nYears,
   }else{
     if(is.null(latitude)) latitude <- 999
   }
+  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,3)
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){
@@ -433,7 +435,8 @@ prebas <- function(nYears,
                      pECMmod = as.numeric(pECMmod),
                      ETSstart = as.double(ETSstart),
                      latitude = as.double(latitude),
-                     P00CN = as.double(P00CN)
+                     P00CN = as.double(P00CN),
+                     TsumSBBs = as.double(TsumSBBs)
   )
   class(prebas) <- "prebas"
   return(prebas)
