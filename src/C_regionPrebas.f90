@@ -222,7 +222,7 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
    ! outDist(i,ij,10) = domSp(1) !testing
    outDist(i,3,10) = real(nlayers(i),8) !testing
    outDist(i,4,10) = real(jj,8) !testing
-   outDist(i,5,10) = real(domSp,8) !testing
+   outDist(i,5,10) = real(domSp(1),8) !testing
    outDist(i,6,10) = real(layerX,8) !testing
 
   if(multiOut(i,ij,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold
