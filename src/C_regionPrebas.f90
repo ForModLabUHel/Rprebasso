@@ -220,10 +220,13 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
    domSp = maxloc(multiOut(i,ij,13,1:jj,1)) ! find dominant spec (BA)
    layerX = int(domSp(1))
    ! outDist(i,ij,10) = domSp(1) !testing
+   outDist(i,ij,10) = real(layerX,8) !testing
    outDist(i,3,10) = real(nlayers(i),8) !testing
    outDist(i,4,10) = real(jj,8) !testing
    outDist(i,5,10) = real(domSp(1),8) !testing
    outDist(i,6,10) = real(layerX,8) !testing
+   outDist(i,8,10) = multiOut(i,ij,7,layerX,1)
+   outDist(i,9,10) = ageMitigScen
 
   if(multiOut(i,ij,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold
     ! disable all management induced by disturbance
