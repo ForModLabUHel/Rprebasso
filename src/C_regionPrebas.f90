@@ -219,6 +219,10 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
    endif
    domSp = maxloc(multiOut(i,ij,13,1:jj,1)) ! find dominant spec (BA)
    layerX = int(domSp(1))
+   
+   outDist(i,ij,10) = real(age(i),8) !testing
+
+   
    ! outDist(i,ij,10) = domSp(1) !testing
    outDist(i,ij,10) = real(layerX,8) !testing
    outDist(i,3,10) = real(nlayers(i),8) !testing
