@@ -531,6 +531,7 @@ fAPARc = fAPAR
 		day, &!!!!this is DOY
 		transp, evap, fWE)
 
+ call SMIfromPRELES(GPP,fW,prelesOut(7))
 
 prelesOut(1) = sum(GPP(1:nDays))
 prelesOut(2) = sum(ET(1:nDays))
@@ -538,7 +539,7 @@ prelesOut(3) = SW(nDays)
 prelesOut(4) = SOG(nDays)
 prelesOut(5) = fS(nDays)
 prelesOut(6) = fD(nDays)
-prelesOut(7) = fW(nDays)
+!prelesOut(7) = fW(nDays)
 prelesOut(8) = fE(nDays)
 prelesOut(9) = Throughfall(nDays)
 prelesOut(10) = Interception(nDays)
@@ -2324,7 +2325,7 @@ endsubroutine
 
 !!calculate the soil moisture index to be used in the bark beatle disturbance calculations
 subroutine SMIfromPRELES(GPP,fW,SMI)
-  real (kind=8), intent(in) :: GPP(365),fW(365)
+ real (kind=8), intent(in) :: GPP(365),fW(365)
  real (kind=8), intent(out) :: SMI
  integer :: startSeason, endSeason
 

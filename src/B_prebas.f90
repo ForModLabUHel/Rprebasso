@@ -557,15 +557,15 @@ endif
    if(GVout(year,1)<0.00000001) GVout(year,:) = 0.
    STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
-    outt(46,1,2)  = prelesOut(7) !SMI
-    SMI = prelesOut(7) !SMI
-	dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
-
 !initialize for next year  
    pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
    pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
    pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
    pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+
+   outt(46,1,2)  = prelesOut(7) !SMI
+   SMI = prelesOut(7) !SMI
+   !dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
 
 endif
 !enddo !! end site loop
@@ -1708,6 +1708,21 @@ modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
+
+!!!!calculate bark beetle disturbance
+  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(3)) 
+  if(TsumSBBs(1)<=-998.) then   !!!initialize the first two years this will be done only in the first year of the simulations if the inputs are not provvided
+   TsumSBBs(1) = TsumSBBs(3)
+   TsumSBBs(2) = TsumSBBs(3)
+  endif
+  call spruceVars(outt((/4,7,13/),:,1),nLayers,(/2,10/),2,spruceStandVars)
+  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
+  !update output
+  modOut((year+1),45,:,2) = 0.
+  modOut((year+1),45,1,2) = pBB(1)
+  TsumSBBs(1) = TsumSBBs(2)
+  TsumSBBs(2) = TsumSBBs(3)	
+!!!end calculate bark beetle disturbance  
 
  if(oldLayer==1) then 
 	modOut((year+1),:,nLayers,:) = outt(:,nLayers,:) 
