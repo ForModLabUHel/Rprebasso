@@ -229,12 +229,14 @@ call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
    outDist(i,4,10) = real(jj,8) !testing
    outDist(i,5,10) = real(domSp(1),8) !testing
    outDist(i,6,10) = real(layerX,8) !testing
-   outDist(i,8,10) = multiOut(1,int(ij),7,layerX,1)
-   outDist(i,9,10) = multiOut(i,1,7,layerX,1)
-   outDist(i,10,10) = multiOut(i,ij,7,1,1)
-   outDist(i,11,10) = multiOut(1,77,7,1,1)
+   outDist(i,8,10) = multiOut(1,int(ij),7,layerX,1)!nope
+   outDist(i,9,10) = multiOut(i,1,7,layerX,1)!works
+   !outDist(i,10,10) = multiOut(i,ij,7,1,1)!nope
+   !outDist(i,10,10) = multiOut(99,ij,7,1,1)!?
+   outDist(i,11,10) = multiOut(1,77,7,1,1)!works
    outDist(i,12,10) = real(ij,8)
-   outDist(i,ij,10) = real(ij,8)
+   !outDist(i,ij,10) = real(ij,8)
+   outDist(i,ij,10) = multiOut(99,ij,11,1,1)!?
 
    !outDist(i,9,10) = ageMitigScen
 
