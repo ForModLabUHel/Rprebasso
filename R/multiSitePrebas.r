@@ -296,13 +296,13 @@ InitMultiSite <- function(nYearsMS,
     if(any(LcCheck<0) | any(is.na(LcCheck))){
       if(is.null(dim(LcCheck))){
         siteXss <- which(LcCheck<0 | is.na(LcCheck))
-        print(multiInitVar[siteXss,6,])
+        # print(multiInitVar[siteXss,6,])
         multiInitVar[siteXss,6,] <- 0.1
       }else{
         negLayers <- which(LcCheck<0 | is.na(LcCheck),arr.ind = T)
         if(length(negLayers)>0){
           siteXss <- unique(negLayers[,1])
-          print(multiInitVar[siteXss,6,][negLayers])
+          # print(multiInitVar[siteXss,6,])
           multiInitVar[,6,][negLayers]<- 0.1
         }
       }
