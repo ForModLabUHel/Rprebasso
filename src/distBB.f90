@@ -1,3 +1,44 @@
+subroutine TsumSBBfun(lat,temp,TsumSBB) 
+
+  implicit none
+  
+  integer, parameter :: nDays=365
+  real (kind=8), intent(in) :: lat,temp(365)
+  real (kind=8), intent(inout) :: TsumSBB
+  real (kind=8) :: pi = 3.1415927
+  real (kind=8) :: two_pi,sin_dayl_deg_to_rad
+  real (kind=8) :: deg_to_rad, pi_1, seconds_per_hour
+  real (kind=8) :: doy(nDays),dec(nDays), mult(nDays),dayl_seconds(nDays),daylights(nDays)
+  real (kind=8) :: sinld(nDays), cosld(nDays),aob(nDays),dayl_hours(nDays),effBTS(nDays)
+  integer :: i
+  real (kind=8) :: Tpar_alpha, Tpar_beta, Tpar_gamma, Tpar_Tmax, Tpar_T0, Tpar_DTL
+  
+  two_pi = 2. * pi
+  sin_dayl_deg_to_rad = 0.3979486
+  deg_to_rad = 0.01745329
+  pi_1 = 0.3183099
+  seconds_per_hour = 3600.
+  ! TsumSBB model parameters from publication:
+  Tpar_alpha=0.02876507
+  Tpar_beta=3.5922336
+  Tpar_gamma=1.24657367
+  Tpar_Tmax=40.9958913
+  Tpar_T0=30.4
+  Tpar_DTL=8.3
+
+  !inputs
+  do i = 1,nDays
+   doy(i) = real(i,8)
+  enddo
+  ! declination
+  dec = - asin( sin_dayl_deg_to_rad * cos( two_pi * ( doy + 10 ) * 0.002739726 ) )
+  !latitude in radians
+  mult = lat * deg_to_rad
+  !day length is estimated as the ratio of sin and cos of the product of declination an latitude in radians
+  sinld = sin( mult ) * sin( dec )
+  cosld = cos( mult ) * cos( dec )
+  !cosld = cos( mult ) * cos( dec )
+  aob = sinld / cosld
   do i = 1,ndays
    if(aob(i) > 1.) aob(i) = 1.
    if(aob(i) < -1.) aob(i) = -1.
@@ -149,4 +190,3 @@ endif
  spruceStandVars(3) = BAtot
 
 end subroutine
-
