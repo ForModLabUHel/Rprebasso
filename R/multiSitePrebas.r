@@ -56,9 +56,10 @@ InitMultiSite <- function(nYearsMS,
 ){  
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
-  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
 
   nSites <- length(nYearsMS)
+
+  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
   
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the sites")
