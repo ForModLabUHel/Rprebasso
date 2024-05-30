@@ -201,7 +201,7 @@ endif
 if (disturbanceOn .eqv. .TRUE.) then
     if (ij > 1) then!call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
       !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
-    !  call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:)) ! disable to test; does this alter ij??
+     call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
 !siteOrder(:,ij) = siteOrderX
     endif
 
@@ -225,14 +225,22 @@ if (disturbanceOn .eqv. .TRUE.) then
    layerX = int(domSp(1))
    
    !outDist(i,ij,10) = multiOut(i,ij,7,layerX,1)
-    outDist(i,ij,10) = real(ij,8)
-    if(ij==1.) THEN
-        outDist(i,20,10) = 999.
-        outDist(i,21,10) = multiOut(i,ij,7,layerX,1)!
-    elseif(ij==2.) then
-      outDist(i,22,10) = 999.
-      outDist(i,23,10) = multiOut(i,ij,7,layerX,1)!
-    ENDIF
+    
+    
+    !outDist(i,ij,10) = real(ij,8) ! ok, = simyear
+    
+    outDist(i,ij,10) = multiOut(i,ij,7,1,1) ! first layer age
+    
+
+     
+    
+    ! if(ij==1) THEN !not triggered
+    !     outDist(i,20,10) = 999.
+    !     outDist(i,21,10) = multiOut(i,ij,7,layerX,1)!
+    ! elseif(ij==2) then !not triggered
+    !   outDist(i,22,10) = 999.
+    !   outDist(i,23,10) = multiOut(i,ij,7,layerX,1)!
+    ! ENDIF
    ! ! outDist(i,ij,10) = domSp(1) !testing
    ! !outDist(i,ij,10) = real(layerX,8) !testing
    ! outDist(i,3,10) = real(nlayers(i),8) !testing
@@ -241,7 +249,6 @@ if (disturbanceOn .eqv. .TRUE.) then
    ! outDist(i,6,10) = real(layerX,8) !testing
    ! outDist(i,8,10) = multiOut(1,int(ij),7,layerX,1)!nope
   !  outDist(i,9,10) = multiOut(i,1,7,layerX,1)!works
-   ! !outDist(i,10,10) = multiOut(i,ij,7,1,1)!nope
    ! outDist(i,10,10) = multiOut(i,ij,1,1,1)!?
    ! !outDist(i,10,10) = multiOut(99,ij,7,1,1)!?
    ! outDist(i,11,10) = multiOut(1,77,7,1,1)!works
