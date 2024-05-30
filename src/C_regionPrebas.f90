@@ -386,6 +386,63 @@ endif
      multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
   endif  
 
+  
+
+
+
+  
+  !!!if fertilization at thinning is active,  increase siteType
+  if(flagFert(i) == 1 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
+
+    yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
+    multiOut(i,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(i,3)-1.)
+    call calcAlfar(siteInfo(i,3),initVar(i,1,1:nLayers(i)),pCrobas, &
+        nLayers(i),alfarFert,allSP,nYearsFert,npar,deltaSiteTypeFert)
+    multiOut(i,(ij):(ij+yearsFert-1),3,:,2) = alfarFert(1:yearsFert,:,2)
+    flagFert(i)=2
+  endif
+
+  ! if clearcut occur initialize initVar and age
+!!calculate year of replanting after a clearcut
+!if scenario = "oldLayer" do not consider the old layer
+if(oldLayer==1) then
+ jj=max((nLayers(i)-1),1)
+else
+ jj=nLayers(i)
+endif
+    if(sum(output(1,11,1:jj,1))>0)  yearXrepl(i) = 0.
+  if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
+   if((maxYears-ij)<10) then
+     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+   else
+     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+   endif
+   !!!!update area of cuttings
+   cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
+   yearXrepl(i) = Ainit + ij + 1.
+   initClearcut(i,5) = Ainit
+   if(ij==1) then
+    relBA(i,1:jj) = initVar(i,5,1:jj)/sum(initVar(i,5,1:jj))
+   endif
+  endif
+  
+  multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
+  multiOut(i,ij,1:2,1:nLayers(i),:) = output(1,1:2,1:nLayers(i),:)
+  multiOut(i,ij,4:7,1:nLayers(i),:) = output(1,4:7,1:nLayers(i),:)
+  multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
+
+  if(multiOut(i,ij,1,1,2) == 1.) then
+    cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
+  endif
+  if(multiOut(i,ij,1,1,2) == 2.) then
+    cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
+  endif
+
+  initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
+  initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
+  initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
+  initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
+  
   !!!!! TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
     !outDist(1,1,10) = 33. !testing
 
@@ -453,63 +510,6 @@ endif
   !!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
 
 
-
-
-
-
-  
-  !!!if fertilization at thinning is active,  increase siteType
-  if(flagFert(i) == 1 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then 
-
-    yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
-    multiOut(i,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(i,3)-1.)
-    call calcAlfar(siteInfo(i,3),initVar(i,1,1:nLayers(i)),pCrobas, &
-        nLayers(i),alfarFert,allSP,nYearsFert,npar,deltaSiteTypeFert)
-    multiOut(i,(ij):(ij+yearsFert-1),3,:,2) = alfarFert(1:yearsFert,:,2)
-    flagFert(i)=2
-  endif
-
-  ! if clearcut occur initialize initVar and age
-!!calculate year of replanting after a clearcut
-!if scenario = "oldLayer" do not consider the old layer
-if(oldLayer==1) then
- jj=max((nLayers(i)-1),1)
-else
- jj=nLayers(i)
-endif
-    if(sum(output(1,11,1:jj,1))>0)  yearXrepl(i) = 0.
-  if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
-   if((maxYears-ij)<10) then
-     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
-   else
-     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
-   endif
-   !!!!update area of cuttings
-   cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
-   yearXrepl(i) = Ainit + ij + 1.
-   initClearcut(i,5) = Ainit
-   if(ij==1) then
-    relBA(i,1:jj) = initVar(i,5,1:jj)/sum(initVar(i,5,1:jj))
-   endif
-  endif
-  
-  multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
-  multiOut(i,ij,1:2,1:nLayers(i),:) = output(1,1:2,1:nLayers(i),:)
-  multiOut(i,ij,4:7,1:nLayers(i),:) = output(1,4:7,1:nLayers(i),:)
-  multiOut(i,ij,9:nVar,1:nLayers(i),:) = output(1,9:nVar,1:nLayers(i),:)
-
-  if(multiOut(i,ij,1,1,2) == 1.) then
-    cuttingArea(ij,4) = cuttingArea(ij,4) + areas(i)
-  endif
-  if(multiOut(i,ij,1,1,2) == 2.) then
-    cuttingArea(ij,6) = cuttingArea(ij,6) + areas(i)
-  endif
-
-  initVar(i,1,1:nLayers(i)) = output(1,4,1:nLayers(i),1)
-  initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
-  initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
-  initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
-  
 
   
   
