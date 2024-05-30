@@ -209,12 +209,12 @@ if (disturbanceOn .eqv. .TRUE.) then
 
 
 !!!!! TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
-  outDist(1,1,10) = 33. !testing
+  !outDist(1,1,10) = 33. !testing
 
  if(ageMitigScen > 0.) then ! age above which stand is deprioritised
-   outDist(1,1,10) = 77. !testing
+  ! outDist(1,1,10) = 77. !testing
   do i = 1,nSites ! site loop
-    outDist(i,2,10) = 88. !testing
+    !outDist(i,2,10) = 88. !testing
 
    if(oldLayer==1) then 
     jj = max((nLayers(i)-1),1) ! exclude oldLayer from age considerations
@@ -224,13 +224,9 @@ if (disturbanceOn .eqv. .TRUE.) then
    domSp = maxloc(multiOut(i,ij,13,1:jj,1)) ! find dominant spec (BA)
    layerX = int(domSp(1))
    
-   
-   
-   
-   
-   
    outDist(i,ij,10) = multiOut(i,ij,7,layerX,1)
-                    
+   outDist(i,ij,1) = real(ij,8)
+          
    
    ! ! outDist(i,ij,10) = domSp(1) !testing
    ! !outDist(i,ij,10) = real(layerX,8) !testing
