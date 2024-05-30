@@ -201,7 +201,7 @@ endif
 if (disturbanceOn .eqv. .TRUE.) then
     if (ij > 1) then!call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
       !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
-      call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:))
+    !  call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:)) ! disable to test; does this alter ij??
 !siteOrder(:,ij) = siteOrderX
     endif
 
@@ -225,7 +225,7 @@ if (disturbanceOn .eqv. .TRUE.) then
    layerX = int(domSp(1))
    
    outDist(i,ij,10) = multiOut(i,ij,7,layerX,1)
-   outDist(i,ij,1) = real(ij,8)
+   !outDist(i,ij,1) = real(ij,8)
           
    
    ! ! outDist(i,ij,10) = domSp(1) !testing
