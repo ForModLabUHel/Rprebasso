@@ -226,10 +226,10 @@ if (disturbanceOn .eqv. .TRUE.) then
    
    !outDist(i,ij,10) = multiOut(i,ij,7,layerX,1)
     outDist(i,ij,10) = real(ij,8)
-    if(ij==1) THEN
+    if(ij==1.) THEN
         outDist(i,20,10) = 999.
         outDist(i,21,10) = multiOut(i,ij,7,layerX,1)!
-    elseif(ij==2) then
+    elseif(ij==2.) then
       outDist(i,22,10) = 999.
       outDist(i,23,10) = multiOut(i,ij,7,layerX,1)!
     ENDIF
