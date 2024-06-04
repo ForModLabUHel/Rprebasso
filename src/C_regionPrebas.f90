@@ -189,7 +189,7 @@ endif
   endif
 
 !!!check if the limit has been exceeded if yes no harvest (thinning or clearcut will be performed)
-  if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
+  if ((cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) .or. (cuttingArea(ij,1) < -998.)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
    ClCutX = 0.
   endif
   if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
