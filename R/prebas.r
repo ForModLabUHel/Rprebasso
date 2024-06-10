@@ -122,7 +122,7 @@ prebas <- function(nYears,
   }else{
     if(is.null(latitude)) latitude <- 999
   }
-  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,3)
+  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,4)
   
   ###process weather###
   if(length(PAR) >= (nYears*365)){

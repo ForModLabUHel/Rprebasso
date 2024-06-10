@@ -59,7 +59,7 @@ InitMultiSite <- function(nYearsMS,
 
   nSites <- length(nYearsMS)
 
-  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
+  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4)
   
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the sites")

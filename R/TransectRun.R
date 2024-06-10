@@ -135,7 +135,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         yearFert=NULL,
                         deltaSiteTypeFert = 1,
                         oldLayer=0,
-                        TsumSBBs = matrix(-999.,7,3)
+                        TsumSBBs = matrix(-999.,7,4)
                         ){
   
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
