@@ -153,8 +153,7 @@ real (kind=8) :: dailySW(365)
 real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
 real (kind=8) :: Tmin(365),Tmax(365),FDI(365)
 !BB disturbances
-real (kind=8) :: spruceStandVars(3),pBB(5), SMI
-
+real (kind=8) :: spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
 
 !!! 'un-vectorise' flags, fvec
 etmodel = int(prebasFlags(1))
@@ -175,6 +174,8 @@ if(prebasFlags(6)==1) disturbanceON = .TRUE.
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+SMIt0 = output(1,46,1,2) !initialize SMI previous year
+output(1,46,1,2) = 0.d0
 lastGVout = 0.
 thinClx = 0.
 energyWood = 0.
@@ -331,6 +332,7 @@ siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind distu
   modOut(year,30,ijj,1) = V
   
    enddo
+   modOut((year-Ainit):year,48,1,2) = 0.
    do ki = 1,int(Ainit)
     do ijj = 1,nLayers
      modOut((year-Ainit+ki),7,ijj,1) = ki !#!#
@@ -1314,8 +1316,8 @@ if (ClCut > 0.5) then
    
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij,2) = &
-    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij)
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = &
+    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij)
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1355,8 +1357,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,48,49,50,51,52,53,54/),ij,2) = & !45:47,
-    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,48,49,50,51,52,53,54/),ij) !45:47,
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = & !45:47,
+    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij) !45:47,
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1713,6 +1715,22 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   modOut((year+1),45,:,2) = 0.
   modOut((year+1),45,1,2) = pBB(1)
   TsumSBBs(1:3) = TsumSBBs(2:4)  
+  
+  !calculate intensity
+  if(year > 1) then
+   SMIt0 = modOut(year,46,1,2)
+  else
+   if(SMIt0 < -998.d0) SMIt0 = SMI !!if year 1 SMIt0 is the same of first year  
+  endif
+  if(spruceStandVars(3)>0.) then
+   SHI = (spruceStandVars(1)/spruceStandVars(3))*(1.0-SMIt0)/0.2093014 !(spruceStandVars(1)/spruceStandVars(3)) = Baspruce fraction
+  else
+   SHI = 0.d0
+  endif
+  intenSpruce = 1.d0/(1.d0+exp(3.9725-2.9673*SHI))
+  if((spruceStandVars(1)/spruceStandVars(3)) < 0.05) intenSpruce = 0. ! If no spruce, damage intensity set zero
+  modOut((year+1),48,1,2) = intenSpruce
+
 !!!end calculate bark beetle disturbance  
 
  if(oldLayer==1) then 

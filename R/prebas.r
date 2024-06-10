@@ -191,7 +191,8 @@ prebas <- function(nYears,
                    yearFert=NULL,
                    deltaSiteTypeFert = 1,
                    latitude = NA,
-                   TsumSBBs = NA
+                   TsumSBBs = NA,
+                   SMIt0 = NA
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -200,6 +201,7 @@ prebas <- function(nYears,
     warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
   }
   if(is.na(TsumSBBs)) TsumSBBs = rep(-999,4)
+  if(is.na(SMIt0)) SMIt0 <- -999
   
   ####initialize disturbance module if exists
   if(is.na(siteInfoDist)){
@@ -428,7 +430,8 @@ prebas <- function(nYears,
               )$siteTAlpha[1:maxYearSim,,]
   } 
   
-  
+  multiOut[1,46,1,2] <- SMIt0 #initialize SMI first year
+
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),

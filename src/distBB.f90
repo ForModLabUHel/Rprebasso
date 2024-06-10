@@ -79,15 +79,16 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   real (kind=8), intent(inout) :: pBB(5)
   real (kind=8) :: BAspruceFract,PI_agespruce,PI_BAspruce
   real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev
-  real (kind=8) :: TsumsMean(3), C(3,3),TsumSBBcurr,TsumSBBprev,TsumSBBprev2
+  real (kind=8) :: TsumsMean(4), C(4,4),TsumSBBcurr,TsumSBBprev,TsumSBBprev2
   real (kind=8) :: TsumsMat, Tsums,x1,x2,gen
   real (kind=8) :: aspruceshare, aage, aBA, adrought,PI
 
 !!parameters
-  TsumsMean(:) = (/1.418036, 1.632891, 1.408584/)
-  C(1,:) = (/10.16699, -22.40190, -13.48438/)
-  C(2,:) = (/0.00000,  20.23612, -17.89729/)
-  C(3,:) = (/0.00000,   0.00000,  31.11091/)
+  TsumsMean(:) = (/1.418036,1.418036, 1.632891, 1.408584/)
+  C(1,:) = (/10.16699,10.16699, -22.40190, -13.48438/)
+  C(2,:) = (/0.00000,0.00000,  20.23612, -17.89729/)
+  C(3,:) = (/0.00000,0.00000,   0.00000,  31.11091/)
+  C(4,:) = (/0.00000,0.00000,   0.00000,  31.11091/)
 ! Predisposition PI is a weighted sum of four PI_components:
   aspruceshare = 0.3
   aage = 0.25

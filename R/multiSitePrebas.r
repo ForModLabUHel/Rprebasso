@@ -114,11 +114,14 @@ InitMultiSite <- function(nYearsMS,
                           ingrowth = FALSE,
                           siteInfoDist = NA, ###if not NA Disturbance modules are activated
                           latitude = NA,
-                          TsumSBBs = NA){  
+                          TsumSBBs = NA,
+                          SMIt0 = NA
+                          ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
   nSites <- length(nYearsMS)
+  if(all(is.na(SMIt0))) SMIt0 = rep(-999,nSites) 
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
@@ -514,7 +517,9 @@ if(alpharNcalc){
     multiOut[,ijj,3,,2] <- multiOut[,(ijj-1),3,,2] + (multiOut[,ijj,3,,2] - multiOut[,(ijj-1),3,,2])/10
   }
 } 
-  
+
+  multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year 
+
   multiSiteInit <- list(
     multiOut = multiOut,
     multiEnergyWood = multiEnergyWood,

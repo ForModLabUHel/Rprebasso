@@ -248,6 +248,7 @@ endif
      do ki = 1,int(initClearcut(i,5)+1)
       multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
      enddo !ki
+	 multiOut(i,int(ij-initClearcut(i,5)-1):ij,48,1,2) = 0.
      call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1),multiOut(i,(ij-1),:,ijj,1),nVar,npar)
     endif
    enddo !ijj
@@ -310,6 +311,9 @@ endif
     !write(1,*) i, ij !wdist dev output: writing site & year
   !endif
 
+  if(ij>1) then
+   output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
+  endif
 
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
