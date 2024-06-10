@@ -52,13 +52,15 @@ InitMultiSite <- function(nYearsMS,
                           alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
                           P00CN = NA,
                           yearsCurrClimAv = 30,
-                          TsumSBBs = NA
+                          TsumSBBs = NA,
+                          SMIt0 = NA
 ){  
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
-
+  
   nSites <- length(nYearsMS)
-
+  if(all(is.na(SMIt0))) SMIt0 = rep(-999,nSites)
+  
   if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4)
   
   if(is.null(latitude) & ECMmod==1){
@@ -454,6 +456,8 @@ InitMultiSite <- function(nYearsMS,
   }
   
   if(all(is.na(P00CN))) P00CN <- rep(0,nSites)
+  
+  multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year
 
   multiSiteInit <- list(
     multiOut = multiOut,

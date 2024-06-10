@@ -112,11 +112,13 @@ prebas <- function(nYears,
                    yearFert=NULL,
                    deltaSiteTypeFert = 1,
                    P00CN = NA,
-                   TsumSBBs = NA
+                   TsumSBBs = NA,
+                   SMIt0 = NA
               ){
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
-  
+  if(is.na(SMIt0)) SMIt0 <- -999
+    
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the site")
   }else{
@@ -382,6 +384,8 @@ prebas <- function(nYears,
   } 
   
   if(is.na(P00CN)) P00CN <- 0
+  
+  multiOut[1,46,1,2] <- SMIt0 #initialize SMI first year
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),

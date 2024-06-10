@@ -223,6 +223,7 @@ endif
 	   do ki = 1,int(initClearcut(i,5)+1)
 	    multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
 	   enddo !ki
+	   multiOut(i,int(ij-initClearcut(i,5)-1):ij,48,1,2) = 0.
 	   call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1), &
 				multiOut(i,(ij-1),:,ijj,1),multiOut(i,ij,3,ijj,2),nVar,npar)
 	  endif
@@ -255,14 +256,13 @@ endif
 	mortModX = mortMod(1) !!mortality model to be used in the managed forests
 	if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
 	
-	! if(ij>11) then
-		! open(2,file="test2.txt")
-		! write(*,*) ij,i,iz, "before run"
-		! close(2)
-	! endif
 	output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
 	output(1,55,1:nLayers(i),2) = UmaxFactor(i,ij,1:nLayers(i)) !!!reset heterotrophic respiration
-		call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
+	if(ij>1) then
+	 output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
+	endif
+
+	call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
 		thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
 		fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
 		weatherPRELES(climID,ij,:,:),DOY,pPRELES,etmodel, &

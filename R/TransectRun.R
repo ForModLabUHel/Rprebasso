@@ -135,7 +135,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         yearFert=NULL,
                         deltaSiteTypeFert = 1,
                         oldLayer=0,
-                        TsumSBBs = matrix(-999.,7,4)
+                        TsumSBBs = matrix(-999.,7,4),
+                        SMIt0 = rep(-999,7)
                         ){
   
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
@@ -261,7 +262,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     p0currClim = p0currClim,
     fT0AvgCurrClim = fT0AvgCurrClim,
     alpharVersion = alpharVersion,
-    TsumSBBs = TsumSBBs
+    TsumSBBs = TsumSBBs,
+    SMIt0 = SMIt0
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
 
