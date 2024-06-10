@@ -51,7 +51,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
- real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2),latitude(nSites), TsumSBBs(nSites,3)
+ real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2),latitude(nSites), TsumSBBs(nSites,4)
  real (kind=8), intent(inout) :: multiEnergyWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  ! real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species

@@ -139,7 +139,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         fertThin=0.,
                         oldLayer=0,
                         latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203),
-                        TsumSBBs = matrix(-999.,7,3)
+                        TsumSBBs = matrix(-999.,7,4)
 ) {
 
   

@@ -75,7 +75,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
 
   implicit none
   
-  real (kind=8), intent(in) :: TsumSBBs(3),BA_spruce,BAtot,age_spruce,SMI !TsumSBBs vector of three elements: two years ago, previous year and current year
+  real (kind=8), intent(in) :: TsumSBBs(4),BA_spruce,BAtot,age_spruce,SMI !TsumSBBs vector of four elements: three years ago,two years ago, previous year and current year
   real (kind=8), intent(inout) :: pBB(5)
   real (kind=8) :: BAspruceFract,PI_agespruce,PI_BAspruce
   real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev
@@ -98,13 +98,13 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
-  x0 = 0.4
+  x0 = 0.6
   k = -10.
   PI_spruceFract = 1./(1.+exp(k* (BAspruceFract - x0)))
 
 ! PI for age_spruce
-  x0 = 60.
-  k = -0.1
+  x0 = 85.
+  k = -0.05
   PI_agespruce = 0.2 + 0.8/(1.+exp(k* (age_spruce - x0)))
 
 ! BA_spruce
@@ -132,11 +132,11 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
 ! GEN is the bark beetle generation index, which depends on temperature
    ! The previous year TsumSBB is used for bark beetle generations
   gen = 0.0d0  
-  if(TsumSBBs(2)<1.) gen = 0.0d0
-  if(TsumSBBs(2) >= 1.0d0 .and. TsumSBBs(2) < 1.5d0) gen = 0.1d0
-  if(TsumSBBs(2) >= 1.5d0 .and. TsumSBBs(2) < 2.0d0) gen = 0.2d0
-  if(TsumSBBs(2) >= 2.0d0 .and. TsumSBBs(2) < 2.5d0) gen = 0.6d0
-  if(TsumSBBs(2) >= 2.5d0) gen = 1.0d0
+  if(TsumSBBs(3)<1.) gen = 0.0d0
+  if(TsumSBBs(3) >= 1.0d0 .and. TsumSBBs(3) < 1.5d0) gen = 0.1d0
+  if(TsumSBBs(3) >= 1.5d0 .and. TsumSBBs(3) < 2.0d0) gen = 0.2d0
+  if(TsumSBBs(3) >= 2.0d0 .and. TsumSBBs(3) < 2.5d0) gen = 0.6d0
+  if(TsumSBBs(3) >= 2.5d0) gen = 1.0d0
 
 ! probability function coefficients from Seild et al. 2007
   x1 = -1.51

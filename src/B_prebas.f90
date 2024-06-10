@@ -25,7 +25,7 @@ implicit none
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
  integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
- real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(3)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
+ real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(4)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
@@ -1703,18 +1703,16 @@ modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
  !!!!calculate bark beetle disturbance
-  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(3)) 
-  if(TsumSBBs(1)<=-998.) then   !!!initialize the first two years this will be done only in the first year of the simulations if the inputs are not provvided
-   TsumSBBs(1) = TsumSBBs(3)
-   TsumSBBs(2) = TsumSBBs(3)
+  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(4)) 
+  if(TsumSBBs(1)<=-998.) then   !!!initialize the first three years this will be done only in the first year of the simulations if the inputs are not provvided
+   TsumSBBs(1:3) = TsumSBBs(4)
   endif
   call spruceVars(outt((/4,7,13/),:,1),nLayers,(/2,10/),2,spruceStandVars)
   call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
   !update output
   modOut((year+1),45,:,2) = 0.
   modOut((year+1),45,1,2) = pBB(1)
-  TsumSBBs(1) = TsumSBBs(2)
-  TsumSBBs(2) = TsumSBBs(3)	
+  TsumSBBs(1:3) = TsumSBBs(2:4)  
 !!!end calculate bark beetle disturbance  
 
  if(oldLayer==1) then 

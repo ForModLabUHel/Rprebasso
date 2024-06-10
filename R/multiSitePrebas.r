@@ -122,7 +122,7 @@ InitMultiSite <- function(nYearsMS,
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
   if(all(is.na(thdPer))) thdPer <- rep(0.5,nSites)
-  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,3)
+  if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4)
   if(all(is.na(latitude))){
     warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
     latitude = rep(62,nSites)

@@ -199,7 +199,7 @@ prebas <- function(nYears,
     latitude = 62
     warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
   }
-  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,3)
+  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,4)
   
   ####initialize disturbance module if exists
   if(is.na(siteInfoDist)){
