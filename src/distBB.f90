@@ -75,25 +75,19 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
 
   implicit none
   
-  real (kind=8), intent(in) :: TsumSBBs(4),BA_spruce,BAtot,age_spruce,SMI !TsumSBBs vector of three elements: two years ago, previous year and current year
+  real (kind=8), intent(in) :: TsumSBBs(4),BA_spruce,BAtot,age_spruce,SMI !TsumSBBs vector of four elements: three years ago,two years ago, previous year and current year
   real (kind=8), intent(inout) :: pBB(5)
   real (kind=8) :: BAspruceFract,PI_agespruce,PI_BAspruce
-  real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev
-  real (kind=8) :: TsumsMean(4), C(4,4),TsumSBBcurr,TsumSBBprev,TsumSBBprev2
-  real (kind=8) :: TsumsMat, Tsums,x1,x2,gen
+  real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev,x,f0
+  real (kind=8) :: x1,x2,gen
   real (kind=8) :: aspruceshare, aage, aBA, adrought,PI
 
 !!parameters
-  TsumsMean(:) = (/1.418036,1.418036, 1.632891, 1.408584/)
-  C(1,:) = (/10.16699,10.16699, -22.40190, -13.48438/)
-  C(2,:) = (/0.00000,0.00000,  20.23612, -17.89729/)
-  C(3,:) = (/0.00000,0.00000,   0.00000,  31.11091/)
-  C(4,:) = (/0.00000,0.00000,   0.00000,  31.11091/)
 ! Predisposition PI is a weighted sum of four PI_components:
   aspruceshare = 0.3
   aage = 0.25
   aBA = 0.15
-  adrought = max(1.-aspruceshare-aage-aBA,0.)
+  adrought = 0.3!max(1.-aspruceshare-aage-aBA,0.)
   BAspruceFract=0.
   pBB = 0.
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
@@ -106,26 +100,28 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
 ! PI for age_spruce
   x0 = 85.
   k = -0.05
-  PI_agespruce = 0.2 + 0.8/(1.+exp(k* (age_spruce - x0)))
+  PI_agespruce = 1.0/(1.+exp(k* (age_spruce - x0)))
 
 ! BA_spruce
-  x0 = 1.
-  k = -1.
+  x0 = 17.
+  k = -0.250
   PI_BAspruce = 1./(1.+exp(k* (BA_spruce - x0)))
 
 ! SMI_Tprev
-  x0 = 0.89
-  k = 100.
+  x0 = 0.955
+  k = 400.
   PI_SMITprev = 1./(1.+exp(k* (SMI - x0)))
 
 ! Zero probability for SBB if the long term temperature is not high enough 
-  TsumsMat = sum(MATMUL((TsumSBBs-TsumsMean),C))
-  Tsums = exp(-TsumsMat**2.)/2.
-  if(Tsums < 0.0001) then
-   Tsums =  0.
-  else
-   Tsums =  1.
-  endif
+  x = sum(TsumSBBs)/4.
+  x0 = 1.49
+  k = -10. 
+  f0 = 1./(1.+exp(k* (x - x0)))
+  ! if(f0 < 0.0001) then
+   ! f0 =  0.
+  ! else
+   ! f0 =  1.
+  ! endif
 
   PI = (aspruceshare*PI_spruceFract + aage*PI_agespruce + &
          aBA*PI_BAspruce + adrought*PI_SMITprev)
@@ -144,7 +140,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   x2 = 1.65
 
 ! SBB probability
-  pBB(1) =(1.0d0-exp(x1*PI**x2)**gen)
+  pBB(1) =(1.0d0-exp(x1*PI**x2)**gen) * f0
   pBB(2) = PI_spruceFract
   pBB(3) = PI_agespruce 
   pBB(4) = PI_BAspruce 
@@ -191,3 +187,4 @@ endif
  spruceStandVars(3) = BAtot
 
 end subroutine
+
