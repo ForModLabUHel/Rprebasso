@@ -1704,24 +1704,24 @@ modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
- !!!!calculate bark beetle disturbance
+!!!!calculate bark beetle disturbance
   call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(4)) 
   if(TsumSBBs(1)<=-998.) then   !!!initialize the first three years this will be done only in the first year of the simulations if the inputs are not provvided
    TsumSBBs(1:3) = TsumSBBs(4)
   endif
+  if(year > 1) then
+   SMIt0 = modOut(year,46,1,2)
+  else
+   if(SMIt0 < -998.d0) SMIt0 = SMI !!if year 1 SMIt0 is the same of first year  
+  endif
   call spruceVars(outt((/4,7,13/),:,1),nLayers,(/2,10/),2,spruceStandVars)
-  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),SMI)
+  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),(SMI+SMIt0)/2.)
   !update output
   modOut((year+1),45,:,2) = 0.
   modOut((year+1),45,1,2) = pBB(1)
   TsumSBBs(1:3) = TsumSBBs(2:4)  
   
   !calculate intensity
-  if(year > 1) then
-   SMIt0 = modOut(year,46,1,2)
-  else
-   if(SMIt0 < -998.d0) SMIt0 = SMI !!if year 1 SMIt0 is the same of first year  
-  endif
   if(spruceStandVars(3)>0.) then
    SHI = (spruceStandVars(1)/spruceStandVars(3))*(1.0-SMIt0)/0.2093014 !(spruceStandVars(1)/spruceStandVars(3)) = Baspruce fraction
   else
@@ -1730,7 +1730,6 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   intenSpruce = 1.d0/(1.d0+exp(3.9725-2.9673*SHI))
   if((spruceStandVars(1)/spruceStandVars(3)) < 0.05) intenSpruce = 0. ! If no spruce, damage intensity set zero
   modOut((year+1),48,1,2) = intenSpruce
-
 !!!end calculate bark beetle disturbance  
 
  if(oldLayer==1) then 
