@@ -249,7 +249,8 @@ if (disturbanceOn .eqv. .TRUE.) then
    ! 
    ! !outDist(i,9,10) = ageMitigScen
 
-  if(multiOut(i,ij-1,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold
+   !if(multiOut(i,ij-1,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold
+   if(multiOut(i,1,3,1,1) > 3 .AND. multiOut(i,ij-1,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold & sitetype 4/5 
     ! disable all management induced by disturbance
     siteInfoDist(i,5) = 999. !salvlogthresh
     siteInfoDist(i,6) = 0. !salvlogshare
