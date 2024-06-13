@@ -33,7 +33,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
  ! Parameters for the fire model
  ! Surface area to volume of fuels
  SurfArea2Vol = (/66.,3.58,0.98/)
- moisture_scaling = 3*10**4
+ moisture_scaling = 3.*10.**4.
 ! Allocate C pools to fuel classes
  frac_green_active = 0.3
  frac_1hr_wood = 0.045
@@ -58,7 +58,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
 ! Nesterov Index
 ! A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
  do i = 2,nDays
-	 if(Precip(i)<3 .and. (Tmin(i)-4)>=0) NI(i) = (Tmax(i)*(Tmax(i)-Tmin(i)-4))+(Tmax(i-1)*(Tmax(i-1)-Tmin(i-1)-4))
+	 if(Precip(i)<3. .and. (Tmin(i)-4)>=0.) NI(i) = (Tmax(i)*(Tmax(i)-Tmin(i)-4.))+(Tmax(i-1.)*(Tmax(i-1.)-Tmin(i-1.)-4.))
  end do
 
  ! Calculate moisture scaling of fuels
