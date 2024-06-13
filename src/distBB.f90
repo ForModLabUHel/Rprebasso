@@ -151,12 +151,12 @@ end subroutine
 
 
 !!!Calculate spruce variables   
-subroutine spruceVars(standInfo,nLayers,spruceIDs,nSpIDs,spruceStandVars)
+subroutine spruceVars(standInfo,nLayers,spruceIDs,nSpIDs,spruceStandVars,rBAspruce)
   implicit none
   logical :: spruceLayer(nLayers)
   integer, intent(in) :: nLayers,nSpIDs,spruceIDs(nSpIDs)
   real(8), intent(in) :: standInfo(3,nLayers) !standInfo first argument is species, age and BA by layer
-  real(8), intent(inout) :: spruceStandVars(3)
+  real(8), intent(inout) :: spruceStandVars(3), rBAspruce(nLayers)
   integer :: i
   real(8) :: ba(nLayers), age(nLayers),species(nLayers)
   real(8) :: BAspruce,ageMaxSpruce,BAspruceShare,BAtot
@@ -170,16 +170,19 @@ BAtot = sum(ba)
 BAspruce = 0.d0
 ageMaxSpruce = 0.d0
 BAspruceShare = 0.d0
-
+rBAspruce(:) = 0.d0
+spruceLayer(:) = .false.
 if(BAtot>0.) then
  do i =  1,nLayers
   spruceLayer(i) = any(spruceIDs .eq. int(species(i)))
   if(spruceLayer(i)) then
+    rBAspruce(i) = BA(i)
     BAspruce = BAspruce + BA(i)
     ageMaxSpruce = max(0.d0,age(i))
     BAspruceShare = BAspruceShare + BA(i)/BAtot
   endif
  end do
+ if(BAspruce>0.d0) rBAspruce = rBAspruce/BAspruce
 endif
 
  spruceStandVars(1) = BAspruce

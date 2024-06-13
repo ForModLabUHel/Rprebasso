@@ -406,7 +406,7 @@ endif ! end salvlog/mgmtrect module
      STAND(51) = Wdb
 
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
-pHarvTrees = 0
+    pHarvTrees = 0
   endif !x6
 
      STAND(11) = H
