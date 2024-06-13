@@ -2451,3 +2451,31 @@ subroutine calcAlfar_MultiSite(siteTAlpha,species,pCrobas,nLayers,nSp,&
 
   end do
 endsubroutine
+
+
+
+! ! testing maxloc for oldlayer implementation, if you find this, please remove!
+! 
+! subroutine maxloc_example(array, position, position2)
+!   implicit none
+!   integer, intent(inout) :: position(1), position2
+!   real (kind=8), intent(inout) :: array(5)
+!   ! Initialize the array
+!   !array = (/ 4, 7, 2, 9, 5 /)
+! 
+!   ! Print the array
+!   print *, 'Array: ', array
+! 
+!   ! Find the location of the maximum value in the array
+!   position = maxloc(array)
+!   position2 = int(position(1))
+! 
+!   ! Print the position (indices) of the maximum value
+! !  print *, 'Position of the maximum value: ', position
+! 
+!   ! Note: In this example, the result should be 4 because the maximum value (9) is at the 4th position.
+! end subroutine maxloc_example
+! 
+
+
+

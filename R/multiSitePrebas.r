@@ -26,7 +26,7 @@
 #' @param litterSize 
 #' @param soilCtot 
 #' @param defaultThin 
-#' @param ClCut 
+#' @param ClCut flag for clearcuts according to tapio reccomendations. 0 = off, 1 = on, -1 = off + salvage logging of wind disturbances blocked. Either applied to all sites (if of length 1) or site-specific (length = nSites).
 #' @param energyCut 
 #' @param inDclct 
 #' @param inAclct 

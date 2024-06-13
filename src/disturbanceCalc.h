@@ -10,7 +10,9 @@
 !   NOTE: openedge (at least one neighbouring stand <5m) currently not implemented
 !         postponed, requires dynamic spacially explicit info (e.g. via lookup table)
 
-! PREPARING WIND RISK INPUTS
+
+
+!!!!!!!!!!!!! PREPARING WIND RISK INPUTS!!!!!!!
 ! dev: outDist(,X) 1 = dom layer #; 2 dom layer spec; 3 dom layer h, 4 sitetype, 5 ETS; 6-10 wind risks
 wdistproc(1) = 1. !dominant layer
 wdistproc(2) = STAND_all(4,1) ! species, layer 1
@@ -27,7 +29,6 @@ IF(nLayers>1) THEN !if there's more than one layer
      end if
   end do
 end if
-
 ! setting wrisks to 0 (subroutine inout), to be simplified
 wrisk5dd1 = 0
 wrisk5dd2 = 0
@@ -35,10 +36,6 @@ wrisk5dd3 = 0
 wrisk0 = 0
 wrisk5 = 0
 wrisk = 0
-
-
-
-
 
 ! WINDRISK SUBROUTINE
 !call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
@@ -53,17 +50,14 @@ outDist(year,2) = siteInfoDist(2) !tsincethin
 outDist(year,3) = wrisk !1a
 
 
-
-!!!! END WIND RISK CALCULATIONS
-
-!!! DRAFT FOR WIND DISTURBANCE IMPACT MODELLING
+!!!!!!! WIND DISTURBANCE IMPACT MODELLING !!!!!!!!!!
 ! basic idea: 3-step sampling
 !    - first sample with above risk as probability if a wind disturbance occurs
 !    - second: sample severity class (for now: based on 2001 post-storm inventory shares, approx 1=81, 2=14, 3=5%)
 !    - then allocate share of damaged V based on list of damaged Vs of severity classes (post-storm inventory)
 ! current status: damaged V in outDist[,,9], needs to be tested. further implementation via thinmat or so do be discussed
 
-! step 1: wind disturbance 0/1 based on wind risk
+!!! STEP 1: wind disturbance 0/1 based on wind risk
 call random_number(rndm)
 if(rndm <= wrisk) outDist(year,4) = 1 !wind disturbance occurs/ set severity class to 1
 if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
@@ -76,48 +70,45 @@ if (outDist(year,4)==1) then
   if(rndm <= 0.05555556) outDist(year,4) = 3 !these are now sampled even if there's no disturbance occuring; keep for dev purposes, only calculate when dist occurres in final version
 endif
 
-  ! step 3: sample from severity class-specific set of relative disturbed volumes
-   if (outDist(year,4)==1) then ! sevclass 1
-     call random_number(rndm)
-     sevclasslength = 87 !n of plots with sc 1 in ps inventory data
-     distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
-     sc1vols =  (/ 0.047246314, 0.067229849, 0.169719737, 0.318203784, 0.018104818, 0.104955687, 0.032123615, 0.092026088, &
-       0.013472795, 0.166694679, 0.195763598, 0.045904633, 0.030510592, 0.257592283, 0.055838402, 0.091561805, 0.085415300, &
-       0.045814558, 0.036180144, 0.019006098, 0.040064294, 0.071564091, 0.010477727, 0.019651214, 0.175753183, 0.208317710, &
-       0.009252750, 0.082452182, 0.031980969, 0.087094521, 0.021563759, 0.091875943, 0.075276931, 0.057730433, 0.030528242, &
-       0.113322118, 0.062922399, 0.220426425, 0.026159837, 0.033814844, 0.037818739, 0.102943860, 0.112303663, 0.095156499, &
-       0.054769579, 0.135111101, 0.026199722, 0.012797435, 0.034510249, 0.041657274, 0.069087262, 0.117174984, 0.045324950, &
-       0.073308835, 0.021494620, 0.034361839, 0.045795929, 0.199031553, 0.014349513, 0.035105534, 0.108747020, 0.077563323, &
-       0.017255370, 0.061953846, 0.208826663, 0.429494553, 0.025722064, 0.007571658, 0.024630056, 0.314765240, 0.024407173, &
-       0.027934229, 0.012025332, 0.024008892, 0.028082671, 0.043077586, 0.015088951, 0.069155659, 0.044578726, 0.037450261, &
-       0.003549555, 0.030742784, 0.114136973, 0.012353190, 0.039182845, 0.061220194, 0.032197320 /)
-     wdistproc(4) = sc1vols(distvloc)
- 
-   else if (outDist(year,4)==2) then ! sevclass 2
-     call random_number(rndm)
-     sevclasslength = 15 !n of plots with sc 2 in ps inventory data
-   distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
-     sc2vols =  (/ 0.23033922, 0.37008936, 0.09131254, 0.25163284, 0.29842135, 0.33619803, 0.13216089, 0.43466740, 0.20183134, &
-       0.08506387, 0.07892917, 0.04246911, 0.24749787, 0.02704628, 0.02121135 /)
-     wdistproc(4) = sc2vols(distvloc)
- 
-   else if (outDist(year,4)==3) then
-     call random_number(rndm)
-     sevclasslength = 6 !n of plots with sc 3 in ps inventory data
-     distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
-     sc3vols =  (/ 0.09466817, 0.76296213, 1.0, 0.82065451, 0.21933642, 0.33760203 /)
-     wdistproc(4) = sc3vols(distvloc)
-   endif
+!!! STEP 3: sample from severity class-specific set of relative disturbed volumes
+if (outDist(year,4)==1) then ! sevclass 1
+ call random_number(rndm)
+ sevclasslength = 87 !n of plots with sc 1 in ps inventory data
+ distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
+ sc1vols =  (/ 0.047246314, 0.067229849, 0.169719737, 0.318203784, 0.018104818, 0.104955687, 0.032123615, 0.092026088, &
+   0.013472795, 0.166694679, 0.195763598, 0.045904633, 0.030510592, 0.257592283, 0.055838402, 0.091561805, 0.085415300, &
+   0.045814558, 0.036180144, 0.019006098, 0.040064294, 0.071564091, 0.010477727, 0.019651214, 0.175753183, 0.208317710, &
+   0.009252750, 0.082452182, 0.031980969, 0.087094521, 0.021563759, 0.091875943, 0.075276931, 0.057730433, 0.030528242, &
+   0.113322118, 0.062922399, 0.220426425, 0.026159837, 0.033814844, 0.037818739, 0.102943860, 0.112303663, 0.095156499, &
+   0.054769579, 0.135111101, 0.026199722, 0.012797435, 0.034510249, 0.041657274, 0.069087262, 0.117174984, 0.045324950, &
+   0.073308835, 0.021494620, 0.034361839, 0.045795929, 0.199031553, 0.014349513, 0.035105534, 0.108747020, 0.077563323, &
+   0.017255370, 0.061953846, 0.208826663, 0.429494553, 0.025722064, 0.007571658, 0.024630056, 0.314765240, 0.024407173, &
+   0.027934229, 0.012025332, 0.024008892, 0.028082671, 0.043077586, 0.015088951, 0.069155659, 0.044578726, 0.037450261, &
+   0.003549555, 0.030742784, 0.114136973, 0.012353190, 0.039182845, 0.061220194, 0.032197320 /)
+ wdistproc(4) = sc1vols(distvloc)
 
+else if (outDist(year,4)==2) then ! sevclass 2
+ call random_number(rndm)
+ sevclasslength = 15 !n of plots with sc 2 in ps inventory data
+distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
+ sc2vols =  (/ 0.23033922, 0.37008936, 0.09131254, 0.25163284, 0.29842135, 0.33619803, 0.13216089, 0.43466740, 0.20183134, &
+   0.08506387, 0.07892917, 0.04246911, 0.24749787, 0.02704628, 0.02121135 /)
+ wdistproc(4) = sc2vols(distvloc)
 
+else if (outDist(year,4)==3) then !sevclass 3
+ call random_number(rndm)
+ sevclasslength = 6 !n of plots with sc 3 in ps inventory data
+ distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
+ sc3vols =  (/ 0.09466817, 0.76296213, 1.0, 0.82065451, 0.21933642, 0.33760203 /)
+ wdistproc(4) = sc3vols(distvloc)
+endif
 !!! END WIND IMPACT CALCULATIONS !!!!
 
 !!! DISTRIBUTE SHARE OF VOLUME DISTURBED TO LAYERS !!!
 ! idea: - calculate layer-level risks for dominant layer + those with H>(domh-3m) (for now)
 !       - distribute share across layers according to ratios of wrisks
 
-! quick & dirty: calculate wind risk for all layers, delete all that have h < (hdom-3)
-
+!!!! LAYER LEVEL WIND RISK !!!!
 wriskLayers(:,:) = 0
 IF(outDist(year,4) >0 .AND. nLayers>1) THEN !if there's a wind disturbance and more than one layer
   do i = 1, nLayers !loop through them
@@ -129,10 +120,9 @@ IF(outDist(year,4) >0 .AND. nLayers>1) THEN !if there's a wind disturbance and m
   end do
 end if
 
-
+!!! DISTRIBUTION OF DAMVOL TO LAYERS BASED ON WRISK & LAYER VOL
 BA_tot = sum(STAND_all(13,:))
 V_tot = sum(STAND_all(30,:))
-
 
 vdam = wdistproc(4)*V_tot
 
@@ -151,42 +141,21 @@ wriskLayers(:, 6) = wriskLayers(:, 4)/wriskLayers(:,5)! convert affected vol to 
 
 
 do layer = 1, nLayers
-  !if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) !old version
   if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) wriskLayers(layer, 6) = 0. ! NaN check (div by 0) NaN is not equal to itself...
   !if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) outDist(year, 1) = 999. !checking
 end do
-
-!outDist(year, 1:nLayers) = wriskLayers(:, 6)
-
 
 !write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
 
 !!! END DISTRIBUTE SHARE OF VOLUME DISTURBED TO LAYERS !!!
 
 
-
-! now implementing impact in Francesco's code below (search for wdimp)
-! - set if in beginning to true (everything deactivated as of now)
-! - include condition to activate layer loop in case of wind disturbance : max(windrisklayer(:,1)) > 0)
-
-
-
-
-! salvlog/mgmtrect module
-! additional parameters in siteInfoDist; for now, due to tab issue, hardcoded in siteInfoDisttemp
-! siteInfoDisttemp(1:4) = siteInfoDist 
-! siteInfoDisttemp(5) = 5. !salvlogthresh
-! siteInfoDisttemp(6) = 1. !salvlogshare
-! siteInfoDisttemp(7) = 0.9 !pHarvTrees
-! siteInfoDisttemp(8) = 10. !mgmtreactthresh
-! siteInfoDisttemp(9) = 1.  !mgmtreactshare
-! siteInfoDisttemp(10) = 1.!sevdistccshare
-
-
+!!!! MANAGEMENT REACTION / SALVAGE LOGGING
 
 if (outDist(year,4)>0.) then !in case of disturbance 
   pHarvTrees = 0.
-  ! salvage logging
+
+  ! SALVAGE LOGGING
   if(vdam>=siteInfoDist(5)) then
     call random_number(rndm)
     if(rndm<=siteInfoDist(6)) then 
@@ -195,7 +164,7 @@ if (outDist(year,4)>0.) then !in case of disturbance
     endif
   endif
 
-  !mgmtract/prioritisation in siteOrder
+  ! MGMT REACTION / PRIORITISATION IN SITEORDER
   if(vdam>=siteInfoDist(8)) then
     call random_number(rndm)
     if(rndm<=siteInfoDist(7)) then
@@ -205,7 +174,7 @@ if (outDist(year,4)>0.) then !in case of disturbance
     endif
   endif
 
-  ! cc in severely disturbed sites (putting in action to come...)
+  ! CLEAR CUT IN SEVERERELY DISTURBED SITES ()
   if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDist(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
     call random_number(rndm)
     if(rndm<=siteInfoDist(10)) then
@@ -215,7 +184,14 @@ if (outDist(year,4)>0.) then !in case of disturbance
   endif  
 endif ! end salvlog/mgmtrect module
 
-  
+if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
+  pHarvTrees = 0.
+endif
+
+
+
+!!!! UPDATING STAND VARS !!!!
+! based on Francesco's code, only inputs necessary: layer level killed BA & pHarvTrees
  if(.TRUE.) then !if XX everything is switch off for the moment !wdimp x1
  ! 
  ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
