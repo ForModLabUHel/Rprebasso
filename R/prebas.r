@@ -57,6 +57,8 @@
 #' @param prebasFlags vector of flags to reduce number of
 #' @param latitude latitude of the site
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
+#' @param SMIt0 site vector of initial SoilMoirture index
+#' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -192,7 +194,8 @@ prebas <- function(nYears,
                    deltaSiteTypeFert = 1,
                    latitude = NA,
                    TsumSBBs = NA,
-                   SMIt0 = NA
+                   SMIt0 = NA,
+                   TminTmax = NA
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -202,6 +205,13 @@ prebas <- function(nYears,
   }
   if(is.na(TsumSBBs)) TsumSBBs = rep(-999,4)
   if(is.na(SMIt0)) SMIt0 <- -999
+  
+  NI = rep(0,length(PAR))
+  if(all(is.na(TminTmax))){
+    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
+  }else{
+    NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2]) 
+  }
   
   ####initialize disturbance module if exists
   if(is.na(siteInfoDist)){
@@ -430,6 +440,9 @@ prebas <- function(nYears,
               )$siteTAlpha[1:maxYearSim,,]
   } 
   
+  dailyPRELES = matrix(-999,(nYears*365),3) #### build daily output array for PRELES
+  dailyPRELES[,3] <- NI ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
+  
   multiOut[1,46,1,2] <- SMIt0 #initialize SMI first year
 
   prebas <- .Fortran("prebas",
@@ -464,7 +477,7 @@ prebas <- function(nYears,
                      energyCut=as.double(energyCut),
                      inDclct=as.double(inDclct),
                      inAclct=as.double(inAclct),
-                     dailyPRELES = matrix(-999,(nYears*365),3),
+                     dailyPRELES = dailyPRELES,
                      yassoRun=as.double(yassoRun),
                      energyWood = as.array(energyWood),
                      tapioPars = as.array(tapioPars),

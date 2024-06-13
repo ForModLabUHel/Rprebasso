@@ -81,7 +81,7 @@ real (kind=8) :: wdistproc(7) !to replace siteinfodist
  real (kind=8) :: STAND(nVar), STAND_tot(nVar), param(npar) ! temp variables fillled for each layer and fills  output(nYear, nSites, nVar).
  integer :: i, ij, ijj,dayx, species, layer, nSpec, ll ! tree species 1,2,3 = scots pine, norway spruce, birch
  integer, allocatable :: indices(:)
- real(kind=8) :: rPine, rBirch, perBAmort, pMort,dailyPRELESnoStored((nYears*365), 3) ! GPP, ET, SW
+ real(kind=8) :: rPine, rBirch, perBAmort, pMort!,dailyPRELESnoStored((nYears*365), 3) ! GPP, ET, SW
 
  real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
@@ -151,7 +151,7 @@ real (kind=8) :: dailySW(365)
 
 !fire disturbances
 real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
-real (kind=8) :: Tmin(365),Tmax(365),FDI(365)
+real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
 !BB disturbances
 real (kind=8) :: spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
 
@@ -174,6 +174,8 @@ if(prebasFlags(6)==1) disturbanceON = .TRUE.
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+NI(:) = dailyPRELES(:,3) !read nestorov index and reset to -999 the dailyPreles output
+dailyPRELES(:,3) = -999.0
 SMIt0 = output(1,46,1,2) !initialize SMI previous year
 output(1,46,1,2) = 0.d0
 lastGVout = 0.
@@ -1776,7 +1778,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   Tmax = weatherPRELES(year,:,2) + 3.7
   FDI(:) = 0. 
   call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
-			weatherPRELES(year,:,2),Tmin,Tmax,weatherPRELES(year,:,4),FDI)
+			weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI)
   modOut((year+1),47,:,2) = 0.
   modOut((year+1),47,1,2) = maxval(FDI)
  ! endif

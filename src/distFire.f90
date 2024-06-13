@@ -1,7 +1,7 @@
 
 
 subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_moisture, & 
-			TAir,Tmin,Tmax,Precip,FDI) 
+			TAir,NI,Precip,FDI) 
 ! livegrass = gv biomass
 ! Cpool_litter_wood = soilC woody component AWEN
 ! Cpool_litter_green = soilC non-woody component AWEN
@@ -10,9 +10,9 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
   
   integer, parameter :: nDays=365
   real (kind=8), intent(in) :: Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass
-  real (kind=8), intent(in) :: soil_moisture, TAir(nDays), Tmin(nDays), Tmax(nDays), Precip(nDays)
+  real (kind=8), intent(in) :: soil_moisture, TAir(nDays), NI(nDays), Precip(nDays)
   real (kind=8), intent(inout) :: FDI(nDays)
-  real (kind=8) :: alpha_livegrass(nDays),NI(nDays),alpha_fuel(nDays)
+  real (kind=8) :: alpha_livegrass(nDays),alpha_fuel(nDays)
   real (kind=8) :: char_alpha_fuel(nDays),rel_fuel_moisture(nDays)
   real (kind=8) :: leaf_moisture,Cpool_litter_wood(nDays),Cpool_litter_green(nDays)
   real (kind=8) :: SurfArea2Vol(3), moisture_scaling, frac_green_active, frac_1hr_wood, frac_10hr_wood
@@ -25,7 +25,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
 !initialize
  Cpool_litter_wood(:) = Cpool_litter_woodIn
  Cpool_litter_green(:) = Cpool_litter_greenIn
- NI(:) = 0.0
+ ! NI(:) = 0.0
  alpha_livegrass(:) = 0.0
  rel_fuel_moisture(:) = 0.0
  FDI(:) = 0.0
@@ -55,11 +55,11 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
  ratio_dead_fuel = fuel_1to100hr_sum / (fuel_1to100hr_sum + livegrass)
  ratio_live_fuel = livegrass / (fuel_1to100hr_sum + livegrass)
 
-! Nesterov Index
-! A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
- do i = 2,nDays
-	 if(Precip(i)<3. .and. (Tmin(i)-4)>=0.) NI(i) = (Tmax(i)*(Tmax(i)-Tmin(i)-4.))+(Tmax(i-1.)*(Tmax(i-1.)-Tmin(i-1.)-4.))
- end do
+! ! Nesterov Index
+! ! A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
+ ! do i = 2,nDays
+	 ! if(Precip(i)<3. .and. (Tmin(i)-4)>=0.) NI(i) = (Tmax(i)*(Tmax(i)-Tmin(i)-4.))+(Tmax(i-1.)*(Tmax(i-1.)-Tmin(i-1.)-4.))
+ ! end do
 
  ! Calculate moisture scaling of fuels
  alpha_fuel_1hr = SurfArea2Vol(1)/moisture_scaling
@@ -71,7 +71,6 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
 
  leaf_moisture = max(0., (10./9.*soil_moisture-1./9.)) ! Eq. B2 in TH2010
  alpha_livegrass = -log(leaf_moisture)/NI
-
  char_alpha_fuel = alpha_fuel*ratio_dead_fuel+alpha_livegrass*ratio_live_fuel
 
 ! Moisture of extinction

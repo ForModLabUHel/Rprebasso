@@ -52,11 +52,20 @@
 #' @param ingrowth # flag to simulate ingrowth
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #' @param modVersion # model version to use in the simulations it can be multiSite or region
-#' @param siteInfoDist # UNDER DEVELOPMENT! external data for wind risk modelling. Switches on wind risk calculations; output: outDist. Matrix with dims(nSites, 4): 1 = 10a max windspeed, m/s; 2: time since thining (years; for initialisation, but currently used throughout simulations); 3: soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic); 4: shallow soil (0 = F, >30cm; 1 = T, <30cm)
+#' @param nYearsFert number of years after thinnings for which the fertilization is effective. default values is 20 years
+#' @param yearFert simulation year when fertilization occurred
+#' @param deltaSiteTypeFert fertilization impact
+#' @param fertThin flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 
+#' @param oldLayer flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)
+#' @param latitude latitude of the site
+#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
+#' @param SMIt0 site vector of initial SoilMoirture index
+#' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
+#' 
 #' @importFrom plyr aaply
 #'
 #' @return The output from multiPrebas()
-
+#' 
 #' @export
 #'
 #' @examples 
@@ -140,7 +149,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         oldLayer=0,
                         latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203),
                         TsumSBBs = matrix(-999.,7,4),
-                        SMIt0 = rep(-999,7)
+                        SMIt0 = rep(-999,7),
+                        TminTmax = NA
 ) {
 
   
@@ -270,7 +280,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     siteInfoDist = siteInfoDist,
     latitude = latitude,
     TsumSBBs = TsumSBBs,
-    SMIt0 = SMIt0
+    SMIt0 = SMIt0,
+    TminTmax = TminTmax
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age

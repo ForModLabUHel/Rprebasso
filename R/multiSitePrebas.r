@@ -54,7 +54,9 @@
 #' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param latitude latitude of the site
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
-#'
+#' @param SMIt0 site vector of initial SoilMoirture index
+#' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
+#' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
 #'
@@ -115,7 +117,8 @@ InitMultiSite <- function(nYearsMS,
                           siteInfoDist = NA, ###if not NA Disturbance modules are activated
                           latitude = NA,
                           TsumSBBs = NA,
-                          SMIt0 = NA
+                          SMIt0 = NA,
+                          TminTmax = NA
                           ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -157,6 +160,14 @@ InitMultiSite <- function(nYearsMS,
   nVar <- length(varNam)
   
   nClimID <- length(unique(climIDs))
+  NI = matrix(0,nrow(PAR),ncol(PAR))
+  if(all(is.na(TminTmax))){
+    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
+  }else{
+    for(i in 1:nClimID){
+      NI[i,] <- NesterovInd(rain = Precip[i,],tmin = TminTmax[i,,1],tmax = TminTmax[i,,2]) 
+    }
+  }
   if(!all((1:nClimID) %in% climIDs) | length(climIDs) != nSites) warning("check consistency between weather inputs and climIDs")
   if(nClimID == 1){
     nClimID = 2
@@ -518,6 +529,8 @@ if(alpharNcalc){
   }
 } 
 
+  dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3))#### build daily output array for PRELES
+  dailyPRELES[,,3] <- NI[climIDs,] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
   multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year 
 
   multiSiteInit <- list(
@@ -558,7 +571,7 @@ if(alpharNcalc){
     energyCut = energyCut,
     inDclct = inDclct,
     inAclct = inAclct,
-    dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
+    dailyPRELES = dailyPRELES,
     yassoRun = yassoRun,
     smoothP0 = smoothP0,
     smoothETS = smoothETS,
