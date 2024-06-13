@@ -184,8 +184,13 @@ if (outDist(year,4)>0.) then !in case of disturbance
   endif  
 endif ! end salvlog/mgmtrect module
 
+
+outDist(year,10) = clcut
+
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
   pHarvTrees = 0.
+  outDist(year,7:9) = 0.
+
 endif
 
 
