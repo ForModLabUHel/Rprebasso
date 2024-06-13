@@ -411,7 +411,9 @@ endif
    endif
 
 
-
+   if(Clcut(i) < 0) then !protected area / unmanaged site flag: Clcut = -1, needs to override setting to 0 to block tapio mgmt above in order to also block salvage logging/mgmtreaction to disturbances  
+     ClCutX = Clcut(i)
+   endif
 
 
   
@@ -537,9 +539,7 @@ endif
    maxState(i) = 0.
   endif
   
-  if(Clcut(i) < 0) then !protected area / unmanaged site flag: Clcut = -1, needs to override setting to 0 to block tapio mgmt above in order to also block salvage logging/mgmtreaction to disturbances  
-    ClCutX = Clcut(i)
-  endif
+
   
    enddo ! i
    ops = maxloc(maxState)
