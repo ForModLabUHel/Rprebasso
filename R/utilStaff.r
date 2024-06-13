@@ -864,22 +864,24 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     }
   }
   
-  
-#' Nesterov Index
-#' A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
-#' @param Precip daily precipitation (mm)
-#' @param Tmin daily minimum temperature (ºC)
-#' @param TmaX daily maximum temperature (ºC)
-#'
-#' @return the Nesterov Index 
-#' @export
-#'
-#' @examples
-  NestInd <- function(Precip, Tmin, TmaX){
-    
+  #' Nesterov Index
+  #' A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
+  #' @param Precip daily precipitation (mm)
+  #' @param Tmin daily minimum temperature (ºC)
+  #' @param TmaX daily maximum temperature (ºC)
+  #'
+  #' @return the Nesterov Index 
+  #' @export
+  #'
+  #' @examples
+  NesterovInd <- function(Precip, Tmin, TmaX){
+    nDays <- length(Precip)
+    NI <- rep(0,nDays)
+    daysX <- (which(Precip[2:nDays]< 3 & (Tmin[2:nDays]-4)>=0))+1 #do not consider the first day
+    if(length(daysX)>0){
+      NI[daysX] = (Tmax[daysX]*(Tmax[daysX]-Tmin[daysX]-4.))+
+        (Tmax[daysX-1]*(Tmax[daysX-1]-Tmin[daysX-1]-4))  
+    }
+    return(NI)
   }
-  ! 
-  do i = 2,nDays
-  if(Precip(i)<3. .and. (Tmin(i)-4)>=0.) NI(i) = (Tmax(i)*(Tmax(i)-Tmin(i)-4.))+(Tmax(i-1.)*(Tmax(i-1.)-Tmin(i-1.)-4.))
-  end do
   
