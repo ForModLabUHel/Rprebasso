@@ -167,7 +167,7 @@ if (outDist(year,4)>0.) then !in case of disturbance
   ! MGMT REACTION / PRIORITISATION IN SITEORDER
   if(vdam>=siteInfoDist(8)) then
     call random_number(rndm)
-    if(rndm<=siteInfoDist(7)) then
+    if(rndm<=siteInfoDist(9)) then
       outDist(year,8) = 1.! if sampled for mgmtreact
       pHarvTrees = siteInfoDist(7)! force salvlog as well (very unlikely to be omitted)
       outDist(year,7) = 1.
