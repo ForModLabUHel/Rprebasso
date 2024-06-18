@@ -15,7 +15,6 @@ initialAgeSeedl <- function(SiteType,ETS){
 #'
 #' @param pCro matrix of CROBAS parameters where each column correspond to a different species
 #' @param initVarX initial state of the forests.
-#' @param par_alfar0 first year value of alfar (alfar changes every year if based on CN).  
 #'
 #' @return the biomasses at initialization 
 #' @export
@@ -24,7 +23,6 @@ initialAgeSeedl <- function(SiteType,ETS){
 initBiomasses <- function(pCro,initVarX){
   initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
   siteType <- initVarX[8,1]
-  par_alfar0 <- initVarX[9,]
   layerXs <- which(initVarX[1,] %in% 1:ncol(pCROB))
   ##set parameters
   par_betab <- pCro[13,initVarX[1,layerXs]]
@@ -50,8 +48,8 @@ initBiomasses <- function(pCro,initVarX){
   Lc <- h - hc
   
   ### Fine root allocation of early growth  
-  age_factor <-  (1. - (1- pCro[45,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[46,initVarX[1,layerXs]])/ pCro[47,initVarX[1,layerXs]])))/ pCro[45,initVarX[1,layerXs]] 
-  par_alfar <- par_alfar0[layerXs] * age_factor
+  age_factor <-  (1. - (1- pCro[44,initVarX[1,layerXs]])/ (1. + exp((-h+ pCro[45,initVarX[1,layerXs]])/ pCro[46,initVarX[1,layerXs]])))/ pCro[44,initVarX[1,layerXs]] 
+  par_alfar <- pCro[20+pmin(siteType,5),initVarX[1,layerXs]]* age_factor
   par_rhor <- par_alfar * par_rhof
   beta0 <- par_beta0 * age_factor
   
@@ -105,10 +103,10 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                'H','D', 'BA','Hc_base','Cw','Ac','N','npp','leff','keff','lproj','ET_preles','weight',
                'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_fWoody','Litter_cWoody','V',
                'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"VroundWood","WroundWood","soilC",
-               "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh", "NEP"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
-               "Wbh","Wcrh","Gf/Nup", "Gr/Ndem", "Gw/Umax")
+               "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh/SBBpob[layer_1]", "NEP/SMI[layer_1]","W_wsap/fireRisk[layer_1]","W_c","W_s","Wsh","Wdb","dHc",
+               "Wbh","Wcrh")
 
-getVarNam <- function(){
+  getVarNam <- function(){
     return(varNames)
 }
 
@@ -768,45 +766,8 @@ getVarNam <- function(){
     return(multiSiteInit)
   }
   
-
-  
-  calETSmean <- function(ETSy,k=20){
-    ETSmean <- ETSy
-    nYears <- length(ETSmean)
-    for(i in 2:nYears) ETSmean[i] = ETSmean[i-1] + (ETSy[i]-ETSmean[i-1])/20.
-    return(ETSmean[2:nYears])
-  }
-
-  
-  ###calculate CN ratio
-  CNratio <- function(latitude, st,pars){
-    int_CN = pars[1]
-    p_lat = pars[2]
-    p_st = pars[3]
-    #calculate CN ratio
-    CN = int_CN + p_lat * latitude + p_st * st    
-    return(CN)
-  }
-  
-
-  fTfun <- function(TAir, precip, Tampl){
-    
-    # temperature annual cycle approximation
-    te1 = TAir+4*Tampl*(1/sqrt(2.0)-1)/pi
-    te2 = TAir-4*Tampl/sqrt(2.0)/pi
-    te3 = TAir+4*Tampl*(1-1/sqrt(2.0))/pi
-    te4 = TAir+4*Tampl/sqrt(2.0)/pi
-    
-    # Average temperature dependence
-    te1 = exp(0.059*te1+ 0.001*te1^2.0)
-    te2 = exp(0.059*te2+ 0.001*te2^2.0)
-    te3 = exp(0.059*te3+ 0.001*te3^2.0)
-    te4 = exp(0.059*te4+ 0.001*te4^2.0)
-    temGeneral = (te1+te2+te3+te4)/4
-    
-    #add precipitation dependence
-    fT = temGeneral *(1.0 - exp(-1.858*precip/1000.0))
-    
+  fTfun <- function(TAir, precip){
+    fT <- exp(0.059*TAir - 0.001*TAir^2)* (1-exp(-1.858*precip))
     return(fT)
   }
   
@@ -816,9 +777,6 @@ getVarNam <- function(){
     fT <- fTfun(TAir,precip)
     alphar <- alphar0 * p0/p00*fT0/fT
   }
-  
-  
-  
   
   
   ###wrapper funtion to call in R the Fortran funtion used to run the ground vegetation model and reporting the outputs for each vegetation type  
@@ -831,7 +789,7 @@ getVarNam <- function(){
     output <- test$output
     return(output)
   }
-  
+
   ###function to run the GVmodel and report the output by vegetation type: grass and herbs, shrubs and moss&lichens  
   ###modOut is a PREBAS run (muöltisite or region) it needs to be adapted to single site runs
   ####GPP and NPP are calculated based on fAPAR and biomass ratios respectively
@@ -905,3 +863,25 @@ getVarNam <- function(){
       return(GVout)
     }
   }
+  
+  #' Nesterov Index
+  #' A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
+  #' @param rain daily precipitation (mm)
+  #' @param tmin daily minimum temperature (ºC)
+  #' @param tmaX daily maximum temperature (ºC)
+  #'
+  #' @return the Nesterov Index 
+  #' @export
+  #'
+  #' @examples
+  NesterovInd <- function(rain, tmin, tmax){
+    nDays <- length(rain)
+    NI <- rep(0,nDays)
+    daysX <- (which(rain[2:nDays]< 3 & (tmin[2:nDays]-4)>=0))+1 #do not consider the first day
+    if(length(daysX)>0){
+      NI[daysX] = (tmax[daysX]*(tmax[daysX]-tmin[daysX]-4.))+
+        (tmax[daysX-1]*(tmax[daysX-1]-tmin[daysX-1]-4))  
+    }
+    return(NI)
+  }
+  
