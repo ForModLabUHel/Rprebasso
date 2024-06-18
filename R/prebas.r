@@ -443,7 +443,7 @@ prebas <- function(nYears,
   dailyPRELES = matrix(-999,(nYears*365),3) #### build daily output array for PRELES
   dailyPRELES[,3] <- NI ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
   
-  multiOut[1,46,1,2] <- SMIt0 #initialize SMI first year
+  output[1,46,1,2] <- SMIt0 #initialize SMI first year
 
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
