@@ -385,7 +385,7 @@ prebas <- function(nYears,
   
   if(is.na(P00CN)) P00CN <- 0
   
-  multiOut[1,46,1,2] <- SMIt0 #initialize SMI first year
+  output[1,46,1,2] <- SMIt0 #initialize SMI first year
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
