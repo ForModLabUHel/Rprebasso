@@ -4,7 +4,14 @@
 \alias{multiPrebas}
 \title{Title}
 \usage{
-multiPrebas(multiSiteInit, fertThin = 0, nYearsFert = 20, oldLayer = 0)
+multiPrebas(
+  multiSiteInit,
+  fertThin = 0,
+  yearFert = NULL,
+  deltaSiteTypeFert = 1,
+  nYearsFert = 20,
+  oldLayer = 0
+)
 }
 \arguments{
 \item{multiSiteInit}{output from the InitMultiSite function: initialized prebas inputs}

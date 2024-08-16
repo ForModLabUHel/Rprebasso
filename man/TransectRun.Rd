@@ -56,7 +56,16 @@ TransectRun(
   ingrowth = FALSE,
   soilPar = NA,
   siteInfoDist = NA,
-  modVersion = "multiSite"
+  modVersion = "multiSite",
+  nYearsFert = 20,
+  yearFert = NULL,
+  deltaSiteTypeFert = 1,
+  fertThin = 0,
+  oldLayer = 0,
+  latitude = c(60.295, 60.959, 61.377, 62.647, 64.441, 66.143, 68.203),
+  TsumSBBs = matrix(-999, 7, 4),
+  SMIt0 = rep(-999, 7),
+  TminTmax = NA
 )
 }
 \arguments{
@@ -160,9 +169,25 @@ TransectRun(
 
 \item{soilPar}{# input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values}
 
-\item{siteInfoDist}{# UNDER DEVELOPMENT! external data for wind risk modelling. Switches on wind risk calculations; output: outDist. Matrix with dims(nSites, 4): 1 = 10a max windspeed, m/s; 2: time since thining (years; for initialisation, but currently used throughout simulations); 3: soiltype (0 = mineral, coarse; 1 = mineral, fine; 2 = organic); 4: shallow soil (0 = F, >30cm; 1 = T, <30cm)}
-
 \item{modVersion}{# model version to use in the simulations it can be multiSite or region}
+
+\item{nYearsFert}{number of years after thinnings for which the fertilization is effective. default values is 20 years}
+
+\item{yearFert}{simulation year when fertilization occurred}
+
+\item{deltaSiteTypeFert}{fertilization impact}
+
+\item{fertThin}{flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3}
+
+\item{oldLayer}{flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)}
+
+\item{latitude}{latitude of the site}
+
+\item{TsumSBBs}{initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year}
+
+\item{SMIt0}{site vector of initial SoilMoirture index}
+
+\item{TminTmax}{array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations}
 }
 \value{
 The output from multiPrebas()
