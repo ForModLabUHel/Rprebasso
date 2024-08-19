@@ -52,6 +52,10 @@
 #' @param soilPar # input a matrix (dim=nSites,3 ) with soil depth, FC, WP, for each site if NA uses the default values
 #' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
 #' @param modVersion # model version to use in the simulations it can be multiSite or region
+#' @param oldLayer flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)
+#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
+#' @param SMIt0 site vector of initial SoilMoirture index
+#' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #' 
 #' @importFrom plyr aaply
 #'
@@ -136,7 +140,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         deltaSiteTypeFert = 1,
                         oldLayer=0,
                         TsumSBBs = matrix(-999.,7,4),
-                        SMIt0 = rep(-999,7)
+                        SMIt0 = rep(-999,7),
+                        TminTmax = NA
                         ){
   
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
@@ -263,7 +268,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     fT0AvgCurrClim = fT0AvgCurrClim,
     alpharVersion = alpharVersion,
     TsumSBBs = TsumSBBs,
-    SMIt0 = SMIt0
+    SMIt0 = SMIt0,
+    TminTmax = TminTmax
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
 

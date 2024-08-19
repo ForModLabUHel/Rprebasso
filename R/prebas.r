@@ -54,6 +54,8 @@
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
+#' @param SMIt0 site vector of initial SoilMoirture index
+#' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #' @return
 #' @export
 #'
@@ -113,12 +115,20 @@ prebas <- function(nYears,
                    deltaSiteTypeFert = 1,
                    P00CN = NA,
                    TsumSBBs = NA,
-                   SMIt0 = NA
+                   SMIt0 = NA,
+                   TminTmax = NA
               ){
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
   if(is.na(SMIt0)) SMIt0 <- -999
-    
+  
+  NI = rep(0,length(PAR))
+  if(all(is.na(TminTmax))){
+    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
+  }else{
+    NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2]) 
+  }
+  
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the site")
   }else{
@@ -385,6 +395,9 @@ prebas <- function(nYears,
   
   if(is.na(P00CN)) P00CN <- 0
   
+  dailyPRELES = matrix(-999,(nYears*365),3) #### build daily output array for PRELES
+  dailyPRELES[,3] <- NI[1:(nYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
+  
   output[1,46,1,2] <- SMIt0 #initialize SMI first year
   
   prebas <- .Fortran("prebas",
@@ -419,7 +432,7 @@ prebas <- function(nYears,
                      energyCut=as.double(energyCut),
                      inDclct=as.double(inDclct),
                      inAclct=as.double(inAclct),
-                     dailyPRELES = matrix(-999,(nYears*365),3),
+                     dailyPRELES = dailyPRELES,
                      yassoRun=as.double(yassoRun),
                      energyWood = as.array(energyWood),
                      tapioPars = as.array(tapioPars),

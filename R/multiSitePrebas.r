@@ -53,7 +53,8 @@ InitMultiSite <- function(nYearsMS,
                           P00CN = NA,
                           yearsCurrClimAv = 30,
                           TsumSBBs = NA,
-                          SMIt0 = NA
+                          SMIt0 = NA,
+                          TminTmax = NA
 ){  
   
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -91,6 +92,14 @@ InitMultiSite <- function(nYearsMS,
   nVar <- length(varNam)
   
   nClimID <- length(unique(climIDs))
+  NI = matrix(0,nrow(PAR),ncol(PAR))
+  if(all(is.na(TminTmax))){
+    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
+  }else{
+    for(i in 1:nClimID){
+      NI[i,] <- NesterovInd(rain = Precip[i,],tmin = TminTmax[i,,1],tmax = TminTmax[i,,2]) 
+    }
+  }
   if(!all((1:nClimID) %in% climIDs) | length(climIDs) != nSites) warning("check consistency between weather inputs and climIDs")
   if(nClimID == 1){
     nClimID = 2
@@ -457,6 +466,8 @@ InitMultiSite <- function(nYearsMS,
   
   if(all(is.na(P00CN))) P00CN <- rep(0,nSites)
   
+  dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3))#### build daily output array for PRELES
+  dailyPRELES[,,3] <- NI[climIDs,1:(maxYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
   multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year
 
   multiSiteInit <- list(
@@ -497,7 +508,7 @@ InitMultiSite <- function(nYearsMS,
     energyCut = energyCut,
     inDclct = inDclct,
     inAclct = inAclct,
-    dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3)),
+    dailyPRELES = dailyPRELES,
     yassoRun = yassoRun,
     smoothP0 = smoothP0,
     smoothETS = smoothETS,
