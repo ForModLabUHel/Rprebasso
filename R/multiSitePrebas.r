@@ -864,6 +864,7 @@ regionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
                          cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
+                         ### set to -1001 if you want to switch off the clearcut
                          ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
                          ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
                          compHarv = 0.,###flag for compensating harvest if harvest do not reach the desired levels
@@ -1091,6 +1092,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                          HarvLim = NA,
                          minDharv = 999.,
                          cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
+                         ### set to -1001 if you want to switch off the clearcut
                          ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
                          ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
                          compHarv=0,###flag for compensating harvest if harvest do not reach the desired levels
