@@ -131,8 +131,9 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
  
  !fire disturbances
-real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
-real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
+ real (kind=8) :: dailySW(365)
+ real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
+ real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
  !BB disturbances
  real (kind=8) :: spruceStandVars(3),pBB(5), SMI, SMIt0,SHI,intenSpruce !SMIt0 = SMI previous year
 ! real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
@@ -575,7 +576,7 @@ endif
 
    outt(46,1,2)  = prelesOut(7) !SMI
    SMI = prelesOut(7) !SMI
-   !dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
+   dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
 
 endif
 !enddo !! end site loop
