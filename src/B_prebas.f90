@@ -140,6 +140,8 @@ real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+NI(:) = dailyPRELES(:,3) !read nestorov index and reset to -999 the dailyPreles output
+dailyPRELES(:,3) = -999.0
 SMIt0 = output(1,46,1,2) !initialize SMI previous year
 output(1,46,1,2) = 0.d0
 lastGVout = 0.
@@ -1781,6 +1783,22 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
  
 
 modOut(year+1,5,1,2) = ETSmean
+
+!!!fire disturbance calculations
+ ! if(fireDistFlag) 
+  Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:)) 
+  Cpool_litter_green = sum(soilC((year+1),1:4,3,:)) * sum(outt(26,:,1))/sum(outt(26,:,1)+outt(27,:,1))
+  livegrass = 0.!GVout(year,4)
+  soil_moisture(:) = ((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
+  Tmin = weatherPRELES(year,:,2) - 3.6
+  Tmax = weatherPRELES(year,:,2) + 3.7
+  FDI(:) = 0. 
+  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
+			weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI)
+  modOut((year+1),47,:,2) = 0.
+  modOut((year+1),47,1,2) = maxval(FDI)
+ ! endif
+
 
 enddo !end year loop
 
