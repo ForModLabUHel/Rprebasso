@@ -495,7 +495,6 @@ sCststPrebasOut <- function(x){
 
 
 ####Wrapper function for YASSO runs (fortran version) with PREBAS inputs
-####Wrapper function for YASSO runs (fortran version) with PREBAS inputs
 yassoPREBASinOldversion <- function(prebOut,initSoilC,pYASSO = pYAS, litterSize = NA, pAWEN=parsAWEN){
   ###litter is array with dimensions:(nSites, nYears, nLayers, 3) !!!fourth dimension (3) 1 is fine litter, 2 = branch litter, 3=stemLitter
   ####species is a matrix dims= nSites,nLayers

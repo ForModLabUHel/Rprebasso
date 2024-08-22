@@ -61,6 +61,7 @@
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #' @param SMIt0 site vector of initial SoilMoirture index
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
+#' @param soilC_steadyState flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year
 #' 
 #' @importFrom plyr aaply
 #'
@@ -118,7 +119,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilCtot = NA,
                         inDclct = NA,
                         inAclct = NA,
-                        yassoRun = 0,
+                        yassoRun = 1,
                         smoothP0 = 1,
                         smoothETS = 1,
                         smoothYear=5,
@@ -150,10 +151,16 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         latitude = c(60.295,60.959,61.377,62.647,64.441,66.143,68.203),
                         TsumSBBs = matrix(-999.,7,4),
                         SMIt0 = rep(-999,7),
-                        TminTmax = NA
+                        TminTmax = NA,
+                        soilC_steadyState=FALSE
 ) {
 
-  
+  if(all(!is.na(soilC))){
+    if(soilC_steadyState) warning("soilC at steady state was not computed because initial soilC was inputed")
+    soilC_steadyState = FALSE
+    yassoRun = 1
+  }
+  if(soilC_steadyState) yassoRun = 1
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   
@@ -302,5 +309,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                                deltaSiteTypeFert = deltaSiteTypeFert,
                                oldLayer=oldLayer)
   }  
+  
+  if(soilC_steadyState){
+    stst_soilC <- stXX_GV(TransectOut,GVrun = 1)
+    TransectOut <-yassoPREBASin(prebOut=TransectOut,initSoilC=stst_soilC)
+    TransectOut$stst_soilC <- stst_soilC
+  }
   return(TransectOut)
 }
