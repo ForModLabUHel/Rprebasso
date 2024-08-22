@@ -62,7 +62,8 @@ TransectRun(
   oldLayer = 0,
   TsumSBBs = matrix(-999, 7, 4),
   SMIt0 = rep(-999, 7),
-  TminTmax = NA
+  TminTmax = NA,
+  soilC_steadyState = FALSE
 )
 }
 \arguments{
@@ -175,6 +176,8 @@ TransectRun(
 \item{SMIt0}{site vector of initial SoilMoirture index}
 
 \item{TminTmax}{array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations}
+
+\item{soilC_steadyState}{flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year}
 }
 \value{
 The output from multiPrebas()
