@@ -37,18 +37,56 @@ wrisk0 = 0
 wrisk5 = 0
 wrisk = 0
 
-! WINDRISK SUBROUTINE
-!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
-!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
-call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
-  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+! UPDATE: version considering layer with largest H as well as those within a 5m range
+! to better account for effect of mixtures
+ ! real (kind=8) :: wdistproc(7) !to replace siteinfodist
+! DRAFT: 
+!real (kind=8)::wrisk_hdomlayers(nLayers), hthresh, htresh_ba !
+hthresh = (maxval(STAND_all(11,:))-5)
+htresh_ba = 0
+do i = 1, nLayers
+   if(STAND_all(11,i) > hthresh) THEN
+ ! setting wrisks to 0 (subroutine inout), to be simplified
+  wrisk5dd1 = 0
+  wrisk5dd2 = 0
+  wrisk5dd3 = 0
+  wrisk0 = 0
+  wrisk5 = 0
+  wrisk = 0
+  call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
+  INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+  htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
+wrisk_hdomlayers(i) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
+
+ outDist(year,3) = sum(wrisk_hdomlayers(:))/htresh_ba
+ ! for development of wrisk of co-dominant layers
+outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
+outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
+outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
+
+ end if
+  end do
+!!! END DRAFT
+
+
+
+
+!! WINDRISK SUBROUTINE
+!!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
+!!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
+!call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
+!  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
 
 !assigning risks
 
-outDist(year,1) = wdistproc(2) ! dom spec
-outDist(year,2) = siteInfoDist(2) !tsincethin
-outDist(year,3) = wrisk !1a
+!outDist(year,1) = wdistproc(2) ! dom spec
+!outDist(year,2) = siteInfoDist(2) !tsincethin
+!outDist(year,3) = wrisk !1a
 
+
+
+
+!!!! ABOVE: REPLACED BY DRAFT
 
 !!!!!!! WIND DISTURBANCE IMPACT MODELLING !!!!!!!!!!
 ! basic idea: 3-step sampling
@@ -156,7 +194,8 @@ if (outDist(year,4)>0.) then !in case of disturbance
   pHarvTrees = 0.
 
   ! SALVAGE LOGGING
-  if(vdam>=siteInfoDist(5)) then
+  if(vdam>=siteInfoDist(5)) then ! threshold for salvage logging
+    siteInfoDist(2) = 0 ! reset thinning counter, i.e. wind disturbance temporarily increases wind risk 
     call random_number(rndm)
     if(rndm<=siteInfoDist(6)) then 
       pHarvTrees = siteInfoDist(7)! if sampled for salvlog set pHarvTrees
@@ -185,7 +224,7 @@ if (outDist(year,4)>0.) then !in case of disturbance
 endif ! end salvlog/mgmtrect module
 
 
-outDist(year,10) = clcut
+! outDist(year,10) = clcut
 
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
   pHarvTrees = 0.
