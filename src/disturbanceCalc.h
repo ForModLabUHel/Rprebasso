@@ -13,33 +13,32 @@
 
 
 !!!!!!!!!!!!! PREPARING WIND RISK INPUTS!!!!!!!
+
+
+! BELOW: Version considering only the single highest layer for stand level risk estimate (Legacy, but might still be useful)
 ! dev: outDist(,X) 1 = dom layer #; 2 dom layer spec; 3 dom layer h, 4 sitetype, 5 ETS; 6-10 wind risks
-wdistproc(1) = 1. !dominant layer
-wdistproc(2) = STAND_all(4,1) ! species, layer 1
-wdistproc(3) = STAND_all(11,1) !h, layer 1
+!wdistproc(1) = 1. !dominant layer
+!wdistproc(2) = STAND_all(4,1) ! species, layer 1
+!wdistproc(3) = STAND_all(11,1) !h, layer 1
 
 !outDist(year, 10) = STAND_all(11,2)
 ! layer-level data: spec & h of dominant layer
-IF(nLayers>1) THEN !if there's more than one layer
-  do i = 2, nLayers !loop through them
-     if(STAND_all(11,i) > wdistproc(3)) then !higher than previous ones
-        wdistproc(1) = i ! set new dom layer dim
-        wdistproc(2) = STAND_all(4,i) !set new spec
-        wdistproc(3) = STAND_all(11,i) !set new h
-     end if
-  end do
-end if
-! setting wrisks to 0 (subroutine inout), to be simplified
-wrisk5dd1 = 0
-wrisk5dd2 = 0
-wrisk5dd3 = 0
-wrisk0 = 0
-wrisk5 = 0
-wrisk = 0
+!IF(nLayers>1) THEN !if there's more than one layer
+!  do i = 2, nLayers !loop through them
+!     if(STAND_all(11,i) > wdistproc(3)) then !higher than previous ones
+!        wdistproc(1) = i ! set new dom layer dim
+!        wdistproc(2) = STAND_all(4,i) !set new spec
+!        wdistproc(3) = STAND_all(11,i) !set new h
+!     end if
+!  end do
+!end if
+! //END single highest layer wind risk estimation
+
+
+wdistproc(:) = 0
 
 ! UPDATE: version considering layer with largest H as well as those within a 5m range
 ! to better account for effect of mixtures
- ! real (kind=8) :: wdistproc(7) !to replace siteinfodist
 ! DRAFT: 
 !real (kind=8)::wrisk_hdomlayers(nLayers), hthresh, htresh_ba !
 hthresh = (maxval(STAND_all(11,:))-5)
@@ -56,37 +55,20 @@ do i = 1, nLayers
   call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
   INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
   htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
-wrisk_hdomlayers(i) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
-
- outDist(year,3) = sum(wrisk_hdomlayers(:))/htresh_ba
- ! for development of wrisk of co-dominant layers
-outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
-outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
-outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
+  wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
+!  ! for development of wrisk of co-dominant layers
+! outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
+! outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
+! outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
 
  end if
   end do
-!!! END DRAFT
 
+!!! END multi-layer site level wind risk estimation
+outDist(year,1) = wdistproc(2) ! dom spec
+outDist(year,2) = siteInfoDist(2) !tsincethin
+outDist(year,3) = sum(wriskLayers(:,1))/htresh_ba
 
-
-
-!! WINDRISK SUBROUTINE
-!!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
-!!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
-!call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
-!  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
-
-!assigning risks
-
-!outDist(year,1) = wdistproc(2) ! dom spec
-!outDist(year,2) = siteInfoDist(2) !tsincethin
-!outDist(year,3) = wrisk !1a
-
-
-
-
-!!!! ABOVE: REPLACED BY DRAFT
 
 !!!!!!! WIND DISTURBANCE IMPACT MODELLING !!!!!!!!!!
 ! basic idea: 3-step sampling
@@ -146,17 +128,17 @@ endif
 ! idea: - calculate layer-level risks for dominant layer + those with H>(domh-3m) (for now)
 !       - distribute share across layers according to ratios of wrisks
 
-!!!! LAYER LEVEL WIND RISK !!!!
-wriskLayers(:,:) = 0
-IF(outDist(year,4) >0 .AND. nLayers>1) THEN !if there's a wind disturbance and more than one layer
-  do i = 1, nLayers !loop through them
-     if (STAND_all(11,i) > (wdistproc(3)-5)) then !within 5 m of highest layer (which the total wind risk is based on) !!! 
-     call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1),  INT(siteInfoDist(2)), & !calculate layer wind risk
-       wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
-       wriskLayers(i, 1) = wrisk  
-     end if
-  end do
-end if
+!!!! LAYER LEVEL WIND RISK !!!! // update: now already calculated for site-level wind risk above.
+! wriskLayers(:,:) = 0
+! IF(outDist(year,4) >0 .AND. nLayers>1) THEN !if there's a wind disturbance and more than one layer
+!   do i = 1, nLayers !loop through them
+!      if (STAND_all(11,i) > (wdistproc(3)-5)) then !within 5 m of highest layer (which the total wind risk is based on) !!! 
+!      call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1),  INT(siteInfoDist(2)), & !calculate layer wind risk
+!        wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+!        wriskLayers(i, 1) = wrisk  
+!      end if
+!   end do
+! end if
 
 !!! DISTRIBUTION OF DAMVOL TO LAYERS BASED ON WRISK & LAYER VOL
 BA_tot = sum(STAND_all(13,:))
@@ -224,15 +206,13 @@ if (outDist(year,4)>0.) then !in case of disturbance
 endif ! end salvlog/mgmtrect module
 
 
-! outDist(year,10) = clcut
+ outDist(year,10) = clcut
 
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
   pHarvTrees = 0.
   outDist(year,7:9) = 0.
 
 endif
-
-
 
 !!!! UPDATING STAND VARS !!!!
 ! based on Francesco's code, only inputs necessary: layer level killed BA & pHarvTrees
