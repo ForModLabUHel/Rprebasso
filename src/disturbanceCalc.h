@@ -215,7 +215,7 @@ endif ! end salvlog/mgmtrect module
  if(.TRUE.) then !if XX everything is switch off for the moment !wdimp x1
  ! 
  ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-  if (disturbanceON) then !x2
+  if (disturbance_wind) then !x2
    ! BAmort = 0.d0
    ! pMort = 0.2d0
    BAdist = wriskLayers(:,6) !disturbed layer ba/layer ba

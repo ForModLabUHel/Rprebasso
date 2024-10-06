@@ -17,25 +17,25 @@
   outt(45,1,2) = pBB(1)
   TsumSBBs(1:3) = TsumSBBs(2:4)  
   
-
-  !calculate intensity
+!calculate intensity
   if(spruceStandVars(3)>0.) then
-   SHI = (spruceStandVars(1)/spruceStandVars(3))*(1.0-SMIt0)/0.2093014 !(spruceStandVars(1)/spruceStandVars(3)) = Baspruce fraction
-   intenSpruce = 1.d0/(1.d0+exp(3.9725-2.9673*SHI))
+   call bb_imp_mod(SMIt0,spruceStandVars(1),intenSpruce)
+ !old version (start)
+   ! SHI = (spruceStandVars(1)/spruceStandVars(3))*(1.0-SMIt0)/0.2093014 !(spruceStandVars(1)/spruceStandVars(3)) = Baspruce fraction
+   ! intenSpruce = 1.d0/(1.d0+exp(3.9725-2.9673*SHI))
+ !old version (end)
    if((spruceStandVars(1)/spruceStandVars(3)) < 0.05) intenSpruce = 0. ! If no spruce, damage intensity set zero
-  else
-   SHI = 0.d0
-   intenSpruce = 0.d0
   endif
-  outt(48,:,2) = intenSpruce * rBAspruce
+  outt(48,1,2) = intenSpruce !* spruceStandVars(1)
 
-if(.FALSE.) then !!!!mortality caused by bark beetle is switched off for now
+if(disturbance_bb) then !!!!mortality caused by bark beetle is switched off for now
 !!!sample to see if bb attack occurs
   call random_number(rndm)
   if(rndm <= pBB(1)) then !if BB attack
 !   outt(48,:,2) = intenSpruce * rBAspruce
    pHarvTrees = 0. !!!for now is 0 then we need to modify this if salvage logging, see jonathan code
-   BAdist = intenSpruce * rBAspruce * STAND_all(13,:)
+   call baBBdist_bylay_fun(outt((/4,11,13/),:,1),nLayers,(/2,10/),2,BAdist,((intenSpruce) * spruceStandVars(1)))
+   outt(43,:,2)=BAdist! BAdist = intenSpruce * rBAspruce * STAND_all(13,:)
    
    include 'updateStandAfterDist.h'
 

@@ -62,6 +62,7 @@
 #' @param SMIt0 site vector of initial SoilMoirture index
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #' @param soilC_steadyState flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year
+#' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
 #' 
 #' @importFrom plyr aaply
 #'
@@ -152,7 +153,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         TsumSBBs = matrix(-999.,7,4),
                         SMIt0 = rep(-999,7),
                         TminTmax = NA,
-                        soilC_steadyState=FALSE
+                        soilC_steadyState=FALSE,
+                        disturbanceON = NA
 ) {
 
   if(all(!is.na(soilC))){
@@ -288,7 +290,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     latitude = latitude,
     TsumSBBs = TsumSBBs,
     SMIt0 = SMIt0,
-    TminTmax = TminTmax
+    TminTmax = TminTmax,
+    disturbanceON = disturbanceON
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age

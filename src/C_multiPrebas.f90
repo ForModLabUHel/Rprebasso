@@ -36,7 +36,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
           !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
 
-logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
+! logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
 real (kind=8), intent(inout) :: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
  !!! fertilization parameters
@@ -69,8 +69,8 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
-if(prebasFlags(6)==0) disturbanceON = .FALSE.
-if(prebasFlags(6)==1) disturbanceON = .TRUE.
+! if(prebasFlags(6)==0) disturbanceON = .FALSE.
+! if(prebasFlags(6)==1) disturbanceON = .TRUE.
 
 !outDist(:,:,:) = 99!prebasFlags(6)
 !outDist(1,10) = siteInfoDist(1,1)

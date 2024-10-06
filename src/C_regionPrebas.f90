@@ -38,7 +38,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer, intent(in) :: DOY(365)!,etmodel, ECMmod fvec
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
  !disturbances
- logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
+ ! logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
  real (kind=8), intent(inout):: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
@@ -92,8 +92,8 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
-if(prebasFlags(6)==0) disturbanceON = .FALSE.
-if(prebasFlags(6)==1) disturbanceON = .TRUE.
+! if(prebasFlags(6)==0) disturbanceON = .FALSE.
+! if(prebasFlags(6)==1) disturbanceON = .TRUE.
 !if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
 
 !!!!initialize run

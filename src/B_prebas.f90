@@ -32,7 +32,7 @@ implicit none
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
 !disturbances
- logical :: disturbanceON !fvec
+ logical :: disturbance_wind, disturbance_bb, disturbance_fire !fvec
  real (kind=8), intent(inout) :: siteInfoDist(4), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  real (kind=8) :: rndm !random number for disturbance sampling
  integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
@@ -161,13 +161,38 @@ gvRun = int(prebasFlags(2))
 fertThin = int(prebasFlags(3))
 oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
-if(prebasFlags(6)==0) disturbanceON = .FALSE.
-if(prebasFlags(6)==1) disturbanceON = .TRUE.
 
-! 
-! outDist(1,1) = prebasFlags(6)
-! outDist(1,2) = siteInfoDist(2)
-
+!!set disturbance flags
+! set all dist to 0 and then choose based on flag
+!if(prebasFlags(6)==0) then
+ disturbance_wind = .FALSE.
+ disturbance_bb = .FALSE.
+ disturbance_fire = .FALSE.
+!endif
+if(prebasFlags(6)==1) disturbance_wind = .TRUE.
+if(prebasFlags(6)==2) disturbance_bb = .TRUE.
+if(prebasFlags(6)==3) disturbance_fire = .TRUE.
+if(prebasFlags(6)==12) then
+ disturbance_wind = .TRUE.
+ disturbance_bb = .TRUE.
+endif
+if(prebasFlags(6)==12) then
+ disturbance_wind = .TRUE.
+ disturbance_bb = .TRUE.
+endif
+if(prebasFlags(6)==13) then
+ disturbance_wind = .TRUE.
+ disturbance_fire = .TRUE.
+endif
+if(prebasFlags(6)==23) then
+ disturbance_fire = .TRUE.
+ disturbance_bb = .TRUE.
+endif
+if(prebasFlags(6)==123) then
+ disturbance_wind = .TRUE.
+ disturbance_bb = .TRUE.
+ disturbance_fire = .TRUE.
+endif
 
 
   ! open(1,file="test1.txt")
@@ -1482,7 +1507,7 @@ if(defaultThin == 1.) then
 
    if(stand_all(17,ij)>0.) then
     STAND_tot = stand_all(:,ij)
-  species = int(max(1.,stand_all(4,ij)))
+    species = int(max(1.,stand_all(4,ij)))
     param = pCrobas(:,species)
     par_cR=param(1)
     par_rhow=param(2)
@@ -1516,8 +1541,8 @@ if(defaultThin == 1.) then
     par_thetaMax = param(31)
     par_H0max = param(32)
     par_gamma = param(33)
-  par_kH = param(34)
-  par_fAa = param(45)
+    par_kH = param(34)
+    par_fAa = param(45)
     par_fAb = param(46)
     par_fAc = param(47)
     par_rhof1 = 0.!param(20)
@@ -1692,7 +1717,7 @@ endif
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
  !!model disturbances
- if(disturbanceON) then
+ if(disturbance_wind) then
    include 'disturbanceCalc.h'
  endif
 

@@ -56,6 +56,7 @@
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #' @param SMIt0 site vector of initial SoilMoirture index
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
+#' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
 #' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -118,10 +119,30 @@ InitMultiSite <- function(nYearsMS,
                           latitude = NA,
                           TsumSBBs = NA,
                           SMIt0 = NA,
-                          TminTmax = NA
+                          TminTmax = NA,
+                          disturbanceON = NA
                           ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  
+  if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
+    if(length(disturbanceON)==1){
+      if(is.na(disturbanceON))  dist_flag = 0
+      if(disturbanceON=="wind") dist_flag = 1
+      if(disturbanceON=="bb")   dist_flag = 2
+      if(disturbanceON=="fire") dist_flag = 3
+    }
+    if(length(disturbanceON)==2){
+      if(all(c("wind","bb") %in%disturbanceON)) dist_flag=12
+      if(all(c("wind","fire") %in%disturbanceON)) dist_flag=13
+      if(all(c("fire","bb") %in%disturbanceON)) dist_flag=23
+    }
+    if(length(disturbanceON)==3){
+      dist_flag=123
+    }
+  }else{
+    stop("check the disturbance argument (disturbanceON), it must be fire, wind and/or bb or NA")
+  }
   
   nSites <- length(nYearsMS)
   if(all(is.na(SMIt0))) SMIt0 = rep(-999,nSites) 
@@ -592,7 +613,8 @@ if(alpharNcalc){
     alpharNcalc=alpharNcalc,
     siteInfoDist = siteInfoDist,
     latitude = latitude,
-    TsumSBBs = TsumSBBs
+    TsumSBBs = TsumSBBs,
+    dist_flag = dist_flag
   )
 
 
@@ -698,18 +720,22 @@ multiPrebas <- function(multiSiteInit,
 ###check and activate disturbance modules  
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
-  
   ####initialize disturbance module if exists
+  dist_flag <- multiSiteInit$dist_flag
   if(all(is.na(siteInfoDist))){
-    disturbanceON = FALSE
+    #if(all(multiSiteInit$prebasFlags(6)==0)) dist_flag = 0
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
-    disturbanceON = TRUE
-    siteInfoDist = multiSiteInit$siteInfoDist
+    if(!dist_flag %in% c(1,12,13,123)){
+      if(dist_flag==0) dist_flag = 1
+      if(dist_flag %in% c(2:3)) dist_flag = dist_flag + 10
+      if(dist_flag ==23) dist_flag = dist_flag + 100
+    }
+    siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
-  
+
 
   
   if(oldLayer==1){
@@ -725,13 +751,12 @@ multiPrebas <- function(multiSiteInit,
   #### vectorisation of flags ####
   # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
   
-  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
                               multiSiteInit$GVrun,     #int  
                               fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
-                              disturbanceSwitch))
+                              dist_flag))
   
 
   ###modify alphar if fertilization is included
@@ -891,16 +916,21 @@ regionPrebas <- function(multiSiteInit,
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
   ####initialize disturbance module if exists
+  dist_flag <- multiSiteInit$dist_flag
   if(all(is.na(siteInfoDist))){
-    disturbanceON = FALSE
+    #if(all(multiSiteInit$prebasFlags(6)==0)) dist_flag = 0
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
-    disturbanceON = TRUE
+    if(!dist_flag %in% c(1,12,13,123)){
+      if(dist_flag==0) dist_flag = 1
+      if(dist_flag %in% c(2:3)) dist_flag = dist_flag + 10
+      if(dist_flag ==23) dist_flag = dist_flag + 100
+    }
     siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
-
+  
   
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -940,13 +970,13 @@ if(ageHarvPrior>0){
   #### vectorisation of flags ####
   # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
   
-  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  # disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
                               multiSiteInit$GVrun,     #int  
                               fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
-                              disturbanceSwitch))
+                              dist_flag))
 
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -1117,18 +1147,30 @@ reStartRegionPrebas <- function(multiSiteInit,
   ###disturbance modules activation
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
-
+  ####initialize disturbance module if exists
+  dist_flag <- multiSiteInit$dist_flag
   if(all(is.na(siteInfoDist))){
-    disturbanceON = FALSE
+    #if(all(multiSiteInit$prebasFlags(6)==0)) dist_flag = 0
     siteInfoDist = matrix(0,multiSiteInit$nSites,4)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
-    disturbanceON = TRUE
-    siteInfoDist = multiSiteInit$siteInfoDist
+    if(!dist_flag %in% c(1,12,13,123)){
+      if(dist_flag==0) dist_flag = 1
+      if(dist_flag %in% c(2:3)) dist_flag = dist_flag + 10
+      if(dist_flag ==23) dist_flag = dist_flag + 100
+    }
+    siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
   
-  
+  # disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
+                              multiSiteInit$GVrun,     #int  
+                              fertThin,
+                              oldLayer,
+                              multiSiteInit$ECMmod,
+                              dist_flag))
+
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
