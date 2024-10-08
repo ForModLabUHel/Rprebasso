@@ -19,7 +19,7 @@
   
 !calculate intensity
   if(spruceStandVars(3)>0.) then
-   call bb_imp_mod(SMIt0,spruceStandVars(1),intenSpruce)
+   call bb_imp_mod(SMIt0,spruceStandVars(1)/spruceStandVars(3),intenSpruce)
  !old version (start)
    ! SHI = (spruceStandVars(1)/spruceStandVars(3))*(1.0-SMIt0)/0.2093014 !(spruceStandVars(1)/spruceStandVars(3)) = Baspruce fraction
    ! intenSpruce = 1.d0/(1.d0+exp(3.9725-2.9673*SHI))
