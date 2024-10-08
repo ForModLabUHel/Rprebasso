@@ -205,10 +205,13 @@ prebas <- function(nYears,
   #process disturbance flags
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
     if(length(disturbanceON)==1){
-      if(is.na(disturbanceON))  dist_flag = 0
-      if(disturbanceON=="wind") dist_flag = 1
-      if(disturbanceON=="bb")   dist_flag = 2
-      if(disturbanceON=="fire") dist_flag = 3
+      if(is.na(disturbanceON)){
+        dist_flag = 0
+      }else{
+        if(disturbanceON=="wind") dist_flag = 1
+        if(disturbanceON=="bb")   dist_flag = 2
+        if(disturbanceON=="fire") dist_flag = 3
+      }
     }
     if(length(disturbanceON)==2){
       if(all(c("wind","bb") %in%disturbanceON)) dist_flag=12
