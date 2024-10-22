@@ -706,7 +706,7 @@ if(!is.null(yearFert)){
 
 
 regionPrebas <- function(multiSiteInit,
-                         HarvLim = NA,
+                         HarvLim = NA, ##harvest limit matrix (nyears,2) col1= roundwood limit, col2= energyWood limit. If col1 between 0 and 10 harvest limits is calculated as fraction of the average gross growth of the previous 10 years 
                          minDharv = 999.,
                          cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
                          ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);

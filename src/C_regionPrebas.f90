@@ -54,7 +54,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,energy_flag=0.	!!energCuts
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
- integer :: year_smooth_cut_start,n_years_smooth_cut=5,n_years_smooth_cut_actual
+ integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
  
 
@@ -145,7 +145,6 @@ do ij = startSimYear,maxYears
 		multiOut(:,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
 	 energy_flag = 1.
 	endif
-	
  endif
  
 if(ij>1) then
