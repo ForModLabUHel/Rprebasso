@@ -52,8 +52,9 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
  real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
- real (kind=8) :: energyWood, roundWood, energyCutX,thinFact	!!energCuts
+ real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,energy_flag=0.	!!energCuts
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
+ integer :: year_smooth_cut_start,n_years_smooth_cut=5,n_years_smooth_cut_actual
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
  
 
@@ -128,8 +129,24 @@ do ij = startSimYear,maxYears
     ! open(1,file="test1.txt")
 	! write(1,*) ij, "start"
 	! close(1)
+
+	!initialize annual harvest
  roundWood = 0.
  energyWood = 0.	!!energCuts
+ ! if Harvlim is between 0 and 10 calculates the Harvest limit as % of net growth
+ if(HarvLim(ij,1)>0. .and. HarvLim(ij,1)<10.) then
+	if(ij==1) then
+	 HarvLim(ij,1) = 0. 
+	 HarvLim(ij,2) = 0.
+	else
+	 year_smooth_cut_start = max(ij-n_years_smooth_cut,1)
+	 n_years_smooth_cut_actual = min(n_years_smooth_cut,(ij-1))
+	 HarvLim(ij,1) = HarvLim(ij,1) * sum(multiOut(:,year_smooth_cut_start:(ij-1),43,:,1) - &
+		multiOut(:,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
+	 energy_flag = 1.
+	endif
+	
+ endif
  
 if(ij>1) then
  if(ageMitigScen > 0.) then
@@ -173,6 +190,10 @@ endif
 	endif
 	if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then		!!energCuts
 	 energyCutX = 0.
+	endif
+	if(energy_flag==1. .and. energyCuts(i)==1. .and. (ClCutX == 1. .or. defaultThinX== 1.)) then
+		energyCutX = 1.
+		energy_flag = 0.
 	endif
 
 !!!check if the limit area for tendings has been exceeded if yes no tending havest 
