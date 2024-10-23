@@ -39,37 +39,45 @@ wdistproc(:) = 0.
 
 ! UPDATE: version considering layer with largest H as well as those within a 5m range
 ! to better account for effect of mixtures
+ ! real (kind=8) :: wdistproc(7) !to replace siteinfodist
 ! DRAFT:
 !real (kind=8)::wrisk_hdomlayers(nLayers), hthresh, htresh_ba !
-
 hthresh = (maxval(STAND_all(11,:))-5)
-htresh_ba = 0.
+htresh_ba = 0
 do i = 1, nLayers
    if(STAND_all(11,i) > hthresh) THEN
-       ! setting wrisks to 0 (subroutine inout), to be simplified
-        wrisk5dd1 = 0
-        wrisk5dd2 = 0
-        wrisk5dd3 = 0
-        wrisk0 = 0
-        wrisk5 = 0
-        wrisk = 0
-        call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, INT(STAND_all(3,1)), STAND_all(5,1), &
-        INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
-        htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
-        wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
-      !  ! for development of wrisk of co-dominant layers
-      ! outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
-      ! outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
-      ! outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
-
+ ! setting wrisks to 0 (subroutine inout), to be simplified
+  wrisk5dd1 = 0
+  wrisk5dd2 = 0
+  wrisk5dd3 = 0
+  wrisk0 = 0
+  wrisk5 = 0
+  wrisk = 0
+  call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
+  INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+  htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
+wrisk_hdomlayers(i) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
+ outDist(year,3) = sum(wrisk_hdomlayers(:))/htresh_ba
+ ! for development of wrisk of co-dominant layers
+outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
+outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
+outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
  end if
   end do
+!!! END DRAFT
+!! WINDRISK SUBROUTINE
+!!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
+!!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
+!call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
+!  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
 
-!!! END multi-layer site level wind risk estimation
-outDist(year,1) = wdistproc(2) ! dom spec
-outDist(year,2) = siteInfoDist(2) !tsincethin
-outDist(year,3) = sum(wriskLayers(:,1))/htresh_ba
+!assigning risks
 
+!outDist(year,1) = wdistproc(2) ! dom spec
+!outDist(year,2) = siteInfoDist(2) !tsincethin
+!outDist(year,3) = wrisk !1a
+
+!!!! ABOVE: REPLACED BY DRAFT
 
 !!!!!!! WIND DISTURBANCE IMPACT MODELLING !!!!!!!!!!
 ! basic idea: 3-step sampling
@@ -185,6 +193,9 @@ if (outDist(year,4)>0.) then !in case of disturbance
       outDist(year,7) = 1. !indicate salvage logging in output
     endif
   endif
+
+
+
 
   ! MGMT REACTION / PRIORITISATION IN SITEORDER
   if(vdam>=siteInfoDist(8)) then
