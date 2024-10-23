@@ -57,13 +57,14 @@ do i = 1, nLayers
   INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
   htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
 wrisk_hdomlayers(i) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
- outDist(year,3) = sum(wrisk_hdomlayers(:))/htresh_ba
+
  ! for development of wrisk of co-dominant layers
 outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
 outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
 outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
  end if
   end do
+  outDist(year,3) = sum(wrisk_hdomlayers(:))/htresh_ba
 !!! END DRAFT
 !! WINDRISK SUBROUTINE
 !!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
