@@ -6,49 +6,87 @@
 !   siteInfoDist: wspeed, tsincethin, soiltype, shallowsoil
 !   dom layer spec, h
 !   sitetype, tempsum
-!   tsincethin counter reset by manual & tapio thinnings (tested), compensation thinnings (untested) 
+!   tsincethin counter reset by manual & tapio thinnings (tested), compensation thinnings (untested)
 !   NOTE: openedge (at least one neighbouring stand <5m) currently not implemented
 !         postponed, requires dynamic spacially explicit info (e.g. via lookup table)
 
 
 
 !!!!!!!!!!!!! PREPARING WIND RISK INPUTS!!!!!!!
+
+
+! BELOW: Version considering only the single highest layer for stand level risk estimate (Legacy, but might still be useful)
 ! dev: outDist(,X) 1 = dom layer #; 2 dom layer spec; 3 dom layer h, 4 sitetype, 5 ETS; 6-10 wind risks
-wdistproc(1) = 1. !dominant layer
-wdistproc(2) = STAND_all(4,1) ! species, layer 1
-wdistproc(3) = STAND_all(11,1) !h, layer 1
+!wdistproc(1) = 1. !dominant layer
+!wdistproc(2) = STAND_all(4,1) ! species, layer 1
+!wdistproc(3) = STAND_all(11,1) !h, layer 1
 
 !outDist(year, 10) = STAND_all(11,2)
 ! layer-level data: spec & h of dominant layer
-IF(nLayers>1) THEN !if there's more than one layer
-  do i = 2, nLayers !loop through them
-     if(STAND_all(11,i) > wdistproc(3)) then !higher than previous ones
-        wdistproc(1) = i ! set new dom layer dim
-        wdistproc(2) = STAND_all(4,i) !set new spec
-        wdistproc(3) = STAND_all(11,i) !set new h
-     end if
-  end do
-end if
-! setting wrisks to 0 (subroutine inout), to be simplified
-wrisk5dd1 = 0
-wrisk5dd2 = 0
-wrisk5dd3 = 0
-wrisk0 = 0
-wrisk5 = 0
-wrisk = 0
+!IF(nLayers>1) THEN !if there's more than one layer
+!  do i = 2, nLayers !loop through them
+!     if(STAND_all(11,i) > wdistproc(3)) then !higher than previous ones
+!        wdistproc(1) = i ! set new dom layer dim
+!        wdistproc(2) = STAND_all(4,i) !set new spec
+!        wdistproc(3) = STAND_all(11,i) !set new h
+!     end if
+!  end do
+!end if
+! //END single highest layer wind risk estimation
 
-! WINDRISK SUBROUTINE
-!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
-!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
-call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
-  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+
+wdistproc(:) = 0.
+wriskLayers(:,:) = 0.
+! UPDATE: version considering layer with largest H as well as those within a 5m range
+! to better account for effect of mixtures
+ ! real (kind=8) :: wdistproc(7) !to replace siteinfodist
+! DRAFT:
+!real (kind=8)::wrisk_hdomlayers(nLayers), hthresh, htresh_ba !
+hthresh = (maxval(STAND_all(11,:))-5)
+htresh_ba = 0
+do i = 1, nLayers
+   if(STAND_all(11,i) > hthresh) THEN
+ ! setting wrisks to 0 (subroutine inout), to be simplified
+  wrisk5dd1 = 0
+  wrisk5dd2 = 0
+  wrisk5dd3 = 0
+  wrisk0 = 0
+  wrisk5 = 0
+  wrisk = 0
+  call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
+  INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+  htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
+wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
+
+
+ end if
+  end do
+
+  ! for development of wrisk of co-dominant layers
+
+  outDist(year,1) = wriskLayers(1,1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
+  outDist(year,2) = wriskLayers(2,1)/STAND_all(13,2) ! layer 2 un-weighed wrisk
+  outDist(year,10) = wriskLayers(3,1)/STAND_all(13,3) ! layer 3 un-weighed wrisk
+
+if(htresh_ba>0.) then
+  outDist(year,3) = sum(wriskLayers(:,1))/htresh_ba
+else
+  outDist(year,3) = 0.
+endif
+!!! END DRAFT
+!! WINDRISK SUBROUTINE
+!!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
+!!  wrisk5dd1, wrisk5dd2, wrisk5dd3, wrisk0, wrisk5, wrisk)
+!call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
+!  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
 
 !assigning risks
 
-outDist(year,1) = wdistproc(2) ! dom spec
-outDist(year,2) = siteInfoDist(2) !tsincethin
-outDist(year,3) = wrisk !1a
+!outDist(year,1) = wdistproc(2) ! dom spec
+!outDist(year,2) = siteInfoDist(2) !tsincethin
+!outDist(year,3) = wrisk !1a
 
+!!!! ABOVE: REPLACED BY DRAFT
 
 !!!!!!! WIND DISTURBANCE IMPACT MODELLING !!!!!!!!!!
 ! basic idea: 3-step sampling
@@ -63,10 +101,10 @@ if(rndm <= wrisk) outDist(year,4) = 1 !wind disturbance occurs/ set severity cla
 if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
 
 !step 2: severity class (for now with shares/probabilities from post-storm inventory )
-if (outDist(year,4)==1) then 
+if (outDist(year,4)==1) then
   call random_number(rndm) ! leave sevclass at 1 or increase based on sampling
-  !outDist(year,8) = 1 !set sevclass to 1 
-  if(rndm <= 0.13888889) outDist(year,4) = 2 
+  !outDist(year,8) = 1 !set sevclass to 1
+  if(rndm <= 0.13888889) outDist(year,4) = 2
   if(rndm <= 0.05555556) outDist(year,4) = 3 !these are now sampled even if there's no disturbance occuring; keep for dev purposes, only calculate when dist occurres in final version
 endif
 
@@ -108,17 +146,17 @@ endif
 ! idea: - calculate layer-level risks for dominant layer + those with H>(domh-3m) (for now)
 !       - distribute share across layers according to ratios of wrisks
 
-!!!! LAYER LEVEL WIND RISK !!!!
-wriskLayers(:,:) = 0
-IF(outDist(year,4) >0 .AND. nLayers>1) THEN !if there's a wind disturbance and more than one layer
-  do i = 1, nLayers !loop through them
-     if (STAND_all(11,i) > (wdistproc(3)-5)) then !within 5 m of highest layer (which the total wind risk is based on) !!! 
-     call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1),  INT(siteInfoDist(2)), & !calculate layer wind risk
-       wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
-       wriskLayers(i, 1) = wrisk  
-     end if
-  end do
-end if
+!!!! LAYER LEVEL WIND RISK !!!! // update: now already calculated for site-level wind risk above.
+! wriskLayers(:,:) = 0
+! IF(outDist(year,4) >0 .AND. nLayers>1) THEN !if there's a wind disturbance and more than one layer
+!   do i = 1, nLayers !loop through them
+!      if (STAND_all(11,i) > (wdistproc(3)-5)) then !within 5 m of highest layer (which the total wind risk is based on) !!!
+!      call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1),  INT(siteInfoDist(2)), & !calculate layer wind risk
+!        wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+!        wriskLayers(i, 1) = wrisk
+!      end if
+!   end do
+! end if
 
 !!! DISTRIBUTION OF DAMVOL TO LAYERS BASED ON WRISK & LAYER VOL
 BA_tot = sum(STAND_all(13,:))
@@ -126,7 +164,7 @@ V_tot = sum(STAND_all(30,:))
 
 vdam = wdistproc(4)*V_tot
 
-if(outDist(year, 4)>0) then 
+if(outDist(year, 4)>0) then
   outDist(year, 5) = vdam
   outDist(year, 6) = wdistproc(4)
 endif
@@ -134,8 +172,8 @@ endif
 wriskLayers(:, 2) = STAND_all(30,:)*wriskLayers(:,1) !weighing factor for vol 'at risk': if layer-level risk and volume are equal across layers, all would receive the same amount of damage; otherwise weighed by risk AND volume share
 wriskLayers(:, 3) = wriskLayers(:, 2) / sum(wriskLayers(:, 2)) !shares of disturbwd volumes
 !wriskLayers(:, 4) = wriskLayers(:,2)*wriskLayers(:,3) !share of potentially affected V !! attention: doesn't add up to 1, this is too simple
-! better: 
-wriskLayers(:, 4) = vdam * wriskLayers(:, 3)  ! plot-level damaged volume allocated to layers 
+! better:
+wriskLayers(:, 4) = vdam * wriskLayers(:, 3)  ! plot-level damaged volume allocated to layers
 wriskLayers(:, 5) = STAND_all(30,:)/STAND_all(13,:)!V per ba
 wriskLayers(:, 6) = wriskLayers(:, 4)/wriskLayers(:,5)! convert affected vol to affected ba
 
@@ -152,17 +190,21 @@ end do
 
 !!!! MANAGEMENT REACTION / SALVAGE LOGGING
 
-if (outDist(year,4)>0.) then !in case of disturbance 
+if (outDist(year,4)>0.) then !in case of disturbance
   pHarvTrees = 0.
 
   ! SALVAGE LOGGING
-  if(vdam>=siteInfoDist(5)) then
+  if(vdam>=siteInfoDist(5)) then ! threshold for salvage logging
+    siteInfoDist(2) = 0 ! reset thinning counter, i.e. wind disturbance temporarily increases wind risk
     call random_number(rndm)
-    if(rndm<=siteInfoDist(6)) then 
+    if(rndm<=siteInfoDist(6)) then
       pHarvTrees = siteInfoDist(7)! if sampled for salvlog set pHarvTrees
       outDist(year,7) = 1. !indicate salvage logging in output
     endif
   endif
+
+
+
 
   ! MGMT REACTION / PRIORITISATION IN SITEORDER
   if(vdam>=siteInfoDist(8)) then
@@ -181,11 +223,11 @@ if (outDist(year,4)>0.) then !in case of disturbance
        outDist(year,9) = 1. !indicate clearcut
        outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
     endif
-  endif  
+  endif
 endif ! end salvlog/mgmtrect module
 
 
-outDist(year,10) = clcut
+ !outDist(year,10) = clcut
 
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
   pHarvTrees = 0.
@@ -193,13 +235,11 @@ if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/un
 
 endif
 
-
-
 !!!! UPDATING STAND VARS !!!!
 ! based on Francesco's code, only inputs necessary: layer level killed BA & pHarvTrees
  if(.TRUE.) then !if XX everything is switch off for the moment !wdimp x1
- ! 
- ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+ !
+ ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (disturbanceON) then !x2
    ! BAmort = 0.d0
    ! pMort = 0.2d0
@@ -208,7 +248,7 @@ endif
  !   call pDistTest(ETS,1200.0d0,pMort) !!!calculate probability of fire to occur in this stand
  !   call random_number(randX)
  !   if(randX < pMort)  call intTest(pMort,perBAmort) !!!calculate the intensity of possible fire of fire to occur in this stand
- ! 
+ !
  ! ! calculate probability of the disturbance to occur and
  ! ! the intensity of the disturbance
  !   perBAmort = 0. ! deactivate Francesco's randomised mortality, seems to be very active and reduces n < 1 over rotation
@@ -222,7 +262,7 @@ endif
      ! perBAmort = 0.1
        ! write(1,*) "disturbance", year, pMort, perBAmort
    do ij = 1 , nLayers     !loop Species xl1
-    
+
     BAmort = BAdist(ij)
     dN=0.d0
     STAND=STAND_all(:,ij)
@@ -271,12 +311,12 @@ endif
     par_fAb = param(46)
     par_fAc = param(47)
 
-     !!!!update kRein and cR   
-    !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-    if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-    !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-    if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
-!activate 
+     !!!!update kRein and cR
+    !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided
+    if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein)
+    !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided
+    if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR)
+!activate
    if (year > maxYearSite) then !x4
      STAND(2) = 0. !!newX
      STAND(8:21) = 0. !#!#
@@ -330,12 +370,12 @@ endif
 !      if(BAmort(ij) > 0. .and. maxval(wriskLayers(:,1)) == 0) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
       !dN = -Nold * (BAmort/(BA/BAr(ij)))
      dN = -Nold * (BAmort/BA)
-     
+
     ! elseif(maxval(wriskLayers(:,1)) > 0) then !wdimp define dN based on layer-level disturbed ba
     ! !  dN = -Nold * (BAmort/(BA/BAr(ij)))
     !   dN = -Nold * (wriskLayers(ij,6)/BA) !disturbed layer ba/layer ba
     else
-      dN = 0.  
+      dN = 0.
      endif
 
    !!!update variables
@@ -393,11 +433,11 @@ endif
 !! allocating salvage logging to current (regionPrebas harvlimit not met when site is checked or all mgmt switched off) or next year (some mgmt allowed / harvlimit exceeded)
 if(ClCut == 0. .and. defaultThin == 0.) then ! either mgmt switched off entirely or blocked due to harvest limit being met
     outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
-elseif(ClCut > 0. .or. defaultThin > 0.) then 
+elseif(ClCut > 0. .or. defaultThin > 0.) then
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
 endif
     !!!
-    
+
   endif !x6
 
      STAND(11) = H
@@ -416,9 +456,8 @@ endif !x4
     STAND_all(:,ij)=STAND
     end do !!!!!!!end loop layers xl1
  endif !bamort>0... x3
-!  ! 
+!  !
  endif !if disturbanceON x2
 !  ! ! endif
 endif !end if XX switch off the modules x1
- ! 
-
+ !
