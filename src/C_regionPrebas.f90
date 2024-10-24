@@ -52,7 +52,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
  real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
- real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,energy_flag=0.	!!energCuts
+ real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,energy_flag=0., siteHarv(nSites)	!!energCuts
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
  integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
@@ -141,9 +141,12 @@ do ij = startSimYear,maxYears
 	else
 	 year_smooth_cut_start = max(ij-n_years_smooth_cut,1)
 	 n_years_smooth_cut_actual = min(n_years_smooth_cut,(ij-1))
-	 HarvLim(ij,1) = HarvLim(ij,1) * sum(multiOut(:,year_smooth_cut_start:(ij-1),43,:,1) - &
-		multiOut(:,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
-	 energy_flag = 1.
+     do i = 1,nSites
+      siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) - &
+                                   multiOut(i,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
+     enddo
+     HarvLim(ij,1) = HarvLim(ij,1) * sum(siteHarv)
+     energy_flag = 1.
 	endif
  endif
  
