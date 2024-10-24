@@ -36,7 +36,7 @@
 
 
 wdistproc(:) = 0.
-
+wriskLayers(:,:) = 0.
 ! UPDATE: version considering layer with largest H as well as those within a 5m range
 ! to better account for effect of mixtures
  ! real (kind=8) :: wdistproc(7) !to replace siteinfodist
@@ -56,15 +56,23 @@ do i = 1, nLayers
   call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
   INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
   htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
-wrisk_hdomlayers(i) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
+wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
 
- ! for development of wrisk of co-dominant layers
-outDist(year,1) = wrisk_hdomlayers(1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
-outDist(year,2) = wrisk_hdomlayers(2)/STAND_all(13,2) ! layer 2 un-weighed wrisk
-outDist(year,10) = wrisk_hdomlayers(3)/STAND_all(13,3) ! layer 3 un-weighed wrisk
+
  end if
   end do
-  outDist(year,3) = sum(wrisk_hdomlayers(:))/htresh_ba
+
+  ! for development of wrisk of co-dominant layers
+
+  outDist(year,1) = wriskLayers(1,1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
+  outDist(year,2) = wriskLayers(2,1)/STAND_all(13,2) ! layer 2 un-weighed wrisk
+  outDist(year,10) = wriskLayers(3,1)/STAND_all(13,3) ! layer 3 un-weighed wrisk
+
+if(htresh_ba>0.) then
+  outDist(year,3) = sum(wriskLayers(:,1))/htresh_ba
+else
+  outDist(year,3) = 0.
+endif
 !!! END DRAFT
 !! WINDRISK SUBROUTINE
 !!call windrisk(siteInfoDist, spec, h, openedge, sitetype, tsum, &
@@ -219,7 +227,7 @@ if (outDist(year,4)>0.) then !in case of disturbance
 endif ! end salvlog/mgmtrect module
 
 
- outDist(year,10) = clcut
+ !outDist(year,10) = clcut
 
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
   pHarvTrees = 0.

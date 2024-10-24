@@ -39,6 +39,17 @@ real (kind=8) :: sc1vols(87), sc2vols(15), sc3vols(6)
 real (kind=8) :: wriskLayers(nLayers, 6)
 !!! wind dist / salvlog development
 real (kind=8) :: wdistproc(7) !to replace siteinfodist
+REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
+REAL (kind=8)::  hthresh, htresh_ba !
+REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
+REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol
+REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
+
+
+
+
+
+
 
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut  ! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
@@ -141,11 +152,7 @@ real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
 integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
 integer, intent(in) :: prebasFlags(6)
-REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
-REAL (kind=8)::  wrisk_hdomlayers(nLayers), hthresh, htresh_ba !
-REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
-REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol
-REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
+
 
 
 
