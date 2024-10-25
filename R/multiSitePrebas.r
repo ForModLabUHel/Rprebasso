@@ -26,7 +26,7 @@
 #' @param litterSize 
 #' @param soilCtot 
 #' @param defaultThin 
-#' @param ClCut 
+#' @param ClCut flag for clearcuts according to tapio reccomendations. 0 = off, 1 = on, -1 = off + salvage logging of wind disturbances blocked. Either applied to all sites (if of length 1) or site-specific (length = nSites).
 #' @param energyCut 
 #' @param inDclct 
 #' @param inAclct 
@@ -516,7 +516,7 @@ InitMultiSite <- function(nYearsMS,
   
   dimnames(multiInitVar) <-  list(site=NULL,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
-  
+
   ###initialize siteType
   multiOut[,,3,,1] <- array(siteInfo[,3],dim=c(nSites,maxYears,maxNlayers))
   ###initialize alfar
@@ -727,8 +727,9 @@ multiPrebas <- function(multiSiteInit,
   ####initialize disturbance module if exists
   dist_flag <- multiSiteInit$dist_flag
   if(all(is.na(siteInfoDist))){
-    #if(all(multiSiteInit$prebasFlags(6)==0)) dist_flag = 0
-    siteInfoDist = matrix(0,multiSiteInit$nSites,4)
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,multiSiteInit$nSites,10)
+
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     if(!dist_flag %in% c(1,12,13,123)){
@@ -739,9 +740,14 @@ multiPrebas <- function(multiSiteInit,
     siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
-
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
+  
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
 
   
+
   if(oldLayer==1){
     multiSiteInit <- addOldLayer(multiSiteInit)
   }
@@ -864,6 +870,8 @@ multiPrebas <- function(multiSiteInit,
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   prebas$alpharNcalc = multiSiteInit$alpharNcalc
+  dimnames(prebas$outDist) <- dimnames(outDist)
+  dimnames(prebas$siteinfoDist) <- dimnames(multiSiteInit$siteInfoDist)
   
   class(prebas) <- "multiPrebas"
   return(prebas)
@@ -922,8 +930,9 @@ regionPrebas <- function(multiSiteInit,
   ####initialize disturbance module if exists
   dist_flag <- multiSiteInit$dist_flag
   if(all(is.na(siteInfoDist))){
-    #if(all(multiSiteInit$prebasFlags(6)==0)) dist_flag = 0
-    siteInfoDist = matrix(0,multiSiteInit$nSites,4)
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,multiSiteInit$nSites,10)
+
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     if(!dist_flag %in% c(1,12,13,123)){
@@ -934,7 +943,13 @@ regionPrebas <- function(multiSiteInit,
     siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
   
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
+  
+
   
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
@@ -1154,8 +1169,9 @@ reStartRegionPrebas <- function(multiSiteInit,
   ####initialize disturbance module if exists
   dist_flag <- multiSiteInit$dist_flag
   if(all(is.na(siteInfoDist))){
-    #if(all(multiSiteInit$prebasFlags(6)==0)) dist_flag = 0
-    siteInfoDist = matrix(0,multiSiteInit$nSites,4)
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,multiSiteInit$nSites,10)
+
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }else{
     if(!dist_flag %in% c(1,12,13,123)){
@@ -1166,6 +1182,13 @@ reStartRegionPrebas <- function(multiSiteInit,
     siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
     outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
   }
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
+  
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
+  
+  
   
   # disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(multiSiteInit$etmodel, #int
@@ -1334,7 +1357,10 @@ reStartRegionPrebas <- function(multiSiteInit,
   
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
+  dimnames(prebas$siteInfoDist) <- dimnames(multiSiteInit$siteInfoDist)
+  dimnames(prebas$outDist) <- dimnames(multiSiteInit$outDist)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  
   return(prebas)
 }
 

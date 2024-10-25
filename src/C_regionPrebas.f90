@@ -37,9 +37,11 @@ integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: DOY(365)!,etmodel, ECMmod fvec
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
- !disturbances
- ! logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
- real (kind=8), intent(inout):: siteInfoDist(nSites,4), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+
+!disturbances
+ !logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
+ real (kind=8), intent(inout):: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
+ !integer :: siteOrderX(nSites) ! for site order prio due to disturbance
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
@@ -92,6 +94,7 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
+
 ! if(prebasFlags(6)==0) disturbanceON = .FALSE.
 ! if(prebasFlags(6)==1) disturbanceON = .TRUE.
 !if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
@@ -156,6 +159,21 @@ do ij = startSimYear,maxYears
  roundWood = 0.
  energyWood = 0.  !!energCuts
  
+ 
+ ! counting last year's salvage logging from sites where tapio harvests were already stopped due to the harvest limit being met
+ ! towards current years roundwood aggregate. !salvnext
+ ! Note: salvage logging volumes only added to multiOut[,,37,,1] at the end of year loop to avoid double accounting
+ 
+ if(ij>1 .and. disturbanceOn .eqv. .TRUE.) then
+!roundwood = sum(multiOut(:,(ij-1),42,:,2)) !  needs to account for area...  
+   do ijj = 1, nSites
+     roundwood = roundwood + sum(multiOut(ijj,(ij-1),42,:,2))*areas(ijj)
+   enddo  
+   !outDist(1, ij, 10) = roundwood+1
+endif 
+ 
+ 
+ 
 if(ij>1) then
  if(ageMitigScen > 0.) then
   do i = 1,nSites
@@ -174,8 +192,85 @@ if(ij>1) then
   call changeOrder(siteOrdX,age, & 
           siteOrdX,nSites,ageMitigScen)
   siteOrder(:,ij) = int(siteOrdX)
+  
+  
+  
  endif
 endif 
+
+! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
+if (disturbanceOn .eqv. .TRUE.) then
+    if (ij > 1) then!call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
+      !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
+     call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:)) ! disable to test; does this alter ij??
+!siteOrder(:,ij) = siteOrderX
+    
+
+
+!!!!! TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
+  !outDist(1,1,10) = 33. !testing
+
+ if(ageMitigScen > 0.) then ! age above which stand is deprioritised
+  ! outDist(1,1,10) = 77. !testing
+  do i = 1,nSites ! site loop
+    !outDist(i,2,10) = 88. !testing
+
+   if(oldLayer==1) then 
+    jj = max((nLayers(i)-1),1) ! exclude oldLayer from age considerations
+   else
+    jj = nLayers(i)
+   endif
+   domSp = maxloc(multiOut(i,ij-1,13,1:jj,1)) ! find dominant spec (BA)
+   layerX = int(domSp(1))
+
+   !outDist(i,ij,10) = multiOut(i,ij,7,layerX,1)
+    ! outDist(i,ij,10) = real(ij,8)
+    ! if(ij==1) THEN
+    !     outDist(i,20,10) = 999.
+    !     outDist(i,21,10) = multiOut(i,ij,7,layerX,1)!
+    ! elseif(ij==2) then
+    !   outDist(i,22,10) = 999.
+    !   outDist(i,23,10) = multiOut(i,ij,7,layerX,1)!
+    ! ENDIF
+   ! ! outDist(i,ij,10) = domSp(1) !testing
+   ! !outDist(i,ij,10) = real(layerX,8) !testing
+   ! outDist(i,3,10) = real(nlayers(i),8) !testing
+   ! outDist(i,4,10) = real(jj,8) !testing
+   ! outDist(i,5,10) = real(domSp(1),8) !testing
+   ! outDist(i,6,10) = real(layerX,8) !testing
+   ! outDist(i,8,10) = multiOut(1,int(ij),7,layerX,1)!nope
+  !  outDist(i,9,10) = multiOut(i,1,7,layerX,1)!works
+   ! !outDist(i,10,10) = multiOut(i,ij,7,1,1)!nope
+   ! outDist(i,10,10) = multiOut(i,ij,1,1,1)!?
+   ! !outDist(i,10,10) = multiOut(99,ij,7,1,1)!?
+   ! outDist(i,11,10) = multiOut(1,77,7,1,1)!works
+   ! outDist(i,12,10) = real(ij,8)
+   ! !outDist(i,ij,10) = real(ij,8)
+    !outDist(i,ij,10) = multiOut(99,ij,11,1,1)!?
+   ! 
+   ! !outDist(i,9,10) = ageMitigScen
+
+   !if(multiOut(i,ij-1,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold
+   if(multiOut(i,1,3,1,1) > 3 .AND. multiOut(i,ij-1,7,layerX,1) > ageMitigScen) then ! dominant layer age (=stand age) overt threshold & sitetype 4/5 
+    ! disable all management induced by disturbance
+    siteInfoDist(i,5) = 999. !salvlogthresh
+    siteInfoDist(i,6) = 0. !salvlogshare
+    siteInfoDist(i,7) = 0. !pHarvTrees
+    siteInfoDist(i,8) = 999. !mgmtreactthresh
+    siteInfoDist(i,9) = 0.  !mgmtreactshare
+    siteInfoDist(i,10) = 0.!sevdistccshare
+    outDist(i,7,10) = 999. !testing
+
+
+  endif !(multiOut(i,ij,7,layerX,1) > ageMitigScen)
+enddo !i = 1,nSites
+
+endif !(ij > 1)
+endif! (disturbanceOn .eqv. .TRUE.)
+
+endif
+!!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
+
  do iz = 1,nSites
   i=siteOrder(iz,ij)
   ClCutX = ClCut(i)
@@ -309,6 +404,21 @@ endif
   !if(disturbanceON) THEN
     ! write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
     !write(1,*) i, ij !wdist dev output: writing site & year
+    !outDist(i, ij, 9) = outDist(i, max(INT(ij-1),1), 9) ! transfer last year's wind disturbance induced clearcut flag to current year (as wind dist calc happens only after clearcut routines)
+    
+    ! transfer last year's wind disturbance induced clearcut flag to current year (as wind dist calc happens only after clearcut routines)
+   if (outDist(i, max(INT(ij-1),1), 9) .eq. 1.) THEN
+      outDist(i, ij, 9) = 1.
+      outDist(i, max(INT(ij-1),1), 9) = 0.
+   endif
+
+
+   if(Clcut(i) < 0) then !protected area / unmanaged site flag: Clcut = -1, needs to override setting to 0 to block tapio mgmt above in order to also block salvage logging/mgmtreaction to disturbances  
+     ClCutX = Clcut(i)
+   endif
+
+
+  
   !endif
 
   if(ij>1) then
@@ -328,9 +438,7 @@ endif
     siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:))
     
     
-    
-    
-    
+
     
    ! if(siteInfo(i,1)==411310.) write(1,*) ij,output(1,11,1:nLayers(i),1)
   ! if(siteInfo(i,1)==35.) write(2,*) ij,output(1,11,1:nLayers(i),1)
@@ -344,6 +452,10 @@ endif
       multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
      multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
   endif  
+
+
+
+
 
   
   !!!if fertilization at thinning is active,  increase siteType
@@ -397,6 +509,10 @@ endif
   initVar(i,2,1:nLayers(i)) = output(1,7,1:nLayers(i),1)
   initVar(i,3:6,1:nLayers(i)) = output(1,11:14,1:nLayers(i),1)
   initVar(i,7,1:nLayers(i)) = output(1,16,1:nLayers(i),1)
+  
+
+  
+  
   ! initVar(i,8,1:nLayers(i)) = output(1,2,1:nLayers(i),1)  !!newX
   if(isnan(sum(output(1,37,1:nLayers(i),1)))) then
     roundWood = roundWood
@@ -427,6 +543,9 @@ endif
   else
    maxState(i) = 0.
   endif
+  
+
+  
    enddo ! i
    ops = maxloc(maxState)
    siteX = int(ops(1))
@@ -957,7 +1076,20 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
     ! open(1,file="test1.txt")
   ! write(1,*) ij, "end"
   ! close(1)
+  if (disturbanceON .eqv. .TRUE. .and. ij>1) THEN
+     !output(1,37,1:nLayers(i),1) = multiOut(i,(ij-1),42,1:nLayers(i),2) !salvnext: allocate last year's 'parked' salvage logging to ,,37,,11   
+     multiOut(:,ij,37,:,1) = multiOut(:,ij,37,:,1) + multiOut(:,(ij-1),42,:,2)
+     !multiOut(:,(ij),42,:,2) = multiOut(:,(ij-1),42,:,2)
+     !multiOut(:,(ij-1),42,:,2) = 0
+     !output(1,37,:,2) = 99.
+  endif
+
 end do !end Year loop 
+!if(disturbanceON)  close(1) !tswrite
+
+!multiOut(:,2:nYears,42,:,2) = multiOut(:,1:(nYears-1),42,:,2) !salvnext see if necessary
+
+
 
  do i = 1,nSites
     ! open(1,file="test1.txt")
