@@ -55,8 +55,11 @@
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
 #' @param prebasFlags vector of flags to reduce number of
-#'
-#'
+#' @param latitude latitude of the site
+#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
+#' @param SMIt0 site vector of initial SoilMoirture index
+#' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
+#' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -189,18 +192,65 @@ prebas <- function(nYears,
                    HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
                    siteInfoDist = NA,
                    yearFert=NULL,
-                   deltaSiteTypeFert = 1
+                   deltaSiteTypeFert = 1,
+                   latitude = NA,
+                   TsumSBBs = NA,
+                   SMIt0 = NA,
+                   TminTmax = NA,
+                   disturbanceON = NA
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   
+  #process disturbance flags
+  if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
+    if(length(disturbanceON)==1){
+      if(is.na(disturbanceON)){
+        dist_flag = 0
+      }else{
+        if(disturbanceON=="wind") dist_flag = 1
+        if(disturbanceON=="bb")   dist_flag = 2
+        if(disturbanceON=="fire") dist_flag = 3
+      }
+    }
+    if(length(disturbanceON)==2){
+      if(all(c("wind","bb") %in%disturbanceON)) dist_flag=12
+      if(all(c("wind","fire") %in%disturbanceON)) dist_flag=13
+      if(all(c("fire","bb") %in%disturbanceON)) dist_flag=23
+    }
+    if(length(disturbanceON)==3){
+      dist_flag=123
+    }
+  }else{
+    stop("check the disturbance argument (disturbanceON), it must be fire, wind and/or bb or NA")
+  }
+
+  if(is.na(latitude)) {
+    latitude = 62
+    warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
+  }
+  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,4)
+  if(is.na(SMIt0)) SMIt0 <- -999
+  
+  NI = rep(0,length(PAR))
+  if(all(is.na(TminTmax))){
+    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
+  }else{
+    NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2]) 
+  }
+  
   ####initialize disturbance module if exists
   if(is.na(siteInfoDist)){
-    disturbanceON = FALSE
+    #disturbanceON = FALSE
     siteInfoDist = rep(0,10)
+
     outDist = matrix(0,nYears,10)
   }else{
-    disturbanceON = TRUE
+    if(!dist_flag %in% c(1,12,13,123)){
+      if(dist_flag==0) dist_flag = 1
+      if(dist_flag %in% c(2:3)) dist_flag = dist_flag + 10
+      if(dist_flag ==23) dist_flag = dist_flag + 100
+    }
     #siteInfoDist = matrix(0,nSites,4)
     outDist = matrix(0,nYears,10)
   }
@@ -390,13 +440,13 @@ prebas <- function(nYears,
   #### vectorisation of flags ####
   # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
   
-  disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
+  # disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(etmodel, #int
                             GVrun,     #int  
                             fertThin,
                             oldLayer,
                             ECMmod,
-                            disturbanceSwitch))
+                            dist_flag))
   
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -421,7 +471,11 @@ prebas <- function(nYears,
               )$siteTAlpha[1:maxYearSim,,]
   } 
   
+  dailyPRELES = matrix(-999,(nYears*365),3) #### build daily output array for PRELES
+  dailyPRELES[,3] <- NI[1:(nYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
   
+  output[1,46,1,2] <- SMIt0 #initialize SMI first year
+
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -454,7 +508,7 @@ prebas <- function(nYears,
                      energyCut=as.double(energyCut),
                      inDclct=as.double(inDclct),
                      inAclct=as.double(inAclct),
-                     dailyPRELES = matrix(-999,(nYears*365),3),
+                     dailyPRELES = dailyPRELES,
                      yassoRun=as.double(yassoRun),
                      energyWood = as.array(energyWood),
                      tapioPars = as.array(tapioPars),
@@ -478,7 +532,9 @@ prebas <- function(nYears,
                     # disturbanceON = as.logical(disturbanceON), #fvec
                      siteInfoDist = as.double(siteInfoDist),
                      outDist = as.matrix(outDist),
-                     prebasFlags = as.integer(prebasFlags)
+                     prebasFlags = as.integer(prebasFlags),
+                     latitude = as.double(latitude),
+                     TsumSBBs = as.double(TsumSBBs)
                      )
   class(prebas) <- "prebas"
   return(prebas)

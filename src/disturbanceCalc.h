@@ -238,9 +238,9 @@ endif
 !!!! UPDATING STAND VARS !!!!
 ! based on Francesco's code, only inputs necessary: layer level killed BA & pHarvTrees
  if(.TRUE.) then !if XX everything is switch off for the moment !wdimp x1
- !
- ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (disturbanceON) then !x2
+
+ ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+  if (disturbance_wind) then !x2
    ! BAmort = 0.d0
    ! pMort = 0.2d0
    BAdist = wriskLayers(:,6) !disturbed layer ba/layer ba
@@ -435,8 +435,8 @@ if(ClCut == 0. .and. defaultThin == 0.) then ! either mgmt switched off entirely
     outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
 elseif(ClCut > 0. .or. defaultThin > 0.) then
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
-endif
-    !!!
+
+    pHarvTrees = 0
 
   endif !x6
 

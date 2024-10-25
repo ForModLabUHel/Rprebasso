@@ -10,7 +10,8 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
     flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
+	latitude, TsumSBBs)
 
 
 implicit none
@@ -35,7 +36,8 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
           !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
 
-logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
+
+! logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs
 real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
 
  !!! fertilization parameters
@@ -50,7 +52,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
- real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
+ real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2),latitude(nSites), TsumSBBs(nSites,4)
  real (kind=8), intent(inout) :: multiEnergyWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
  ! real (kind=8) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -68,8 +70,8 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
-if(prebasFlags(6)==0) disturbanceON = .FALSE.
-if(prebasFlags(6)==1) disturbanceON = .TRUE.
+! if(prebasFlags(6)==0) disturbanceON = .FALSE.
+! if(prebasFlags(6)==1) disturbanceON = .TRUE.
 
 !outDist(:,:,:) = 99!prebasFlags(6)
 !outDist(1,10) = siteInfoDist(1,1)
@@ -115,7 +117,7 @@ do i = 1,nSites
     multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
     GVout(i,1:nYears(i),:),thinInt(i), &
     flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags)
+    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags,latitude(i), TsumSBBs(i,:))
     
     ! pre flag vectorisatio:
     ! call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&

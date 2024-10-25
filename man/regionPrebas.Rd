@@ -14,6 +14,8 @@ regionPrebas(
   ageHarvPrior = 0,
   siteOrder = NA,
   fertThin = 0,
+  yearFert = NULL,
+  deltaSiteTypeFert = 1,
   nYearsFert = 20,
   oldLayer = 0,
   startSimYear = 1

@@ -10,7 +10,8 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
     defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, & 
-    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags,&
+	latitude, TsumSBBs)
 ! pre-flag-grouping version:
 ! subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
 !     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
@@ -36,12 +37,11 @@ integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: DOY(365)!,etmodel, ECMmod fvec
  real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
- !disturbances
- logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
+
+!disturbances
+ !logical :: disturbanceON !!!this could be site specific but to block dist. in some sites you can work on the inputs !fvec
  real (kind=8), intent(inout):: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  !integer :: siteOrderX(nSites) ! for site order prio due to disturbance
-
-
 
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
@@ -50,7 +50,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
- real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
+ real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv,latitude(nSites), TsumSBBs(nSites,4)
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
@@ -94,9 +94,10 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
-if(prebasFlags(6)==0) disturbanceON = .FALSE.
-if(prebasFlags(6)==1) disturbanceON = .TRUE.
-!if(prebasFlags(6)==1) open(1, file="wdistdev.txt") !tswrite
+
+! if(prebasFlags(6)==0) disturbanceON = .FALSE.
+! if(prebasFlags(6)==1) disturbanceON = .TRUE.
+!if(prebasFlags(6)==1) open(1, file="wdistdev.txt") 
 
 !!!!initialize run
 ! multiOut = 0.
@@ -271,7 +272,7 @@ endif
 !!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
 
  do iz = 1,nSites
-   i=siteOrder(iz,ij)
+  i=siteOrder(iz,ij)
   ClCutX = ClCut(i)
   defaultThinX = defaultThin(i)
   energyCutX = energyCuts(i)    !!energCuts
@@ -283,7 +284,7 @@ endif
   endif
 
 !!!check if the limit has been exceeded if yes no harvest (thinning or clearcut will be performed)
-    if (cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
+  if ((cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) .or. (cuttingArea(ij,1) < -1000.)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
    ClCutX = 0.
   endif
   if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
@@ -342,6 +343,7 @@ endif
      do ki = 1,int(initClearcut(i,5)+1)
       multiOut(i,int(ij-initClearcut(i,5)+ki-1),7,ijj,1) = ki !#!#
      enddo !ki
+	 multiOut(i,int(ij-initClearcut(i,5)-1):ij,48,1,2) = 0.
      call initBiomasses(pCrobas(:,species),initVar(i,:,ijj),multiOut(i,ij,3,ijj,1),multiOut(i,(ij-1),:,ijj,1),nVar,npar)
     endif
    enddo !ijj
@@ -399,7 +401,7 @@ endif
   call minFaparCalc(fAPAR(i,:),ij,minFapar,fAparFactor)
   fAPAR(i,ij) = minFapar
 
-  if(disturbanceON) THEN
+  !if(disturbanceON) THEN
     ! write(1,'(2I6)', advance='no') i, ij !wdist dev output: writing site & year, keeping line open
     !write(1,*) i, ij !wdist dev output: writing site & year
     !outDist(i, ij, 9) = outDist(i, max(INT(ij-1),1), 9) ! transfer last year's wind disturbance induced clearcut flag to current year (as wind dist calc happens only after clearcut routines)
@@ -417,8 +419,11 @@ endif
 
 
   
-  endif
+  !endif
 
+  if(ij>1) then
+   output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
+  endif
 
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -430,7 +435,7 @@ endif
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags)
+    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:))
     
     
 
