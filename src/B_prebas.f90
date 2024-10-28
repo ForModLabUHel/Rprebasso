@@ -10,8 +10,8 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,thinInt, &
 
-   flagFert,nYearsFert,mortMod,pECMmod, & 
-   layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, & 
+   flagFert,nYearsFert,mortMod,pECMmod, &
+   layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
    latitude, TsumSBBs)
 
 
@@ -156,12 +156,8 @@ real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
 integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
 integer, intent(in) :: prebasFlags(6)
-
-REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
-REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
-REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol 
-REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
 real (kind=8) :: dailySW(365)
+
 
 
 !fire disturbances
@@ -273,7 +269,7 @@ ETSmean = sum(ETSy)/nYears
   modOut(1,35,i,1) = 0.
   endif
  enddo
-  
+
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
@@ -631,7 +627,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
     etmodel)    !type of ET model
-	
+
    !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)    !ET
    ! STAND_all(40,:) = prelesOut(15)  !aSW
@@ -639,8 +635,8 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
   !store GPP
 
-     GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2 
-	 if(GVout(year,1)<0.00000001) GVout(year,:) = 0. 
+     GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2
+	 if(GVout(year,1)<0.00000001) GVout(year,:) = 0.
      STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite * coeff! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
 !initialize for next year
@@ -683,11 +679,11 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
    endif
 
-   
+
     outt(46,1,2)  = prelesOut(7) !SMI
     SMI = prelesOut(7) !SMI
 	dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
-	
+
 endif
 !enddo !! end site loop
 
@@ -1078,7 +1074,7 @@ endif
    species = int(thinning(countThinning,2))
    stand(4) = thinning(countThinning,2)
      !!!check if ingrowth and calculate dominant species
-   if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then 
+   if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
     domSp = maxloc(STAND_all(13,:))
 	layer = int(domSp(1))
 	species = int(max(1.,stand_all(4,layer)))
@@ -1755,8 +1751,8 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 !!!!calculate bark beetle disturbance
    include 'SBB_dist_Calc.h'
 
- if(oldLayer==1) then 
-  modOut((year+1),:,nLayers,:) = outt(:,nLayers,:) 
+ if(oldLayer==1) then
+  modOut((year+1),:,nLayers,:) = outt(:,nLayers,:)
  endif
 !!!!run Yasso
  if(yassoRun==1.) then
@@ -1790,20 +1786,20 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
  endif !end yassoRun if
 
 !!!fire disturbance calculations
- ! if(fireDistFlag) 
-  Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:)) 
+ ! if(fireDistFlag)
+  Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:))
   Cpool_litter_green = sum(soilC((year+1),1:4,3,:)) * sum(outt(26,:,1))/sum(outt(26,:,1)+outt(27,:,1))
   livegrass = 0.!GVout(year,4)
   soil_moisture(:) = ((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
   Tmin = weatherPRELES(year,:,2) - 3.6
   Tmax = weatherPRELES(year,:,2) + 3.7
-  FDI(:) = 0. 
-  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
+  FDI(:) = 0.
+  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, &
 			weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI)
   modOut((year+1),47,:,2) = 0.
   modOut((year+1),47,1,2) = maxval(FDI)
  ! endif
- 			
+
 enddo !end year loop
 
 !soil and harvested volume outputs
