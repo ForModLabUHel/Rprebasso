@@ -102,8 +102,8 @@ if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
 if (outDist(year,4)==1) then
   call random_number(rndm) ! leave sevclass at 1 or increase based on sampling
   !outDist(year,8) = 1 !set sevclass to 1
-  if(rndm <= 0.13888889) outDist(year,4) = 2
-  if(rndm <= 0.05555556) outDist(year,4) = 3 !these are now sampled even if there's no disturbance occuring; keep for dev purposes, only calculate when dist occurres in final version
+  if(rndm <= (0.13888889 + 0.05555556)) outDist(year,4) = 2 !probability of sevclass 3 needs to be added (random number procedure, otherwise the probability for sevclass 2 includes that for sevclass 3...)
+  if(rndm <= 0.05555556) outDist(year,4) = 3 
 endif
 
 !!! STEP 3: sample from severity class-specific set of relative disturbed volumes
