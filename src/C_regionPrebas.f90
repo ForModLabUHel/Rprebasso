@@ -1082,7 +1082,7 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
   if (disturbance_wind .eqv. .TRUE. .and. ij>1) THEN
      !output(1,37,1:nLayers(i),1) = multiOut(i,(ij-1),42,1:nLayers(i),2) !salvnext: allocate last year's 'parked' salvage logging to ,,37,,11
      multiOut(:,ij,37,:,1) = multiOut(:,ij,37,:,1) + multiOut(:,(ij-1),42,:,2)
-     multiOut(:,(ij-1),42,:,2) = 999.
+     !multiOut(:,(ij-1),42,:,2) = 999.
      !multiOut(:,(ij),42,:,2) = multiOut(:,(ij-1),42,:,2)
      !multiOut(:,(ij-1),42,:,2) = 0
      !output(1,37,:,2) = 99.
