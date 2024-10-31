@@ -426,7 +426,9 @@ endif
 !!!
 !! allocating salvage logging to current (regionPrebas harvlimit not met when site is checked or all mgmt switched off) or next year (some mgmt allowed / harvlimit exceeded)
 if(ClCut == 0. .and. defaultThin == 0.) then ! either mgmt switched off entirely or blocked due to harvest limit being met
-    outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
+    !outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
+    outt(42,ij,2) = max((Vold-V)*pHarvTrees,0.)*harvRatio !update replacing the above: outt(30,ij,2) shouldn't be included; in practice, this could carry over the year of disturbance salvage logging to the year AFTER the mgmt reaction... test!
+    ! cont.: by if condition, there can't be any harvests in this stand in this year anyway...
     outDist(year,10) = 2. ! test flag to check if harvlim is met when doing mgmt reaction/salvage logging
 elseif(ClCut > 0. .or. defaultThin > 0.) then
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
