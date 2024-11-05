@@ -173,8 +173,12 @@ do ij = startSimYear,maxYears
    year_smooth_cut_start = max(ij-n_years_smooth_cut,1)
    n_years_smooth_cut_actual = min(n_years_smooth_cut,(ij-1))
    do i = 1,nSites
-   siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) - &
+     if(defaultThin(i)>0. .or. ClCut(i)>0.) then
+        siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) - &
                                      multiOut(i,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
+     else
+        siteHarv(i)=0.
+     endif
   enddo
   HarvLim(ij,1) = HarvLim(ij,1) * sum(siteHarv)
    energy_flag = 1.
