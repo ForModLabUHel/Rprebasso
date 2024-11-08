@@ -273,6 +273,7 @@ InitMultiSite <- function(nYearsMS,
     for(i in 2:maxYears) multiETS[,i] <- multiETS[,(i-1)] + (multiETS[,i]-multiETS[,(i-1)])/min(i,smoothYear)
   } 
   multiETS[which(is.na(multiETS))] <- 0.
+  print(multiInitClearCut[,5])
   ####process clearcut
   for(i in 1: nSites){
     if(ClCut[i]==1 & all(is.na(inDclct[i,]))) inDclct[i,] <-
