@@ -156,7 +156,7 @@ InitMultiSite <- function(nYearsMS,
   ETSstartX <- rep(NA,nClimID)
   multiETS <- matrix(NA,nClimID,maxYears)
   for(climID in 1:nClimID){
-    nYearsX <- max(nYearsMS[which(climIDs==climID)])
+    nYearsX <- max(nYearsMS[which(siteInfo[,2]==climID)])
     Temp <- TAir[climID,1:(365*nYearsX)]-5
     ETS <- pmax(0,Temp,na.rm=T)
     ETS <- matrix(ETS,365,nYearsX); ETS <- colSums(ETS)
