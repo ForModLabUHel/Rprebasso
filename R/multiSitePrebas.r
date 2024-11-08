@@ -248,7 +248,7 @@ InitMultiSite <- function(nYearsMS,
   ###process ETS
   multiETS <- matrix(NA,nClimID,maxYears)
   for(climID in 1:nClimID){
-    nYearsX <- max(nYearsMS[which(climIDs==climID)])
+    nYearsX <- max(nYearsMS[which(siteInfo[,2]==climID)])
     Temp <- TAir[climID,1:(365*nYearsX)]-5
     ETS <- pmax(0,Temp,na.rm=T)
     ETS <- matrix(ETS,365,nYearsX); ETS <- colSums(ETS)
@@ -264,7 +264,7 @@ InitMultiSite <- function(nYearsMS,
   Ainits <- multiInitClearCut[,5]
   for(xd in 1:nSites){
     if(is.na(Ainits[xd])) {
-      Ainits[xd] = max(round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],1:xx]) + 2.25+2),2)
+      Ainits[xd] = max(round(6 + 2* siteInfo[xd,3] - 0.005*mean(multiETS[siteInfo[xd,2],],na.rm=T) + 2.25+2),2)
       multiInitClearCut[xd,5] = Ainits[xd] #999.
     }
   } 
