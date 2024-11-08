@@ -183,6 +183,7 @@ InitMultiSite <- function(nYearsMS,
     Ainits[AinitsNA] = max(round(6 + 2* siteInfo[AinitsNA,3] - 0.005*ETSmean[siteInfo[AinitsNA,2]] + 2.25+2),2)
     multiInitClearCut[AinitsNA,5] = Ainits[AinitsNA] #999.
   }
+  print(Ainits)
     # }
   # } 
   if(smoothETS==1. & maxYears > 1){
