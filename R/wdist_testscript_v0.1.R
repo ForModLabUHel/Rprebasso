@@ -90,7 +90,7 @@ t0$multiOut[1,,12,1,1]
 
 
 # dist switched off (via omission of siteInfoDist input)
-t<- TransectRun(modVersion="multiSite", species = "Mixed", SiteType = 1)
+t<- TransectRun(modVersion="region", species = "Mixed", SiteType = 1)
 # plot(t$multiOut[3,,30,1,1])
 
 t$siteInfoDist
@@ -106,7 +106,7 @@ ggplot()+
 
 
 
-
+plot()
 
 
 
@@ -371,7 +371,7 @@ sid[,4] <- 0 # shallowsoil (0 = F, >30cm, 1 = T, <30cm)
 
 
 
-t4<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 1)
+t4<- TransectRun(siteInfoDist=sid, modVersion="multiSite", species="Mixed", SiteType = 1, ClCut = 0, defaultThin = 0)
 
 plot(t4$multiOut[1,,"BA",1,1])
 
@@ -384,7 +384,7 @@ ggplot()+
   geom_line(aes(x=1:100, y=t4$multiOut[1,,varx,1,1], col="H pine"))+
   geom_line(aes(x=1:100, y=t4$multiOut[1,,varx,2,1], col="H spruce"))+
   geom_line(aes(x=1:100, y=t4$multiOut[1,,varx,3,1], col="H birch"))+
-  geom_line(aes(x=1:100, y=t4$outDist[1,,10]*1000, col="annual wrisk (‰)"))+
+  geom_line(aes(x=1:100, y=t4$outDist[1,,3]*1000, col="annual wrisk (‰)"))+
   geom_line(aes(x=1:100, y=t4$outDist[1,,6]/10, col="tsincethin (10a)"))+
   geom_line(aes(x=1:100, y=t4$multiOut[1,,"ETS",3,1]/100, col="ETS (100dd)"))+ # ETS fluctuations explains variation in wrisk
   ggtitle("Man thin (yos 80): tsincethin implemented")
