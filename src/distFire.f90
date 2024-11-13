@@ -1,7 +1,7 @@
 
 
 subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_moisture, & 
-			TAir,NI,Precip,FDI) 
+			TAir,NI,Precip,FDI,n_fire_year) 
 ! livegrass = gv biomass
 ! Cpool_litter_wood = soilC woody component AWEN
 ! Cpool_litter_green = soilC non-woody component AWEN
@@ -11,7 +11,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
   integer, parameter :: nDays=365
   real (kind=8), intent(in) :: Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass
   real (kind=8), intent(in) :: soil_moisture, TAir(nDays), NI(nDays), Precip(nDays)
-  real (kind=8), intent(inout) :: FDI(nDays)
+  real (kind=8), intent(inout) :: FDI(nDays),n_fire_year
   real (kind=8) :: alpha_livegrass(nDays),alpha_fuel(nDays)
   real (kind=8) :: char_alpha_fuel(nDays),rel_fuel_moisture(nDays)
   real (kind=8) :: leaf_moisture,Cpool_litter_wood(nDays),Cpool_litter_green(nDays)
@@ -20,7 +20,11 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
   real (kind=8) :: fuel_1hr(nDays),fuel_10hr(nDays),fuel_100hr(nDays),fuel_1000hr(nDays),fuel_1to100hr_sum(nDays)
   real (kind=8) :: ratio_dead_fuel(nDays),ratio_live_fuel(nDays),char_moistfactor(nDays)
   real (kind=8) :: alpha_fuel_1hr,alpha_fuel_10hr,alpha_fuel_100hr
-  integer :: i
+  integer :: i  
+  !!!!to be updated
+  real (kind=8) :: numfire(nDays), popden, lightnings, human_i, param, MINER_TOT, net_fuel(nDays),lightning_i,a_nd
+
+
 
 !initialize
  Cpool_litter_wood(:) = Cpool_litter_woodIn
@@ -83,5 +87,27 @@ do i = 1, nDays
   rel_fuel_moisture(i) = exp(-char_alpha_fuel(i)*NI(i)) !Fuel moisture
   FDI(i) = max(0., (1.-(1./char_moistfactor(i)*rel_fuel_moisture(i)))) !Fire Danger Index
 enddo
-  
+
+! those should be arguments in the function from Juvaskyla data 
+ popden = 36 
+ lightnings = 0.00766 
+ a_nd = 0.11
+ param = 6.8
+
+ human_i = param * (exp(-0.5 * sqrt(popden))) * a_nd/ 100 * popden
+
+! Only a fraction of cloud to ground flashes can ignite a fire
+ lightning_i = lightnings*0.04
+
+! net fuel in kg(biomass)/m2, reduced for mineral content
+ MINER_TOT=0.055
+ net_fuel = (1.0 - MINER_TOT) * (fuel_1to100hr_sum/ 1000)
+
+!### The number of fires (Eq. 3 in Thonicke et al. 2010)
+ numfire = 0.d0
+do i = 1, nDays
+ if(net_fuel(i)>0.001) numfire(i) = FDI(i) * (human_i+lightning_i)*0.01d0*0.22d0
+enddo
+ n_fire_year = sum(numfire)
+
 end subroutine
