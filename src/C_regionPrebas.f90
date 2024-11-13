@@ -72,6 +72,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: output(1,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),wood(1,maxNlayers,2)
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,deltaSiteTypeFert=1.,energy_flag=0., siteHarv(nSites) !!energCuts
+
  integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
@@ -168,6 +169,7 @@ do ij = startSimYear,maxYears
  if(HarvLim(ij,1)>0. .and. HarvLim(ij,1)<10.) then
   if(ij==1) then
    HarvLim(ij,1) = 0.
+
    HarvLim(ij,2) = 0.
   else
    year_smooth_cut_start = max(ij-n_years_smooth_cut,1)
@@ -197,6 +199,7 @@ do ij = startSimYear,maxYears
    enddo
    !outDist(1, ij, 10) = roundwood+1
 endif
+
 
 
 
@@ -325,6 +328,7 @@ endif
   	energy_flag = 0.
    endif
 !!!check if the limit area for tendings has been exceeded if yes no tending havest
+
   if (cuttingArea(ij,3) > 0. .and. cuttingArea(ij,4) > cuttingArea(ij,3)) then !!!swithch off tendings if threshold area (cuttingArea(3)), has been reached
    tTapioX = tTapio * 1.e5
   else
