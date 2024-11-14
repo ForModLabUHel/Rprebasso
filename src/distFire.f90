@@ -88,19 +88,19 @@ do i = 1, nDays
 enddo
 
 ! those should be arguments in the function from Juvaskyla data 
- popden = 36 
+ popden = 36.0d0
  lightnings = 0.00766 
  a_nd = 0.11
  param = 6.8
 
- human_i = param * (exp(-0.5 * sqrt(popden))) * a_nd/ 100 * popden
+ human_i = param * (exp(-0.5 * sqrt(popden))) * a_nd/ 100.d0 * popden
 
 ! Only a fraction of cloud to ground flashes can ignite a fire
  lightning_i = lightnings*0.04
 
 ! net fuel in kg(biomass)/m2, reduced for mineral content
  MINER_TOT=0.055
- net_fuel = (1.0 - MINER_TOT) * (fuel_1to100hr_sum/ 1000)
+ net_fuel = (1.0 - MINER_TOT) * (fuel_1to100hr_sum/ 1000.d0)
 
 !### The number of fires (Eq. 3 in Thonicke et al. 2010)
  numfire = 0.d0
