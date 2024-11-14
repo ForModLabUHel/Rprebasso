@@ -46,7 +46,7 @@ prebas(
   thinInt = -999,
   fertThin = 0,
   nYearsFert = 20,
-  protect = 0,
+  oldLayer = 0,
   mortMod = 1,
   ECMmod = 0,
   pECMmod = parsECMmod,
@@ -58,7 +58,13 @@ prebas(
   TcurrClim = NA,
   PcurrClim = NA,
   HcModV = HcModV_def,
-  siteInfoDist = NA
+  siteInfoDist = NA,
+  yearFert = NULL,
+  deltaSiteTypeFert = 1,
+  latitude = NA,
+  TsumSBBs = NA,
+  SMIt0 = NA,
+  TminTmax = NA
 )
 }
 \arguments{
@@ -144,7 +150,7 @@ prebas(
 
 \item{nYearsFert}{number of years after thinnings for which the fertilization is effective}
 
-\item{protect}{flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)}
+\item{oldLayer}{flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)}
 
 \item{mortMod}{flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models. If one value is provided the same model is applied to managed and unmanaged (those forests where both ClCut and defaultThin are set to 0) forests. If two values are provided ,for example c(1,3), the first model is applied to managed forests and the second to unmanaged forests.}
 
@@ -167,6 +173,14 @@ prebas(
 \item{PcurrClim}{# average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.}
 
 \item{HcModV}{flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1}
+
+\item{latitude}{latitude of the site}
+
+\item{TsumSBBs}{initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year}
+
+\item{SMIt0}{site vector of initial SoilMoirture index}
+
+\item{TminTmax}{matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations}
 
 \item{prebasFlags}{vector of flags to reduce number of}
 }

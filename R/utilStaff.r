@@ -103,7 +103,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
                'H','D', 'BA','Hc_base','Cw','Ac','N','npp','leff','keff','lproj','ET_preles','weight',
                'Wbranch',"WfineRoots",'Litter_fol','Litter_fr','Litter_fWoody','Litter_cWoody','V',
                'Wstem','W_croot','wf_STKG', 'wf_treeKG','B_tree','Light',"VroundWood","WroundWood","soilC",
-               "aSW","dH","Vmort","grossGrowth", "GPPtrees","Rh", "NEP"," W_wsap","W_c","W_s","Wsh","Wdb","dHc",
+               "aSW","dH","Vmort","grossGrowth/bb BA disturbed", "GPPtrees","Rh/SBBpob[layer_1]", "NEP/SMI[layer_1]","W_wsap/fireRisk[layer_1]","W_c","W_s","Wsh","Wdb","dHc",
                "Wbh","Wcrh")
 
   getVarNam <- function(){
@@ -862,5 +862,26 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       dimnames(GVout) <- list(GVmod= namesX,years=NULL)
       return(GVout)
     }
+  }
+  
+  #' Nesterov Index
+  #' A cumulative function of daily Tmax and dew-point temperature Tdew, eq. 5 in TH2010
+  #' @param rain daily precipitation (mm)
+  #' @param tmin daily minimum temperature (ºC)
+  #' @param tmaX daily maximum temperature (ºC)
+  #'
+  #' @return the Nesterov Index 
+  #' @export
+  #'
+  #' @examples
+  NesterovInd <- function(rain, tmin, tmax){
+    nDays <- length(rain)
+    NI <- rep(0,nDays)
+    daysX <- (which(rain[2:nDays]< 3 & (tmin[2:nDays]-4)>=0))+1 #do not consider the first day
+    if(length(daysX)>0){
+      NI[daysX] = (tmax[daysX]*(tmax[daysX]-tmin[daysX]-4.))+
+        (tmax[daysX-1]*(tmax[daysX-1]-tmin[daysX-1]-4))  
+    }
+    return(NI)
   }
   

@@ -47,20 +47,18 @@ htresh_ba = 0
 do i = 1, nLayers
    if(STAND_all(11,i) > hthresh) THEN
  ! setting wrisks to 0 (subroutine inout), to be simplified
-  wrisk5dd1 = 0
-  wrisk5dd2 = 0
-  wrisk5dd3 = 0
-  wrisk0 = 0
-  wrisk5 = 0
-  wrisk = 0
-  call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
-  INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
-  htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
-wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
-
-
- end if
-  end do
+      wrisk5dd1 = 0
+      wrisk5dd2 = 0
+      wrisk5dd3 = 0
+      wrisk0 = 0
+      wrisk5 = 0
+      wrisk = 0
+      call windrisk(siteInfoDist, INT(STAND_all(4,i)), STAND_all(11,i), 0, STAND_all(3,1), STAND_all(5,1), &
+      INT(siteInfoDist(2)), wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
+      htresh_ba =  htresh_ba+STAND_all(13,i) !collect ba of layers within htresh height range
+       wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
+  endif
+end do
 
   ! for development of wrisk of co-dominant layers
 
@@ -104,8 +102,8 @@ if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
 if (outDist(year,4)==1) then
   call random_number(rndm) ! leave sevclass at 1 or increase based on sampling
   !outDist(year,8) = 1 !set sevclass to 1
-  if(rndm <= 0.13888889) outDist(year,4) = 2
-  if(rndm <= 0.05555556) outDist(year,4) = 3 !these are now sampled even if there's no disturbance occuring; keep for dev purposes, only calculate when dist occurres in final version
+  if(rndm <= (0.13888889 + 0.05555556)) outDist(year,4) = 2 !probability of sevclass 3 needs to be added (random number procedure, otherwise the probability for sevclass 2 includes that for sevclass 3...)
+  if(rndm <= 0.05555556) outDist(year,4) = 3
 endif
 
 !!! STEP 3: sample from severity class-specific set of relative disturbed volumes
@@ -190,7 +188,7 @@ end do
 
 !!!! MANAGEMENT REACTION / SALVAGE LOGGING
 
-if (outDist(year,4)>0.) then !in case of disturbance
+if (outDist(year,4)>0.) then !in case of disturbance xif1
   pHarvTrees = 0.
 
   ! SALVAGE LOGGING
@@ -200,8 +198,8 @@ if (outDist(year,4)>0.) then !in case of disturbance
     if(rndm<=siteInfoDist(6)) then
       pHarvTrees = siteInfoDist(7)! if sampled for salvlog set pHarvTrees
       outDist(year,7) = 1. !indicate salvage logging in output
-    endif
-  endif
+    endif !if_s
+  endif !if_s
 
 
 
@@ -213,8 +211,8 @@ if (outDist(year,4)>0.) then !in case of disturbance
       outDist(year,8) = 1.! if sampled for mgmtreact
       pHarvTrees = siteInfoDist(7)! force salvlog as well (very unlikely to be omitted)
       outDist(year,7) = 1.
-    endif
-  endif
+    endif!if_s
+  endif!if_s
 
   ! CLEAR CUT IN SEVERERELY DISTURBED SITES ()
   if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDist(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
@@ -224,23 +222,19 @@ if (outDist(year,4)>0.) then !in case of disturbance
        outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
     endif
   endif
-endif ! end salvlog/mgmtrect module
-
-
- !outDist(year,10) = clcut
+endif ! end salvlog/mgmtrect module xif1
 
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
   pHarvTrees = 0.
   outDist(year,7:9) = 0.
-
 endif
 
 !!!! UPDATING STAND VARS !!!!
 ! based on Francesco's code, only inputs necessary: layer level killed BA & pHarvTrees
- if(.TRUE.) then !if XX everything is switch off for the moment !wdimp x1
- !
+ ! if(.TRUE.) then !if XX everything is switch off for the moment !wdimp x1
+
  ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (disturbanceON) then !x2
+  if (disturbance_wind) then !x2 xif2
    ! BAmort = 0.d0
    ! pMort = 0.2d0
    BAdist = wriskLayers(:,6) !disturbed layer ba/layer ba
@@ -254,14 +248,14 @@ endif
  !   perBAmort = 0. ! deactivate Francesco's randomised mortality, seems to be very active and reduces n < 1 over rotation
  !if(perBAmort > 0.0d0 .OR. maxval(wriskLayers(:,1)) > 0) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
   ! outDist(year,1) = sum(BAdist)
-   if(maxval(BAdist) > 0.) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
+   if(maxval(BAdist) > 0.) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3 xif2
 
    !BA_tot = sum(STAND_all(13,:))
    !BAr = STAND_all(13,:)/BA_tot
 
      ! perBAmort = 0.1
        ! write(1,*) "disturbance", year, pMort, perBAmort
-   do ij = 1 , nLayers     !loop Species xl1
+   do ij = 1 , nLayers     !loop Species xdo1
 
     BAmort = BAdist(ij)
     dN=0.d0
@@ -317,7 +311,7 @@ endif
     !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided
     if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR)
 !activate
-   if (year > maxYearSite) then !x4
+   if (year > maxYearSite) then !x4 xif3
      STAND(2) = 0. !!newX
      STAND(8:21) = 0. !#!#
      STAND(23:37) = 0. !#!#
@@ -344,7 +338,7 @@ endif
      mort = stand(41)
      par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
 
-    if (N>0.) then !x5
+    if (N>0.) then !x5 xif3.1
 
      par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
      par_rhof = par_rhof1 * ETS + par_rhof2
@@ -366,7 +360,7 @@ endif
 
 
 
-    if(BAmort > 0.) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
+    if(BAmort > 0.) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp xif4
 !      if(BAmort(ij) > 0. .and. maxval(wriskLayers(:,1)) == 0) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
       !dN = -Nold * (BAmort/(BA/BAr(ij)))
      dN = -Nold * (BAmort/BA)
@@ -376,12 +370,12 @@ endif
     !   dN = -Nold * (wriskLayers(ij,6)/BA) !disturbed layer ba/layer ba
     else
       dN = 0.
-     endif
+    endif !xif4_end
 
    !!!update variables
        N = max(0.0, N + step*dN)
 
-       if (dN<0. .and. Nold>0.) then !x6
+       if (dN<0. .and. Nold>0.) then !x6 xif5
          W_wsap = stand(47)
          W_froot = stand(25)
          W_c = stand(48) !sapwood stem below Crown
@@ -432,11 +426,15 @@ endif
 !!!
 !! allocating salvage logging to current (regionPrebas harvlimit not met when site is checked or all mgmt switched off) or next year (some mgmt allowed / harvlimit exceeded)
 if(ClCut == 0. .and. defaultThin == 0.) then ! either mgmt switched off entirely or blocked due to harvest limit being met
-    outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
+    !outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
+    outt(42,ij,2) = max((Vold-V)*pHarvTrees,0.)*harvRatio !update replacing the above: outt(30,ij,2) shouldn't be included; in practice, this could carry over the year of disturbance salvage logging to the year AFTER the mgmt reaction... test!
+    ! cont.: by if condition, there can't be any harvests in this stand in this year anyway...
+    outDist(year,10) = 2. ! test flag to check if harvlim is met when doing mgmt reaction/salvage logging
 elseif(ClCut > 0. .or. defaultThin > 0.) then
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
-endif
-    !!!
+    pHarvTrees = 0
+    outDist(year,10) = 1. ! test flag to check if harvlim is met when doing mgmt reaction/salvage logging
+
 
   endif !x6
 
@@ -451,13 +449,15 @@ endif
      STAND(35) = B
      STAND(30) = V
   endif !x5
-endif !x4
+endif !
 !//activate
     STAND_all(:,ij)=STAND
+endif
     end do !!!!!!!end loop layers xl1
  endif !bamort>0... x3
-!  !
- endif !if disturbanceON x2
-!  ! ! endif
-endif !end if XX switch off the modules x1
+
+! !  !
+  endif !if disturbanceON x2
+! !  ! ! endif
+! endif !end if XX switch off the modules x1
  !

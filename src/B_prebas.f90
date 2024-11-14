@@ -9,8 +9,11 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,thinInt, &
+
    flagFert,nYearsFert,mortMod,pECMmod, &
-   layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags)
+   layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
+   latitude, TsumSBBs)
+
 
 
 
@@ -24,14 +27,15 @@ implicit none
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
  integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
- real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv
+ real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(4)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
 !disturbances
- logical :: disturbanceON !fvec
+
+ logical :: disturbance_wind, disturbance_bb, disturbance_fire !fvec
  real (kind=8), intent(inout) :: siteInfoDist(10), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  real (kind=8) :: rndm !random number for disturbance sampling
  integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
@@ -90,7 +94,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8) :: STAND(nVar), STAND_tot(nVar), param(npar) ! temp variables fillled for each layer and fills  output(nYear, nSites, nVar).
  integer :: i, ij, ijj,dayx, species, layer, nSpec, ll ! tree species 1,2,3 = scots pine, norway spruce, birch
  integer, allocatable :: indices(:)
- real(kind=8) :: rPine, rBirch, perBAmort, pMort,dailyPRELESnoStored((nYears*365), 3) ! GPP, ET, SW
+ real(kind=8) :: rPine, rBirch, perBAmort, pMort!,dailyPRELESnoStored((nYears*365), 3) ! GPP, ET, SW
 
  real (kind=8) :: p0_ref, ETS_ref, P0yX(nYears, 2)
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
@@ -152,10 +156,15 @@ real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
 integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
 integer, intent(in) :: prebasFlags(6)
+real (kind=8) :: dailySW(365)
 
 
 
-
+!fire disturbances
+real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
+real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
+!BB disturbances
+real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
 
 !!! 'un-vectorise' flags, fvec
 etmodel = int(prebasFlags(1))
@@ -163,19 +172,49 @@ gvRun = int(prebasFlags(2))
 fertThin = int(prebasFlags(3))
 oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
-if(prebasFlags(6)==0) disturbanceON = .FALSE.
-if(prebasFlags(6)==1) disturbanceON = .TRUE.
 
-!
-! outDist(1,1) = prebasFlags(6)
-! outDist(1,2) = siteInfoDist(2)
 
+!!set disturbance flags
+! set all dist to 0 and then choose based on flag
+!if(prebasFlags(6)==0) then
+ disturbance_wind = .FALSE.
+ disturbance_bb = .FALSE.
+ disturbance_fire = .FALSE.
+!endif
+if(prebasFlags(6)==1) disturbance_wind = .TRUE.
+if(prebasFlags(6)==2) disturbance_bb = .TRUE.
+if(prebasFlags(6)==3) disturbance_fire = .TRUE.
+if(prebasFlags(6)==12) then
+ disturbance_wind = .TRUE.
+ disturbance_bb = .TRUE.
+endif
+if(prebasFlags(6)==12) then
+ disturbance_wind = .TRUE.
+ disturbance_bb = .TRUE.
+endif
+if(prebasFlags(6)==13) then
+ disturbance_wind = .TRUE.
+ disturbance_fire = .TRUE.
+endif
+if(prebasFlags(6)==23) then
+ disturbance_fire = .TRUE.
+ disturbance_bb = .TRUE.
+endif
+if(prebasFlags(6)==123) then
+ disturbance_wind = .TRUE.
+ disturbance_bb = .TRUE.
+ disturbance_fire = .TRUE.
+endif
 
 
   ! open(1,file="test1.txt")
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+NI(:) = dailyPRELES(:,3) !read nestorov index and reset to -999 the dailyPreles output
+dailyPRELES(:,3) = -999.0
+SMIt0 = output(1,46,1,2) !initialize SMI previous year
+output(1,46,1,2) = 0.d0
 lastGVout = 0.
 thinClx = 0.
 energyWood = 0.
@@ -213,6 +252,7 @@ ETSmean = sum(ETSy)/nYears
  modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
  modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
+ modOut(:,45,:,1) = 0. !set heterotrophic respiration to 0
  do i = 1,nLayers
   modOut(:,4,i,1) = initVar(1,i)  ! assign species
   modOut(:,7,i,1) = initVar(2,i) ! assign initAge !age can be made species specific assigning different ages to different species
@@ -228,8 +268,8 @@ ETSmean = sum(ETSy)/nYears
   modOut(1,17,i,1) = 0.
   modOut(1,35,i,1) = 0.
   endif
-
  enddo
+
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
@@ -331,6 +371,7 @@ siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind distu
   modOut(year,30,ijj,1) = V
 
    enddo
+   modOut((year-Ainit):year,48,1,2) = 0.
    do ki = 1,int(Ainit)
     do ijj = 1,nLayers
      modOut((year-Ainit+ki),7,ijj,1) = ki !#!#
@@ -593,7 +634,9 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    ! STAND_all(41,:) = prelesOut(16)  !summerSW
 
   !store GPP
+
      GVout(year,3) = prelesOut(1) * fAPARgvX/fAPARsite! GV Photosynthesis in g C m-2
+	 if(GVout(year,1)<0.00000001) GVout(year,:) = 0.
      STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite * coeff! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
 !initialize for next year
@@ -636,7 +679,10 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
    endif
 
-    outt(46,1,2)  = prelesOut(7)
+
+    outt(46,1,2)  = prelesOut(7) !SMI
+    SMI = prelesOut(7) !SMI
+	dailySW = dailyPRELES((1+((year-1)*365)):(365*year),3)
 
 endif
 !enddo !! end site loop
@@ -1027,6 +1073,14 @@ endif
 !set species from thinning matrix (strart)
    species = int(thinning(countThinning,2))
    stand(4) = thinning(countThinning,2)
+     !!!check if ingrowth and calculate dominant species
+   if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
+    domSp = maxloc(STAND_all(13,:))
+	layer = int(domSp(1))
+	species = int(max(1.,stand_all(4,layer)))
+	stand(4) = max(1.,stand_all(4,layer))
+	thinning(countThinning,2) = stand(4)
+   endif
 !set species from thinning matrix (end)
 
 
@@ -1254,7 +1308,9 @@ endif
   endif
  domSp = maxloc(STAND_all(13,1:ll))
  layer = int(domSp(1))
- if (ClCut == 1. .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year
+
+if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year
+
   species = int(max(1.,stand_all(4,layer)))
   D_clearcut = inDclct(species)
   A_clearcut = inAclct(species)
@@ -1302,11 +1358,15 @@ endif
   !!!implement clearcut by layer (start) (not for old layer in oldLayer sceario)
    do ij = 1, ll
 
+! (JH interpretation) filling harvested dimension of output with stand_all variables..
+ !for some variables additively:
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij,2) = &
-    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij)
-
+! for some by replacement. Problematic for ,42, as 42,2 is used to transfer killed V that is salvage logged to next year in case the harvest limit has already been met.
+!  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = &
+!    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij)
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij,2) = &
+      stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij) ! excluding 42 from this replacement to fix bug where vmort (,1) is harvested in the year after the management reaction
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
   S_fr = stand_all(25,ij) + stand_all(27,ij)
@@ -1345,8 +1405,10 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
 
     outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) = outt((/9,10,13,16,17,18,24,25,30,31,32,33/),ij,2) + &
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij,2) = &
-    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,45,47,48,49,50,51,52,53,54/),ij)
+  ! outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = & !45:47,
+  !   stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij) !45:47,
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij,2) = & !45:47, !!! REMOVAL OF 42 her as well (see ~50 lines above)
+    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij) !45:47,
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1468,7 +1530,7 @@ if(defaultThin == 1.) then
 
    if(stand_all(17,ij)>0.) then
     STAND_tot = stand_all(:,ij)
-  species = int(max(1.,stand_all(4,ij)))
+    species = int(max(1.,stand_all(4,ij)))
     param = pCrobas(:,species)
     par_cR=param(1)
     par_rhow=param(2)
@@ -1502,8 +1564,8 @@ if(defaultThin == 1.) then
     par_thetaMax = param(31)
     par_H0max = param(32)
     par_gamma = param(33)
-  par_kH = param(34)
-  par_fAa = param(45)
+    par_kH = param(34)
+    par_fAa = param(45)
     par_fAb = param(46)
     par_fAc = param(47)
     par_rhof1 = 0.!param(20)
@@ -1678,7 +1740,7 @@ endif
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
  !!model disturbances
- if(disturbanceON) then
+ if(disturbance_wind) then
    include 'disturbanceCalc.h'
  endif
 
@@ -1691,6 +1753,9 @@ modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
+
+!!!!calculate bark beetle disturbance
+   include 'SBB_dist_Calc.h'
 
  if(oldLayer==1) then
   modOut((year+1),:,nLayers,:) = outt(:,nLayers,:)
@@ -1725,6 +1790,21 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
   soilCtot(year+1) = sum(soilC(year+1,:,:,:))
  endif !end yassoRun if
+
+!!!fire disturbance calculations
+ ! if(fireDistFlag)
+  Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:))
+  Cpool_litter_green = sum(soilC((year+1),1:4,3,:)) * sum(outt(26,:,1))/sum(outt(26,:,1)+outt(27,:,1))
+  livegrass = 0.!GVout(year,4)
+  soil_moisture(:) = ((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
+  Tmin = weatherPRELES(year,:,2) - 3.6
+  Tmax = weatherPRELES(year,:,2) + 3.7
+  FDI(:) = 0.
+  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, &
+			weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI)
+  modOut((year+1),47,:,2) = 0.
+  modOut((year+1),47,1,2) = maxval(FDI)
+ ! endif
 
 enddo !end year loop
 

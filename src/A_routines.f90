@@ -442,7 +442,7 @@ implicit none
    END SUBROUTINE call_preles
  END INTERFACE
 
- real (kind=8), intent(in) :: weather(365,5),fAPAR(365)
+ real (kind=8), intent(inout) :: weather(365,5),fAPAR(365)
  real (kind=8), intent(out) :: prelesOut(16)!,p0
  real (kind=8), intent(inout) :: pars(30)
  integer, intent(in):: DOY(365), etmodel
@@ -2326,48 +2326,6 @@ end subroutine
 
 ! end subroutine 
 
-!!!bark beatle disturbance calculations   
-subroutine pBarkBeatle(standInfo,nLayers,parBbeatle,spruceIDs,nSpIDs,probBbeatle)
-  implicit none
-  logical :: spruceLayer(nLayers)
-  integer, intent(in) :: nLayers,nSpIDs
-  real(8), intent(in) :: standInfo(3,nLayers),spruceIDs(nSpIDs) !standInfo first argument is species, age and BA by layer
-  real(8), intent(inout) :: parBbeatle(4),probBbeatle
-  integer :: i
-  real(8) :: ba(nLayers), age(nLayers),species(nLayers)
-  real(8) :: BAspruce,ageMaxSpruce,BAspruceShare,BAtot
-  real(8) :: par_BAshare,par_PIba,par_PIage,par_PIdrought,PI_age,PI_ba,PI_drought
-
-ba = standInfo(3,:)
-age = standInfo(2,:)
-species = standInfo(1,:)
-BAtot = sum(ba)
-BAspruce = 0.d0
-ageMaxSpruce = 0.d0
-BAspruceShare = 0.d0
-par_BAshare = parBbeatle(1) !0.3
-par_PIage = parBbeatle(2) !0.25
-par_PIba = parBbeatle(3) !0.15
-par_PIdrought = parBbeatle(4) !0.3
-
-do i =  1,nLayers
-  spruceLayer(i) = any(spruceIDs .eq. int(species(i)))
-  if(spruceLayer(i)) then
-    BAspruce = BAspruce + BA(i)
-    ageMaxSpruce = max(0.d0,age(i))
-    BAspruceShare = BAspruceShare + BA(i)/BAtot
-  endif
-end do
-
-PI_ba = min(1.d0, 0.2 + 0.8*(BAspruce-40)**2/40**2)
- 
-PI_age = min(1.d0, 0.2+ageMaxSpruce/100)
-
-PI_drought=0.d0
-
-probBbeatle = par_BAshare*BAspruceShare + par_PIage*PI_age + par_PIba*PI_ba + par_PIdrought*PI_drought
- 
-end subroutine
 
 !update parameter value as linear function of sitetype
 subroutine linearUpdateParam(pars,siteType,par_New) 
@@ -2454,28 +2412,23 @@ endsubroutine
 
 
 
-! ! testing maxloc for oldlayer implementation, if you find this, please remove!
-! 
-! subroutine maxloc_example(array, position, position2)
-!   implicit none
-!   integer, intent(inout) :: position(1), position2
-!   real (kind=8), intent(inout) :: array(5)
-!   ! Initialize the array
-!   !array = (/ 4, 7, 2, 9, 5 /)
-! 
-!   ! Print the array
-!   print *, 'Array: ', array
-! 
-!   ! Find the location of the maximum value in the array
-!   position = maxloc(array)
-!   position2 = int(position(1))
-! 
-!   ! Print the position (indices) of the maximum value
-! !  print *, 'Position of the maximum value: ', position
-! 
-!   ! Note: In this example, the result should be 4 because the maximum value (9) is at the 4th position.
-! end subroutine maxloc_example
-! 
-
-
+!order a vector in descendete order
+subroutine order_desc(v_size,vector_x,v_descendente)
+  integer, intent(in) :: v_size
+  real(8),intent(in) :: vector_x(v_size)
+  integer,intent(out) :: v_descendente(v_size)
+  LOGICAL, DIMENSION(v_size) :: mk
+  real(8) :: indx(1)
+  integer ix
+! open(1,file="test1.txt")
+mk = .TRUE.
+DO ix = 1, v_size
+   ! write(1,*) MAXVAL(vector_x,mk)
+   indx = MAXLOC(vector_x,mask=mk,dim=1)
+   v_descendente(ix) = int(indx(1))
+   ! write(1,*)  MAXLOC(vector_x,mask=mk,dim=1)
+   mk(MAXLOC(vector_x,mk)) = .FALSE.
+END DO
+! close(1)
+endsubroutine
 
