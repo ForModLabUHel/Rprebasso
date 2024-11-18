@@ -151,12 +151,12 @@ end subroutine
 
 
 !!!Calculate spruce variables   
-subroutine spruceVars(standInfo,nLayers,spruceIDs,nSpIDs,spruceStandVars)
+subroutine spruceVars(standInfo,nLayers,spruceIDs,nSpIDs,spruceStandVars,rBAspruce)
   implicit none
   logical :: spruceLayer(nLayers)
   integer, intent(in) :: nLayers,nSpIDs,spruceIDs(nSpIDs)
   real(8), intent(in) :: standInfo(3,nLayers) !standInfo first argument is species, age and BA by layer
-  real(8), intent(inout) :: spruceStandVars(3)
+  real(8), intent(inout) :: spruceStandVars(3), rBAspruce(nLayers)
   integer :: i
   real(8) :: ba(nLayers), age(nLayers),species(nLayers)
   real(8) :: BAspruce,ageMaxSpruce,BAspruceShare,BAtot
@@ -170,16 +170,19 @@ BAtot = sum(ba)
 BAspruce = 0.d0
 ageMaxSpruce = 0.d0
 BAspruceShare = 0.d0
-
+rBAspruce(:) = 0.d0
+spruceLayer(:) = .false.
 if(BAtot>0.) then
  do i =  1,nLayers
   spruceLayer(i) = any(spruceIDs .eq. int(species(i)))
   if(spruceLayer(i)) then
+    rBAspruce(i) = BA(i)
     BAspruce = BAspruce + BA(i)
-    ageMaxSpruce = max(0.d0,age(i))
+    ageMaxSpruce = max(ageMaxSpruce,age(i))
     BAspruceShare = BAspruceShare + BA(i)/BAtot
   endif
  end do
+ if(BAspruce>0.d0) rBAspruce = rBAspruce/BAspruce
 endif
 
  spruceStandVars(1) = BAspruce
@@ -188,3 +191,61 @@ endif
 
 end subroutine
 
+!!! bark beetle impact model   
+! returns the share of damaged spruce
+subroutine bb_imp_mod(SMI,BA_spruceshare,dam_int)
+  implicit none
+  real(8), intent(in) :: SMI,BA_spruceshare
+  real(8), intent(out) :: dam_int 
+  real(8) :: a, SHI
+
+!!initialize parameters
+a = 0.15
+
+SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
+
+dam_int = 1. /  (1. + exp(3.9725-2.9673 * SHI))
+
+end subroutine
+
+
+
+!!!Calculate spruce ba mortality by layer based on BB disturbance
+!calculate the BA mortality buy each layer starting from the bigger trees based on H   
+subroutine baBBdist_bylay_fun(standInfo,nLayers,spruceIDs,nSpIDs,BAdist_bylay,BA_dist_tot)
+  implicit none
+  logical :: spruceLayer(nLayers)
+  integer, intent(in) :: nLayers,nSpIDs,spruceIDs(nSpIDs)
+  real(8), intent(inout) :: standInfo(3,nLayers), BA_dist_tot !standInfo first argument is species, age and BA by layer
+  real(8), intent(inout) :: BAdist_bylay(nLayers)
+  integer :: i, orderStand(nLayers),layerx
+  real(8) :: ba(nLayers), h(nLayers),species(nLayers),batot
+  
+  
+ba = standInfo(3,:)
+h = standInfo(2,:)
+species = standInfo(1,:)
+BAdist_bylay = 0.
+
+call order_desc(nLayers,h,orderStand)
+
+BAtot = sum(ba)
+spruceLayer(:) = .false.
+
+if(BAtot>0.) then
+ do i =  1,nLayers
+  layerx = orderStand(i)
+  spruceLayer(layerx) = any(spruceIDs .eq. int(species(layerx)))
+  if(spruceLayer(layerx) .and. BA_dist_tot>0.) then
+    if(ba(layerx) <= BA_dist_tot) then
+     BAdist_bylay(layerx) = ba(layerx)
+     BA_dist_tot = BA_dist_tot - ba(layerx) 
+	else
+     BAdist_bylay(layerx) = BA_dist_tot
+     BA_dist_tot = 0. 	 
+    endif	 
+  endif
+ enddo
+endif
+
+end subroutine

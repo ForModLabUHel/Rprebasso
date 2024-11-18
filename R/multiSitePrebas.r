@@ -726,6 +726,7 @@ multiPrebas <- function(multiSiteInit,
                         yearFert=NULL,
                         deltaSiteTypeFert = 1,
                         oldLayer=0){
+  
   ###initialize siteType
   multiSiteInit$multiOut[,,3,,1] <- array(multiSiteInit$siteInfo[,3],
                                           dim=c(multiSiteInit$nSites,
@@ -742,6 +743,32 @@ multiPrebas <- function(multiSiteInit,
     }
   }
 
+  ###check and activate disturbance modules  
+  if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
+  if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
+  ####initialize disturbance module if exists
+  dist_flag <- multiSiteInit$dist_flag
+  if(all(is.na(siteInfoDist))){
+    disturbanceON = FALSE
+    siteInfoDist = matrix(0,multiSiteInit$nSites,10)
+    
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
+  }else{
+    if(!dist_flag %in% c(1,12,13,123)){
+      if(dist_flag==0) dist_flag = 1
+      if(dist_flag %in% c(2:3)) dist_flag = dist_flag + 10
+      if(dist_flag ==23) dist_flag = dist_flag + 100
+    }
+    siteInfoDist = as.matrix(multiSiteInit$siteInfoDist)
+    outDist = array(0,dim=c(multiSiteInit$nSites,multiSiteInit$maxYears,10))
+  }
+  dimnames(outDist) <-  list(site=NULL, year=NULL, 
+                             variable=c("domspec", "tsincethin", "wrisk", "sevclass", "damvol", "reldamvol", "salvlog", "mgmtreact", "sevdistcc", "domh"))
+  
+  dimnames(siteInfoDist) <-  list(site=NULL,
+                                  variable=c("wspeed", "tsincethin_init", "soiltype", "shallowsoil", "salvlog_thresh", "salvlog_share", "pharvtrees", "mgmtreact_thresh", "mgmtreact_share", "sevdistccshare"))
+  
+  
   #initialize alfar
   if(is.null(multiSiteInit$pCN_alfar)){
     for(ijj in 1:multiSiteInit$maxNlayers){
@@ -887,9 +914,10 @@ if(!is.null(yearFert)){
                      #ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
-                     latitude=as.double(multiSiteInit$latitude),
-                    siteInfoDist = as.matrix(siteInfoDist), #wdimpl
+                     siteInfoDist = as.matrix(siteInfoDist), #wdimpl
                      outDist = as.array(outDist),
+                     prebasFlags = as.integer(prebasFlags),#wdimpl
+                     latitude=as.double(multiSiteInit$latitude),
                      P00CN=as.double(multiSiteInit$P00CN),
                      TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
   )

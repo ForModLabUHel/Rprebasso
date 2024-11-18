@@ -2372,3 +2372,24 @@ subroutine calcAlfarFert_MultiSite(siteTAlpha,latitude,species,pCrobas,nLayers,n
 
 	end do
 endsubroutine
+
+
+!order a vector in descendete order
+subroutine order_desc(v_size,vector_x,v_descendente)
+  integer, intent(in) :: v_size
+  real(8),intent(in) :: vector_x(v_size)
+  integer,intent(out) :: v_descendente(v_size)
+  LOGICAL, DIMENSION(v_size) :: mk
+  real(8) :: indx(1)
+  integer ix
+! open(1,file="test1.txt")
+mk = .TRUE.
+DO ix = 1, v_size
+   ! write(1,*) MAXVAL(vector_x,mk)
+   indx = MAXLOC(vector_x,mask=mk,dim=1)
+   v_descendente(ix) = int(indx(1))
+   ! write(1,*)  MAXLOC(vector_x,mask=mk,dim=1)
+   mk(MAXLOC(vector_x,mk)) = .FALSE.
+END DO
+! close(1)
+endsubroutine
