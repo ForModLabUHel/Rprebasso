@@ -153,7 +153,7 @@ integer, intent(in) :: prebasFlags(6)
  !fire disturbances
  real (kind=8) :: dailySW(365)
  real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
- real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
+ real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year
  !BB disturbances
  real (kind=8) :: spruceStandVars(3),pBB(5), SMI, SMIt0,SHI,intenSpruce !SMIt0 = SMI previous year
 ! real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
@@ -1885,11 +1885,13 @@ modOut(year+1,5,1,2) = ETSmean
   soil_moisture(:) = ((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
   Tmin = weatherPRELES(year,:,2) - 3.6
   Tmax = weatherPRELES(year,:,2) + 3.7
-  FDI(:) = 0.
-  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, &
-      weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI)
+
+FDI(:) = 0. 
+  call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
+    weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI,n_fire_year)
+
   modOut((year+1),47,:,2) = 0.
-  modOut((year+1),47,1,2) = maxval(FDI)
+  modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
  ! endif
 
 
