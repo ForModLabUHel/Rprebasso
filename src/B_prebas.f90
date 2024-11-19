@@ -1365,8 +1365,8 @@ if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc
 ! for some by replacement. Problematic for ,42, as 42,2 is used to transfer killed V that is salvage logged to next year in case the harvest limit has already been met.
 !  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = &
 !    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij)
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij,2) = &
-      stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij) ! excluding 42 from this replacement to fix bug where vmort (,1) is harvested in the year after the management reaction
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij,2) = &
+      stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij) ! excluding 42 from this replacement to fix bug where vmort (,1) is harvested in the year after the management reaction
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
   S_fr = stand_all(25,ij) + stand_all(27,ij)
@@ -1407,8 +1407,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
   ! outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = & !45:47,
   !   stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij) !45:47,
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij,2) = & !45:47, !!! REMOVAL OF 42 her as well (see ~50 lines above)
-    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij) !45:47,
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij,2) = & !45:47, !!! REMOVAL OF 42 her as well (see ~50 lines above)
+    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij) !45:47,
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
