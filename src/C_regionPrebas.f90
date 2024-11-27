@@ -57,6 +57,8 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
  real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
 
+!!!!fAPAR minimum for ingrowth calculations
+real (kind=8) :: minFapar,fAparFactor=0.9
 
 !!! fertilization parameters
  !integer, intent(inout) :: fertThin !!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 !wdimpl pflags
@@ -361,6 +363,10 @@ endif
  !!!##set mortality model for managed and unmanaged forests
   mortModX = mortMod(1) !!mortality model to be used in the managed forests
   if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
+
+!!calculate minimum fAPAR of last 15 years to be used in ingrowth(if active) calculations
+  call minFaparCalc(fAPAR(i,:),ij,minFapar,fAparFactor)
+  fAPAR(i,ij) = minFapar
 
   output(1,45,1:nLayers(i),:) = 0.!!!reset heterotrophic respiration
   output(1,55,1:nLayers(i),2) = UmaxFactor(i,ij,1:nLayers(i)) !!!reset heterotrophic respiration

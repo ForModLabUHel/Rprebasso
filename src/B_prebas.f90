@@ -16,7 +16,7 @@ implicit none
 
 !! Constants
  integer, parameter :: nVar=57, npar=64, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
- real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181
+ real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
@@ -74,7 +74,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
 
 !! Parameters internal to the model
- real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5)  !!!state of the GV at the last year
+ real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5),minFapar    !!!state of the GV at the last year
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
  real (kind=8), DIMENSION(nLayers) :: Lb, Lf, Lst
@@ -527,7 +527,6 @@ do ij = 1 , nLayers     !loop Species
     laPer_sar = wf_treeKG * par_sla / sar !leaf area per tree  /  crown surface area
     keff = 0.4 * (1. - exp( - par_k / 0.4 * laPer_sar)) / laPer_sar !effective extinction coefficient    }
   endif
-
   !projected leaf area on the STAND -----------------------------------
   if (wf_STKG>0.) then
    lproj = par_sla * wf_STKG / 10000.
@@ -564,10 +563,15 @@ if (year <= maxYearSite) then
   layer = int(domSp(1))
   siteType = modOut(year,3,layer,1) !siteInfo(3)
 
+! write(1,*) year, nLayers,nSpec,&
+    ! nVar,nPar,MeanLight(1:2),coeff(1:2),fAPARtrees
+	
     call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
     nVar,nPar,MeanLight,coeff,fAPARtrees)
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
+! write(1,*) year, nLayers,nSpec,&
+    ! nVar,nPar,MeanLight(1:2),coeff(1:2),fAPARtrees
 
 !!calculate year of replanting after a clearcut
 !if scenario = "oldLayer" do not consider the old layer
@@ -602,6 +606,10 @@ endif
    endif
 
  if(isnan(fAPARgvX)) fAPARgvX = 0.
+ 
+ !!calculate minimum fAPAR of last 15 years to be used in ingrowth(if active) calculations
+  call minFaparCalc(fAPAR,year,minFapar,fAparFactor)
+
 
 !!!calculate site fAPAR and set fAPAR for preles calculations and store
    fAPARsite = fAPARtrees + fAPARgvX
@@ -701,6 +709,7 @@ exud(ij) = 0.d0
  par_H0max = param(32)
  par_gamma = param(33)
  par_kH = param(34)
+ par_ksi = param(38)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
  par_sla0 = param(39)
@@ -1120,7 +1129,7 @@ endif
   !Perform user defined thinning or defoliation events for this time period
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
-  STAND_tot = STAND
+  
 !set species from thinning matrix (strart)
     species = int(thinning(countThinning,2))
     stand(4) = thinning(countThinning,2)
@@ -1133,6 +1142,8 @@ endif
     thinning(countThinning,2) = stand(4)
    endif
 !set species from thinning matrix (end)
+   
+   STAND_tot = STAND
 IF (thinning(countThinning,6) < STAND_tot(13)) siteInfoDist(2) = 0 !wdimpl, resetting thinning counter
 
 
@@ -1184,10 +1195,18 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
    thinning(countThinning,7) = Hc * thinning(countThinning,7)
   endif
      endif
+	      !!!check if ingrowth and calculate the number of trees
+     if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
+	  BA = pi*((0.5d0/200.d0)**2.d0)*min((500.d0/minFapar),4000.d0)
+     else
+      BA = thinning(countThinning,6)
+     endif
+
+
      if (thinning(countThinning,4) /= -999.) H = thinning(countThinning,4)
      if (thinning(countThinning,7) /= -999.) stand(14) = thinning(countThinning,7)
      if (thinning(countThinning,5) /= -999.) D = thinning(countThinning,5)
-     BA = thinning(countThinning,6)
+     !BA = thinning(countThinning,6)
    Hc=stand(14)
      Lc = H - Hc !Lc
      rc = Lc / (H-1.3) !crown ratio

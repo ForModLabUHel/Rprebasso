@@ -32,8 +32,6 @@
 #' @param initCLcutRatio
 #' @param multiP0
 #' @param soilC
-
-
 #' @param weatherYasso
 #' @param litterSize
 #' @param soilCtot
@@ -59,6 +57,7 @@
 #' @param SMIt0 site vector of initial SoilMoirture index
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations
 #' @param soilC_steadyState flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year
+#' @param ingrowth # flag to simulate ingrowth
 #'
 #' @importFrom plyr aaply
 #'
@@ -147,8 +146,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         SMIt0 = rep(-999,7),
                         TminTmax = NA,
                         soilC_steadyState=FALSE,
-                        disturbanceON = NA
-
+                        disturbanceON = NA,
+                        ingrowth = FALSE
                         ){
 
   if(all(!is.na(soilC))){
@@ -282,7 +281,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     alpharVersion = alpharVersion,
     siteInfoDist = siteInfoDist,
     disturbanceON = disturbanceON,
-
+    ingrowth = ingrowth,
     TsumSBBs = TsumSBBs,
     SMIt0 = SMIt0,
     TminTmax = TminTmax

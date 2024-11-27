@@ -65,7 +65,7 @@ oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 !!!!initialize run
 ! multiOut = 0.
-! open(1,file="test1.txt")
+ ! open(1,file="test1.txt")
 ! open(1,file="ftTapioMsite.txt")
 ! open(2,file="tTapioMsite.txt")
 ! write(1,*) ftTapio
@@ -115,7 +115,7 @@ output(:,:,:,:) = multiOut(i,:,:,:,:)
     prebasFlags,latitude(i),P00CN(i),TsumSBBs(i,:)) !energyCut)
    multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
-! close(1)
+ ! close(1)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

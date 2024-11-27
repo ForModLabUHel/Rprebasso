@@ -120,7 +120,8 @@ InitMultiSite <- function(nYearsMS,
                           SMIt0 = NA,
                           TminTmax = NA,
                           siteInfoDist = NA, ###if not NA Disturbance modules are activated
-                          disturbanceON = NA
+                          disturbanceON = NA,
+                          ingrowth = FALSE
 
 ){
 
@@ -173,6 +174,16 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118),nSites,12,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
+  
+  if(ingrowth){
+    ingrowthStep <- 10
+    # nTreeIngrowth <- 10
+    nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
+    siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers
+  }else{
+    nIngrowthLayers = 0
+  }
+  
   colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit",
                           "SOGinit", "Sinit", "nLayers", "nSpecies", "soildepth",
                           "effective field capacity", "permanent wilting point")
@@ -303,14 +314,40 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
 
   maxThin <- max(multiNthin)
   ###thinning if missing.  To improve
-  if(all(is.na(multiThin))){
+  if(all(is.na(multiThin)) & !ingrowth){
     multiNthin <- rep(0,nSites)
     maxThin <- 2
     multiThin <- array(0, dim=c(nSites,maxThin,11))
     multiThin[,,9:10] <- -999
     multiThin[,,11] <- 1
   }
-  if(dim(multiThin)[3]==10) multiThin <- abind(multiThin,matrix(1,nSites,maxThin),along= 3)
+  if(!all(is.na(multiThin))){
+    if(dim(multiThin)[3]==10) multiThin <- abind(multiThin,matrix(1,nSites,maxThin),along= 3)
+  }
+  if(ingrowth){
+    yearIngrowth <- seq(ingrowthStep,maxYears,by=ingrowthStep)
+    thinX <- array(0, dim=c(nSites,nIngrowthLayers,11))
+    thinX[,,9:10] <- -999
+    thinX[,,11] <- 1
+    thinX[,,1] <- matrix(yearIngrowth,nSites,length(yearIngrowth),byrow = T)
+    thinX[,,2] <- matrix(siteInfo[,1],nSites,length(yearIngrowth))
+    thinX[,,3] <- matrix((maxNlayers-nIngrowthLayers+1):maxNlayers,nSites,length(yearIngrowth),byrow = T)
+    thinX[,,4] <- initSeedling.def[1]
+    thinX[,,5] <- initSeedling.def[2]
+    thinX[,,7] <- initSeedling.def[4]
+    thinX[,,6] <- -777#nTreeIngrowth*(pi*((initSeedling.def[2]/2/100)^2))
+    
+    if(!all(is.na(multiThin))){
+      multiThin <- abind(multiThin,thinX,along=2)
+      multiNthin <- multiNthin + nIngrowthLayers
+      maxThin <- dim(multiThin)[2]
+    }else{
+      multiThin <- thinX
+      multiNthin <- rep(nIngrowthLayers,nSites)
+      maxThin <- nIngrowthLayers
+    }
+  }
+  
   multiThin[is.na(multiThin)] <- -999
 
 
@@ -352,13 +389,15 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
   }
   multiP0[which(is.na(multiP0))] <- 0.
 
-  if (all(is.na(multiInitVar))){
-    multiInitVar <- array(NA,dim=c(nSites,7,maxNlayers))
-    multiInitVar[,1,] <- rep(1:maxNlayers,each=nSites)
+  if(all(is.na(multiInitVar))){
+    multiInitVar <- array(NA,dim=c(nSites,7,(maxNlayers-nIngrowthLayers)))
+    multiInitVar[,1,] <- rep(1:(maxNlayers-nIngrowthLayers),each=nSites)
+    multiInitVar[,5,] <- initClearcut[3]/(maxNlayers-nIngrowthLayers)
     multiInitVar[,3,] <- initClearcut[1]; multiInitVar[,4,] <- initClearcut[2]
-    multiInitVar[,5,] <- initClearcut[3]/maxNlayers; multiInitVar[,6,] <- initClearcut[4]
-    multiInitVar[,2,] <- matrix(Ainits,nSites,maxNlayers)
-    for(ikj in 1:maxNlayers){
+    multiInitVar[,6,] <- initClearcut[4]
+    multiInitVar[,2,] <- matrix(Ainits,nSites,(maxNlayers-nIngrowthLayers))
+    
+    for(ikj in 1:(maxNlayers-nIngrowthLayers)){
       p_ksi <- pCROBAS[38,multiInitVar[,1,ikj]]
       p_rhof <- pCROBAS[15,multiInitVar[,1,ikj]]
       p_z <- pCROBAS[11,multiInitVar[,1,ikj]]
@@ -373,8 +412,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     multiInitVar[which(is.na(multiInitVar))] <- 0.
   }else{
     ####if Height of the crown base is not available use model
-    ####if Height of the crown base is not available use model
-    if(maxNlayers==1){
+    if(maxNlayers-nIngrowthLayers==1){
       multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV),dim=c(nSites,7,1))
     }else{
       multiInitVar <- aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV)
@@ -385,7 +423,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
 
     ####compute A
     if(all(is.na(multiInitVar[,7,]))|all(multiInitVar[,7,]==0)){
-      for(ikj in 1:maxNlayers){
+      for(ikj in 1:(maxNlayers-nIngrowthLayers)){
         not0 <- which(multiInitVar[,3,ikj]>0)
         p_ksi <- pCROBAS[38,multiInitVar[not0,1,ikj]]
         p_rhof <- pCROBAS[15,multiInitVar[not0,1,ikj]]
@@ -418,7 +456,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     }
   }
 
-
+  multiInitVar <- abind(multiInitVar,array(0,dim=c(nSites,7,nIngrowthLayers)),along=3)
 
   multiInitVar[,7,][which(is.na(multiInitVar[,7,]))] <- 0.
   multiInitVar[,7,][which(multiInitVar[,7,]<=0)] <-
