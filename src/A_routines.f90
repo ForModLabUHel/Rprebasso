@@ -2393,3 +2393,27 @@ DO ix = 1, v_size
 END DO
 ! close(1)
 endsubroutine
+
+
+!!calculate minimum fAPAR of last 15 years
+subroutine minFaparCalc(fAPARtrees,nYears,minFapar,fAparFactor)
+   integer, intent(in) :: nYears
+   real (kind=8), intent(in) :: fAPARtrees(nYears), fAparFactor
+   real (kind=8), intent(out) :: minFapar
+   integer :: lastYears = 5 !lastYears are the number of years before the current years that should not be considered in the minimum fAPAR calculations
+   integer :: maxYears =15 !maxYears are the total number of years before the current years that should be considered in the minimum fAPAR calculations
+   integer :: firstYear
+   
+   if(nYears <= lastYears) minFapar = fAPARtrees(1)*fAparFactor
+   if(nYears > lastYears .and. nYears <= int((maxYears - lastYears)/2)) minFapar = minval(fAPARtrees(1:(nYears-5)))*fAparFactor
+   if(nYears > lastYears .and. nYears > int((maxYears - lastYears)/2)) then
+   if((nYears-maxYears+1) < 0) then
+    firstYear=1
+    minFapar = minval(fAPARtrees(firstYear:(nYears-5)))*fAparFactor
+   else
+    firstYear = nYears-maxYears+1
+    minFapar = minval(fAPARtrees(firstYear:(nYears-5)))  
+   endif
+   endif
+     
+endsubroutine
