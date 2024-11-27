@@ -527,7 +527,6 @@ do ij = 1 , nLayers     !loop Species
     laPer_sar = wf_treeKG * par_sla / sar !leaf area per tree  /  crown surface area
     keff = 0.4 * (1. - exp( - par_k / 0.4 * laPer_sar)) / laPer_sar !effective extinction coefficient    }
   endif
-write(1,*) year, ij, laPer_sar,par_rhof ,A,wf_treeKG
   !projected leaf area on the STAND -----------------------------------
   if (wf_STKG>0.) then
    lproj = par_sla * wf_STKG / 10000.
@@ -710,6 +709,7 @@ exud(ij) = 0.d0
  par_H0max = param(32)
  par_gamma = param(33)
  par_kH = param(34)
+ par_ksi = param(38)
  par_rhof1 = 0.!param(20)
  par_Cr2 = 0.!param(24)
  par_sla0 = param(39)
