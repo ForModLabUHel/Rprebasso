@@ -527,7 +527,7 @@ do ij = 1 , nLayers     !loop Species
     laPer_sar = wf_treeKG * par_sla / sar !leaf area per tree  /  crown surface area
     keff = 0.4 * (1. - exp( - par_k / 0.4 * laPer_sar)) / laPer_sar !effective extinction coefficient    }
   endif
-
+write(1,*) year, ij, laPer_sar,par_rhof ,A,wf_treeKG
   !projected leaf area on the STAND -----------------------------------
   if (wf_STKG>0.) then
    lproj = par_sla * wf_STKG / 10000.
@@ -564,15 +564,15 @@ if (year <= maxYearSite) then
   layer = int(domSp(1))
   siteType = modOut(year,3,layer,1) !siteInfo(3)
 
-write(1,*) year, nLayers,nSpec,&
-    nVar,nPar,MeanLight(1:2),coeff(1:2),fAPARtrees
+! write(1,*) year, nLayers,nSpec,&
+    ! nVar,nPar,MeanLight(1:2),coeff(1:2),fAPARtrees
 	
     call Ffotos2(STAND_all,nLayers,nSpec,pCrobas,&
     nVar,nPar,MeanLight,coeff,fAPARtrees)
    STAND_all(36,:) = MeanLight
    STAND_all(23,:) = coeff
-write(1,*) year, nLayers,nSpec,&
-    nVar,nPar,MeanLight(1:2),coeff(1:2),fAPARtrees
+! write(1,*) year, nLayers,nSpec,&
+    ! nVar,nPar,MeanLight(1:2),coeff(1:2),fAPARtrees
 
 !!calculate year of replanting after a clearcut
 !if scenario = "oldLayer" do not consider the old layer
