@@ -96,8 +96,8 @@ endif
 !!! STEP 1: wind disturbance 0/1 based on wind risk
 call RANDOM_SEED
 call random_number(rndm)
-if(rndm <= wrisk) INT(outDist(year,4)) = 1 !wind disturbance occurs/ set severity class to 1
-if(rndm > wrisk) INT(outDist(year,4)) = 0 !... or doesn't.
+if(rndm <= wrisk) outDist(year,4) = 1 !wind disturbance occurs/ set severity class to 1
+if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
 
 !step 2: severity class (for now with shares/probabilities from post-storm inventory )
 if (INT(outDist(year,4))==1) then
