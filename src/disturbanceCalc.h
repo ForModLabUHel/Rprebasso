@@ -96,11 +96,11 @@ endif
 !!! STEP 1: wind disturbance 0/1 based on wind risk
 call RANDOM_SEED
 call random_number(rndm)
-if(rndm <= wrisk) outDist(year,4) = 1 !wind disturbance occurs/ set severity class to 1
-if(rndm > wrisk) outDist(year,4) = 0 !... or doesn't.
+if(rndm <= wrisk) outDist(year,4) = 1. !wind disturbance occurs/ set severity class to 1
+if(rndm > wrisk) outDist(year,4) = 0. !... or doesn't.
 
 !step 2: severity class (for now with shares/probabilities from post-storm inventory )
-if (INT(outDist(year,4))==1) then
+if (outDist(year,4)>0.5) then
   call RANDOM_SEED
   call random_number(rndm) ! leave sevclass at 1 or increase based on sampling
   !outDist(year,8) = 1 !set sevclass to 1
@@ -109,7 +109,7 @@ if (INT(outDist(year,4))==1) then
 endif
 
 !!! STEP 3: sample from severity class-specific set of relative disturbed volumes
-if (INT(outDist(year,4))==1) then ! sevclass 1
+if (outDist(year,4)>0.5 .and. outDist(year,4)<1.5) then ! sevclass 1
  call RANDOM_SEED
  call random_number(rndm)
  sevclasslength = 87 !n of plots with sc 1 in ps inventory data
@@ -126,7 +126,7 @@ if (INT(outDist(year,4))==1) then ! sevclass 1
    0.003549555, 0.030742784, 0.114136973, 0.012353190, 0.039182845, 0.061220194, 0.032197320 /)
  wdistproc(4) = sc1vols(distvloc)
 
-else if (INT(outDist(year,4))==2) then ! sevclass 2
+else if (outDist(year,4)>1.5 .and. outDist(year,4)<2.5) then ! sevclass 2
  call RANDOM_SEED
  call random_number(rndm)
  sevclasslength = 15 !n of plots with sc 2 in ps inventory data
@@ -135,7 +135,7 @@ distvloc = FLOOR(sevclasslength*rndm+1) ! sample one of these
    0.08506387, 0.07892917, 0.04246911, 0.24749787, 0.02704628, 0.02121135 /)
  wdistproc(4) = sc2vols(distvloc)
 
-else if (INT(outDist(year,4))==3) then !sevclass 3
+else if(outDist(year,4)>2.5) then !sevclass 3
  call RANDOM_SEED
  call random_number(rndm)
  sevclasslength = 6 !n of plots with sc 3 in ps inventory data
