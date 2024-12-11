@@ -532,7 +532,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
   if(alpharNcalc){
     ###initialize alfar
     if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,yearsCurrClimAv),1])
-    P00CN <- p0currClim/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
+    P00CN <- p0currClim[siteInfo[,2]]/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
     p0ratio <- multiP0[,,1]/p0currClim
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2],weatherYasso[,,3])
     if(all(is.na(fT0AvgCurrClim))){
