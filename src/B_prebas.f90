@@ -127,7 +127,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8) :: coeff(nLayers), denom,W_froot,W_croot, lit_wf,lit_froot
  real (kind=8) :: S_wood,Nold, Nthd, S_branch,S_fol,S_fr,W_branch,Vmort
  real (kind=8) :: W_stem_old,wf_STKG_old,W_bh, W_crh,W_bs, W_crs,dW_bh,dW_crh,dWdb,dWsh
- ! real (kind=8) :: W_froot_t0(nLayers), Wrtot
+ real (kind=8) :: W_froot_t0(nLayers)!, Wrtot
 !variables for random mortality calculations & disturbances
 real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 !!ECMmodelling
@@ -653,7 +653,7 @@ endif
 !enddo !! end site loop
 
 ! Wrtot = sum(STAND_all(25,:))
-! W_froot_t0 = STAND_all(25,:)
+W_froot_t0 = STAND_all(25,:)
 do ij = 1 , nLayers
  outt(30,ij,2) = 0. !wdimpl
 
@@ -986,12 +986,16 @@ if(H>0.) Then !skip N calculations if there was a clearcut and H below 1.3
     endif
 
     !!!update parameters for Nitrogen calculations
+ ! Umax=25.0d0
+ ! Gf= 300.d0
+ ! Gr= 400.d0
+ ! Gw= 500.d0
+
     nitpar(1:9) = param(54:62)
     nitpar(10) = Umax
 
     ! if(par_zb .gt. -0.01 .and. par_zb .lt. 0.01) nitpar(7) = 1
-
-      call Nitrogen(Gf,Gr,Gw,STAND_all(25,ij),sum(STAND_all(25,:)), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
+      call Nitrogen(Gf,Gr,Gw,W_froot_t0(ij),sum(W_froot_t0), siteType, latitude, CN, Nup,Ndem,nitpar, pECMmod)
 ! make sure that for Umax estimation when nitpar(7) = 1 we don't reduce growth due to N deficiency
    if(par_NUptakeSwitch > 0.) then
 
@@ -1071,7 +1075,6 @@ endif
     W_croot = W_crs + W_crh
 
   age = age + step
-
   STAND(2) = gammaC
   STAND(40) = mort
   STAND(41) = dH
