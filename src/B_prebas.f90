@@ -147,8 +147,8 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  !!user thinnings
  real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
  real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
- integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(in) :: prebasFlags(6)
+ integer :: CO2model, etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
+integer, intent(in) :: prebasFlags(7)
 
  !fire disturbances
  real (kind=8) :: dailySW(365)
@@ -164,6 +164,7 @@ gvRun = int(prebasFlags(2))
 fertThin = int(prebasFlags(3))
 oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
+CO2model = int(prebasFlags(7))
 
 
 !!set disturbance flags
@@ -624,7 +625,7 @@ endif
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel)    !type of ET model
+    etmodel,CO2model)    !type of ET model
 
    TAir = sum(weatherPRELES(year,:,2))/365.
    Precip = sum(weatherPRELES(year,:,4))

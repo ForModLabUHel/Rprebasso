@@ -69,11 +69,11 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
 !!! Nitrogen
  real (kind=8) :: UmaxFactor(nSites,maxYears,maxNlayers)
- integer :: etmodel, gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
+ integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules !wdimpl
  logical :: disturbance_wind ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
 
- integer, intent(in) :: prebasFlags(6)
+ integer, intent(in) :: prebasFlags(7)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -81,6 +81,7 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
+CO2model = prebasFlags(7)
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
 

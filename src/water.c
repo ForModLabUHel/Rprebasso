@@ -12,9 +12,9 @@ double ETfun(double D, double theta, double ppfd, double fAPAR, double T,
 	     double CO2, 
 	     int LOGFLAG, int etmodel, double *transp, 
 	     // FILE *flog, int LOGFLAG, int etmodel, double *transp, 
-	     double *evap, double *fWE) {
+	     double *evap, double *fWE, int CO2model) {
 
-  extern double fCO2_ET_model_mean(double CO2, p2 GPP_par );
+  extern double fCO2_ET_model_mean(int CO2model, double CO2, p2 GPP_par);
 
   double pow();
   double thetavol = theta/Site_par.soildepth; 
@@ -34,7 +34,7 @@ double ETfun(double D, double theta, double ppfd, double fAPAR, double T,
   /*If pressure is not inputted use default */
   double pressure = 101300; // Pa  
 
-  fCO2mean = fCO2_ET_model_mean(CO2, GPP_par);
+  fCO2mean = fCO2_ET_model_mean(CO2model,CO2, GPP_par);
 
   // rho=pressure/(R * (T+273.15) ); // Dry air density, kg/m3
   lambda = (-0.0000614342 * pow(T, 3) + 0.00158927 * pow(T, 2) - 

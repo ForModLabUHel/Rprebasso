@@ -54,8 +54,8 @@ real (kind=8) :: output(maxYears,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,
 real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
 integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
-integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
-integer, intent(inout) :: prebasFlags(6)
+integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
+integer, intent(inout) :: prebasFlags(7)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -63,6 +63,7 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
+CO2model = prebasFlags(7)
 !!!!initialize run
 ! multiOut = 0.
  ! open(1,file="test1.txt")

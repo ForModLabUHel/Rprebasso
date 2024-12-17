@@ -6,7 +6,9 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
     ## Irrelevant if fPheno-parameters are -999 (default, used for conifers)
     LOGFLAG = 0, control=0, pft="evergreen",# Control is the E model selection parameter. 
     parmodel=0, LAT=NA, PAR0=NA,# If PAR is missing, set parmodel > 0 (and give lat and the DOY as input) # PAR0 is latititude and DOY specific information for parmodel 11 and 12
-    returncols=c('GPP','ET','SW'))  {
+    returncols=c('GPP','ET','SW'),
+    CO2model=1###CO2model is the CO2 model modifier 1=Launaniemi model, 2= Kolari model
+    ){
 
 
     len = as.integer(length(TAir))
@@ -79,7 +81,16 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
             0.474173, 0.278332, 1.5, 0.33, 4.824704, 0, 0, 180, 0, 0, 10,
             -999, -999, -999) 
     p[is.na(p)] = defaults[is.na(p)] ## Note: this may slow down a bit when looping MCMC
-
+    
+    if(CO2model==1){
+      if(is.na(p[12])) p[12] <- 0.5
+      if(is.na(p[13])) p[13] <- -0.364
+    }
+    if(CO2model==2){
+      if(is.na(p[12])) p[12] <- 2000
+      if(is.na(p[13])) p[13] <- 0.4
+    }
+    
     ## DOY is needed for other than conifers. Phenology model requires parameters:
     ## tip: p[28:30] <- c(57, 1.5, 134) # Phenol. mod. (Linkosalo et al. 2008) 
     if (pft != "evergreen") {
@@ -144,7 +155,8 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
             len=as.integer(len),
           DOY=as.integer(DOY),
           transp=as.double(transp), evap=as.double(evap),
-          fWE=as.double(fWE))[returncols]
-
-
+          fWE=as.double(fWE),
+          CO2model=as.integer(CO2model)
+       )[returncols]
+    
 }
