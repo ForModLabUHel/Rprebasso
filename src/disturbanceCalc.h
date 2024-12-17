@@ -59,7 +59,7 @@ do i = 1, nLayers
        wriskLayers(i,1) = wrisk*STAND_all(13,i) !weigh wind risk by layer ba
   endif
 end do
-outdist(year,2) = siteInfoDist(2)
+outdist(year,2) = siteInfoDist(2) !include timesincethinning in output
   ! for development of wrisk of co-dominant layers
 
 !  outDist(year,1) = wriskLayers(1,1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
@@ -197,7 +197,6 @@ do layer = 1, nLayers
   !if(wriskLayers(layer, 6) /= wriskLayers(layer, 6)) outDist(year, 1) = 999. !checking
 end do
 
-outDist(year,4) = sum(wriskLayers(:, 4)) !realised dist vol (can be lower that sampled damvol after allocation to layers...1)
 
 
 !write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
@@ -272,7 +271,7 @@ endif
 
    !BA_tot = sum(STAND_all(13,:))
    !BAr = STAND_all(13,:)/BA_tot
-
+    realised_dvol = 0. ! to aggregate realised damaged volume of affected layers
      ! perBAmort = 0.1
        ! write(1,*) "disturbance", year, pMort, perBAmort
    do ij = 1 , nLayers     !loop Species xdo1
@@ -424,6 +423,7 @@ endif
          Wdb = Wdb * N/Nold
          W_stem = W_stem * N/Nold
          V = V * N/Nold
+         realised_dvol = realised_dvol + V * (1-N/Nold) !aggregating realised damaged volume (could be reduced if sampled site-level damaged volume cannot be met by affected layers)
          BA = BA * N/Nold
          wf_STKG = wf_STKG * N/Nold
      STAND(24) = W_branch
@@ -474,6 +474,9 @@ endif !
     STAND_all(:,ij)=STAND
 endif
     end do !!!!!!!end loop layers xl1
+
+outDist(year, 4)=realised_dvol !aggregated realised damaged volume (could be reduced if sampled site-level damaged volume exceeds affected layer V)
+
  endif !bamort>0... x3
 
 ! !  !

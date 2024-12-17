@@ -45,6 +45,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
 real (kind=8) :: wdistproc(7) !to replace siteinfodist
 REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
 REAL (kind=8)::  hthresh, htresh_ba !
+REAL (kind=8):: realised_dvol ! damaged volume sampled at site level; might be reduced if it exceeds V of affected layers (=realised_dvol) if affected layers have less V than sampled
 REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
 REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol
 REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
