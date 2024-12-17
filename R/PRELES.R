@@ -30,6 +30,15 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
         
     
     ## PARAMETERS
+    if(CO2model==1){
+      if(is.na(p[12])) p[12] <- 0.5
+      if(is.na(p[13])) p[13] <- -0.364
+    }
+    if(CO2model==2){
+      if(is.na(p[12])) p[12] <- 2000
+      if(is.na(p[13])) p[13] <- 0.4
+    }
+
     if (control == -1) {} ## FOR TESTS
     ## DEFAULT SET
     ## The following is default set, calibrated for a range of conifer sites in Scandinavia
@@ -74,22 +83,14 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
                      )
     }
     
-    if (control == 1) ## Peltoniemi et al., 2015, Boreal Env. Res. for Hyytiala
+    if (control == 1) {## Peltoniemi et al., 2015, Boreal Env. Res. for Hyytiala
         defaults = c(413.0, 
             0.450, 0.118, 3, 0.748464, 12.74915, -3.566967, 18.4513, -0.136732,
             0.033942, 0.448975, 0.500, -0.364, 0.33271, 0.857291, 0.041781,
             0.474173, 0.278332, 1.5, 0.33, 4.824704, 0, 0, 180, 0, 0, 10,
             -999, -999, -999) 
+        }
     p[is.na(p)] = defaults[is.na(p)] ## Note: this may slow down a bit when looping MCMC
-    
-    if(CO2model==1){
-      if(is.na(p[12])) p[12] <- 0.5
-      if(is.na(p[13])) p[13] <- -0.364
-    }
-    if(CO2model==2){
-      if(is.na(p[12])) p[12] <- 2000
-      if(is.na(p[13])) p[13] <- 0.4
-    }
     
     ## DOY is needed for other than conifers. Phenology model requires parameters:
     ## tip: p[28:30] <- c(57, 1.5, 134) # Phenol. mod. (Linkosalo et al. 2008) 
