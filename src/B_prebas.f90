@@ -37,7 +37,7 @@ implicit none
 
  logical :: disturbance_wind, disturbance_bb, disturbance_fire !fvec
  real (kind=8), intent(inout) :: siteInfoDist(10), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
- real (kind=8) :: rndm !random number for disturbance sampling
+ real (kind=8) :: rndm, rdvol_sampled !random number for disturbance sampling, sampled relative disturbed vol (wind)
  integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
 real (kind=8) :: sc1vols(87), sc2vols(15), sc3vols(6)
 real (kind=8) :: wriskLayers(nLayers, 6)
