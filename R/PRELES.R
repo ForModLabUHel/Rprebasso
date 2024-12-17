@@ -28,6 +28,14 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
     ##    PAR=dPAR1(PAR0,VPD=VPD, radmodel=parmodel)
     ##}
         
+    if(CO2model==1){
+      if(is.na(p[12])) p[12] <- 0.5
+      if(is.na(p[13])) p[13] <- -0.364
+    }
+    if(CO2model==2){
+      if(is.na(p[12])) p[12] <- 2000
+      if(is.na(p[13])) p[13] <- 0.4
+    }
     
     ## PARAMETERS
     if (control == -1) {} ## FOR TESTS
@@ -80,17 +88,9 @@ PRELES = function(PAR, TAir, VPD, Precip, CO2, fAPAR, ## REQUIRED
             0.033942, 0.448975, 0.500, -0.364, 0.33271, 0.857291, 0.041781,
             0.474173, 0.278332, 1.5, 0.33, 4.824704, 0, 0, 180, 0, 0, 10,
             -999, -999, -999) 
-     p[is.na(p)] = defaults[is.na(p)] ## Note: this may slow down a bit when looping MCMC
     }
+    p[is.na(p)] = defaults[is.na(p)] ## Note: this may slow down a bit when looping MCMC
     
-    if(CO2model==1){
-      if(is.na(p[12])) p[12] <- 0.5
-      if(is.na(p[13])) p[13] <- -0.364
-    }
-    if(CO2model==2){
-      if(is.na(p[12])) p[12] <- 2000
-      if(is.na(p[13])) p[13] <- 0.4
-    }
     
     ## DOY is needed for other than conifers. Phenology model requires parameters:
     ## tip: p[28:30] <- c(57, 1.5, 134) # Phenol. mod. (Linkosalo et al. 2008) 
