@@ -61,8 +61,8 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
- integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
- integer, intent(inout) :: prebasFlags(6)
+ integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
+ integer, intent(inout) :: prebasFlags(7)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -70,6 +70,7 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
+CO2model = prebasFlags(7)
 ! if(prebasFlags(6)==0) disturbanceON = .FALSE.
 ! if(prebasFlags(6)==1) disturbanceON = .TRUE.
 

@@ -63,6 +63,7 @@
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #' @param soilC_steadyState flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year
 #' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
+#' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
 #' 
 #' @importFrom plyr aaply
 #'
@@ -103,7 +104,7 @@
 
 
 TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100, pCROBAS = pCROB,
-                        pPRELES= pPREL,AgeEffect = F, defaultThin = 1,multiThin = NA, multiNthin = NA, ClCut = 1, energyCut = 0,
+                        pPRELES= NA,AgeEffect = F, defaultThin = 1,multiThin = NA, multiNthin = NA, ClCut = 1, energyCut = 0,
                         GVrun=1,
                         pHcMod = pHcM,
                         etmodel = 0,
@@ -154,9 +155,16 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         SMIt0 = rep(-999,7),
                         TminTmax = NA,
                         soilC_steadyState=FALSE,
-                        disturbanceON = NA
+                        disturbanceON = NA,
+                        CO2model = 1 
 ) {
-
+  
+  if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
+  if(all(is.na(pPRELES))){
+    pPRELES <- pPREL
+    pPRELES[12:13] <- pCO2model[CO2model,]
+  }
+  
   if(all(!is.na(soilC))){
     if(soilC_steadyState) warning("soilC at steady state was not computed because initial soilC was inputed")
     soilC_steadyState = FALSE
@@ -291,7 +299,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     TsumSBBs = TsumSBBs,
     SMIt0 = SMIt0,
     TminTmax = TminTmax,
-    disturbanceON = disturbanceON
+    disturbanceON = disturbanceON,
+    CO2model=CO2model
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age

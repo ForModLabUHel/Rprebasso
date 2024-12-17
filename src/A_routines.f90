@@ -406,7 +406,7 @@ end do
 
 
 
-subroutine preles(weather,DOY,fAPAR,prelesOut,pars,GPP,ET,SW,etmodel)!,p0)
+subroutine preles(weather,DOY,fAPAR,prelesOut,pars,GPP,ET,SW,etmodel,CO2model)!,p0)
 
 implicit none
 
@@ -424,7 +424,7 @@ implicit none
     Sinit,t0,tcrit,tsumcrit, &  
     etmodel, LOGFLAG,NofDays, &
     day, &!!!!this is DOY
-    transp, evap, fWE) BIND(C)
+    transp, evap, fWE,CO2model) BIND(C)
     USE, INTRINSIC :: ISO_C_BINDING, ONLY : C_INT, C_CHAR, C_PTR, C_DOUBLE  
      real ( C_DOUBLE ) :: PAR(365), TAir(365), VPD(365), Precip(365), CO2(365), fAPARc(365)
      real ( c_double ) :: GPPmeas(365), ETmeas(365), SWmeas(365)
@@ -436,7 +436,7 @@ implicit none
      real ( c_double ) :: ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef
      real ( c_double ) :: I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit
      real ( c_double ) :: Sinit,t0,tcrit,tsumcrit
-     integer(c_int) :: etmodel, LOGFLAG,NofDays
+     integer(c_int) :: etmodel, LOGFLAG,NofDays,CO2model
      integer(c_int) :: day(365)
      real ( c_double ) :: transp(365), evap(365), fWE(365)
    END SUBROUTINE call_preles
@@ -445,7 +445,7 @@ implicit none
  real (kind=8), intent(inout) :: weather(365,5),fAPAR(365)
  real (kind=8), intent(out) :: prelesOut(16)!,p0
  real (kind=8), intent(inout) :: pars(30)
- integer, intent(in):: DOY(365), etmodel
+ integer, intent(in):: DOY(365), etmodel,CO2model
 
      real (kind=8) PAR(365), TAir(365), VPD(365), Precip(365), CO2(365), fAPARc(365)
      real (kind=8) GPPmeas(365), ETmeas(365), SWmeas(365)
@@ -532,7 +532,7 @@ fAPARc = fAPAR
     Sinit,t0,tcrit,tsumcrit, & !end parameters  
     etmodel, LOGFLAG, NofDays, &
     day, &!!!!this is DOY
-    transp, evap, fWE)
+    transp, evap, fWE,CO2model)
 
  call SMIfromPRELES(GPP,fW,prelesOut(7))
 

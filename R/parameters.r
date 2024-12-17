@@ -1,3 +1,8 @@
+###parameters of the CO2 modifier of PRELES
+pCO2model <- matrix(NA,2,2)
+pCO2model[1,] <- c(0.5,-0.364)
+pCO2model[2,] <- c(2000,0.4)
+
 ###default initial state at plantation
 initSeedling.def <- c(1.31,0.5,0.0431969,0.2,NA)
 names(initSeedling.def) <- c("H","dbh","BA","hc","Ac")

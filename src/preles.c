@@ -20,7 +20,7 @@ int preles(int NofDays,
 	   double *GPPmeas, double *ETmeas, double *SWmeas, double *S, 	   
 	   int LOGFLAG, long multisiteNday, int *day, 
 	   double *transp, 
-	   double *evap, double *fWE){
+	   double *evap, double *fWE, int CO2model){
 
   extern double fS_model(double *S, double T, p2 GPP_par);
   extern double fPheno_model(p2 GPP_par, double T, double *PhenoS, 
@@ -37,7 +37,7 @@ int preles(int NofDays,
 		      double CO2, 
 		      int LOGFLAG, int etmodel, // FILE *flog, int LOGFLAG, int etmodel, 
 		      double *transp, 
-		      double *evap, double *fWE);
+		      double *evap, double *fWE, int CO2model);
   
   extern void  interceptionfun(double *rain, double *intercepted, double Temp, p4
 			       SnowRain_par, double fAPAR);
@@ -57,7 +57,7 @@ int preles(int NofDays,
 		     double fAPAR, double fSsub, 
 		     p2 GPP_par, p1 Site_par, double *fD, double *fW,
 	      // double *fE, FILE *flog, int LOGFLAG);
-		  double *fE, int LOGFLAG);
+		  double *fE, int LOGFLAG, int CO2model);
     
   //extern double fCO2_VPD_exponent(double CO2, double xCO2 ) ;
 
@@ -164,7 +164,7 @@ int preles(int NofDays,
 
     GPPfun(&GPP[i], &gpp380, I, D, CO2[i], theta, fAPAR[i], fS[i],
 		    GPP_par, Site_par,  &fD[i], &fW[i], &fEgpp, 
-		    LOGFLAG );
+		    LOGFLAG, CO2model );
 
     // if (LOGFLAG > 1.5) 
       // fprintf(flog, 
@@ -209,13 +209,13 @@ int preles(int NofDays,
 		  ET_par, Site_par,
 		  &theta_canopy,
 		  &fE[i], // Soil water constrain on evaporation  
-		  gpp380, 
+		  GPP[i], 
 		  fW[i], // soil water constrain of GPP at 380 ppm
 		  GPP_par, //fCO2_ET_model_mean(CO2[i], GPP_par),
 		  CO2[i], 
 		  LOGFLAG, etmodel, 
 		  &transp[i], 
-		  &evap[i], &fWE[i]);                     
+		  &evap[i], &fWE[i],CO2model);                     
     
     // if (LOGFLAG > 1.5) 
       // fprintf(flog, 

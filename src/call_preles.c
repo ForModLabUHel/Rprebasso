@@ -96,7 +96,8 @@ void call_preles(// INPUTS
 		 int *day, 
 		 double *transp, 
 		 double *evap, 
-		 double *fWE) {
+		 double *fWE,
+         int *CO2model) {
     
   extern int preles(int NofDays, double *PAR, double *TAir, double *VPD, double *Precip,
 		    double *CO2,
@@ -111,7 +112,8 @@ void call_preles(// INPUTS
 		    int LOGFLAG, long int multisiteNday, 
 		    int *day, 
 		    double *transp, 
-		    double *evap, double *fWE)  ;      
+		    double *evap, double *fWE,
+			int CO2model)  ;      
 
   /* Parameter structs */
   p1 parSite;
@@ -188,7 +190,8 @@ void call_preles(// INPUTS
 		  Throughfall, Interception, Snowmelt,
 		  Drainage, Canopywater,
 		  GPPmeas, ETmeas, SWmeas, S, *LOGFLAG, *NofDays, day, 
-		  transp, evap, fWE);
+		  transp, evap, fWE,*CO2model);
+
                                 
   // if (*LOGFLAG > 0.5) {
     // flog = fopen("preles.log", "a"); // EXCEPTION LOGGING 

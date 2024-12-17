@@ -57,6 +57,7 @@
 #' @param SMIt0 site vector of initial SoilMoirture index
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
+#' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
 #' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -65,7 +66,7 @@
 InitMultiSite <- function(nYearsMS,
                           pCROBAS = pCROB,
                           pHcMod = pHcM,
-                          pPRELES = pPREL,
+                          pPRELES = NA,
                           etmodel = 0,
                           pYASSO =pYAS,
                           pAWEN = parsAWEN,
@@ -120,10 +121,17 @@ InitMultiSite <- function(nYearsMS,
                           TsumSBBs = NA,
                           SMIt0 = NA,
                           TminTmax = NA,
-                          disturbanceON = NA
+                          disturbanceON = NA,
+                          CO2model=CO2model
                           ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
+  
+  if(all(is.na(pPRELES))){
+    pPRELES <- pPREL
+    pPRELES[12:13] <- pCO2model[CO2model,]
+  }
   
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
     if(length(disturbanceON)==1){
@@ -479,7 +487,8 @@ InitMultiSite <- function(nYearsMS,
       P0 <- PRELES(DOY=rep(1:365,nYearsX),PAR=PAR[climID,1:(365*nYearsX)],
                    TAir=TAir[climID,1:(365*nYearsX)],VPD=VPD[climID,1:(365*nYearsX)],
                    Precip=Precip[climID,1:(365*nYearsX)],CO2=CO2[climID,1:(365*nYearsX)],
-                   fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES)$GPP
+                   fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES,CO2model=CO2model)$GPP
+
       P0 <- matrix(P0,365,nYearsX)
       multiP0[climID,(1:nYearsX),1] <- colSums(P0)
     }
@@ -618,7 +627,8 @@ if(alpharNcalc){
     siteInfoDist = siteInfoDist,
     latitude = latitude,
     TsumSBBs = TsumSBBs,
-    dist_flag = dist_flag
+    dist_flag = dist_flag,
+    CO2model = CO2model
   )
 
 
@@ -766,7 +776,8 @@ multiPrebas <- function(multiSiteInit,
                               fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
-                              dist_flag))
+                              dist_flag,
+                              multiSiteInit$CO2model))
   
 
   ###modify alphar if fertilization is included
@@ -995,7 +1006,8 @@ if(ageHarvPrior>0){
                               fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
-                              dist_flag))
+                              dist_flag,
+                              multiSiteInit$CO2model))
 
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -1196,7 +1208,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                               fertThin,
                               oldLayer,
                               multiSiteInit$ECMmod,
-                              dist_flag))
+                              dist_flag,
+                              multiSiteInit$CO2model))
 
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)

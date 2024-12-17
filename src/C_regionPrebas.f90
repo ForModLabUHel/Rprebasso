@@ -87,8 +87,8 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites)
 
- integer :: etmodel, gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags fvec
- integer, intent(in) :: prebasFlags(6)
+ integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
+ integer, intent(in) :: prebasFlags(7)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -96,6 +96,7 @@ gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
+CO2model = prebasFlags(7)
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
 
