@@ -394,6 +394,9 @@ endif
    !!!update variables
        N = max(0.0, N + step*dN)
 
+
+
+
        if (dN<0. .and. Nold>0.) then !x6 xif5
          W_wsap = stand(47)
          W_froot = stand(25)
@@ -422,8 +425,8 @@ endif
          W_crh = W_crh * N/Nold
          Wdb = Wdb * N/Nold
          W_stem = W_stem * N/Nold
-         V = V * N/Nold
          realised_dvol = realised_dvol + V * (1-N/Nold) !aggregating realised damaged volume (could be reduced if sampled site-level damaged volume cannot be met by affected layers)
+         V = V * N/Nold
          BA = BA * N/Nold
          wf_STKG = wf_STKG * N/Nold
      STAND(24) = W_branch
