@@ -122,7 +122,7 @@ InitMultiSite <- function(nYearsMS,
                           SMIt0 = NA,
                           TminTmax = NA,
                           disturbanceON = NA,
-                          CO2model=CO2model
+                          CO2model=1
                           ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
