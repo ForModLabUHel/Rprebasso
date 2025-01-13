@@ -80,7 +80,7 @@ double fCO2_ET_model_mean(double CO2, p2 GPP_par ) {
 double fCO2_model_mean(int CO2model, double CO2, p2 GPP_par ) {
 	double fCO2x = 0.0;
 	
-	if (CO2model == 1){   //CO2model 1, uses Lananiemi model 
+	if (CO2model == 1){   //CO2model 1, uses Launiainen model 
 		fCO2x = 1 + GPP_par.bCO2 * log(CO2/380) ;
 	}
 	
@@ -93,7 +93,7 @@ double fCO2_model_mean(int CO2model, double CO2, p2 GPP_par ) {
 double fCO2_ET_model_mean(int CO2model, double CO2, p2 GPP_par) {
 	double fCO2x = 0.0;
 	
-	if (CO2model == 1){   //CO2model 1, uses Lananiemi model 
+	if (CO2model == 1){   //CO2model 1, uses Launiainen model 
       double f_C_P = 1 + GPP_par.bCO2 * log(CO2/380);
       double f_C_ET = 1 + GPP_par.xCO2 * log(CO2/380);
 	  fCO2x = (1/f_C_P)*f_C_ET;
@@ -128,7 +128,7 @@ void GPPfun(double *gpp, double *gpp380,
 
 
     /* Calculate first the reference condition (ca=380 ppm) effect */
-	//CO2model 1, uses Lananiemi model 
+	//CO2model 1, uses Launiainen model 
     // fDsub=0;
 	if (CO2model == 1){   
 		fDsub = exp(GPP_par.kappa * D);
