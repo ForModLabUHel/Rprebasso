@@ -204,7 +204,7 @@ prebas <- function(nYears,
                    SMIt0 = NA,
                    TminTmax = NA,
                    disturbanceON = NA,
-                   CO2model = 1
+                   CO2model = 2 ###default from Kalliokosky 2018
               ){
 
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
