@@ -358,7 +358,7 @@ prebas <- function(nYears,
   if(is.na(P0)){
     P0 <- PRELES(DOY=rep(1:365,nYears),
                  PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
-                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES)$GPP
+                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES,CO2model=CO2model)$GPP
     P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
   }
   P0 <- matrix(P0,nYears,2)
