@@ -2325,25 +2325,28 @@ endsubroutine
 
 !!calculate the soil moisture index to be used in the bark beatle disturbance calculations
 subroutine SMIfromPRELES(GPP,fW,SMI)
- real (kind=8), intent(in) :: GPP(365),fW(365)
- real (kind=8), intent(out) :: SMI
- integer :: startSeason, endSeason
-
- startSeason = 1
-   do while (GPP(startSeason) <= 0. .and. startSeason < 366)
+  real (kind=8), intent(in) :: GPP(365),fW(365)
+  real (kind=8), intent(out) :: SMI
+  real(kind=8) :: gpp_threshold
+  integer :: startSeason, endSeason
+  
+  gpp_threshold=5.d0 !!!!gpp threshold that should be considered for start and end of the season
+  
+  startSeason = 1
+  do while (GPP(startSeason) <= gpp_threshold .and. startSeason < 366)
     startSeason = startSeason + 1
-   enddo
-   
- endSeason = 365
-   do while (GPP(endSeason) <= 0. .and. endSeason > 1)
+  enddo
+  
+  endSeason = 365
+  do while (GPP(endSeason) <= gpp_threshold .and. endSeason > 1)
     endSeason = endSeason - 1
-   enddo
+  enddo
   
   SMI = sum(fW(startSeason:endSeason))/(endSeason-startSeason+1)
-   
-   ! write(1,*) startSeason, endSeason,SMI
-   
-   ! close(1) 
+  
+  ! write(1,*) startSeason, endSeason,SMI
+  
+  ! close(1) 
 endsubroutine
 
 
