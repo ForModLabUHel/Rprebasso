@@ -156,7 +156,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         TminTmax = NA,
                         soilC_steadyState=FALSE,
                         disturbanceON = NA,
-                        CO2model = 1 
+                        CO2model = 2
 ) {
   
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -304,6 +304,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
+
   
   if(modVersion=="region"){
     TransectOut <- regionPrebas(initPrebas,

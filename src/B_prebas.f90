@@ -9,7 +9,6 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
      inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,thinInt, &
-
    flagFert,nYearsFert,mortMod,pECMmod, &
    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
    latitude, TsumSBBs)
