@@ -149,7 +149,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilC_steadyState=FALSE,
                         disturbanceON = NA,
                         ingrowth = FALSE,
-                        CO2model = 1
+                        CO2model = 2
                         ){
 
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
