@@ -20,7 +20,7 @@
 #' @param CO2 A numeric vector of air CO2, ppm
 #' @param P0 A numeric vector with the annual potential photosynthesis (gC m-2 y-1). If P0 is not provided PRELES is used to compute P0 using fAPAR = 1.
 #' @param initVar initial state of the forest. matrix with VarsIn,nLayers dimentions: VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))
-#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem).
+#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (stem, branch,foliage).
 #' @param weatherYasso Annual weather inputs for Yasso, matrix with nYears and 3 columns. If NA it is internally calculated using the daily weather inputs
 #' @param litterSize Marix with litter inputs for YASSO. Rows are tree organs, columns correspond to the species of pCROBAS.
 #' @param soilCtot total annual soilcarbon per year
@@ -60,6 +60,7 @@
 #' @param SMIt0 site vector of initial SoilMoirture index
 #' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
 #' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
+#' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -143,7 +144,7 @@
 prebas <- function(nYears,
                    pCROBAS = pCROB,
                    pHcMod = pHcM,
-                   pPRELES = pPREL,
+                   pPRELES = NA,
                    pYASSO = pYAS,
                    pAWEN = parsAWEN,
                    # PREBASversion = 0,
@@ -197,10 +198,16 @@ prebas <- function(nYears,
                    TsumSBBs = NA,
                    SMIt0 = NA,
                    TminTmax = NA,
-                   disturbanceON = NA
+                   disturbanceON = NA,
+                   CO2model = 2 #default from kaliokoski (2018)
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
+  if(all(is.na(pPRELES))){
+    pPRELES <- pPREL
+    pPRELES[12:13] <- pCO2model[CO2model,]
+  }
   
   #process disturbance flags
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
@@ -351,7 +358,7 @@ prebas <- function(nYears,
   if(is.na(P0)){
     P0 <- PRELES(DOY=rep(1:365,nYears),
                  PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
-                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES)$GPP
+                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES,CO2model=CO2model)$GPP
     P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
   }
   P0 <- matrix(P0,nYears,2)
@@ -446,7 +453,8 @@ prebas <- function(nYears,
                             fertThin,
                             oldLayer,
                             ECMmod,
-                            dist_flag))
+                            dist_flag,
+                            CO2model))
   
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){

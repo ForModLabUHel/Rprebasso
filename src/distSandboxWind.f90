@@ -316,8 +316,6 @@ subroutine prioDistInSO(outDist, nSites, maxYears, year, siteOrder)
 
       end subroutine prioDistInSO
 
-
-
 !!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!
 ! sample wind disturbance impact (relative damaged vol)
@@ -596,3 +594,4 @@ subroutine prioDistInSO(outDist, nSites, maxYears, year, siteOrder)
         ! print *, "Sampled value: ", sampled_value
 
       end subroutine sample_rdvol
+

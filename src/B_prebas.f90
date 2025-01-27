@@ -38,6 +38,7 @@ implicit none
  logical :: disturbance_wind, disturbance_bb, disturbance_fire !fvec
  real (kind=8), intent(inout) :: siteInfoDist(10), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  real (kind=8) :: rndm, rdvol_sampled !random number for disturbance sampling, sampled relative disturbed vol (wind)
+
  integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
 real (kind=8) :: sc1vols(87), sc2vols(15), sc3vols(6)
 real (kind=8) :: wriskLayers(nLayers, 6)
@@ -155,15 +156,16 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers),deltaSiteTypeFert=1.
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
-integer :: etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(in) :: prebasFlags(6)
+
+integer :: CO2model, etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
+integer, intent(in) :: prebasFlags(7)
 real (kind=8) :: dailySW(365)
 
 
 
 !fire disturbances
 real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
-real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365))
+real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year!
 !BB disturbances
 real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
 
@@ -173,6 +175,7 @@ gvRun = int(prebasFlags(2))
 fertThin = int(prebasFlags(3))
 oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
+CO2model = int(prebasFlags(7))
 
 
 !!set disturbance flags
@@ -627,7 +630,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel)    !type of ET model
+    etmodel,CO2model)    !type of ET model
 
    !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)    !ET
@@ -658,7 +661,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel)    !type of ET model
+    etmodel,CO2model)    !type of ET model
 
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
     STAND_all(22,:) = prelesOut(2)    !ET
@@ -1366,8 +1369,9 @@ if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc
 ! for some by replacement. Problematic for ,42, as 42,2 is used to transfer killed V that is salvage logged to next year in case the harvest limit has already been met.
 !  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = &
 !    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij)
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij,2) = &
-      stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij) ! excluding 42 from this replacement to fix bug where vmort (,1) is harvested in the year after the management reaction
+
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij,2) = &
+      stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij) ! excluding 42 from this replacement to fix bug where vmort (,1) is harvested in the year after the management reaction
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
   S_fr = stand_all(25,ij) + stand_all(27,ij)
@@ -1408,8 +1412,9 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
   ! outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = & !45:47,
   !   stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij) !45:47,
-  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij,2) = & !45:47, !!! REMOVAL OF 42 her as well (see ~50 lines above)
-    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,43,44,49,50,51,52,53,54/),ij) !45:47,
+
+  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij,2) = & !45:47, !!! REMOVAL OF 42 her as well (see ~50 lines above)
+    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij) !45:47,
 
   !energyCut
     S_fol = stand_all(33,ij) + stand_all(26,ij)
@@ -1802,9 +1807,11 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   Tmax = weatherPRELES(year,:,2) + 3.7
   FDI(:) = 0.
   call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, &
-			weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI)
+
+	weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),&
+ FDI,n_fire_year)
   modOut((year+1),47,:,2) = 0.
-  modOut((year+1),47,1,2) = maxval(FDI)
+  modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
  ! endif
 
 enddo !end year loop

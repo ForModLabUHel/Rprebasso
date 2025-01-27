@@ -77,11 +77,33 @@ double fCO2_ET_model_mean(double CO2, p2 GPP_par ) {
    to model predicted
    bCO2 = 0.5; xCO2 = -0.364
 */
-double fCO2_model_mean(double CO2, p2 GPP_par ) {
-  return(1 + GPP_par.bCO2 * log(CO2/380) );
+double fCO2_model_mean(int CO2model, double CO2, p2 GPP_par ) {
+	double fCO2x = 0.0;
+	
+	if (CO2model == 1){   //CO2model 1, uses Launiainen model 
+		fCO2x = 1 + GPP_par.bCO2 * log(CO2/380) ;
+	}
+	
+	if (CO2model == 2){  //CO2model 2, uses Kolari model
+		fCO2x = 1 + (CO2-380)/(CO2-380+GPP_par.bCO2);
+	}
+	return(fCO2x);
 }
-double fCO2_ET_model_mean(double CO2, p2 GPP_par ) {
-  return(1 + GPP_par.xCO2 * log(CO2/380) );
+
+double fCO2_ET_model_mean(int CO2model, double CO2, p2 GPP_par) {
+	double fCO2x = 0.0;
+	
+	if (CO2model == 1){   //CO2model 1, uses Launiainen model 
+      double f_C_P = 1 + GPP_par.bCO2 * log(CO2/380);
+      double f_C_ET = 1 + GPP_par.xCO2 * log(CO2/380);
+	  fCO2x = (1/f_C_P)*f_C_ET;
+	}	
+
+	
+	if (CO2model == 2){  //CO2model 2, uses Kolari model
+	  fCO2x = 1 - (CO2-380)/(CO2-380+GPP_par.bCO2);
+	}
+	return(fCO2x);
 }
 
 
@@ -91,10 +113,10 @@ void GPPfun(double *gpp, double *gpp380,
 	      double ppfd,  double D, double CO2, double theta, 
 	      double fAPAR, double fSsub, 
               p2 GPP_par, p1 Site_par, double *fD, double *fW,
-	      double *fE,  int LOGFLAG) {
+	      double *fE,  int LOGFLAG, int CO2model) {
 		  // double *fE, FILE *flog, int LOGFLAG) {
 
-    extern double fCO2_model_mean(double CO2, p2 b ) ;
+    extern double fCO2_model_mean(int CO2model, double CO2, p2 b) ;
     //    extern double fCO2_VPD_exponent(double CO2, double xCO2 ) ;
     double thetavol = theta/Site_par.soildepth;
     //  double GPPsub, GPP380sub;
@@ -104,9 +126,21 @@ void GPPfun(double *gpp, double *gpp380,
     double fEsub, fWsub, fLsub, fDsub;
     // double fECO2sub, fDCO2sub, fWCO2sub;
 
+
     /* Calculate first the reference condition (ca=380 ppm) effect */
-    fDsub = exp(GPP_par.kappa * D);
-    fDsub = fDsub > 1 ? 1 : fDsub;
+	//CO2model 1, uses Launiainen model 
+    // fDsub=0;
+	if (CO2model == 1){   
+		fDsub = exp(GPP_par.kappa * D);
+     	fDsub = fDsub > 1 ? 1 : fDsub;
+	}
+	// fDsub=0;
+	// CO2model 2, uses Kolari model
+	if (CO2model == 2){  
+ 		fDsub = exp(GPP_par.kappa * (pow(380/CO2, GPP_par.xCO2)) * D);
+		fDsub = fDsub > 1 ? 1 : fDsub;
+	}
+
 
     if (GPP_par.soilthres < -998) { 
       fWsub = 1.0;      /* e.g. -999 means no water control of GPP*/
@@ -125,7 +159,7 @@ void GPPfun(double *gpp, double *gpp380,
     *fD = fEsub;
 
     *gpp380 = GPP_par.beta *  ppfd *  fAPAR * fSsub * fLsub * fEsub;
-    fCO2 = fCO2_model_mean(CO2, GPP_par);
+    fCO2 = fCO2_model_mean(CO2model,CO2, GPP_par);
     *gpp = *gpp380 * fCO2;
 
     

@@ -36,7 +36,24 @@ if(disturbance_bb) then !!!!mortality caused by bark beetle is switched off for 
    pHarvTrees = 0. !!!for now is 0 then we need to modify this if salvage logging, see jonathan code
    call baBBdist_bylay_fun(outt((/4,11,13/),:,1),nLayers,(/2,10/),2,BAdist,((intenSpruce) * spruceStandVars(1)))
    outt(43,:,2)=BAdist! BAdist = intenSpruce * rBAspruce * STAND_all(13,:)
-   
+
+!!!! management reaction flags are updated (start)
+ vdam = sum(outt(43,:,2)/outt(13,:,1) * outt(30,:,1)) !calculate roughly the damaged volume based on BAdamaged and tot ba ratio
+ pHarvTrees = 0.
+ if(vdam>=5.0d0) then ! threshold for salvage logging
+ ! call random_number(rndm)
+ ! if(rndm<=siteInfoDist(10)) then
+ outDist(year,9) = 1. !indicate clearcut
+ outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
+ ! endif
+ endif
+! endif ! end salvlog/mgmtrect module xif1
+if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
+ pHarvTrees = 0.
+ outDist(year,7:9) = 0.
+endif
+!!!! management reaction flags are updated (end)
+
    include 'updateStandAfterDist.h'
 
   endif !endif BB attack

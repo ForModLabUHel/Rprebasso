@@ -14,6 +14,7 @@
 
 !!!!!!!!!!!!! PREPARING WIND RISK INPUTS!!!!!!!
 
+!!!!!!!!!!!!! PREPARING WIND RISK INPUTS!!!!!!!
 
 ! BELOW: Version considering only the single highest layer for stand level risk estimate (Legacy, but might still be useful)
 ! dev: outDist(,X) 1 = dom layer #; 2 dom layer spec; 3 dom layer h, 4 sitetype, 5 ETS; 6-10 wind risks
@@ -78,16 +79,23 @@ endif
 !call windrisk(siteInfoDist, INT(wdistproc(2)), wdistproc(3), 0, STAND_all(3,1), STAND_all(5,1), INT(siteInfoDist(2)), &
 !  wrisk5dd1,wrisk5dd2,wrisk5dd3,wrisk0,wrisk5,wrisk)
 
-!assigning risks
+
+  outDist(year,1) = wriskLayers(1,1)/STAND_all(13,1) ! layer 1 un-weighed wrisk
+  outDist(year,2) = wriskLayers(2,1)/STAND_all(13,2) ! layer 2 un-weighed wrisk
+  outDist(year,10) = wriskLayers(3,1)/STAND_all(13,3) ! layer 3 un-weighed wrisk
 
 !outDist(year,1) = wdistproc(2) ! dom spec
 !outDist(year,2) = siteInfoDist(2) !tsincethin
 !outDist(year,3) = wrisk !1a
 
-!!!! ABOVE: REPLACED BY DRAFT
 
+
+!outDist(year,1) = wdistproc(2) ! dom spec
+!outDist(year,2) = siteInfoDist(2) !tsincethin
+!outDist(year,3) = wrisk !1a
 
 ! UPDATE: severity-class based sampling (below) replaced by sampling from fitted lognormal distribution
+
 
 !!!!!!! WIND DISTURBANCE IMPACT MODELLING !!!!!!!!!!
 ! basic idea: 3-step sampling
@@ -97,6 +105,7 @@ endif
 ! current status: damaged V in outDist[,,9], needs to be tested. further implementation via thinmat or so do be discussed
 
 !!! STEP 1: wind disturbance 0/1 based on wind risk
+
 call RANDOM_SEED
 call random_number(rndm)
 if(rndm <= outDist(year,3)) outDist(year,4) = 1. !wind disturbance occurs/ set severity class to 1
@@ -198,7 +207,6 @@ do layer = 1, nLayers
 end do
 
 
-
 !write(1,*) wriskLayers(:,1), wriskLayers(:,2), wriskLayers(:,3), wriskLayers(:,4), wriskLayers(:,5), wriskLayers(:,6) !!to write wdistdev output
 
 !!! END DISTRIBUTE SHARE OF VOLUME DISTURBED TO LAYERS !!!
@@ -235,6 +243,7 @@ if (outDist(year,4)>0.) then !in case of disturbance xif1
   ! CLEAR CUT IN SEVERERELY DISTURBED SITES ()
   !if((wdistproc(4)>=0.5 .OR. outDist(year,4)==3) .AND. siteInfoDist(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
     if(wdistproc(4)>=0.5 .AND. siteInfoDist(10)>0.) then !CC if sevclass = 3 or >50% of volume disturbed
+
     call random_number(rndm)
     if(rndm<=siteInfoDist(10)) then
        outDist(year,9) = 1. !indicate clearcut
@@ -393,9 +402,6 @@ endif
 
    !!!update variables
        N = max(0.0, N + step*dN)
-
-
-
 
        if (dN<0. .and. Nold>0.) then !x6 xif5
          W_wsap = stand(47)
