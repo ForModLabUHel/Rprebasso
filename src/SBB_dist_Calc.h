@@ -40,14 +40,25 @@ if(disturbance_bb) then !!!!mortality caused by bark beetle is switched off for 
 !!!! management reaction flags are updated (start)
  vdam = sum(outt(43,:,2)/outt(13,:,1) * outt(30,:,1)) !calculate roughly the damaged volume based on BAdamaged and tot ba ratio
  pHarvTrees = 0.
- if(vdam>=5.0d0) then ! threshold for salvage logging
- ! call random_number(rndm)
- ! if(rndm<=siteInfoDist(10)) then
- outDist(year,9) = 1. !indicate clearcut
- outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
- ! endif
- endif
-! endif ! end salvlog/mgmtrect module xif1
+
+
+!!!a=0 b=5
+  if(vdam > 0. .and. vdam < 5.0) then ! threshold for salvage logging
+    siteInfoDist(2) = 0. ! reset thinning counter, i.e. wind disturbance temporarily increases wind risk
+    call random_number(rndm)
+    if(rndm<=0.5) then
+      pHarvTrees = 1. ! if sampled for salvlog set pHarvTrees
+      outDist(year,7) = 1. !indicate salvage logging in output
+    endif !if_s
+  elseif (vdam >= 5.) then !if_s
+   !if(vdam>=5.) then ! threshold for salvage logging
+   ! call random_number(rndm)
+   ! if(rndm<=siteInfoDist(10)) then
+   outDist(year,9) = 1. !indicate clearcut
+   outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
+   ! endif
+  endif
+
 if(clCut<0.) then !blocking mgmt reactions in sites indicated as preservation/unmanaged
  pHarvTrees = 0.
  outDist(year,7:9) = 0.
