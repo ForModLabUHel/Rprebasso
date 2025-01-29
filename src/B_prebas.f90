@@ -36,7 +36,8 @@ implicit none
 
  logical :: disturbance_wind, disturbance_bb, disturbance_fire !fvec
  real (kind=8), intent(inout) :: siteInfoDist(10), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
- real (kind=8) :: rndm !random number for disturbance sampling
+ real (kind=8) :: rndm, rdvol_sampled !random number for disturbance sampling, sampled relative disturbed vol (wind)
+
  integer :: distvloc, sevclasslength !integer for element of NFI sevclass list of directly damaged relative volumes; n of elements in that list
 real (kind=8) :: sc1vols(87), sc2vols(15), sc3vols(6)
 real (kind=8) :: wriskLayers(nLayers, 6)
@@ -44,6 +45,7 @@ real (kind=8) :: wriskLayers(nLayers, 6)
 real (kind=8) :: wdistproc(7) !to replace siteinfodist
 REAL (kind=8)::  wrisk5, wrisk0, wrisk ! 5-year wind risk (suvanto output), pre-logit value, annual risk
 REAL (kind=8)::  hthresh, htresh_ba !
+REAL (kind=8):: realised_dvol ! damaged volume sampled at site level; might be reduced if it exceeds V of affected layers (=realised_dvol) if affected layers have less V than sampled
 REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage density class
 REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol
 REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
@@ -153,9 +155,12 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers),deltaSiteTypeFert=1.
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
+
 integer :: CO2model, etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
 integer, intent(in) :: prebasFlags(7)
 real (kind=8) :: dailySW(365)
+
+
 
 !fire disturbances
 real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
@@ -170,6 +175,7 @@ fertThin = int(prebasFlags(3))
 oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
 CO2model = int(prebasFlags(7))
+
 
 !!set disturbance flags
 ! set all dist to 0 and then choose based on flag
@@ -1362,6 +1368,7 @@ if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc
 ! for some by replacement. Problematic for ,42, as 42,2 is used to transfer killed V that is salvage logged to next year in case the harvest limit has already been met.
 !  outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = &
 !    stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij)
+
   outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij,2) = &
       stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij) ! excluding 42 from this replacement to fix bug where vmort (,1) is harvested in the year after the management reaction
   !energyCut
@@ -1404,6 +1411,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
                     stand_all((/9,10,13,16,17,18,24,25,30,31,32,33/),ij)
   ! outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij,2) = & !45:47,
   !   stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,42,43,44,49,50,51,52,53,54/),ij) !45:47,
+
   outt((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij,2) = & !45:47, !!! REMOVAL OF 42 her as well (see ~50 lines above)
     stand_all((/6,7,8,11,12,14,15,19,20,21,22,23,26,27,28,29,34,35,36,37,38,39,40,41,44,49,50,51,52,53,54/),ij) !45:47,
 
@@ -1798,6 +1806,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   Tmax = weatherPRELES(year,:,2) + 3.7
   FDI(:) = 0.
   call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, &
+
 	weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),&
  FDI,n_fire_year)
   modOut((year+1),47,:,2) = 0.
