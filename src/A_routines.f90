@@ -534,7 +534,7 @@ fAPARc = fAPAR
     day, &!!!!this is DOY
     transp, evap, fWE,CO2model)
 
- call SMIfromPRELES(GPP,fW,prelesOut(7))
+ call SMIfromPRELES(GPP,fW,prelesOut(7),sum(fAPARc)/365.)
 
 prelesOut(1) = sum(GPP(1:nDays))
 prelesOut(2) = sum(ET(1:nDays))
@@ -2338,29 +2338,28 @@ endsubroutine
 
 
 !!calculate the soil moisture index to be used in the bark beatle disturbance calculations
-subroutine SMIfromPRELES(GPP,fW,SMI)
-  real (kind=8), intent(in) :: GPP(365),fW(365)
+subroutine SMIfromPRELES(GPP,fW,SMI,fAPAR)
+ real (kind=8), intent(in) :: GPP(365),fW(365),fAPAR
  real (kind=8), intent(out) :: SMI
  real(kind=8) :: gpp_threshold
  integer :: startSeason, endSeason
 
- gpp_threshold=5.d0 !!!!gpp threshold that should be considered for start and end of the season
- 
+!gpp threshold that should be considered for start and end of the season
+ gpp_threshold=5.0d0 *fAPAR !!! it is divided by fAPAR to aproximate to p0
+
  startSeason = 1
-   do while (GPP(startSeason) <= gpp_threshold .and. startSeason < 366)
-    startSeason = startSeason + 1
-   enddo
-   
+ do while (GPP(startSeason) <= gpp_threshold .and. startSeason < 366)
+  startSeason = startSeason + 1
+ enddo
+
+
  endSeason = 365
-   do while (GPP(endSeason) <= gpp_threshold .and. endSeason > 1)
-    endSeason = endSeason - 1
-   enddo
-  
-  SMI = sum(fW(startSeason:endSeason))/(endSeason-startSeason+1)
-   
-   ! write(1,*) startSeason, endSeason,SMI
-   
-   ! close(1) 
+ do while (GPP(endSeason) <= gpp_threshold .and. endSeason > 1)
+  endSeason = endSeason - 1
+ enddo
+
+ SMI = sum(fW(startSeason:endSeason))/(endSeason-startSeason+1)
+
 endsubroutine
 
 !!calculate minimum fAPAR of last 15 years
