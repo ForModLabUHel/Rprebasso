@@ -93,29 +93,29 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
-  x0 = 0.6
-  k = -10.
+  x0 = 0.75
+  k = -7.
   PI_spruceFract = 1./(1.+exp(k* (BAspruceFract - x0)))
 
 ! PI for age_spruce
-  x0 = 85.
-  k = -0.05
+  x0 = 60.
+  k = -0.07
   PI_agespruce = 1.0/(1.+exp(k* (age_spruce - x0)))
 
 ! BA_spruce
-  x0 = 17.
+  x0 = 27.
   k = -0.250
   PI_BAspruce = 1./(1.+exp(k* (BA_spruce - x0)))
 
 ! SMI_Tprev
-  x0 = 0.955
-  k = 400.
+  x0 = 0.88
+  k = 65.
   PI_SMITprev = 1./(1.+exp(k* (SMI - x0)))
 
 ! Zero probability for SBB if the long term temperature is not high enough 
   x = sum(TsumSBBs)/4.
-  x0 = 1.49
-  k = -10. 
+  x0 = 1.58
+  k = -16. 
   f0 = 1./(1.+exp(k* (x - x0)))
   ! if(f0 < 0.0001) then
    ! f0 =  0.
@@ -200,7 +200,7 @@ subroutine bb_imp_mod(SMI,BA_spruceshare,dam_int)
   real(8) :: a, SHI
 
 !!initialize parameters
-a = 0.15
+a = 1.
 
 SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
 
