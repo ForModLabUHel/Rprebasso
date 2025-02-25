@@ -21,6 +21,7 @@
 #' @param etmodel 
 #' @param pYASSO 
 #' @param pAWEN 
+#' @param fixAinit = NA,
 #' @param fixBAinitClearcut 
 #' @param initCLcutRatio 
 #' @param multiP0 
@@ -31,6 +32,7 @@
 #' @param soilCtot 
 #' @param inDclct 
 #' @param inAclct 
+#' @param inHclct 
 #' @param yassoRun 
 #' @param smoothP0 
 #' @param smoothETS 
@@ -111,6 +113,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         pYASSO =pYAS,
                         pAWEN = parsAWEN,
                         multiInitClearCut = NA,
+                        fixAinit = 0, ###fix initial year age (vector of length # sites) 0,initial age is calculated by the model, other wise use years 
                         fixBAinitClearcut = 1.,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
                         initCLcutRatio = NA,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
                         multiP0=NA,
@@ -121,6 +124,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilCtot = NA,
                         inDclct = NA,
                         inAclct = NA,
+                        inHclct = NA,
                         yassoRun = 1,
                         smoothP0 = 1,
                         smoothETS = 1,
@@ -265,6 +269,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     pYASSO =pYASSO,
     pAWEN = pAWEN,
     multiInitClearCut = multiInitClearCut,
+    fixAinit = fixAinit,
     fixBAinitClearcut = fixBAinitClearcut,  ###if 1 when clearcut occur the species inital biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relBa at last year 
     initCLcutRatio = initCLcutRatio,  ###BA ratio per each species/layer (default is the ba ratio at the begginning of the simulations)
     multiP0=multiP0,
@@ -274,6 +279,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     soilCtot = soilCtot,
     inDclct = inDclct,
     inAclct = inAclct,
+    inHclct = inHclct,
     smoothP0 = smoothP0,
     smoothETS = smoothETS,
     smoothYear=smoothYear,

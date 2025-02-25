@@ -7,7 +7,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
     weatherPRELES,DOY,pPRELES, soilC,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtot, &
-    defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiEnergyWood, &
+    defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiEnergyWood, &
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
     flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
@@ -32,7 +32,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
- real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP),energyCuts(nSites)  !!energCuts
+ real (kind=8), intent(in) :: clct_pars(nSites,allSP,3),energyCuts(nSites)  !!energCuts
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity; 
           !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
 
@@ -62,7 +62,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
  integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
- integer, intent(inout) :: prebasFlags(7)
+ integer, intent(inout) :: prebasFlags(8)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -95,7 +95,8 @@ do i = 1,nSites
 enddo
 
 do i = 1,nSites
-
+ prebasFlags(8) = int(multiOut(i,1,7,1,2))
+ multiOut(i,1,7,1,2) = 0.
  output(:,:,:,:) = multiOut(i,:,:,:,:)
 
   climID = siteInfo(i,2)
@@ -114,7 +115,7 @@ do i = 1,nSites
     P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES, &
     soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
     litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
-    ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
+    ClCutX,energyCuts(i),clct_pars(i,:,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
     multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
     GVout(i,1:nYears(i),:),thinInt(i), &
     flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function

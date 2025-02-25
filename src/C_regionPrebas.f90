@@ -7,7 +7,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
     nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
     weatherPRELES,DOY,pPRELES, soilCinOut,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtotInOut, &
-    defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
+    defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiWood,&
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, &
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags,&
@@ -54,7 +54,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
- real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
+ real (kind=8), intent(in) :: clct_pars(nSites,allSP,3)
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity;
           !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
  real (kind=8), intent(inout) :: energyCuts(nSites)  !!energCuts
@@ -88,7 +88,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
- integer, intent(in) :: prebasFlags(7)
+ integer, intent(inout) :: prebasFlags(8)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -127,6 +127,10 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
 ! write(2,*) "compHarv",compHarv
 !!inititialize A and biomasses
 do i = 1,nSites
+
+ prebasFlags(8) = int(multiOut(i,1,7,1,2))
+ multiOut(i,1,7,1,2) = 0.
+
  do ijj = 1,nLayers(i)
   if(initVar(i,5,ijj) == 0.) then
     initVar(i,7,ijj) = 0.
@@ -465,7 +469,7 @@ endif
     weatherPRELES(climID,ij,:,:),DOY,pPRELES, &
     soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
     litterSize,soilCtot(i,ij),&
-    defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
+    defaultThinX,ClCutX,energyCutX,clct_pars(i,:,:), & !!energCuts
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &

@@ -29,6 +29,7 @@
 #' @param energyCut if==1 energy wood is harvested at thinning and clearcut
 #' @param inDclct Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
 #' @param inAclct Vector of Age (year) threshold for clearcut.  Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
+#' @param inDclct Vector of H (m) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
 #' @param yassoRun flag for YASSO calculations. If yassoRun=1 the YASSO model is run to compute the carbon balance of the soil.
 #' @param smoothP0 if 1 P0 is smoothed using an average window of smoothYear (see below) # years 
 #' @param smoothETS if 1 ETS is smoothed using an average window of smoothYear (see below) # years 
@@ -152,6 +153,7 @@ prebas <- function(nYears,
                    siteInfo = NA,
                    thinning=NA,
                    initClearcut = initSeedling.def,
+                   fixAinit = 0,
                    fixBAinitClarcut = 1.,
                    initCLcutRatio = NA,
                    PAR,TAir,VPD,Precip,CO2,
@@ -166,6 +168,7 @@ prebas <- function(nYears,
                    energyCut = 0.,
                    inDclct = NA,
                    inAclct = NA,
+                   inHclct = NA,
                    yassoRun = 0,
                    smoothP0 = 1,
                    smoothETS = 1,
@@ -321,22 +324,27 @@ prebas <- function(nYears,
     if(is.na(inDclct)) inDclct <- 9999999.99
     if(is.na(inAclct)) inAclct <- 9999999.99
   }
+  
   # if(ClCut==1 & all(is.na(initVar)) & is.na(inDclct)) inDclct <-
   if(ClCut==1 & all(is.na(inDclct))) inDclct <-
     c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]), ####pine in Finland
       ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
       ClCutD_Birch(ETSmean,ETSthres,siteInfo[3]), ####birch in Finland
-      NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops"
+      NA,NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops"
   # if(ClCut==1 & all(is.na(initVar)) & is.na(inAclct)) inAclct <-
   if(ClCut==1 & all(is.na(inAclct))) inAclct <-
     c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),   ####pine in Finland
       ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland 
       ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]),  ####birch in Finland
-      80,50,13,30)  ###"fasy","pipi","eugl","rops"  
-  if(any(is.na(inDclct))) inDclct[is.na(inDclct)] <- 9999999.99
+      80,50,13,30,80)  ###"fasy","pipi","eugl","rops"  
+  if(any(is.na(inDclct))) inDclct[which(is.na(inDclct))] <- 9999999.99
   if(length(inDclct)==1) inDclct<- rep(inDclct,nSp)
-  if(any(is.na(inAclct))) inAclct[is.na(inAclct)] <- 9999999.99
+  if(any(is.na(inAclct))) inAclct[which(is.na(inAclct))] <- 9999999.99
   if(length(inAclct)==1) inAclct<- rep(inAclct,nSp)
+  if(any(is.na(inHclct))) inHclct[which(is.na(inHclct))] <- 999.99
+  if(length(inHclct)==1) inHclct<- rep(inHclct,nSp)
+  
+  clct_pars <- rbind(inDclct,inAclct,inHclct)
   
   ###if any initial value is given the model is initialized from plantation
   if (all(is.na(initVar))){
@@ -446,6 +454,11 @@ prebas <- function(nYears,
   
   #### vectorisation of flags ####
   # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
+  if(fixAinit > 0){
+    initClearcut[5] <- fixAinit
+    fixAinit <- 1
+  } 
+  
   
   # disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(etmodel, #int
@@ -454,7 +467,8 @@ prebas <- function(nYears,
                             oldLayer,
                             ECMmod,
                             dist_flag,
-                            CO2model))
+                            CO2model,
+                            fixAinit))
   
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -514,8 +528,7 @@ prebas <- function(nYears,
                      defaultThin=as.double(defaultThin),
                      ClCut=as.double(ClCut),
                      energyCut=as.double(energyCut),
-                     inDclct=as.double(inDclct),
-                     inAclct=as.double(inAclct),
+                     clct_pars=as.matrix(clct_pars),
                      dailyPRELES = dailyPRELES,
                      yassoRun=as.double(yassoRun),
                      energyWood = as.array(energyWood),
