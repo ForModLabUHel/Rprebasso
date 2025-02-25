@@ -7,7 +7,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
     nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
     weatherPRELES,DOY,pPRELES, soilCinOut,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtotInOut, &
-    defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
+    defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiWood,&
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, &
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags,&
@@ -54,7 +54,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
- real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
+ real (kind=8), intent(in) :: clct_pars(nSites,allSP,3)
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity;
           !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
  real (kind=8), intent(inout) :: energyCuts(nSites)  !!energCuts
@@ -75,7 +75,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 
  integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
- real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
+ real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort,fixAinitXX(nSites)
 
 !!!!fAPAR minimum for ingrowth calculations
 real (kind=8) :: minFapar,fAparFactor=0.9
@@ -88,7 +88,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
- integer, intent(in) :: prebasFlags(7)
+ integer, intent(inout) :: prebasFlags(8)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -97,6 +97,9 @@ fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 CO2model = prebasFlags(7)
+fixAinitXX = multiOut(:,1,7,1,2)
+multiOut(:,1,7,1,2) = 0.
+
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
 
@@ -302,12 +305,17 @@ endif
 !!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
 
  do iz = 1,nSites
+ 
   i=siteOrder(iz,ij)
   ClCutX = ClCut(i)
   defaultThinX = defaultThin(i)
   energyCutX = energyCuts(i)    !!energCuts
   thinningX(:,:) = -999.
   az = 0
+
+!fixAinit
+  prebasFlags(8) = int(fixAinitXX(i))
+
 
   if(ij > 1) then
    soilC(i,ij,:,:,1:nLayers(i)) = soilC(i,(ij-1),:,:,1:nLayers(i))
@@ -465,7 +473,7 @@ endif
     weatherPRELES(climID,ij,:,:),DOY,pPRELES, &
     soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
     litterSize,soilCtot(i,ij),&
-    defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
+    defaultThinX,ClCutX,energyCutX,clct_pars(i,:,:), & !!energCuts
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
@@ -483,7 +491,7 @@ endif
     ! close(2)
   ! endif
   if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
-      multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
+     multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
      multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
   endif
 
