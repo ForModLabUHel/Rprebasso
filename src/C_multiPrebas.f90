@@ -79,6 +79,7 @@ CO2model = prebasFlags(7)
 !!!!initialize run
 ! multiOut = 0.
 ! open(1,file="test1.txt")
+! open(2,file="test2.txt")
 
 output = 0.
 yearX = 0.
@@ -139,6 +140,7 @@ do i = 1,nSites
     multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
  ! close(1)
+ ! close(2)
 end subroutine
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

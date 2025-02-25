@@ -584,7 +584,6 @@ if (year <= maxYearSite) then
   endif 
   yearX = Ainit + year
    endif
-
    !!!ground vegetation
    !!!fapar_gv compute fapar, biomasses and litter of gv with routine
    if(gvRun==1) then
@@ -1312,7 +1311,6 @@ if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc
   H_clearcut = clct_pars(species,3)
   D = stand_all(12,layer)
   age = stand_all(7,layer)
-
   if ((D > D_clearcut) .or. (H > H_clearcut) .or. (age > A_clearcut) &
 		.or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year
 

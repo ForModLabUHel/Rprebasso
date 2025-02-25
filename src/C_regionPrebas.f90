@@ -85,7 +85,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites)
+ real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites),fixAinitXX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  integer, intent(inout) :: prebasFlags(8)
@@ -97,6 +97,9 @@ fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 CO2model = prebasFlags(7)
+fixAinitXX = multiOut(:,1,7,1,2)
+multiOut(:,1,7,1,2) = 0.
+
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
 
@@ -312,6 +315,9 @@ endif
   energyCutX = energyCuts(i)    !!energCuts
   thinningX(:,:) = -999.
   az = 0
+  !fixAinit
+  prebasFlags(8) = int(fixAinitXX(i))
+
 
   if(ij > 1) then
    soilC(i,ij,:,:,1:nLayers(i)) = soilC(i,(ij-1),:,:,1:nLayers(i))
@@ -351,7 +357,12 @@ endif
   if(ij==int(yearXrepl(i)))then
   !if(ij==int(min(yearXrepl(i),maxYears)))then
    ! initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearXrepl(i)))
-   initClearcut(i,5) = int(initClearcut(i,5))
+   
+   if(fixAinitXX(i)>0.) then
+    initClearcut(i,5) = int(fixAinitXX(i))
+   else
+    initClearcut(i,5) = int(initClearcut(i,5))
+   endif
    yearXrepl(i) = 0.
 
 !if scenario = "oldLayer" do not consider the old layer
@@ -515,21 +526,25 @@ if(oldLayer==1) then
 else
  jj=nLayers(i)
 endif
-    if(sum(output(1,11,1:jj,1))>0)  yearXrepl(i) = 0.
-  if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
-   if((maxYears-ij)<10) then
-     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
-   else
-     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
-   endif
+   if(sum(output(1,11,1:jj,1))>0)  yearXrepl(i) = 0.
+   if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
+    if(fixAinitXX(i) > 0.) then
+	 Ainit = fixAinitXX(i)
+	else
+	 if((maxYears-ij)<10) then
+      Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+     else
+      Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+     endif
+	endif
    !!!!update area of cuttings
-   cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
-   yearXrepl(i) = Ainit + ij + 1.
-   initClearcut(i,5) = Ainit
-   if(ij==1) then
-    relBA(i,1:jj) = initVar(i,5,1:jj)/sum(initVar(i,5,1:jj))
+     cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
+     yearXrepl(i) = Ainit + ij + 1.
+     initClearcut(i,5) = Ainit
+    if(ij==1) then
+     relBA(i,1:jj) = initVar(i,5,1:jj)/sum(initVar(i,5,1:jj))
+    endif
    endif
-  endif
 
   multiWood(i,ij,1:nLayers(i),:) = wood(1,1:nLayers(i),:)
   multiOut(i,ij,1:2,1:nLayers(i),:) = output(1,1:2,1:nLayers(i),:)
