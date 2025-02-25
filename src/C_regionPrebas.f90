@@ -312,6 +312,8 @@ endif
   energyCutX = energyCuts(i)    !!energCuts
   thinningX(:,:) = -999.
   az = 0
+  !fixAinit
+  prebasFlags(8) = int(fixAinitXX(i))
 
 !fixAinit
   prebasFlags(8) = int(fixAinitXX(i))
@@ -355,7 +357,11 @@ endif
   if(ij==int(yearXrepl(i)))then
   !if(ij==int(min(yearXrepl(i),maxYears)))then
    ! initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearXrepl(i)))
-   initClearcut(i,5) = int(initClearcut(i,5))
+   if(fixAinitXX(i)>0.) then
+    initClearcut(i,5) = int(fixAinitXX(i))
+   else
+    initClearcut(i,5) = int(initClearcut(i,5))
+   endif
    yearXrepl(i) = 0.
 
 !if scenario = "oldLayer" do not consider the old layer
@@ -521,10 +527,15 @@ else
 endif
     if(sum(output(1,11,1:jj,1))>0)  yearXrepl(i) = 0.
   if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
-   if((maxYears-ij)<10) then
-     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+  
+   if(fixAinitXX(i) > 0.) then
+	 Ainit = fixAinitXX(i)
    else
+    if((maxYears-ij)<10) then
+     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+    else
      Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0),2) !! + 2.0 to account for the delay between planting and clearcut
+    endif
    endif
    !!!!update area of cuttings
    cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area

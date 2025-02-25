@@ -303,7 +303,7 @@ InitMultiSite <- function(nYearsMS,
     if(all(is.na(inDclct[i,]))) inDclct[i,] <- 9999999.99
     if(any(!is.na(inAclct[i,]))) inAclct[i,is.na(inAclct[i,])] <- max(inAclct[i,],na.rm=T)
     if(all(is.na(inAclct[i,]))) inAclct[i,] <- 9999999.99
-    if(any(!is.na(inHclct[i,]))) inAclct[i,is.na(inHclct[i,])] <- max(inHclct[i,],na.rm=T)
+    if(any(!is.na(inHclct[i,]))) inHclct[i,is.na(inHclct[i,])] <- max(inHclct[i,],na.rm=T)
     if(all(is.na(inHclct[i,]))) inHclct[i,] <- 999.99
   }
   clct_pars <- array(c(inDclct,inAclct,inHclct), dim = c(nSites, nSp,3))
