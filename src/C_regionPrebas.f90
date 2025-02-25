@@ -7,7 +7,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
     nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
     weatherPRELES,DOY,pPRELES, soilCinOut,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtotInOut, &
-    defaultThin,ClCut,energyCuts,inDclct,inAclct,dailyPRELES,yassoRun,multiWood,&
+    defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiWood,&
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert,nYearsFert,mortMod,startSimYear,pECMmod, &
     ETSstart,siteInfoDist, outDist, prebasFlags,latitude,P00CN,TsumSBBs)
@@ -35,7 +35,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
- real (kind=8), intent(in) :: inDclct(nSites,allSP),inAclct(nSites,allSP)
+ real (kind=8), intent(in) :: clct_pars(nSites,allSP,3)
  real (kind=8), intent(in) :: thinInt(nSites) !site specific parameter that determines the thinning intensity;
           !from below (thinInt>1) or above (thinInt<1);thinInt=999. uses the default value from tapio rules
  real (kind=8), intent(inout) :: energyCuts(nSites)  !!energCuts
@@ -65,7 +65,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer, intent(inout) :: flagFert(nSites) !!! flag that indicates if fertilization has already been applied along the rotation
  integer :: yearsFert !!actual number of years for fertilization (it depends if the thinning occur close to the end of the simulations)
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
- real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites), siteOrdX(nSites)
+ real(8) :: alfarFert(nYearsFert,maxNlayers),pDomRem, age(nSites), siteOrdX(nSites),fixAinitXX(nSites)
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
 !!! Nitrogen
  real (kind=8) :: UmaxFactor(nSites,maxYears,maxNlayers)
@@ -73,7 +73,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules !wdimpl
  logical :: disturbance_wind ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
 
- integer, intent(in) :: prebasFlags(7)
+ integer, intent(inout) :: prebasFlags(8)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -82,6 +82,8 @@ fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 CO2model = prebasFlags(7)
+fixAinitXX = multiOut(:,1,7,1,2)
+multiOut(:,1,7,1,2) = 0.
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
 
@@ -263,6 +265,8 @@ endif
   energyCutX = energyCuts(i)    !!energCuts
   thinningX(:,:) = -999.
   az = 0
+!fixAinit
+  prebasFlags(8) = int(fixAinitXX(i))
 
   if(ij > 1) then
    soilC(i,ij,:,:,1:nLayers(i)) = soilC(i,(ij-1),:,:,1:nLayers(i))
@@ -302,7 +306,11 @@ endif
   if(ij==int(yearXrepl(i)))then
   !if(ij==int(min(yearXrepl(i),maxYears)))then
    ! initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearXrepl(i)))
-   initClearcut(i,5) = int(initClearcut(i,5))
+   if(fixAinitXX(i)>0.) then
+    initClearcut(i,5) = int(fixAinitXX(i))
+   else
+    initClearcut(i,5) = int(initClearcut(i,5))
+   endif
    yearXrepl(i) = 0.
 
 !if scenario = "oldLayer" do not consider the old layer
@@ -394,7 +402,7 @@ endif
     weatherPRELES(climID,ij,:,:),DOY,pPRELES, &
     soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
     litterSize,soilCtot(i,ij),&
-    defaultThinX,ClCutX,energyCutX,inDclct(i,:),inAclct(i,:), & !!energCuts
+    defaultThinX,ClCutX,energyCutX,clct_pars(i,:,:), & !!energCuts
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,ETSstart(climID), &
@@ -432,12 +440,17 @@ else
  jj=nLayers(i)
 endif
   if(sum(output(1,11,1:jj,1))==0 .and. yearXrepl(i) == 0.) then
-   Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSstart(climID) + 2.25 + 2.0),2)
+  
+    if(fixAinitXX(i) > 0.) then
+	 Ainit = fixAinitXX(i)
+	else
+     Ainit = max(nint(6 + 2*siteInfo(i,3) - 0.005*ETSstart(climID) + 2.25 + 2.0),2)
    ! if((maxYears-ij)<10) then
      ! Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*ETSy(climID,ij) + 2.25 + 2.0) !! + 2.0 to account for the delay between planting and clearcut
    ! else
      ! Ainit = nint(6 + 2*siteInfo(i,3) - 0.005*(sum(ETSy(climID,(ij+1):(ij+10)))/10) + 2.25 + 2.0) !! + 2.0 to account for the delay between planting and clearcut
    ! endif
+	endif
    !!!!update area of cuttings
    cuttingArea(ij,2) = cuttingArea(ij,2) + areas(i) !calculate the clearcut area
    yearXrepl(i) = Ainit + ij + 1.

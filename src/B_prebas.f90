@@ -6,8 +6,8 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      nThinning,maxYearSite,fAPAR,initClearcut,&
      fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,&
       soilCinOut,pYasso,pAWEN,weatherYasso,&
-     litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,inDclct,&
-     inAclct,dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
+     litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,clct_pars,&
+     dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
      ftTapio,tTapio,GVout,thinInt, &
   flagFert,nYearsFert,mortMod,pECMmod,ETSstart, &
    siteInfoDist, outDist, prebasFlags, latitude,P00CN, TsumSBBs)
@@ -44,8 +44,6 @@ REAL (kind=8):: wrisk5dd1, wrisk5dd2, wrisk5dd3 !5-year wind risk of each damage
 REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol
 REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
 
-
-
  real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut  ! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
  !integer, intent(in) :: oldLayer !wdimpl, pflags
@@ -56,7 +54,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  integer, intent(inout) :: nYearsFert !!number of years for which the fertilization is effective
  real(8) :: alfarFert(nYearsFert,nLayers)
 !! define arguments, inputs and outputs
- real (kind=8), intent(in) :: inDclct(nSp), inAclct(nSp)! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
+ real (kind=8), intent(in) :: clct_pars(nSp,3)! parameters for clearcut (dbh, age). For mixed species is identified according to BA fraction.
  real (kind=8), intent(in) :: thinInt !parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
                     !thinInt=999. uses the default value from tapio rules
  ! integer, intent(in) :: siteThinning(nSites)
@@ -108,7 +106,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(30), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
 
 !management routines
- real (kind=8) :: A_clearcut, D_clearcut, BAr(nLayers), BA_tot, BA_lim, BA_thd, ETSthres = 1000
+ real (kind=8) :: A_clearcut, D_clearcut,H_clearcut, BAr(nLayers), BA_tot, BA_lim, BA_thd, ETSthres = 1000
  real (kind=8) :: dens_thd, dens_lim, Hdom_lim ! thinning parameters
 
 !define varibles
@@ -147,8 +145,8 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  !!user thinnings
  real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
  real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
- integer :: CO2model, etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(in) :: prebasFlags(7)
+ integer :: CO2model, AinitFix,etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
+integer, intent(inout) :: prebasFlags(8)
 
  !fire disturbances
  real (kind=8) :: dailySW(365)
@@ -165,7 +163,7 @@ fertThin = int(prebasFlags(3))
 oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
 CO2model = int(prebasFlags(7))
-
+AinitFix = int(prebasFlags(8))
 
 !!set disturbance flags
 ! set all dist to 0 and then choose based on flag
@@ -583,11 +581,13 @@ else
 endif
    if(sum(modOut(year,11,1:ij,1)) > 0.) yearX = 0
    if(sum(modOut(year,11,1:ij,1)) == 0. .and. yearX == 0) then
+    if(AinitFix < 1) then
   if((nYears-year)<10) then
       Ainit = max(nint(6. + 2*sitetype - 0.005*modOut(year,5,1,1) + 2.25 + 2.0),2)!! + 2.0 to account for the delay between planting and clearcut
   else
       Ainit = max(nint(6. + 2*sitetype - 0.005*(sum(modOut(year:(year+9),5,1,1))/10.) + 2.25 + 2.0),2)!! + 2.0 to account for the delay between planting and clearcut
   endif
+    endif
   yearX = Ainit + year
    endif
 
@@ -1382,12 +1382,14 @@ end do !!!!end loop species
  layer = int(domSp(1))
 if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year !wdimpl
   species = int(max(1.,stand_all(4,layer)))
-  D_clearcut = inDclct(species)
-  A_clearcut = inAclct(species)
+  D_clearcut = clct_pars(species,1)
+  A_clearcut = clct_pars(species,2)
+  H_clearcut = clct_pars(species,3)
   D = stand_all(12,layer)
   age = stand_all(7,layer)
 
-  if ((D > D_clearcut) .or. (age > A_clearcut).or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year
+  if ((D > D_clearcut) .or. (H > H_clearcut) .or. (age > A_clearcut).or. &
+       outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc-inducing wind dist in previous year
 
   if (outdist(max(INT(year-1),1), 9) == 1.)   outdist(year, 9) = 2. !set disturbance-induced cc flag to 2 (= 'conducted') otherwise, this triggers clearcuts over and over again...) !wdimpl
   ! modOut(year+1,1,2,2) = 1. !flag for clearcut
