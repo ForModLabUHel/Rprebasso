@@ -306,7 +306,7 @@ InitMultiSite <- function(nYearsMS,
     if(any(!is.na(inHclct[i,]))) inHclct[i,is.na(inHclct[i,])] <- max(inHclct[i,],na.rm=T)
     if(all(is.na(inHclct[i,]))) inHclct[i,] <- 999.99
   }
-  clct_pars <- array(c(inDclct,inAclct,inHclct), dim = c(nSites, nSp,3))
+  clct_pars <- array(c(inDclct,inAclct,inHclct), dim = c(nSites, ncol(pCROBAS),3))
   
   maxThin <- max(multiNthin)
   ###thinning if missing.  To improve
