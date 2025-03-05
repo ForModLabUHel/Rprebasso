@@ -176,7 +176,7 @@ InitMultiSite <- function(nYearsMS,
     siteInfo[,1] <- 1:nSites
   }
   if(ingrowth){
-    ingrowthStep <- 10
+    ingrowthStep <- 25
     # nTreeIngrowth <- 10
     nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
     siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers
