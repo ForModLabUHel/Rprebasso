@@ -187,7 +187,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
   }
   
   if(ingrowth){
-    ingrowthStep <- 10
+    ingrowthStep <- 25
     # nTreeIngrowth <- 10
     nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
     siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers
