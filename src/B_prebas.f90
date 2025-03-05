@@ -1159,7 +1159,7 @@ IF (thinning(countThinning,6) < STAND_tot(13)) siteInfoDist(2) = 0 !wdimpl, rese
   endif
   if(thinning(countThinning,4)==0.) then
      STAND(2) = 0. !!newX
-   STAND(8:21) = 0. !#!#
+     STAND(8:21) = 0. !#!#
      STAND(23:37) = 0. !#!#
      STAND(43:44) = 0. !#!#
    STAND(47:nVar) = 0. !#!#
