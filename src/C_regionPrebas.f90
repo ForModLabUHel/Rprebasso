@@ -73,7 +73,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules !wdimpl
  logical :: disturbance_wind ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
 
- integer, intent(inout) :: prebasFlags(8)
+ integer, intent(inout) :: prebasFlags(9)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -84,6 +84,8 @@ ECMmod = prebasFlags(5)
 CO2model = prebasFlags(7)
 fixAinitXX = multiOut(:,1,7,1,2)
 multiOut(:,1,7,1,2) = 0.
+! set ingrowtflag
+prebasFlags(9) = -777
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
 
@@ -416,10 +418,23 @@ endif
     ! close(2)
   ! endif
   if(oldLayer==1 .and. output(1,3,nLayers(i),2)>0.) then
-      multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
+     multiOut(i,ij:maxYears,3,nLayers(i),1) = output(1,3,nLayers(i),1)
      multiOut(i,ij:maxYears,3,nLayers(i),2) = output(1,3,nLayers(i),2)
   endif
 
+!!!!if the ingrowth layer was activated then update alfar
+if(prebasFlags(9) > 0) then
+	! yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
+	if(pCrobas(23,int(output(1,4,prebasFlags(9),1)))<0.d0) then
+     multiOut(i,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(i,3)-1.)
+     call calcAlfarFert(multiOut(i,:,3,prebasFlags(9),:),latitude(i), &
+      multiOut(i,:,4,prebasFlags(9),1), pCrobas,1,allSP,maxYears,npar, siteInfo(i,3),0.d0,pECMmod(6:8))
+    ! flagFert(i)=2
+    else
+     multiOut(i,:,3,prebasFlags(9),2) = output(1,3,prebasFlags(9),2)
+	endif
+	prebasFlags(9) = -777
+endif
 
   !!!if fertilization at thinning is active,  increase siteType
   if(flagFert(i)==1 .and. fertThin>0 .and. siteInfo(i,3)>3. .and. siteInfo(i,3)<6.) then

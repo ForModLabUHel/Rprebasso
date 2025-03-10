@@ -887,8 +887,9 @@ multiPrebas <- function(multiSiteInit,
                               multiSiteInit$ECMmod,
                               dist_flag,
                               multiSiteInit$CO2model,
-                              0))### fixAinit))
-
+                              0,### fixAinit
+                              -777)) ###ingrowth flag
+  
 ###modify alphar if fertilization is included
 if(!is.null(yearFert)){
   nSites <- multiSiteInit$nSites
@@ -1195,7 +1196,8 @@ regionPrebas <- function(multiSiteInit,
                               multiSiteInit$ECMmod,
                               dist_flag,
                               multiSiteInit$CO2model,
-                              0))### fixAinit
+                              0,### fixAinit
+                              -777)) ###ingrowth flag
 
 
   prebas <- .Fortran("regionPrebas",
@@ -1365,8 +1367,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                               multiSiteInit$ECMmod,
                               dist_flag,
                               multiSiteInit$CO2model,
-                              0)) ###fixAinit
-
+                              0,### fixAinit
+                              -777)) ###ingrowth flag
     if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)

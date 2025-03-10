@@ -146,7 +146,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
  real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
  integer :: CO2model, AinitFix,etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(inout) :: prebasFlags(8)
+integer, intent(inout) :: prebasFlags(9)
 
  !fire disturbances
  real (kind=8) :: dailySW(365)
@@ -1144,6 +1144,16 @@ endif
     species = int(max(1.,stand_all(4,layer)))
     stand(4) = max(1.,stand_all(4,layer))
     thinning(countThinning,2) = stand(4)
+	
+	
+	if(pCrobas(23,species)<0.) then
+     call calcAlfarFert(modOut(:,3,ij,:),latitude, &
+      modOut(:,4,i,1), pCrobas,1,nSp,maxYearSite,npar, siteInfo(3),0.d0,pECMmod(6:8))
+    else
+      modOut(:,3,ij,2) = pCrobas(int(20 + stand(3)),species)
+	endif
+	prebasFlags(9) = ij
+	
    endif
 !set species from thinning matrix (end)
    
