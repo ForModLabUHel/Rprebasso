@@ -88,7 +88,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites),fixAinitXX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
- integer, intent(inout) :: prebasFlags(8)
+ integer, intent(inout) :: prebasFlags(9)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -99,6 +99,8 @@ ECMmod = prebasFlags(5)
 CO2model = prebasFlags(7)
 fixAinitXX = multiOut(:,1,7,1,2)
 multiOut(:,1,7,1,2) = 0.
+! set ingrowtflag
+prebasFlags(9) = -777
 
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
@@ -503,8 +505,11 @@ endif
   endif
 
 
-
-
+!!!!if the ingrowth layer was activated then update alfar
+if(prebasFlags(9) > 0) then
+    multiOut(i,:,3,prebasFlags(9),2) = output(1,3,prebasFlags(9),2)
+	prebasFlags(9) = -777
+endif
 
 
   !!!if fertilization at thinning is active,  increase siteType

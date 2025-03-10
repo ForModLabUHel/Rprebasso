@@ -149,7 +149,7 @@ real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
 integer :: CO2model, AinitFix,etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(inout) :: prebasFlags(8)
+integer, intent(inout) :: prebasFlags(9)
 real (kind=8) :: dailySW(365)
 
 !fire disturbances
@@ -1074,6 +1074,10 @@ endif
 	species = int(max(1.,stand_all(4,layer)))
 	stand(4) = max(1.,stand_all(4,layer))
 	thinning(countThinning,2) = stand(4)
+	
+    modOut(:,3,ij,2) = pCrobas(int(20 + stand(3)),species)
+	prebasFlags(9) = ij
+	
    endif
 !set species from thinning matrix (end)
 

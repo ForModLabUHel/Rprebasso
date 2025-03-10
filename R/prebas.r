@@ -468,7 +468,8 @@ prebas <- function(nYears,
                             ECMmod,
                             dist_flag,
                             CO2model,
-                            fixAinit))
+                            fixAinit,
+                            -777)) ###ingrowth flag
   
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
