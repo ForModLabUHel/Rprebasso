@@ -62,7 +62,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
  integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
- integer, intent(inout) :: prebasFlags(8)
+ integer, intent(inout) :: prebasFlags(9)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)

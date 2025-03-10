@@ -796,7 +796,8 @@ multiPrebas <- function(multiSiteInit,
                               multiSiteInit$ECMmod,
                               dist_flag,
                               multiSiteInit$CO2model,
-                              0))  ## fixAinit
+                              0,### fixAinit
+                              -777)) ###ingrowth flag
   
 
   ###modify alphar if fertilization is included
@@ -1026,7 +1027,8 @@ if(ageHarvPrior>0){
                               multiSiteInit$ECMmod,
                               dist_flag,
                               multiSiteInit$CO2model,
-                              0))### fixAinit
+                              0,### fixAinit
+                              -777)) ###ingrowth flag
 
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -1228,7 +1230,8 @@ reStartRegionPrebas <- function(multiSiteInit,
                               multiSiteInit$ECMmod,
                               dist_flag,
                               multiSiteInit$CO2model,
-                              0)) ## fixAinit))
+                              0,### fixAinit
+                              -777)) ###ingrowth flag
 
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
