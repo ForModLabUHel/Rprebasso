@@ -404,6 +404,7 @@ if (ClCut > 0.5 .or. outdist(max(INT(year-1),1), 9) == 1.) then !outdist(,9): cc
   D_clearcut = clct_pars(species,1)
   A_clearcut = clct_pars(species,2)
   H_clearcut = clct_pars(species,3)
+  H = stand_all(11,layer)
   D = stand_all(12,layer)
   age = stand_all(7,layer)
 
