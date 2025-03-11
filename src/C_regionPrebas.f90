@@ -427,7 +427,7 @@ if(prebasFlags(9) > 0) then
 	! yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
 	if(pCrobas(23,int(output(1,4,prebasFlags(9),1)))<0.d0) then
      multiOut(i,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(i,3)-1.)
-     call calcAlfarFert(multiOut(i,:,3,prebasFlags(9),:),multiOut(i,:,5,1,1), &
+     call calcAlfarFert(multiOut(i,:,3,prebasFlags(9),:),latitude(i), &
       multiOut(i,:,4,prebasFlags(9),1), pCrobas,1,allSP,maxYears,npar, siteInfo(i,3),0.d0,pECMmod(6:8))
     ! flagFert(i)=2
     else
@@ -441,7 +441,7 @@ endif
 
     yearsFert = max(1,min(((nYears(i)) - ij-1),nYearsFert))
     multiOut(i,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(i,3)-1.)
-    call calcAlfarFert(multiOut(i,(ij):(ij+yearsFert-1),3,:,:),multiOut(i,(ij+1):(ij+yearsFert),5,1,1), &
+    call calcAlfarFert(multiOut(i,(ij):(ij+yearsFert-1),3,:,:),latitude(i), &
       multiOut(i,ij,4,:,1), pCrobas,nLayers(i),allSP,yearsFert,npar, siteInfo(i,3),deltaSiteTypeFert,pECMmod(6:8))
     flagFert(i)=2
   endif
@@ -770,7 +770,7 @@ endif
   if(flagFert(siteX)==1 .and. fertThin>0 .and. siteInfo(siteX,3)>3. .and. siteInfo(siteX,3)<6.) then
     yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
     multiOut(siteX,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
-    call calcAlfarFert(multiOut(siteX,(ij):(ij+yearsFert-1),3,:,:),multiOut(siteX,(ij+1):(ij+yearsFert),5,1,1), &
+    call calcAlfarFert(multiOut(siteX,(ij):(ij+yearsFert-1),3,:,:),latitude(siteX), &
     multiOut(siteX,ij,4,:,1), pCrobas,nLayers(siteX),allSP,yearsFert,npar, siteInfo(siteX,3),deltaSiteTypeFert,pECMmod(6:8))
 
     flagFert(siteX)=2
@@ -1032,7 +1032,7 @@ endif
 
     yearsFert = max(1,min(((nYears(siteX)) - ij-1),nYearsFert))
     multiOut(siteX,(ij):(ij+yearsFert-1),3,:,1) = max(1.,siteInfo(siteX,3)-1.)
-    call calcAlfarFert(multiOut(siteX,(ij):(ij+yearsFert-1),3,:,:),multiOut(siteX,(ij+1):(ij+yearsFert),5,1,1), &
+    call calcAlfarFert(multiOut(siteX,(ij):(ij+yearsFert-1),3,:,:),latitude(siteX), &
       multiOut(siteX,ij,4,:,1), pCrobas,nLayers(siteX),allSP,yearsFert,npar, siteInfo(siteX,3),deltaSiteTypeFert,pECMmod(6:8))
     flagFert(siteX)=2
   endif
