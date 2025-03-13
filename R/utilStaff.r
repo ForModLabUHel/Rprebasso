@@ -29,9 +29,6 @@ fHc_fol <- function(D,B,H, pCROB){
 
 
 
-
-
-
 #' Initial age of the seedlings
 #'
 #' @param SiteType Site type
