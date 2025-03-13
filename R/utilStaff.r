@@ -1,3 +1,32 @@
+# Derive HC from foliage mass this function is useful for databases like MS-NFI
+fHc_fol <- function(D,B,H, pCROB){
+  
+  # B basal area (m2)
+  # D diameter (cm)
+  # H height (m)
+  
+  VHc <- c()
+  
+  for(specid in 1:3){
+    
+    if(specid == 1){Wf <- 792.307 + 47.304 * B} # Pine
+    if(specid == 2) {Wf <- 15000 * (B / (B + 40))} # Spruce
+    if(specid == 3){Wf <- 0.5 *(792.307 + 47.304 * B)} # Birch
+    
+    
+    z <- pCROB[11,specid]
+    ksi <- pCROB[38,specid]
+    N <- B/(pi/4*(D/100)^2) # Number of trees
+    
+    wf <- Wf/N
+    L <- (wf/ksi)^(1/z)
+    VHc[specid] <- max(0.2,H-L) # Hc height to crown base
+    
+  }
+  return(VHc)
+}
+
+
 #' Initial age of the seedlings
 #'
 #' @param SiteType Site type
