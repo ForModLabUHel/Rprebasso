@@ -1211,7 +1211,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
      endif
 	      !!!check if ingrowth and calculate the number of trees
      if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
-	  BA = pi*((0.5d0/200.d0)**2.d0)*min((500.d0/minFapar),4000.d0)
+	  BA = pi*((0.5d0/200.d0)**2.d0)*min((500.d0/minFapar),2000.d0)
      else
       BA = thinning(countThinning,6)
      endif
