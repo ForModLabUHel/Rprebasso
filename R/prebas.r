@@ -344,7 +344,7 @@ prebas <- function(nYears,
   if(any(is.na(inHclct))) inHclct[which(is.na(inHclct))] <- 999.99
   if(length(inHclct)==1) inHclct<- rep(inHclct,nSp)
   
-  clct_pars <- rbind(inDclct,inAclct,inHclct)
+  clct_pars <- cbind(inDclct,inAclct,inHclct)
   
   ###if any initial value is given the model is initialized from plantation
   if (all(is.na(initVar))){
