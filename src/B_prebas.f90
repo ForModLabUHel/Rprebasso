@@ -1631,7 +1631,11 @@ if (N>0.) then
 
         !Height growth-----------------------
     f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr) - (theta * W_wsap)
-    f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
+    if(f1 < 0) then
+	  theta = 0.
+	  f1 = nppCost*10000 - (wf_STKG/par_vf) - (W_froot/par_vr)
+	endif
+	f2 = (par_z* (wf_STKG + W_froot + W_wsap)* (1-gammaC) + par_z * gammaC * (W_c + &
         par_zb *W_bs + beta0 * W_c) + betaC * W_s)
     dH = max(0.,((H-Hc) * f1/f2))
     Gf = par_z * wf_STKG/(H-Hc) * (1-gammac)*dH
