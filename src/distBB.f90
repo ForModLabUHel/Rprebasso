@@ -71,51 +71,56 @@ end subroutine
 ! age_spruce = Spruce age (maximum among spruce layers)
 ! SMI_Tprev = SMI from the previous year
 ! TsumSBB_Tprev2, TsumSBB_Tprev, TsumSBB_T: TsumSBB from the years t-2, t-1 and t (the current year)
-subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI) 
+subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype) 
 
   implicit none
   
-  real (kind=8), intent(in) :: TsumSBBs(4),BA_spruce,BAtot,age_spruce,SMI !TsumSBBs vector of four elements: three years ago,two years ago, previous year and current year
+  real (kind=8), intent(in) :: TsumSBBs(4),BA_spruce,BAtot,age_spruce,SMI,sitetype !TsumSBBs vector of four elements: three years ago,two years ago, previous year and current year
   real (kind=8), intent(inout) :: pBB(5)
   real (kind=8) :: BAspruceFract,PI_agespruce,PI_BAspruce
-  real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev,x,f0
+  real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev,x,f0, PI_sitetype
   real (kind=8) :: x1,x2,gen
-  real (kind=8) :: aspruceshare, aage, aBA, adrought,PI
+  real (kind=8) :: aspruceshare, aage, aBA, PI
 
 !!parameters
 ! Predisposition PI is a weighted sum of four PI_components:
-  aspruceshare = 0.3
-  aage = 0.25
-  aBA = 0.15
-  adrought = 0.3!max(1.-aspruceshare-aage-aBA,0.)
+  aspruceshare = 0.45
+  aage = 0.35
+  aBA = 0.2
+  ! adrought = 0.3!max(1.-aspruceshare-aage-aBA,0.)
   BAspruceFract=0.
   pBB = 0.
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
-  x0 = 0.75
-  k = -7.
+  x0 = 0.85
+  k = -5.5
   PI_spruceFract = 1./(1.+exp(k* (BAspruceFract - x0)))
 
 ! PI for age_spruce
-  x0 = 60.
-  k = -0.07
+  x0 = 30.
+  k = -0.13
   PI_agespruce = 1.0/(1.+exp(k* (age_spruce - x0)))
 
 ! BA_spruce
-  x0 = 27.
-  k = -0.250
+  x0 = 23.
+  k = -0.15
   PI_BAspruce = 1./(1.+exp(k* (BA_spruce - x0)))
 
-! SMI_Tprev
-  x0 = 0.88
-  k = 65.
-  PI_SMITprev = 1./(1.+exp(k* (SMI - x0)))
+! site type
+  x0 = 3.5
+  k = -0.7
+  PI_sitetype = 1./(1.+exp(k* (sitetype - x0)))
+
+! ! SMI_Tprev
+  ! x0 = 0.88
+  ! k = 65.
+  ! PI_SMITprev = 1./(1.+exp(k* (SMI - x0)))
 
 ! Zero probability for SBB if the long term temperature is not high enough 
   x = sum(TsumSBBs)/4.
-  x0 = 1.58
-  k = -16. 
+  x0 = 1.52
+  k = -13. 
   f0 = 1./(1.+exp(k* (x - x0)))
   ! if(f0 < 0.0001) then
    ! f0 =  0.
@@ -124,7 +129,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI)
   ! endif
 
   PI = (aspruceshare*PI_spruceFract + aage*PI_agespruce + &
-         aBA*PI_BAspruce + adrought*PI_SMITprev)
+         aBA*PI_BAspruce) *PI_sitetype
 
 ! GEN is the bark beetle generation index, which depends on temperature
    ! The previous year TsumSBB is used for bark beetle generations
@@ -197,14 +202,16 @@ subroutine bb_imp_mod(SMI,BA_spruceshare,dam_int)
   implicit none
   real(8), intent(in) :: SMI,BA_spruceshare
   real(8), intent(out) :: dam_int 
-  real(8) :: a, SHI
+  real(8) :: a, SHI,x0,k
 
 !!initialize parameters
 a = 1.
+x0 = 0.08
+k = -45.0
 
 SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
 
-dam_int = 1. /  (1. + exp(3.9725-2.9673 * SHI))
+dam_int = 1. /  (1. + exp(k * (SHI - x0)))
 
 end subroutine
 
