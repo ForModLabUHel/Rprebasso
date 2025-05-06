@@ -115,7 +115,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
  ! SMI_Tprev
   x0 = 0.88
   k = 40.
-  PI_SMIprev = 1./(1.+exp(k* (SMIprev - x0)))
+  PI_SMIprev = 1./(1.+exp(k* (SMI - x0)))
 
 ! Zero probability for SBB if the long term temperature is not high enough 
   x = sum(TsumSBBs)/4.
