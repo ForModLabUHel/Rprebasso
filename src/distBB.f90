@@ -98,13 +98,13 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   PI_spruceFract = 1./(1.+exp(k* (BAspruceFract - x0)))
 
 ! PI for age_spruce
-  x0 = 30.
-  k = -0.13
+  x0 = 50.
+  k = -0.09
   PI_agespruce = 1.0/(1.+exp(k* (age_spruce - x0)))
 
 ! BA_spruce
-  x0 = 23.
-  k = -0.15
+  x0 = 21.
+  k = -0.19
   PI_BAspruce = 1./(1.+exp(k* (BA_spruce - x0)))
 
 ! site type
@@ -114,13 +114,13 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
 
  ! SMI_Tprev
   x0 = 0.88
-  k = 40.
+  k = 50.
   PI_SMIprev = 1./(1.+exp(k* (SMI - x0)))
 
 ! Zero probability for SBB if the long term temperature is not high enough 
   x = sum(TsumSBBs)/4.
-  x0 = 1.52
-  k = -13. 
+  x0 = 1.58
+  k = -11. 
   f0 = 1./(1.+exp(k* (x - x0)))
   ! if(f0 < 0.0001) then
    ! f0 =  0.
@@ -129,7 +129,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   ! endif
 
   PI = (aspruceshare*PI_spruceFract + aage*PI_agespruce + &
-         aBA*PI_BAspruce) *PI_sitetype * PI_SMIprev
+         aBA*PI_BAspruce) * PI_sitetype * PI_SMIprev
 
 ! GEN is the bark beetle generation index, which depends on temperature
    ! The previous year TsumSBB is used for bark beetle generations
@@ -206,8 +206,8 @@ subroutine bb_imp_mod(SMI,BA_spruceshare,dam_int)
 
 !!initialize parameters
 a = 1.
-x0 = 0.08
-k = -45.0
+x0 = 0.09
+k = -50.0
 
 SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
 
