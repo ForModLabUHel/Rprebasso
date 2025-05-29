@@ -2434,3 +2434,63 @@ END DO
 ! close(1)
 endsubroutine
 
+
+
+subroutine alternative_chooseThin(H, BA, density, tTapio, ftTapio, thinning,BA_thd,dens_thd,doThin)
+  implicit none
+
+  real (kind=8),intent(out) :: thinning,BA_thd,dens_thd ! 1 for tapioTend, 2 for tapioFirstThin, 3 for tapioThin
+  real (kind=8),intent(in) :: H, density,BA !siteType; average ETS of the site
+  real (kind=8),intent(in) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) 
+  logical,intent(out) :: doThin
+  ! real (kind=8) :: pX1(3,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning; pX(7) height limit to move on to next thinning function
+  ! real (kind=8) :: pX2(2,7) !pX(1) = ETS threshold; pX(2)= densThd;  pX(3:4) height limits; pX(5:6) density after thinning; pX(7)  height limit to move on to next thinning function
+    real (kind=8) :: densityCT2, hCT2, hCT1, hPCT, densityCT1, densityPCT,dens_thd_CT1,BA_thd_CT2,dens_thd_PCT
+
+! log for testing 
+!open(1, file = "chooseThinLog.txt")
+
+! parameters for first thinning
+  densityPCT = ftTapio(1,1,1,1) 
+  hPCT = ftTapio(1,2,1,1) 
+  dens_thd_PCT = ftTapio(1,3,1,1) 
+
+! parameters for commercial thinning basend on tree density
+  densityCT1 = tTapio(1,1,1,1) 
+  hCT1 = tTapio(1,2,1,1)
+  dens_thd_CT1 = tTapio(1,3,1,1) 
+
+! parameters for commercial thinning basend on basal area
+  densityCT2 = tTapio(2,1,1,1) 
+  hCT2 = tTapio(2,2,1,1) 
+  BA_thd_CT2 = tTapio(2,3,1,1) 
+
+  doThin = .false.
+  thinning = 0.
+! writing test log 
+!write(1, *) "first thinning: density under", densityU1, "stems/ha or dheight over", hNext1, &
+!  "m; tending: density under", densityU2, "stems/ha or dheight over", hNext2, "m"
+
+! if the stand is already thinner than the thinning result or the dominant height is over the limit, we move on to tapioThin subroutine
+ if(density > densityCT2 .and. H > hCT2) then
+  thinning = 3. 
+  if(BA_thd_CT2 < 1.) BA_thd_CT2 = BA_thd_CT2 * BA 
+  BA_thd = BA_thd_CT2
+  doThin = .true.
+ endif
+  
+ if(density > densityCT1 .and. H > hCT1) then
+  thinning = 2. 
+  if(dens_thd_CT1 < 1.) dens_thd_CT1 = dens_thd_CT1 * density
+  dens_thd = dens_thd_CT1
+  doThin = .true.
+ endif
+  
+ if(density > densityPCT .and. H > hPCT) then
+  thinning = 1. 
+  if(dens_thd_PCT < 1.) dens_thd_PCT = dens_thd_PCT * density
+  dens_thd = dens_thd_PCT 
+  doThin = .true.
+ endif  
+
+end subroutine alternative_chooseThin
