@@ -1454,7 +1454,7 @@ endif
 
 !!!!test for thinnings!!!!
  !!!!!!!for coniferous dominated stands!!!!!!
-if(defaultThin == 1.) then
+if(defaultThin > 0.) then
   if(oldLayer==1) then
    ll=max((nLayers-1),1)
   else
@@ -1474,6 +1474,7 @@ if(defaultThin == 1.) then
  Hdom = pCrobas(42,species)*exp(-1/max((H-1.3),0.001))+pCrobas(43,species)*H
  Ntot = sum(STAND_all(17,:))
   !! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
+if(defaultThin == 1.) then
  call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)
  ! thinx = thinningType
 
@@ -1507,8 +1508,11 @@ if(defaultThin == 1.) then
     doThin = .false.
   endif
  endif
+endif
 
-
+if(defaultThin == 3.) then
+ call alternative_chooseThin(H, BA_tot, Ntot, tTapio, ftTapio, thinningType,BA_thd,dens_thd,doThin)
+endif
 
  if(doThin) then
 
