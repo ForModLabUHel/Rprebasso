@@ -142,7 +142,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers),deltaSiteTypeFert=1.
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
- logical :: doThin, early = .false., flagInitWithThin = .false.
+ logical :: doThin = .false., early = .false., flagInitWithThin = .false.
  real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
  !!user thinnings
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
@@ -1515,7 +1515,8 @@ if(defaultThin == 3.) then
 endif
 
  if(doThin) then
-
+   
+   doThin = .false. !reset to false
    siteInfoDist(2) = 0 !reset counter for time since thinning (wind dist model predictor)
 
  !!!fertilization at thinning
