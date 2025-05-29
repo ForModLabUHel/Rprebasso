@@ -140,7 +140,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
 !v1 version definitions
  real (kind=8) :: theta,Tdb=10.,f1,f2, Gf, Gr,mort
  real (kind=8) :: ETSmean, BAtapio(2), tapioOut(3)
- logical :: doThin, early = .false., flagInitWithThin = .false. !wdimpl
+ logical :: doThin = .false., early = .false., flagInitWithThin = .false. !wdimpl
  real (kind=8) :: Hdom,thinClx(nYears,2),pDomRem, randX
  !!user thinnings
  real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
@@ -1538,7 +1538,7 @@ endif
 
 !!!!test for thinnings!!!!
  !!!!!!!for coniferous dominated stands!!!!!!
-if(defaultThin == 1.) then
+if(defaultThin > 0.) then
   if(oldLayer==1) then
    ll=max((nLayers-1),1)
   else
@@ -1557,44 +1557,53 @@ if(defaultThin == 1.) then
  ! counting the dominant height of the dominant species
  Hdom = pCrobas(42,species)*exp(-1/max((H-1.3),0.001))+pCrobas(43,species)*H
  Ntot = sum(STAND_all(17,:))
-  !! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
- call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)
- ! thinx = thinningType
+ 
+ if(defaultThin == 1.) then
+ 
+	  !! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
+	 call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)
+	 ! thinx = thinningType
 
- if(thinningType == 3.) then
-  call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)
-  BA_lim = BAtapio(1) ! BA limit to start thinning
-  BA_thd = BAtapio(2) ! BA after thinning
-  if(BA_tot > BA_lim) then
-    doThin = .true.
-  else
-    doThin = .false.
-  endif
- else if(thinningType == 2.) then
-  call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
-  Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
-  dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
-  dens_thd = tapioOut(3) ! density after thinning
-  if(Hdom > Hdom_lim .and. Ntot > dens_lim) then
-    doThin = .true.
-  else
-    doThin = .false.
-  endif
- else if(thinningType == 1.) then
-  call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
-  Hdom_lim = tapioOut(1)! Hdom limit to start thinning
-  dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
-  dens_thd = tapioOut(3) ! density after thinning
-  if(Hdom > Hdom_lim .and. Ntot > dens_lim) then
-    doThin = .true.
-  else
-    doThin = .false.
-  endif
+	 if(thinningType == 3.) then
+	  call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)
+	  BA_lim = BAtapio(1) ! BA limit to start thinning
+	  BA_thd = BAtapio(2) ! BA after thinning
+	  if(BA_tot > BA_lim) then
+		doThin = .true.
+	  else
+		doThin = .false.
+	  endif
+	 else if(thinningType == 2.) then
+	  call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
+	  Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
+	  dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	  dens_thd = tapioOut(3) ! density after thinning
+	  if(Hdom > Hdom_lim .and. Ntot > dens_lim) then
+		doThin = .true.
+	  else
+		doThin = .false.
+	  endif
+	 else if(thinningType == 1.) then
+	  call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
+	  Hdom_lim = tapioOut(1)! Hdom limit to start thinning
+	  dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
+	  dens_thd = tapioOut(3) ! density after thinning
+	  if(Hdom > Hdom_lim .and. Ntot > dens_lim) then
+		doThin = .true.
+	  else
+		doThin = .false.
+	  endif
+	 endif
+ endif
+
+ if(defaultThin == 3.) then
+  call alternative_chooseThin(H, BA_tot, Ntot, tTapio, ftTapio, thinningType,BA_thd,dens_thd,doThin)
  endif
 
 
  if(doThin) then
-   siteInfoDist(2) = 0 !reset counter for time since thinning (wind dist model predictor) !wdimpl
+  doThin = .false. !reset to false
+  siteInfoDist(2) = 0 !reset counter for time since thinning (wind dist model predictor) !wdimpl
 
  !!!fertilization at thinning
   if(fertThin == 3 .and. flagFert<1 .and. siteType>3. .and. siteType<6.) then
