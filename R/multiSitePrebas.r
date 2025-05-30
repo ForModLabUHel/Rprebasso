@@ -345,6 +345,10 @@ InitMultiSite <- function(nYearsMS,
     }
   }
   multiThin[is.na(multiThin)] <- -999
+  for(i in 1:nSites){
+    multiThin[i,,1][which(multiThin[i,,1]<1)] <- 999
+    multiThin[i,,] <- multiThin[i,order(multiThin[i,,1]),]
+  } 
   
   ###PROCESS weather inputs for prebas
   multiweather <- array(-999,dim=c(nClimID,maxYears,365,5))
