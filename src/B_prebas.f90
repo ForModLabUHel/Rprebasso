@@ -132,7 +132,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: r_RT, rm_aut_roots, litt_RT, exud(nLayers), P_RT
  real (kind=8) :: Cost_m, normFactETS !normFactP,!!Cost_m is the "apparent maintenance respiration" rate of fine roots when C input to the fungi has been taken into account.
  real (kind=8) :: deltaSiteTypeFert = 1. !!!variation in siteType after fertilization
- real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(10), fTaweNH(4)
+ real (kind=8) :: Gw, dWw, Sc, Sb, St, CN, Nup, Ndem, nitpar(10), fTaweNH(4) 
  real (kind=8) :: ncount,apu,TAir, UmaxFactor,Umax,Precip, Nout(3,nLayers,2)
 
 !fix parameters
