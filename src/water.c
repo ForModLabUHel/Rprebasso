@@ -16,7 +16,7 @@ double ETfun(double D, double theta, double ppfd, double fAPAR, double T,
 
   extern double fCO2_ET_model_mean(int CO2model, double CO2, p2 GPP_par);
 
-  double pow();
+  // double pow();
   double thetavol = theta/Site_par.soildepth; 
   double REW=(thetavol-Site_par.ThetaPWP)/
     (Site_par.ThetaFC-Site_par.ThetaPWP);
