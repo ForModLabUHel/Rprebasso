@@ -180,7 +180,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
   
   nSites <- 7
   siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118), nSites, 12, byrow = T)
-  if (is.na(SiteType)) {
+  if (all(is.na(SiteType))) {
     SiteType <- 3
     warning("siteType 3 was assigned to all sites since SiteType was not provided")
   }
