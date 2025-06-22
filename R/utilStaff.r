@@ -1,3 +1,44 @@
+###regression model for the drained peatland forested sites (paper reference)
+peat_regression_model <- function(BA,Tseason,siteType,peat_reg_pars=peat_regression_pars,maxsiteType = 5){
+  siteType <- min(siteType,maxsiteType)
+  p_st <- peat_reg_pars$p_st[siteType]
+  p_ba <- peat_reg_pars$p_ba
+  p_Tseason <- peat_reg_pars$p_Tseason
+  rh <- p_st + p_ba * BA + p_Tseason * Tseason
+  return(rh)
+}
+
+###multisite version of regression model for the drained peatland forested sites (paper reference)
+peat_regression_model_multiSite <- function(modOut,peat_sites,peat_regr_pars=peat_regression_pars,max_siteType = 5){
+  
+  peat_sites <- sort(peat_sites)
+  
+  siteTypes <- modOut$siteInfo[peat_sites,3] 
+  if(modOut$maxNlayers==1){
+    BA <- modOut$multiOut[peat_sites,,13,1,1]
+  }else{
+    BA <- apply(modOut$multiOut[peat_sites,,13,,1],1:2,sum)
+  }
+  
+  Tseason <- apply(modOut$weather[peat_sites,,121:304,2],1:2,mean)
+  
+  Rh_peat <- peat_regression_model(BA,Tseason,siteTypes,peat_regr_pars,max_siteType) * 12/44 #converts CO2 equivalents to gC m-2-y
+  Rh_mineral <- apply(modOut$multiOut[peat_sites,,45,,1],1:2,sum)
+  NEP_mineral <- apply(modOut$multiOut[peat_sites,,46,,1],1:2,sum)
+  
+  Rh_net <- Rh_peat - Rh_mineral
+  NEP_peat <- NEP_mineral - Rh_net
+  
+  ####repleace values
+  modOut$multiOut[peat_sites,,45,,1] <- 0
+  modOut$multiOut[peat_sites,,46,,1] <- 0
+  modOut$multiOut[peat_sites,,45,1,1] <- Rh_peat
+  modOut$multiOut[peat_sites,,46,1,1] <- NEP_peat
+  
+  return(modOut)
+}
+
+
 # Derive HC from foliage mass this function is useful for databases like MS-NFI
 fHc_fol <- function(D,B,H, pCROB){
   

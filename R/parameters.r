@@ -1,3 +1,8 @@
+###parameter list for the drained peatland forested sites (paper reference)
+peat_regression_pars <- list(p_st = c(-1383,-1440,-1662,-1771,-1814),
+                             p_ba = 14.74,
+                             p_Tseason = 242.8)
+
 ####CO2 model parameters
 pCO2model <- matrix(NA,2,2)
 pCO2model[1,] <- c(0.5,-0.364)
