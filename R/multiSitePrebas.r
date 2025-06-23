@@ -138,7 +138,7 @@ InitMultiSite <- function(nYearsMS,
   }
   
   if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROBAS),,]
-  if(all(is.na(tTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
+  if(all(is.na(ftTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
   
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
     if(length(disturbanceON)==1){
