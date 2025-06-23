@@ -212,8 +212,8 @@ prebas <- function(nYears,
     pPRELES[12:13] <- pCO2model[CO2model,]
   }
   
-  if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROB),,]
-  if(all(is.na(tTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROB),,]
+  if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROBAS),,]
+  if(all(is.na(tTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
   
   #process disturbance flags
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
