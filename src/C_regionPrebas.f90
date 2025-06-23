@@ -27,7 +27,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
- real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7),mortMod(2), latitude(nSites),P00CN(nSites)
+ real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2), latitude(nSites),P00CN(nSites)
  real (kind=8), intent(inout) :: TsumSBBs(nSites,4)
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
