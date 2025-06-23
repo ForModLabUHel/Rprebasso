@@ -1565,7 +1565,7 @@ if(defaultThin > 0.) then
 	 ! thinx = thinningType
 
 	 if(thinningType == 3.) then
-	  call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer,nSp)
+	  call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)
 	  BA_lim = BAtapio(1) ! BA limit to start thinning
 	  BA_thd = BAtapio(2) ! BA after thinning
 	  if(BA_tot > BA_lim) then

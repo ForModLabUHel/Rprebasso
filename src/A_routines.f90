@@ -1013,7 +1013,7 @@ END SUBROUTINE calW
 !  subroutine to calculate the BA limits (ba_lim) and the to apply thinnings
 !  and the BA after thinnings are applied (ba_thd)
 !***************************************************************
-subroutine tapioThin(forType,siteType,ETSmean,Hdom,tapioPars,baThin,BAthdPer, BAlimPer,nSp)
+subroutine tapioThin(forType,siteType,ETSmean,Hdom,tapioPars,baThin,BAthdPer, BAlimPer)
 
 	implicit none
     real (kind=8),dimension(2) :: baThin
