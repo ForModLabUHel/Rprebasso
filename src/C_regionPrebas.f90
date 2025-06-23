@@ -46,7 +46,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
- real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7),mortMod(2)
+ real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
  real (kind=8), intent(inout) :: siteInfo(nSites,10), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
@@ -75,7 +75,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
 
  integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
- real (kind=8) :: tTapioX(5,3,2,7), ftTapioX(5,3,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
+ real (kind=8) :: tTapioX(5,allSP,2,7), ftTapioX(5,allSP,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
 
 !!!!fAPAR minimum for ingrowth calculations
 real (kind=8) :: minFapar,fAparFactor=0.9

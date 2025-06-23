@@ -480,9 +480,9 @@ ccTapio[5,3,3,1:5] <- c(1200, 1000, 999, 999, 60)
 
 # parameters for tapioFirstThin subroutine
 # no thinning types included
-ftTapio <- array(NA,dim = c(5,3,3,7),dimnames = list(
+ftTapio <- array(999,dim = c(5,ncol(pCROB),3,7),dimnames = list(
   c("sType1","sType2","sType3","sType4","sType5"),
-  c("pine","spruce", "betula pendula"),
+  colnames(pCROB),
   c("SouthCentre","North early", "North late"), ### different parameters for early and late first thinning in Northern Finland
   #  c("selection", "low", "only one"), # thinning type
   c("ETSthrd", ###ets threshold, 
@@ -558,9 +558,9 @@ ftTapio[5,3,3,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
 
 # parameters for tapioTend subroutine
 # exception: dense sown pine stands (VT) 3-4 m 2500-3000 - not included now
-tTapio <- array(NA,dim = c(5,3,2,7),dimnames = list(
+tTapio <- array(999,dim = c(5,ncol(pCROB),2,7),dimnames = list(
   c("sType1","sType2","sType3","sType4","sType5"),
-  c("pine","spruce", "betula pendula"),
+  colnames(pCROB),
   c("SouthCentre","North"), 
   c("ETSthrd", ###ets threshold, 
     "thinMin-%", ### how many % over the upper thinning result there needs to be wood to do the thinning (1 is 100 %)

@@ -27,7 +27,7 @@ implicit none
  integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
  real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(4)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
- real (kind=8), intent(inout) :: tTapio(5,3,2,7), ftTapio(5,3,3,7) ! Tending and first thinning parameter.
+ real (kind=8), intent(inout) :: tTapio(5,nSp,2,7), ftTapio(5,nSp,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
@@ -1067,10 +1067,13 @@ endif
   If (countThinning <= nThinning .and. time==inttimes) Then
    If (year == int(thinning(countThinning,1)) .and. ij == int(thinning(countThinning,3))) Then! .and. siteNo == thinning(countThinning,2)) Then
 
-
 !set species from thinning matrix (strart)
    species = int(thinning(countThinning,2))
    stand(4) = thinning(countThinning,2)
+   D = STAND_all(12,ij)
+   H = STAND_all(11,ij)
+   BA = STAND_all(13,ij)
+   
      !!!check if ingrowth and calculate dominant species
    if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
     domSp = maxloc(STAND_all(13,:))
@@ -1081,7 +1084,6 @@ endif
 	
     modOut(:,3,ij,2) = pCrobas(int(20 + stand(3)),species)
 	prebasFlags(9) = ij
-	
    endif
 !set species from thinning matrix (end)
 
@@ -1475,11 +1477,11 @@ if(defaultThin > 0.) then
  Ntot = sum(STAND_all(17,:))
   !! here we decide what thinning function to use; 3 = tapioThin, 2 = tapioFirstThin, 1 = tapioTend
 if(defaultThin == 1.) then
- call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType)
+ call chooseThin(species, siteType, ETSmean, Ntot, Hdom, tTapio, ftTapio, thinningType,nSp)
  ! thinx = thinningType
 
  if(thinningType == 3.) then
-  call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer)
+  call tapioThin(pCrobas(28,species),siteType,ETSmean,Hdom,tapioPars,BAtapio,thdPer,limPer,nSp)
   BA_lim = BAtapio(1) ! BA limit to start thinning
   BA_thd = BAtapio(2) ! BA after thinning
   if(BA_tot > BA_lim) then
@@ -1488,7 +1490,7 @@ if(defaultThin == 1.) then
     doThin = .false.
   endif
  else if(thinningType == 2.) then
-  call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut)
+  call tapioFirstThin(pCrobas(28,species),siteType,ETSmean,ftTapio,limPer,thdPer,early,tapioOut,nSp)
   Hdom_lim = tapioOut(1) ! Hdom limit to start thinning
   dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
   dens_thd = tapioOut(3) ! density after thinning
@@ -1498,7 +1500,7 @@ if(defaultThin == 1.) then
     doThin = .false.
   endif
  else if(thinningType == 1.) then
-  call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut)
+  call tapioTend(pCrobas(28,species),siteType,ETSmean,tTapio,limPer,thdPer,tapioOut,nSp)
   Hdom_lim = tapioOut(1)! Hdom limit to start thinning
   dens_lim = tapioOut(2) ! density limit to start thinning; both need to be reached
   dens_thd = tapioOut(3) ! density after thinning
@@ -1510,8 +1512,9 @@ if(defaultThin == 1.) then
  endif
 endif
 
-if(defaultThin == 3.) then
- call alternative_chooseThin(H, BA_tot, Ntot, tTapio, ftTapio, thinningType,BA_thd,dens_thd,doThin)
+if(defaultThin > 1.) then
+ call alternative_chooseThin(int(defaultThin),H, stand_all(7,layer),BA_tot, Ntot, tTapio, &
+				ftTapio, thinningType,BA_thd,dens_thd,doThin,nSp)
 endif
 
  if(doThin) then

@@ -104,8 +104,8 @@ InitMultiSite <- function(nYearsMS,
                           tapioPars=pTapio,
                           thdPer = NA,
                           limPer = NA,
-                          ftTapioPar = ftTapio,
-                          tTapioPar = tTapio,
+                          ftTapioPar = NA,
+                          tTapioPar = NA,
                           GVrun = 1,
                           thinInt = -999.,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
@@ -135,6 +135,8 @@ InitMultiSite <- function(nYearsMS,
     pPRELES <- pPREL
     pPRELES[12:13] <- pCO2model[CO2model,]
   }
+  if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROB),,]
+  if(all(is.na(tTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROB),,]
   
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
     if(length(disturbanceON)==1){
@@ -328,11 +330,12 @@ InitMultiSite <- function(nYearsMS,
     thinX[,,11] <- 1
     thinX[,,1] <- matrix(yearIngrowth,nSites,length(yearIngrowth),byrow = T)
     thinX[,,2] <- matrix(siteInfo[,1],nSites,length(yearIngrowth))
-    thinX[,,3] <- matrix((maxNlayers-nIngrowthLayers+1):maxNlayers,nSites,length(yearIngrowth),byrow = T)
+    # thinX[,,3] <- matrix((maxNlayers-nIngrowthLayers+1):maxNlayers,nSites,length(yearIngrowth),byrow = T)
     thinX[,,4] <- initSeedling.def[1]
     thinX[,,5] <- initSeedling.def[2]
     thinX[,,7] <- initSeedling.def[4]
     thinX[,,6] <- -777#nTreeIngrowth*(pi*((initSeedling.def[2]/2/100)^2))
+    for(rrr in 1:nSites) thinX[rrr,,3] <- (nLayers[rrr] - length(yearIngrowth) + 1):nLayers[rrr]
     
     if(!all(is.na(multiThin))){
       multiThin <- abind(multiThin,thinX,along=2)
