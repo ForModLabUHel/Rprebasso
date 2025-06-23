@@ -176,8 +176,8 @@ prebas <- function(nYears,
                    tapioPars=pTapio,
                    thdPer=0.5,
                    limPer=0.5,
-                   ftTapioPar = ftTapio,
-                   tTapioPar = tTapio,
+                   ftTapioPar = NA,
+                   tTapioPar = NA,
                    GVrun = 1, ###flag for Ground vegetation model 1-> runs the GV model
                    thinInt=-999.,
                    fertThin=0.,
@@ -211,6 +211,9 @@ prebas <- function(nYears,
     pPRELES <- pPREL
     pPRELES[12:13] <- pCO2model[CO2model,]
   }
+  
+  if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROBAS),,]
+  if(all(is.na(tTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
   
   #process disturbance flags
   if(all(unique(disturbanceON) %in% c("fire","wind","bb",NA))){
