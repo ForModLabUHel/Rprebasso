@@ -79,7 +79,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   real (kind=8), intent(inout) :: pBB(5)
   real (kind=8) :: BAspruceFract,PI_agespruce,PI_BAspruce
   real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev,x,f0, PI_sitetype, PI_SMIprev
-  real (kind=8) :: x1,x2,gen
+  real (kind=8) :: x1,x2,gen,a0,PI_SMIave, ks,p
   real (kind=8) :: aspruceshare, aage, aBA, PI
 
 !!parameters
@@ -93,19 +93,19 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
-  x0 = 0.85
-  k = -5.5
-  PI_spruceFract = 1./(1.+exp(k* (BAspruceFract - x0)))
+  a0=2.1457 
+  k=1.1311
+  PI_spruceFract = min(1., k * BAspruceFract **a0)
 
 ! PI for age_spruce
-  x0 = 50.
-  k = -0.09
-  PI_agespruce = 1.0/(1.+exp(k* (age_spruce - x0)))
-
+  a0=1.1719 
+  k = 0.0057
+  PI_agespruce = min(1., k * age_spruce**a0)
+  
 ! BA_spruce
-  x0 = 21.
-  k = -0.19
-  PI_BAspruce = 1./(1.+exp(k* (BA_spruce - x0)))
+  a0=1.4203 
+  k=0.0063
+  PI_BAspruce = min(1., k * BA_spruce**a0)
 
 ! site type
   x0 = 3.5
@@ -113,15 +113,16 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   PI_sitetype = 1./(1.+exp(k* (sitetype - x0)))
 
  ! SMI_Tprev
-  x0 = 0.88
-  k = 50.
-  PI_SMIprev = 1./(1.+exp(k* (SMI - x0)))
+  x = SMI!sum(SMIs)/4.
+  ks=0.1077 
+  p=-3.6561
+  PI_SMIave = ks**p/(ks**p+x**p)
 
 ! Zero probability for SBB if the long term temperature is not high enough 
   x = sum(TsumSBBs)/4.
-  x0 = 1.58
-  k = -11. 
-  f0 = 1./(1.+exp(k* (x - x0)))
+  a0=11.1869 
+  k=0.0034
+  f0 = min(1., k * x**a0)
   ! if(f0 < 0.0001) then
    ! f0 =  0.
   ! else
@@ -129,7 +130,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   ! endif
 
   PI = (aspruceshare*PI_spruceFract + aage*PI_agespruce + &
-         aBA*PI_BAspruce) * PI_sitetype * PI_SMIprev
+         aBA*PI_BAspruce) * PI_sitetype * PI_SMIave
 
 ! GEN is the bark beetle generation index, which depends on temperature
    ! The previous year TsumSBB is used for bark beetle generations
@@ -202,16 +203,17 @@ subroutine bb_imp_mod(SMI,BA_spruceshare,dam_int)
   implicit none
   real(8), intent(in) :: SMI,BA_spruceshare
   real(8), intent(out) :: dam_int 
-  real(8) :: a, SHI,x0,k
+  real(8) :: a, SHI,x0,k,a0
 
 !!initialize parameters
 a = 1.
-x0 = 0.09
-k = -50.0
 
 SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
 
-dam_int = 1. /  (1. + exp(k * (SHI - x0)))
+a0=1.198 
+k=9.1572
+dam_int = min(1., k * SHI**a0)
+! dam_int = 1. /  (1. + exp(k * (SHI - x0)))
 
 end subroutine
 
