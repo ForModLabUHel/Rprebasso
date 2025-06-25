@@ -79,7 +79,7 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   real (kind=8), intent(inout) :: pBB(5)
   real (kind=8) :: BAspruceFract,PI_agespruce,PI_BAspruce
   real (kind=8) :: x0, k, PI_spruceFract,PI_SMITprev,x,f0, PI_sitetype, PI_SMIprev
-  real (kind=8) :: x1,x2,gen
+  real (kind=8) :: x1,x2,gen,n
   real (kind=8) :: aspruceshare, aage, aBA, PI
 
 !!parameters
@@ -93,9 +93,9 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   if(BAtot>0.) BAspruceFract = BA_spruce/BAtot
 
 ! PI for BA spruceFract
-  x0 = 0.85
-  k = -5.5
-  PI_spruceFract = 1./(1.+exp(k* (BAspruceFract - x0)))
+  n = 2.
+  k = 1.
+  PI_spruceFract = min(1., k*BAspruceFract**n)
 
 ! PI for age_spruce
   x0 = 50.
@@ -103,10 +103,10 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype)
   PI_agespruce = 1.0/(1.+exp(k* (age_spruce - x0)))
 
 ! BA_spruce
-  x0 = 21.
-  k = -0.19
-  PI_BAspruce = 1./(1.+exp(k* (BA_spruce - x0)))
-
+  n = 1.4
+  k = 0.0068
+  PI_BAspruce = min(1., k* BA_spruce**n)
+ 
 ! site type
   x0 = 3.5
   k = -0.7
@@ -202,16 +202,15 @@ subroutine bb_imp_mod(SMI,BA_spruceshare,dam_int)
   implicit none
   real(8), intent(in) :: SMI,BA_spruceshare
   real(8), intent(out) :: dam_int 
-  real(8) :: a, SHI,x0,k
+  real(8) :: a, SHI,x0,k,n
 
 !!initialize parameters
-a = 1.
-x0 = 0.09
-k = -50.0
+  a = 1.
+  n = 1.3
+  k = 11.6566
 
-SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
-
-dam_int = 1. /  (1. + exp(k * (SHI - x0)))
+  SHI = min(1.,(1.-SMI)/a)* BA_spruceshare
+  dam_int = min(1., k*SHI**n)
 
 end subroutine
 
