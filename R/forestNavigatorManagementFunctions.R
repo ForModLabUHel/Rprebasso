@@ -345,7 +345,7 @@ sw_bau_QueRob <- function(initPrebas,siteXs,
 #'
 #' @examples
 forest_management_update <- function(initPrebas, forest_type_management_tab, country, management){
-  available_countries <- c("sweden","sinland")
+  available_countries <- c("sweden","finland")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                             " is not between the available countries: ", available_countries,fill = TRUE))
