@@ -347,8 +347,10 @@ sw_bau_QueRob <- function(initPrebas,siteXs,
 forest_management_update <- function(initPrebas, forest_type_management_tab, country, management){
   available_countries <- c("Sweden","Finland")
   available_managements <- c("BAU", "NoHarv")
-  if(!country %in% available_countries) stop(paste0("This country: ",country," is not between the available countries: ", available_countries))
-  if(!management %in% available_managements) stop(paste0("This management: ", management, " is not between the available managements: ", available_managements))
+  if(!country %in% available_countries) stop(cat("This country: ", country,
+                            " is not between the available countries: ", available_countries,fill = TRUE))
+  if(!management %in% available_managements) stop(cat("This management: ", management, 
+                            " is not between the available managements: ", available_managements,fill = TRUE))
   if(country == "Sweden" & management=="BAU"){
     ##find the sites with alternative management##
     pop_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PopTr_CC")])
