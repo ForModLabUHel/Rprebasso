@@ -169,7 +169,7 @@
      STAND(31) = W_stem
      STAND(32) = W_croot
     !STAND(42) = Vold - V + STAND(42)!* min(1.,-dN*step/Nold)
-    STAND(42) = (Vold - V)*(1-pHarvTrees) + STAND(42)!* min(1.,-dN*step/Nold)
+     STAND(42) = (Vold - V)*(1-pHarvTrees) + STAND(42)!* min(1.,-dN*step/Nold)
      STAND(47) = W_wsap
      STAND(48) = W_c
      STAND(49) = W_s
@@ -179,7 +179,7 @@
      STAND(51) = Wdb
 
     outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
-pHarvTrees = 0
+    pHarvTrees = 0
   endif !x6
 
      STAND(11) = H
