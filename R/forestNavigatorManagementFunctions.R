@@ -331,3 +331,42 @@ sw_bau_QueRob <- function(initPrebas,siteXs,
   
   return(initPrebas)
 }
+
+
+#' management function updater (ForestNavigator)
+#'
+#' @param initPrebas Rprebasso initialization object for multisite created by the InitMultiSite function
+#' @param forest_type_management_tab Table with forest management (for_man) by forest type (forest_type) and siteID (site)
+#' @param country Country of simulations. Choose between: Sweden
+#' @param management type of management. choose between: BAU
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+forest_management_update <- function(initPrebas, forest_type_management_tab, country, management){
+  available_countries <- c("Sweden","Finland")
+  available_managements <- c("BAU", "NoHarv")
+  if(!country %in% available_countries) stop(cat("This country: ", country,
+                            " is not between the available countries: ", available_countries,fill = TRUE))
+  if(!management %in% available_managements) stop(cat("This management: ", management, 
+                            " is not between the available managements: ", available_managements,fill = TRUE))
+  if(country == "Sweden" & management=="BAU"){
+    ##find the sites with alternative management##
+    pop_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PopTr_CC")])
+    alnus_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "AlnSp_CC")])
+    quercus_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "QueSp_SW")])
+    pinco_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PinCo_CC")])
+    fagus_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "FagSy_SW")])
+    ##----##
+    
+    ## update the initialization##
+    initPrebas <- sw_bau_pop(initPrebas,pop_sites)
+    initPrebas <- sw_bau_AlnSp(initPrebas,alnus_sites)
+    initPrebas <- sw_bau_QueRob(initPrebas,quercus_sites)
+    initPrebas <- sw_bau_piCo(initPrebas,pinco_sites)
+    initPrebas <- sw_bau_fagsy(initPrebas,fagus_sites)
+    ##----##
+  }
+  return(initPrebas)    
+}
