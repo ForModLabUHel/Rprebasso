@@ -38,7 +38,7 @@ if(disturbance_bb) then !!!!mortality caused by bark beetle is switched off for 
    outt(43,:,2)=BAdist! BAdist = intenSpruce * rBAspruce * STAND_all(13,:)
 
 !!!! management reaction flags are updated (start)
- vdam = sum(outt(43,:,2)/outt(13,:,1) * outt(30,:,1)) !calculate roughly the damaged volume based on BAdamaged and tot ba ratio
+ vdam = sum(outt(43,:,2))/sum(outt(13,:,1)) * sum(outt(30,:,1)) !calculate roughly the damaged volume based on BAdamaged and tot ba ratio
  pHarvTrees = 0.
 
 
