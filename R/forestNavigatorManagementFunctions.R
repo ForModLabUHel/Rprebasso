@@ -352,6 +352,19 @@ forest_management_update <- function(initPrebas, forest_type_management_tab, cou
   if(!management %in% available_managements) stop(cat("This management: ", management, 
                                                       " is not between the available managements: ", available_managements,fill = TRUE))
   if(country == "Sweden" & management=="bau"){
+    
+    if(dim(initPrebas$ftTapioPar)[2] < 12){
+      dims <- dim(initPrebas$ftTapioPar)
+      ftTapioPar <- array(999,dim = c(5,12,3,7))
+      ftTapioPar[1:dims[1],1:dims[2],1:dims[3],1:dims[4]] <- initPrebas$ftTapioPar
+      initPrebas$ftTapioPar <- ftTapioPar
+    }
+    if(dim(initPrebas$tTapioPar)[2] < 12){
+      dims <- dim(initPrebas$tTapioPar)
+      tTapioPar <- array(999,dim = c(5,12,3,7))
+      tTapioPar[1:dims[1],1:dims[2],1:dims[3],1:dims[4]] <- initPrebas$tTapioPar
+      initPrebas$tTapioPar <- tTapioPar
+    }
     ##find the sites with alternative management##
     pop_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PopTr_CC")])
     alnus_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "AlnSp_CC")])
@@ -361,11 +374,11 @@ forest_management_update <- function(initPrebas, forest_type_management_tab, cou
     ##----##
     
     ## update the initialization##
-    initPrebas <- sw_bau_pop(initPrebas,pop_sites)
-    initPrebas <- sw_bau_AlnSp(initPrebas,alnus_sites)
-    initPrebas <- sw_bau_QueRob(initPrebas,quercus_sites)
-    initPrebas <- sw_bau_piCo(initPrebas,pinco_sites)
-    initPrebas <- sw_bau_fagsy(initPrebas,fagus_sites)
+    if(length(pop_sites)>0) initPrebas <- sw_bau_pop(initPrebas,pop_sites)
+    if(length(alnus_sites)>0) initPrebas <- sw_bau_AlnSp(initPrebas,alnus_sites)
+    if(length(quercus_sites)>0) initPrebas <- sw_bau_QueRob(initPrebas,quercus_sites)
+    if(length(pinco_sites)>0) initPrebas <- sw_bau_piCo(initPrebas,pinco_sites)
+    if(length(fagus_sites)>0) initPrebas <- sw_bau_fagsy(initPrebas,fagus_sites)
     ##----##
   }
   return(initPrebas)    
