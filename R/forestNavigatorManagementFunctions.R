@@ -345,13 +345,13 @@ sw_bau_QueRob <- function(initPrebas,siteXs,
 #'
 #' @examples
 forest_management_update <- function(initPrebas, forest_type_management_tab, country, management){
-  available_countries <- c("sweden","finland")
+  available_countries <- c("Sweden","Finland")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                             " is not between the available countries: ", available_countries,fill = TRUE))
   if(!management %in% available_managements) stop(cat("This management: ", management, 
                             " is not between the available managements: ", available_managements,fill = TRUE))
-  if(country == "sweden" & management=="bau"){
+  if(country == "Sweden" & management=="bau"){
     ##find the sites with alternative management##
     pop_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PopTr_CC")])
     alnus_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "AlnSp_CC")])
