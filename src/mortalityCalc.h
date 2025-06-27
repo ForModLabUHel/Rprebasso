@@ -1,4 +1,5 @@
 !Reineke mortality model
+  STAND_all(42,:) = 0.
 
 if (mortMod==1. .or. mortMod==3.) then 
    do ij = 1 , nLayers     !loop Species
