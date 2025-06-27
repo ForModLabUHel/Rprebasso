@@ -1,12 +1,12 @@
 !!!! Bark beetle CALCULATIONS !!!!
-  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(4)) 
+  call TsumSBBfun(latitude,weatherPRELES(year,:,2),TsumSBBs(4))
   if(TsumSBBs(1)<=-998.) then   !!!initialize the first three years this will be done only in the first year of the simulations if the inputs are not provvided
    TsumSBBs(1:3) = TsumSBBs(4)
   endif
   if(year > 1) then
    SMIt0 = modOut(year,46,1,2)
   else
-   if(SMIt0 < -998.d0) SMIt0 = SMI !!if year 1 SMIt0 is the same of first year  
+   if(SMIt0 < -998.d0) SMIt0 = SMI !!if year 1 SMIt0 is the same of first year
   endif
   call spruceVars(outt((/4,7,13/),:,1),nLayers,(/2,10/),2,spruceStandVars,rBAspruce)
   call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),(SMI+SMIt0)/2.,outt(3,1,1))
@@ -15,8 +15,8 @@
   !modOut((year+1),45,1,2) = pBB(1)
   outt(45,:,2) = 0.
   outt(45,1,2) = pBB(1)
-  TsumSBBs(1:3) = TsumSBBs(2:4)  
-  
+  TsumSBBs(1:3) = TsumSBBs(2:4)
+
 !calculate intensity
   if(spruceStandVars(3)>0.) then
    call bb_imp_mod(SMIt0,spruceStandVars(1)/spruceStandVars(3),intenSpruce)
@@ -54,6 +54,8 @@ if(disturbance_bb) then !!!!mortality caused by bark beetle is switched off for 
    !if(vdam>=5.) then ! threshold for salvage logging
    ! call random_number(rndm)
    ! if(rndm<=siteInfoDist(10)) then
+   pHarvTrees = 1. ! if sampled for salvlog set pHarvTrees
+   outDist(year,7) = 1. !indicate salvage logging in output
    outDist(year,9) = 1. !indicate clearcut
    outDist(year,8) = 1. !mgmtreact = T in order to include cc harvests towards meeting harvlim (and not after it's been met if lower in siteorder...)
    ! endif
@@ -68,7 +70,7 @@ endif
 
   endif !endif BB attack
 endif
-  
+
 !!reupdate output after bark beetle dist
   outt(:,:,1) = STAND_all
   modOut((year+1),2,:,:) = outt(2,:,:)
