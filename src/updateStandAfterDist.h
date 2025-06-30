@@ -1,7 +1,7 @@
 !update stand after a disturbance
 
- ! 
- ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+ !
+ ! !!!!!check litterfall!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    if(sum(BAdist) > 0.) then !!! ADD CONDITION for occurence of wind disturbance wdimp x3
 
    !BA_tot = sum(STAND_all(13,:))
@@ -10,7 +10,7 @@
      ! perBAmort = 0.1
        ! write(1,*) "disturbance", year, pMort, perBAmort
    do ij = 1 , nLayers     !loop Species xl1
-    
+
     BAmort = BAdist(ij)
     dN=0.d0
     STAND=STAND_all(:,ij)
@@ -59,12 +59,12 @@
     par_fAb = param(46)
     par_fAc = param(47)
 
-     !!!!update kRein and cR   
-    !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-    if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-    !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-    if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
-!activate 
+     !!!!update kRein and cR
+    !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided
+    if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein)
+    !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided
+    if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR)
+!activate
    if (year > maxYearSite) then !x4
      STAND(2) = 0. !!newX
      STAND(8:21) = 0. !#!#
@@ -118,12 +118,12 @@
 !      if(BAmort(ij) > 0. .and. maxval(wriskLayers(:,1)) == 0) then !check if mortality occurs UPDATE: only activated if there is no wind disturbance wdimp
       !dN = -Nold * (BAmort/(BA/BAr(ij)))
      dN = -Nold * (BAmort/BA)
-     
+
     ! elseif(maxval(wriskLayers(:,1)) > 0) then !wdimp define dN based on layer-level disturbed ba
     ! !  dN = -Nold * (BAmort/(BA/BAr(ij)))
     !   dN = -Nold * (wriskLayers(ij,6)/BA) !disturbed layer ba/layer ba
     else
-      dN = 0.  
+      dN = 0.
      endif
 
    !!!update variables
@@ -177,11 +177,20 @@
      STAND(53) = W_bh
      STAND(54) = W_crh
      STAND(51) = Wdb
+     !! allocating salvage logging to current (regionPrebas harvlimit not met when site is checked or all mgmt switched off) or next year (some mgmt allowed / harvlimit exceeded)
+     if(ClCut == 0. .and. defaultThin == 0.) then ! either mgmt switched off entirely or blocked due to harvest limit being met
+         !outt(42,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)*harvRatio !salvnext save salvlogged layer-level vol here to be included in next year's harvest limit in regionPrebas (harvRatio otherwise applied when going from ,,30,,2 to ,,37,,1)
+         outt(42,ij,2) = max((Vold-V)*pHarvTrees,0.)*harvRatio !update replacing the above: outt(30,ij,2) shouldn't be included; in practice, this could carry over the year of disturbance salvage logging to the year AFTER the mgmt reaction... test!
+         ! cont.: by if condition, there can't be any harvests in this stand in this year anyway...
+         outDist(year,10) = 2. ! test flag to check if harvlim is met when doing mgmt reaction/salvage logging
+     elseif(ClCut > 0. .or. defaultThin > 0.) then
+         outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
+         pHarvTrees = 0
+         outDist(year,10) = 1. ! test flag to check if harvlim is met when doing mgmt reaction/salvage logging
 
-    outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
-    pHarvTrees = 0
+    ! outt(30,ij,2) = outt(30,ij,2) + max((Vold-V)*pHarvTrees,0.)
+    ! pHarvTrees = 0
   endif !x6
-
      STAND(11) = H
      STAND(12) = D
      STAND(13) = BA ! * par_ops2
@@ -196,7 +205,7 @@
 endif !x4
 !//activate
     STAND_all(:,ij)=STAND
+  endif
     end do !!!!!!!end loop layers xl1
  endif !bamort>0... x3
-!  ! 
-
+!  !
