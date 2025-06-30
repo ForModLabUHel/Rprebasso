@@ -71,11 +71,11 @@ sw_bau_fagsy <- function(initPrebas,siteXs,
   
   nlayers <- dim(initPrebas$multiInitVar)[3]
   maxYear <- initPrebas$maxYears
-
+  
   layerX <- 1
   thinningX <- list()
   for(ij in siteXs){
-
+    
     thin_def2 <- thin_def
     thin_def2[,1] <- thin_def[,1] + max(thin_def[,1])
     thinning_def_X <- rbind(thin_def,thin_def2)
@@ -85,34 +85,34 @@ sw_bau_fagsy <- function(initPrebas,siteXs,
     thinning_def_X[,1] <- yearSims
     sel <- which(thinning_def_X[,1]>0 & thinning_def_X[,1]<maxYear+1)
     thinning_def_X <- thinning_def_X[sel,]
-
+    
     for(i in 1:initPrebas$nLayers[ij]){
       # if(initPrebas$multiInitVar[ij,5,i]>0){ #check if active site
-        thinning_layer <- thinning_def_X
-        thinning_layer[,2] <- initPrebas$multiInitVar[ij,1,i]
-        thinning_layer[,3] <- i
-        if(i==1){
-          thinning_new=thinning_layer
-        }else{
-          thinning_new <- rbind(thinning_new,thinning_layer)
-        }
+      thinning_layer <- thinning_def_X
+      thinning_layer[,2] <- initPrebas$multiInitVar[ij,1,i]
+      thinning_layer[,3] <- i
+      if(i==1){
+        thinning_new=thinning_layer
+      }else{
+        thinning_new <- rbind(thinning_new,thinning_layer)
+      }
       # }
     }
     thinningAll <- rbind(thinning_new,initPrebas$thinning[ij,1:initPrebas$nThinning[ij],])
     thinningAll <- thinningAll[order(thinningAll[,1], thinningAll[,3]), ]
-
+    
     thinningX[[as.character(ij)]] <- thinningAll
   }
   
   maxNthin <- max(sapply(thinningX, nrow))
   maxNthin <- max(initPrebas$maxThin,maxNthin)
-
+  
   initPrebas$maxThin <- maxNthin
-
+  
   thinning <- array(0,dim=c(initPrebas$nSites,maxNthin,11))
   thinning[,,9:10] <- -999
   thinning[,,11] <- 1
-
+  
   for(i in 1:initPrebas$nSites){
     thinning[i,1:initPrebas$nThinning[i],] <- initPrebas$thinning[i,1:initPrebas$nThinning[i],]
   }
@@ -128,14 +128,14 @@ sw_bau_fagsy <- function(initPrebas,siteXs,
 
 ####Sweeden BAU piCo###
 sw_bau_piCo <- function(initPrebas,siteXs,
-                       speciesID=5,
-                       # ftDens_before=1800, ####minimum density before precommercial thinning (first thinning)
-                       # ftH_before=5, ####minimum H before precommercial thinning (first thinning)
-                       # ftDens_target=1600, ####target density after precommercial thinning (first thinning)
-                       tDens_before=900, ####minimum density before commercial thinning
-                       tAge_before=30, ####minimum H before commercial thinning
-                       tDens_target=800, ####target density after commercial thinning
-                       age_Clcut = 55){
+                        speciesID=5,
+                        # ftDens_before=1800, ####minimum density before precommercial thinning (first thinning)
+                        # ftH_before=5, ####minimum H before precommercial thinning (first thinning)
+                        # ftDens_target=1600, ####target density after precommercial thinning (first thinning)
+                        tDens_before=900, ####minimum density before commercial thinning
+                        tAge_before=30, ####minimum H before commercial thinning
+                        tDens_target=800, ####target density after commercial thinning
+                        age_Clcut = 55){
   
   initPrebas$ftTapioPar[1,speciesID,1,1:3] <- 99999.
   initPrebas$tTapioPar[,speciesID,1,1:3] <- 99999.
@@ -203,14 +203,14 @@ sw_bau_AlnSp <- function(initPrebas,siteXs,
     
     for(i in 1:initPrebas$nLayers[ij]){
       # if(initPrebas$multiInitVar[ij,5,i]>0){ #check if active site
-        thinning_layer <- thinning_defX
-        thinning_layer[,2] <- initPrebas$multiInitVar[ij,1,i]
-        thinning_layer[,3] <- i
-        if(i==1){
-          thinning_new=thinning_layer
-        }else{
-          thinning_new <- rbind(thinning_new,thinning_layer)
-        }
+      thinning_layer <- thinning_defX
+      thinning_layer[,2] <- initPrebas$multiInitVar[ij,1,i]
+      thinning_layer[,3] <- i
+      if(i==1){
+        thinning_new=thinning_layer
+      }else{
+        thinning_new <- rbind(thinning_new,thinning_layer)
+      }
       # }
     }
     thinningAll <- rbind(thinning_new,initPrebas$thinning[ij,1:initPrebas$nThinning[ij],])
@@ -259,8 +259,8 @@ thinning_def_quercus[5,] <- c(120,1,1,1,1,0.,1,1,-999,-999,1)  #final cut
 # thinning_def_fagus[13,] <- c(135,1,1,1.5,0.5,0.035,0.1,0,-999,-999,1) #replanting
 
 sw_bau_QueRob <- function(initPrebas,siteXs,
-                         ClCut_year=120, #130 ####if ClCut_year is NA the ingrowth layers are not removed at clearcut
-                         thin_def=thinning_def_quercus ####default thinning matrix for fagus
+                          ClCut_year=120, #130 ####if ClCut_year is NA the ingrowth layers are not removed at clearcut
+                          thin_def=thinning_def_quercus ####default thinning matrix for fagus
 ){
   
   initPrebas$defaultThin[siteXs] <- 0
@@ -348,10 +348,23 @@ forest_management_update <- function(initPrebas, forest_type_management_tab, cou
   available_countries <- c("Sweden","Finland")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
-                            " is not between the available countries: ", available_countries,fill = TRUE))
+                                                 " is not between the available countries: ", available_countries,fill = TRUE))
   if(!management %in% available_managements) stop(cat("This management: ", management, 
-                            " is not between the available managements: ", available_managements,fill = TRUE))
+                                                      " is not between the available managements: ", available_managements,fill = TRUE))
   if(country == "Sweden" & management=="bau"){
+    
+    if(dim(initPrebas$ftTapioPar)[2] < 12){
+      dims <- dim(initPrebas$ftTapioPar)
+      ftTapioPar <- array(999,dim = c(5,12,3,7))
+      ftTapioPar[1:dims[1],1:dims[2],1:dims[3],1:dims[4]] <- initPrebas$ftTapioPar
+      initPrebas$ftTapioPar <- ftTapioPar
+    }
+    if(dim(initPrebas$tTapioPar)[2] < 12){
+      dims <- dim(initPrebas$tTapioPar)
+      tTapioPar <- array(999,dim = c(5,12,3,7))
+      tTapioPar[1:dims[1],1:dims[2],1:dims[3],1:dims[4]] <- initPrebas$tTapioPar
+      initPrebas$tTapioPar <- tTapioPar
+    }
     ##find the sites with alternative management##
     pop_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PopTr_CC")])
     alnus_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "AlnSp_CC")])
@@ -361,11 +374,11 @@ forest_management_update <- function(initPrebas, forest_type_management_tab, cou
     ##----##
     
     ## update the initialization##
-    initPrebas <- sw_bau_pop(initPrebas,pop_sites)
-    initPrebas <- sw_bau_AlnSp(initPrebas,alnus_sites)
-    initPrebas <- sw_bau_QueRob(initPrebas,quercus_sites)
-    initPrebas <- sw_bau_piCo(initPrebas,pinco_sites)
-    initPrebas <- sw_bau_fagsy(initPrebas,fagus_sites)
+    if(length(pop_sites)>0) initPrebas <- sw_bau_pop(initPrebas,pop_sites)
+    if(length(alnus_sites)>0) initPrebas <- sw_bau_AlnSp(initPrebas,alnus_sites)
+    if(length(quercus_sites)>0) initPrebas <- sw_bau_QueRob(initPrebas,quercus_sites)
+    if(length(pinco_sites)>0) initPrebas <- sw_bau_piCo(initPrebas,pinco_sites)
+    if(length(fagus_sites)>0) initPrebas <- sw_bau_fagsy(initPrebas,fagus_sites)
     ##----##
   }
   return(initPrebas)    
