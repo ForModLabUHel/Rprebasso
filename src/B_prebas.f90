@@ -1913,7 +1913,8 @@ modOut(year+1,5,1,2) = ETSmean
 
 FDI(:) = 0. 
   call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, & 
-    weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),FDI,n_fire_year)
+    weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)), &
+	weatherPRELES(year,:,4),FDI,n_fire_year,latitude)
 
   modOut((year+1),47,:,2) = 0.
   modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
