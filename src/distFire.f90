@@ -48,7 +48,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
  moistfactor = 0.3
  moistfactor_livegrass = 0.2
  
- lig_a=1.
+ lig_a=0.02
 
  !Fire risk modelling
 ! Fuel load in g/m2
