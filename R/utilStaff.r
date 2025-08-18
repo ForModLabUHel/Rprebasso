@@ -20,7 +20,7 @@ peat_regression_model_multiSite <- function(modOut,peat_sites,peat_regr_pars=pea
     BA <- apply(modOut$multiOut[peat_sites,,13,,1],1:2,sum)
   }
   
-  Tseason <- apply(modOut$weather[peat_sites,,121:304,2],1:2,mean)
+  Tseason <- apply(modOut$weather[modOut$siteInfo[peat_sites,"climID"],,121:304,2],1:2,mean)
   
   Rh_peat <- peat_regression_model(BA,Tseason,siteTypes,peat_regr_pars,max_siteType) * 12/44 #converts CO2 equivalents to gC m-2-y
   Rh_mineral <- apply(modOut$multiOut[peat_sites,,45,,1],1:2,sum)
