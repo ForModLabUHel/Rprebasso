@@ -27,6 +27,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
 
 
 !initialize
+ lightnings = 0.01
  Cpool_litter_wood(:) = Cpool_litter_woodIn
  Cpool_litter_green(:) = Cpool_litter_greenIn
  ! NI(:) = 0.0
@@ -48,14 +49,14 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
  moistfactor = 0.3
  moistfactor_livegrass = 0.2
  
- lig_a=0.02
+ ! lig_a=0.02
 
  !Fire risk modelling
 ! Fuel load in g/m2
  fuel_1hr = Cpool_litter_green*frac_green_active+Cpool_litter_wood*frac_1hr_wood
  fuel_10hr = Cpool_litter_wood*frac_10hr_wood
- fuel_100hr = frac_100hr_wood*frac_100hr_wood
- fuel_1000hr = frac_1000hr_wood*frac_1000hr_wood
+ fuel_100hr = Cpool_litter_wood*frac_100hr_wood
+ fuel_1000hr = Cpool_litter_wood*frac_1000hr_wood
 
  fuel_1to100hr_sum = fuel_1hr+fuel_10hr+fuel_100hr
  ratio_dead_fuel = fuel_1to100hr_sum / (fuel_1to100hr_sum + livegrass)
@@ -92,7 +93,7 @@ enddo
 
 ! those should be arguments in the function from Juvaskyla data 
  popden = 36 
- lightnings = 0.1*(1.+latitude*latitude/900.)*lig_a
+ ! lightnings = 0.1*(1.+latitude*latitude/900.)*lig_a
  a_nd = 0.11
  param = 6.8
 
