@@ -10,7 +10,7 @@ TransectRun(
   species = NA,
   nYears = 100,
   pCROBAS = pCROB,
-  pPRELES = pPREL,
+  pPRELES = NA,
   AgeEffect = F,
   defaultThin = 1,
   multiThin = NA,
@@ -23,6 +23,7 @@ TransectRun(
   pYASSO = pYAS,
   pAWEN = parsAWEN,
   multiInitClearCut = NA,
+  fixAinit = 0,
   fixBAinitClearcut = 1,
   initCLcutRatio = NA,
   multiP0 = NA,
@@ -33,6 +34,7 @@ TransectRun(
   soilCtot = NA,
   inDclct = NA,
   inAclct = NA,
+  inHclct = NA,
   yassoRun = 0,
   smoothP0 = 1,
   smoothETS = 1,
@@ -55,6 +57,7 @@ TransectRun(
   fT0AvgCurrClim = NA,
   soilPar = NA,
   alpharVersion = 1,
+  siteInfoDist = NA,
   modVersion = "multiSite",
   nYearsFert = 20,
   yearFert = NULL,
@@ -63,7 +66,10 @@ TransectRun(
   TsumSBBs = matrix(-999, 7, 4),
   SMIt0 = rep(-999, 7),
   TminTmax = NA,
-  soilC_steadyState = FALSE
+  soilC_steadyState = FALSE,
+  disturbanceON = NA,
+  ingrowth = FALSE,
+  CO2model = 2
 )
 }
 \arguments{
@@ -83,67 +89,23 @@ TransectRun(
 
 \item{defaultThin}{If defaultThin = 1 (default) Finnish standard management practices are applied (ref).}
 
-\item{multiThin}{A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
+\item{multiThin}{A array with thinnig inputs. Three dimensions: nSites x maxThin x 9. The first dimension is the number of sites. The second dimension, maxThin, is the number of thinnings. For the third demention, element 1 is year from the start of the simulation; element 2 is siteID; element 3 layer where thinnings are carried out; element 4 to 7 stand variables (H, D, B, Hc); element 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); element 9 is the stand density after thinning if its value is not -999.}
 
-\item{multiNthin}{}
+\item{multiNthin}{A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).}
 
 \item{ClCut}{Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.}
 
 \item{energyCut}{Energy cutting strategy will be applied if set to 1. Default value is 0.}
 
-\item{GVrun}{}
-
-\item{pHcMod}{}
-
-\item{etmodel}{}
-
-\item{pYASSO}{}
-
-\item{pAWEN}{}
-
 \item{multiInitClearCut}{A Matrix: matrix(initClearcut,NoOfSites,5,byrow = T), where initClearcut includes those 5 variables H,dbh,BA,HC,AC, same with 'initSeedling.def'}
 
-\item{fixBAinitClearcut}{}
-
-\item{initCLcutRatio}{}
-
-\item{multiP0}{}
-
-\item{soilC}{}
+\item{fixAinit}{= NA,}
 
 \item{weatherInput}{##list of weather inputs for PRELES: each variables is a matrix with nrow=nSites,columns=number of days in the simulations}
 
-\item{weatherYasso}{}
-
-\item{litterSize}{}
-
-\item{soilCtot}{}
-
-\item{inDclct}{}
-
-\item{inAclct}{}
-
-\item{yassoRun}{}
-
-\item{smoothP0}{}
-
-\item{smoothETS}{}
-
-\item{smoothYear}{}
+\item{inHclct}{}
 
 \item{HcModV}{flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1}
-
-\item{tapioPars}{}
-
-\item{thdPer}{}
-
-\item{limPer}{}
-
-\item{ftTapioPar}{}
-
-\item{tTapioPar}{}
-
-\item{thinInt}{}
 
 \item{mortMod}{flag for the mortality model selection (1= Reineke, 2= random (Siilipehto, 2020), 3= both models)}
 
@@ -154,8 +116,6 @@ TransectRun(
 \item{pCN_alfar}{Matrix of parameters (columns are species)for alfar calculations based on CN ratio. Use parsCN_alfar as default values}
 
 \item{fertThin}{!!! flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3}
-
-\item{latitude}{}
 
 \item{alpharNcalc}{#alphar calculations based on Nitrogen availability}
 
@@ -178,6 +138,12 @@ TransectRun(
 \item{TminTmax}{array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations}
 
 \item{soilC_steadyState}{flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year}
+
+\item{disturbanceON}{flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb")}
+
+\item{ingrowth}{# flag to simulate ingrowth}
+
+\item{CO2model}{CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari)}
 }
 \value{
 The output from multiPrebas()
