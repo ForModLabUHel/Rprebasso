@@ -191,8 +191,8 @@ do ij = startSimYear,maxYears
      else
         siteHarv(i)=0.
      endif
-  enddo
-  HarvLim(ij,1) = HarvLim(ij,1) * sum(siteHarv)
+   enddo
+   HarvLim(ij,1) = HarvLim(ij,1) * sum(siteHarv)
    energy_flag = 1.
   endif
  endif
