@@ -1994,7 +1994,7 @@ subroutine calcAlfar(siteTypeOriginal,species,pCrobas,nLayers,siteTalfar,nSp,nYe
     siteTalfar(1:(nYearsFert/2),i,2) = alfarFert(i)
     slope = (alfarUnfert(i) - alfarFert(i))/(nYearsFert/2+1.-0.)
     interc = alfarFert(i) - slope*1.
-    siteTalfar((nYearsFert/2+1):nYearsFert,i,2) = slope*(/2.,3.,4.,5.,6.,7.,8.,9.,10.,11./) + interc
+    siteTalfar((nYearsFert/2+1):nYearsFert,i,2) = slope* real((/(i, i = 2, nYearsFert/2+1)/), kind=8) + interc
   enddo
   
 end subroutine calcAlfar  
