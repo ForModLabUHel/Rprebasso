@@ -241,8 +241,8 @@ ETSmean = sum(ETSy)/nYears
  ! modOut(1,17,:,1) = modOut(1,13,:,1)/(pi*((modOut(1,12,:,1)/2/100)**2))
  ! modOut(1,35,:,1) =  modOut(1,13,:,1)/modOut(1,17,:,1)
  !init siteType
- modOut(1,3,:,:) = output(1,3,:,:) ! assign site type and alfar
- modOut(2:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
+ modOut((nYears+1),3,:,:) = output(nYears,3,:,:) ! assign site type and alfar
+ modOut(1:nYears,3,:,:) = output(:,3,:,:) ! assign site type and alfar
  soilCtot(1) = sum(soilC(1,:,:,:)) !assign initial soilC
  modOut(:,45,:,1) = 0. !set heterotrophic respiration to 0
  do i = 1,nLayers
