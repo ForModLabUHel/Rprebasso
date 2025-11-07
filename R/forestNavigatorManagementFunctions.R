@@ -286,7 +286,7 @@ sw_bau_QueRob <- function(initPrebas,siteXs,
     thin_def2 <- thin_def
     thin_def2[,1] <- thin_def[,1] + max(thin_def[,1])
     thinning_def_X <- rbind(thin_def,thin_def2)
-    yearSims <- thinning_def_X[,1] - initPrebas$multiInitVar[ij,2,layerX]
+    yearSims <- thinning_def_X[,1] - min(initPrebas$multiInitVar[ij,2,layerX],ClCut_age)
     lines_to_move <- which(yearSims<1)
     yearSims_lasts <- max(yearSims) + thinning_def_X[lines_to_move,1]
     thinning_def_X[,1] <- yearSims
@@ -397,7 +397,7 @@ bau_in_thinningMatrix <- function(initPrebas,siteXs,
     thinning_def2[,1] <- thin_def[,1] + ClCut_age
     thinning_def3[,1] <- thin_def[,1] + 2*ClCut_age
     thinning_defX <- rbind(thin_def,thinning_def2,thinning_def3)
-    yearSims <- thinning_defX[,1] - initPrebas$multiInitVar[ij,2,layerX]
+    yearSims <- thinning_defX[,1] - min(initPrebas$multiInitVar[ij,2,layerX],ClCut_age)
     lines_to_move <- which(yearSims<1)
     yearSims_lasts <- max(yearSims) + thinning_defX[lines_to_move,1]
     thinning_defX[,1] <- yearSims
