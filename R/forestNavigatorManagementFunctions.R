@@ -338,7 +338,9 @@ sw_bau_QueRob <- function(initPrebas,siteXs,
 ####bau processing using a thinning matrix inputs
 ####this function was used for estonia BAU
 bau_in_thinningMatrix <- function(initPrebas,siteXs,
-                         ClCut_age, #130 ####if ClCut_age is NA the ingrowth layers are not removed at clearcut
+                         ClCut_age,
+                         Clcut_D = 9999,
+                         Clcut_H = 9999,
                          nTree_seedlings,
                          year_seedling,
                          yearThin,
@@ -354,6 +356,7 @@ bau_in_thinningMatrix <- function(initPrebas,siteXs,
   
   
   nThinMat <- length(yearThin)
+  initPrebas$defaultThin[siteXs] <- 0
   
   # names(thinning) <- c("year","species","layer","H","D","B","Hc","frac_flag","N","Ac","pHarvTrees")
   thin_def <- matrix(0,(nThinMat+1),11) ###create thinning matrix
@@ -380,8 +383,9 @@ bau_in_thinningMatrix <- function(initPrebas,siteXs,
   }else{
     ####if ClCut_age is active remove all trees also from ingrowth
     initPrebas$ClCut[siteXs] <- 1
+    initPrebas$clct_pars[siteXs,,1] <- ClCut_D
     initPrebas$clct_pars[siteXs,,2] <- ClCut_age
-    initPrebas$clct_pars[siteXs,,c(1,3)] <- 9999
+    initPrebas$clct_pars[siteXs,,3] <- ClCut_H
     thin_def <- thin_def[-nrow(thin_def),]
   }
   if(!is.matrix(thin_def)) thin_def <- matrix(thin_def,nrow=1)
@@ -543,8 +547,52 @@ est_bau_pars_def$QueSp_SW$baThin = c(1,1,0.2,0.5)
 est_bau_pars_def$QueSp_SW$dens_after_Thin = c(400,200,-999,-999)
 
 
+#denmark parameters
+##PicAb_CC, PinSy_CC
+den_bau_pars_def$conif$ClCut_age = 65
+den_bau_pars_def$conif$ClCut_D = 45
+den_bau_pars_def$conif$nTree_seedlings = 2700
+den_bau_pars_def$conif$year_seedling = 3
+den_bau_pars_def$conif$yearThin = c(35,45)
+den_bau_pars_def$conif$baThin = c(0.75,0.75)
+# den_bau_pars_def$conif$dens_after_Thin = c(-999,-999)
 
+##FagSy_SW_High
+den_bau_pars_def$FagSy_SW_High$ClCut_age = 115
+# den_bau_pars_def$FagSy_SW_High$ClCut_D = 65
+den_bau_pars_def$FagSy_SW_High$nTree_seedlings = 3500
+den_bau_pars_def$FagSy_SW_High$year_seedling = 3
+den_bau_pars_def$FagSy_SW_High$yearThin = c(15,25,35,45,55,65,75,85,95,105)
+den_bau_pars_def$FagSy_SW_High$baThin = c(0.80,0.80,0.80,0.9,0.9,0.9,0.9,0.9,0.75,0.7)
+den_bau_pars_def$FagSy_SW_High$hThin = c(1.02,1.02,1.02,0.98,0.98,0.98,0.98,0.98,0.75,0.7)
+den_bau_pars_def$FagSy_SW_High$dbhThin = c(1.02,1.02,1.02,0.98,0.98,0.98,0.98,0.98,0.75,0.7)
+# den_bau_pars_def$conif$dens_after_Thin = c(-999,-999)
 
+##FagSy_SW_Low
+den_bau_pars_def$FagSy_SW_Low$ClCut_age = 130
+# den_bau_pars_def$FagSy_SW_Low$ClCut_D = 65
+den_bau_pars_def$FagSy_SW_Low$nTree_seedlings = 3500
+den_bau_pars_def$FagSy_SW_Low$year_seedling = 3
+den_bau_pars_def$FagSy_SW_Low$yearThin = c(15,25,35,45,55,65,75,85,95,105,110,120)
+den_bau_pars_def$FagSy_SW_Low$baThin = c(0.80,0.80,0.80,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.75,0.7)
+den_bau_pars_def$FagSy_SW_Low$hThin = c(1.02,1.02,1.02,0.98,0.98,0.98,0.98,0.98,0.98,0.98,0.75,0.7)
+den_bau_pars_def$FagSy_SW_Low$dbhThin = c(1.02,1.02,1.02,0.98,0.98,0.98,0.98,0.98,0.98,0.98,0.75,0.7)
+
+##PopTr_CC
+###same as sweden
+
+##QueSp_SW
+###same as sweden
+
+# BetSp_CC
+# den_bau_pars_def=3
+# ftDens_before=1800, ####minimum density before precommercial thinning (first thinning)
+# ftH_before=13, ####minimum H before precommercial thinning (first thinning)
+# ftDens_target=1600, ####target density after precommercial thinning (first thinning)
+# tDens_before=1800, ####minimum density before commercial thinning
+# tH_before=14, ####minimum H before commercial thinning
+# tDens_target=700, ####target density after commercial thinning
+# age_Clcut = 70
 
 #' management function updater (ForestNavigator)
 #'
