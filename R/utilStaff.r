@@ -26,7 +26,7 @@ initPrebas_subsetter <- function(initPrebas,sitex){
     x <- initPrebas[[name]]
     if (!name %in% notsubset) {
       if (is.vector(x)) {
-        x = x[sitex, drop = FALSE]
+        x = x[sitex]
       } else if (length(dim(x))==2) {
         x = x[sitex,, drop = FALSE]
       } else if (length(dim(x))==3) {
