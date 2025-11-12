@@ -27,14 +27,19 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
 
 
 !initialize
+! those should be arguments in the function from Juvaskyla data 
  lightnings = 0.01
+ popden = 36 
+ a_nd = 0.11
+!!!!
+ param = 6.8
  Cpool_litter_wood(:) = Cpool_litter_woodIn
  Cpool_litter_green(:) = Cpool_litter_greenIn
  ! NI(:) = 0.0
  alpha_livegrass(:) = 0.0
  rel_fuel_moisture(:) = 0.0
  FDI(:) = 0.0
- 
+
  ! Parameters for the fire model
  ! Surface area to volume of fuels
  SurfArea2Vol = (/66.,3.58,0.98/)
@@ -90,12 +95,6 @@ do i = 1, nDays
   rel_fuel_moisture(i) = exp(-char_alpha_fuel(i)*NI(i)) !Fuel moisture
   FDI(i) = max(0., (1.-(1./char_moistfactor(i)*rel_fuel_moisture(i)))) !Fire Danger Index
 enddo
-
-! those should be arguments in the function from Juvaskyla data 
- popden = 36 
- ! lightnings = 0.1*(1.+latitude*latitude/900.)*lig_a
- a_nd = 0.11
- param = 6.8
 
  human_i = 0.4 * popden* (EXP(-0.5 * sqrt(popden))) * a_nd/ 100.
 

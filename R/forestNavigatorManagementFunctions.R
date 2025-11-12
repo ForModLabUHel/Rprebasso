@@ -585,14 +585,25 @@ den_bau_pars_def$FagSy_SW_Low$dbhThin = c(1.02,1.02,1.02,0.98,0.98,0.98,0.98,0.9
 ###same as sweden
 
 # BetSp_CC
-# den_bau_pars_def=3
-# ftDens_before=1800, ####minimum density before precommercial thinning (first thinning)
-# ftH_before=13, ####minimum H before precommercial thinning (first thinning)
-# ftDens_target=1600, ####target density after precommercial thinning (first thinning)
-# tDens_before=1800, ####minimum density before commercial thinning
-# tH_before=14, ####minimum H before commercial thinning
-# tDens_target=700, ####target density after commercial thinning
-# age_Clcut = 70
+# set default thinning =1 and clearcut = 1 for the betula sites
+
+# LarDe_CC
+den_bau_pars_def$LarDe_CC$speciesID=3
+den_bau_pars_def$LarDe_CC$ftDens_before=2000 ####minimum density before precommercial thinning (first thinning)
+den_bau_pars_def$LarDe_CC$ftH_before=5 ####minimum H before precommercial thinning (first thinning)
+den_bau_pars_def$LarDe_CC$ftDens_target=1300 ####target density after precommercial thinning (first thinning)
+den_bau_pars_def$LarDe_CC$tDens_before=800 ####minimum density before commercial thinning
+den_bau_pars_def$LarDe_CC$tH_before=13 ####minimum H before commercial thinning
+den_bau_pars_def$LarDe_CC$tDens_target=700 ####target density after commercial thinning
+den_bau_pars_def$LarDe_CC$age_Clcut = 70
+  
+##FraEx_CC
+den_bau_pars_def$FraEx_CC$ClCut_age = 110
+den_bau_pars_def$FraEx_CC$nTree_seedlings = 1500
+den_bau_pars_def$FraEx_CC$year_seedling = 3
+den_bau_pars_def$FraEx_CC$yearThin = c(31)
+den_bau_pars_def$FraEx_CC$baThin = c(1)
+den_bau_pars_def$FraEx_CC$dens_after_Thin = 700
 
 #' management function updater (ForestNavigator)
 #'
