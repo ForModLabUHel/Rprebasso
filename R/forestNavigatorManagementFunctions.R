@@ -548,6 +548,7 @@ est_bau_pars_def$QueSp_SW$dens_after_Thin = c(400,200,-999,-999)
 
 
 #denmark parameters
+den_bau_pars_def <- list()
 ##PicAb_CC, PinSy_CC
 den_bau_pars_def$conif$ClCut_age = 65
 den_bau_pars_def$conif$ClCut_D = 45
