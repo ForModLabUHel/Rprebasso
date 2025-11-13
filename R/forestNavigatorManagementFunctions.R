@@ -641,7 +641,7 @@ forest_management_update <- function(initPrebas,
                                      forest_type_management_tab, 
                                      country, 
                                      management,
-                                     est_bau_pars=est_bau_pars_def
+                                     est_bau_pars=est_bau_pars_def,
                                      den_bau_pars=den_bau_pars_def){
   available_countries <- c("Sweden","Finland","Estonia","Denmark")
   available_managements <- c("bau", "noman")
