@@ -607,7 +607,14 @@ den_bau_pars_def$FraEx_CC$yearThin = c(31)
 den_bau_pars_def$FraEx_CC$baThin = c(1)
 den_bau_pars_def$FraEx_CC$dens_after_Thin = 700
 
-## DouFi_SW missing
+## DouFi_SW 
+den_bau_pars_def$DouFi_SW$ClCut_age = 120
+den_bau_pars_def$DouFi_SW$nTree_seedlings = 2700
+den_bau_pars_def$DouFi_SW$year_seedling = 3
+den_bau_pars_def$DouFi_SW$yearThin = c(35,45,55,90,105)
+den_bau_pars_def$DouFi_SW$baThin = c(0.70,0.70,0.70,0.5,0.5)
+den_bau_pars_def$DouFi_SW$hThin = c(0.98,0.98,0.98,1,1)
+den_bau_pars_def$DouFi_SW$dbhThin = c(0.98,0.98,0.98,1,1)
 
 # AceSp_CC
 den_bau_pars_def$AceSp_CC$ClCut_age = 85
@@ -909,6 +916,7 @@ forest_management_update <- function(initPrebas,
     FraEx_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "FraEx_CC")])
     AceSp_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "AceSp_CC")])
     AlnSp_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "AlnSp_CC")])
+    DouFi_SW_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "DouFi_SW")])
     ##----##
     
     ## update the initialization##
@@ -1018,13 +1026,30 @@ forest_management_update <- function(initPrebas,
     if(length(AlnSp_CC_sites)>0) initPrebas <- bau_in_thinningMatrix(
       initPrebas=initPrebas,
       siteXs=AlnSp_CC_sites,
-      ClCut_age= est_bau_pars$AlnSp_CC$ClCut_age,
-      nTree_seedlings=est_bau_pars$AlnSp_CC$nTree_seedlings,
-      year_seedling=est_bau_pars$AlnSp_CC$year_seedling,
-      yearThin=est_bau_pars$AlnSp_CC$yearThin,
-      baThin=est_bau_pars$AlnSp_CC$baThin,
+      ClCut_age= den_bau_pars$AlnSp_CC$ClCut_age,
+      nTree_seedlings=den_bau_pars$AlnSp_CC$nTree_seedlings,
+      year_seedling=den_bau_pars$AlnSp_CC$year_seedling,
+      yearThin=den_bau_pars$AlnSp_CC$yearThin,
+      baThin=den_bau_pars$AlnSp_CC$baThin,
       hThin = 1,
       dbhThin = 1,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+
+    
+    if(length(DouFi_SW_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=DouFi_SW_sites,
+      ClCut_age= den_bau_pars$DouFi_SW$ClCut_age,
+      nTree_seedlings=den_bau_pars$DouFi_SW$nTree_seedlings,
+      year_seedling=den_bau_pars$DouFi_SW$year_seedling,
+      yearThin=den_bau_pars$DouFi_SW$yearThin,
+      baThin=den_bau_pars$DouFi_SW$baThin,
+      hThin = den_bau_pars$DouFi_SW$hThin,
+      dbhThin = den_bau_pars$DouFi_SW$dbhThin,
       hcThin = 1,
       fracThin = 1,
       dens_after_Thin = -999,
