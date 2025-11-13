@@ -211,14 +211,6 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
   nVar <- length(varNam)
 
   nClimID <- length(unique(climIDs))
-  NI = matrix(0,nrow(PAR),ncol(PAR))
-  if(all(is.na(TminTmax))){
-    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
-  }else{
-    for(i in 1:nClimID){
-      NI[i,] <- NesterovInd(rain = Precip[i,],tmin = TminTmax[i,,1],tmax = TminTmax[i,,2])
-    }
-  }
   if(!all((1:nClimID) %in% climIDs) | length(climIDs) != nSites) warning("check consistency between weather inputs and climIDs")
   if(nClimID == 1){
     nClimID = 2
@@ -229,6 +221,15 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     VPD = matrix(VPD,2,length(VPD),byrow = T)
     Precip = matrix(Precip,2,length(Precip),byrow = T)
     CO2 <- matrix(CO2,2,length(CO2),byrow = T)
+  }
+
+  NI = matrix(0,nrow(PAR),ncol(PAR))
+  if(all(is.na(TminTmax))){
+    warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
+  }else{
+    for(i in 1:nClimID){
+      NI[i,] <- NesterovInd(rain = Precip[i,],tmin = TminTmax[i,,1],tmax = TminTmax[i,,2])
+    }
   }
 
   maxYears <- max(nYearsMS)
