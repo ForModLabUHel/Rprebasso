@@ -61,6 +61,10 @@
 #' @param soilC_steadyState flag for soilC at steady state calculations. if true the soilC at st st is calculated with the average litterfall of the simulations and soilC balance is computed for each year
 #' @param ingrowth # flag to simulate ingrowth
 #' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
+#' @param lightnings used in fire disturbance module. is the frequency of lightning-caused ignition events (ha-1 d-1) used in the fire module it is a matrix of dimensions nSites,ndays 
+#' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a matrix of dimensions nSites,ndays 
+#' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
+#' @param NIout flag to return the nesterov index
 #'
 #' @importFrom plyr aaply
 #'
@@ -153,8 +157,12 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         soilC_steadyState=FALSE,
                         disturbanceON = NA,
                         ingrowth = FALSE,
-                        CO2model = 2
-                        ){
+                        CO2model = 2,
+                        lightnings = NA,
+                        popden = NA,
+                        a_nd = NA,
+                        NIout = F
+){
 
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
@@ -299,7 +307,11 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     TsumSBBs = TsumSBBs,
     SMIt0 = SMIt0,
     TminTmax = TminTmax,
-    CO2model=CO2model
+    CO2model=CO2model,
+    lightnings = lightnings,
+    popden = popden,
+    a_nd = a_nd,
+    NIout = NIout
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
 

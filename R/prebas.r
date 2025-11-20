@@ -66,6 +66,10 @@
 #' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations
 #' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb")
 #' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
+#' @param lightnings used in fire disturbance module. is the frequency of lightning-caused ignition events (ha-1 d-1) used in the fire module it should be a vector of length ndays of simulations
+#' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a vector of length nYearsnDays
+#' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter
+#' @param NIout flag to return the nesterov index
 #'
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -207,8 +211,12 @@ prebas <- function(nYears,
                    SMIt0 = NA,
                    TminTmax = NA,
                    disturbanceON = NA,
-                   CO2model = 2 ###default from Kalliokosky 2018
-              ){
+                   CO2model = 2, #default from kaliokoski (2018),
+                   lightnings = NA,
+                   popden = NA,
+                   a_nd = NA,
+                   NIout = F
+){
 
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -257,6 +265,9 @@ prebas <- function(nYears,
   }else{
     NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2])
   }
+  if(is.na(lightnings)) lightnings <- rep(0,length(PAR))
+  if(is.na(popden)) lightnings <- rep(0,length(PAR))
+  if(is.na(a_nd)) a_nd <- 0
 
   if(is.null(latitude) & ECMmod==1){
     stop("you need to provide the latitudes of the site")
@@ -561,10 +572,13 @@ prebas <- function(nYears,
   if(is.na(P00CN)) P00CN <- 0
 
   dailyPRELES = matrix(-999,(nYears*365),3) #### build daily output array for PRELES
+  dailyPRELES[,1] <- popden[1:(nYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
+  dailyPRELES[,2] <- lightnings[1:(nYears*365)] ###fill preles daily output with  that will be used internalkly in prebas for fire risk calculations
   dailyPRELES[,3] <- NI[1:(nYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
-
+  
   output[1,46,1,2] <- SMIt0 #initialize SMI first year
-
+  output[1,47,1,2] <- a_nd #initialize a_nd first year
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -622,6 +636,7 @@ prebas <- function(nYears,
                      P00CN = as.double(P00CN),
                      TsumSBBs = as.double(TsumSBBs)
   )
+  if(NIout) prebas$NI <- NI
   class(prebas) <- "prebas"
   return(prebas)
 }

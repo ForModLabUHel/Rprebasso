@@ -60,6 +60,10 @@
 #' @param TminTmax array(climaIDs,ndays,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations
 #' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb")
 #' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
+#' @param lightnings used in fire disturbance module. is the frequency of lightning-caused ignition events (ha-1 d-1) used in the fire module it is a matrix of dimensions nSites,ndays 
+#' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a matrix of dimensions nSites,ndays 
+#' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
+#' @param NIout flag to return the nesterov index
 #' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS
 #' @export
@@ -127,7 +131,11 @@ InitMultiSite <- function(nYearsMS,
                           siteInfoDist = NA, ###if not NA Disturbance modules are activated
                           disturbanceON = NA,
                           ingrowth = FALSE,
-                          CO2model = 2 ###default from Kalliokosky 2018
+                          CO2model = 2, #default from kaliokoski (2018)
+                          lightnings = NA,
+                          popden = NA,
+                          a_nd = NA,
+                          NIout = F
 ){
 
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -223,6 +231,8 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     CO2 <- matrix(CO2,2,length(CO2),byrow = T)
   }
 
+  maxYears <- max(nYearsMS)
+  maxNlayers <- max(nLayers)
   NI = matrix(0,nrow(PAR),ncol(PAR))
   if(all(is.na(TminTmax))){
     warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
@@ -231,9 +241,10 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
       NI[i,] <- NesterovInd(rain = Precip[i,],tmin = TminTmax[i,,1],tmax = TminTmax[i,,2])
     }
   }
-
-  maxYears <- max(nYearsMS)
-  maxNlayers <- max(nLayers)
+  if(is.na(lightnings)) lightnings <- matrix(0,nSites,ncol(PAR))
+  if(is.na(popden)) popden <- matrix(0,nSites,ncol(PAR))
+  if(is.na(a_nd)) a_nd <- rep(0,nSites)
+  
   layerNam <- paste("layer",1:maxNlayers)
   multiOut <- array(0, dim=c(nSites,(maxYears),nVar,maxNlayers,2),
                     dimnames = list(site=NULL,year=NULL,variable=varNam,layer=layerNam,
@@ -624,9 +635,13 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
   if(all(is.na(P00CN))) P00CN <- rep(0,nSites)
 
   dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3))#### build daily output array for PRELES
+  dailyPRELES[,,1] <- popden ###fill preles daily output with population density that will be used internalkly in prebas for fire risk calculations
+  dailyPRELES[,,2] <- lightnings ###fill preles daily output with lightnings that will be used internalkly in prebas for fire risk calculations
   dailyPRELES[,,3] <- NI[climIDs,1:(maxYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
-  multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year
-
+  
+  multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year 
+  multiOut[,1,47,1,2] <- a_nd #initialize a_nd first year
+  
   ###fix initialization year
   if(!all(fixAinit == 0)){
     if(length(fixAinit)!=nSites) stop("check fixAinit needs to be a vector of length nSites")
@@ -637,6 +652,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     multiOut[,1,7,1,2] <- fixAinit
   } 
   
+  if(!NIout) NI = NULL
   multiSiteInit <- list(
     multiOut = multiOut,
     multiEnergyWood = multiEnergyWood,
@@ -698,7 +714,8 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     TsumSBBs = TsumSBBs,
     siteInfoDist = siteInfoDist,
     dist_flag = dist_flag,
-    CO2model = CO2model
+    CO2model = CO2model,
+    NI = NI
   )
   return(multiSiteInit)
 }
@@ -1000,6 +1017,7 @@ if(!is.null(yearFert)){
   prebas$alpharNcalc = multiSiteInit$alpharNcalc
   dimnames(prebas$outDist) <- dimnames(outDist)
   dimnames(prebas$siteinfoDist) <- dimnames(multiSiteInit$siteInfoDist)
+  if(!is.null(multiSiteInit$NI)) prebas$NI <- multiSiteInit$NI
   class(prebas) <- "multiPrebas"
   return(prebas)
 }
@@ -1290,7 +1308,8 @@ regionPrebas <- function(multiSiteInit,
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
   names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   prebas$alpharNcalc = multiSiteInit$alpharNcalc
-
+  
+  if(!is.null(multiSiteInit$NI)) prebas$NI <- multiSiteInit$NI
   return(prebas)
 }
 
