@@ -1,7 +1,7 @@
 
 
 subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_moisture, & 
-			TAir,NI,Precip,FDI,n_fire_year,latitude) 
+			TAir,NI,Precip,FDI,n_fire_year,latitude,lightnings,popden,a_nd) 
 ! livegrass = gv biomass
 ! Cpool_litter_wood = soilC woody component AWEN
 ! Cpool_litter_green = soilC non-woody component AWEN
@@ -11,6 +11,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
   integer, parameter :: nDays=365
   real (kind=8), intent(in) :: Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,latitude
   real (kind=8), intent(in) :: soil_moisture, TAir(nDays), NI(nDays), Precip(nDays)
+  real (kind=8), intent(in) :: lightnings(nDays), popden(nDays), a_nd
   real (kind=8), intent(inout) :: FDI(nDays),n_fire_year
   real (kind=8) :: alpha_livegrass(nDays),alpha_fuel(nDays)
   real (kind=8) :: char_alpha_fuel(nDays),rel_fuel_moisture(nDays)
@@ -22,19 +23,24 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
   real (kind=8) :: alpha_fuel_1hr,alpha_fuel_10hr,alpha_fuel_100hr,lig_a
   integer :: i  
   !!!!to be updated
-  real (kind=8) :: numfire(nDays), popden, lightnings, human_i, param, MINER_TOT, net_fuel(nDays),lightning_i,a_nd
+  real (kind=8) :: numfire(nDays), human_i(nDays), param, MINER_TOT, net_fuel(nDays),lightning_i(nDays)
 
 
 
 !initialize
- lightnings = 0.01
+! those should be arguments in the function from Juvaskyla data 
+ ! lightnings = 0.01
+ ! popden = 36 
+ ! a_nd = 0.11
+!!!!
+ param = 6.8
  Cpool_litter_wood(:) = Cpool_litter_woodIn
  Cpool_litter_green(:) = Cpool_litter_greenIn
  ! NI(:) = 0.0
  alpha_livegrass(:) = 0.0
  rel_fuel_moisture(:) = 0.0
  FDI(:) = 0.0
- 
+
  ! Parameters for the fire model
  ! Surface area to volume of fuels
  SurfArea2Vol = (/66.,3.58,0.98/)
@@ -91,16 +97,10 @@ do i = 1, nDays
   FDI(i) = max(0., (1.-(1./char_moistfactor(i)*rel_fuel_moisture(i)))) !Fire Danger Index
 enddo
 
-! those should be arguments in the function from Juvaskyla data 
- popden = 36 
- ! lightnings = 0.1*(1.+latitude*latitude/900.)*lig_a
- a_nd = 0.11
- param = 6.8
-
  human_i = 0.4 * popden* (EXP(-0.5 * sqrt(popden))) * a_nd/ 100.
 
 ! Only a fraction of cloud to ground flashes can ignite a fire
- lightning_i = lightnings*0.04
+ lightning_i(:) = lightnings(:)*0.04
 
 ! net fuel in kg(biomass)/m2, reduced for mineral content
  MINER_TOT=0.055
@@ -109,7 +109,7 @@ enddo
 !### The number of fires (Eq. 3 in Thonicke et al. 2010)
  numfire = 0.d0
 do i = 1, nDays
- if(net_fuel(i)>0.001) numfire(i) = FDI(i) * (human_i+lightning_i)*0.01d0*0.22d0
+ if(net_fuel(i)>0.001) numfire(i) = FDI(i) * (human_i(i)+lightning_i(i))*0.01d0*0.22d0
 enddo
  n_fire_year = sum(numfire)
 
