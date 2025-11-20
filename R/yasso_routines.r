@@ -919,7 +919,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
     nSp <- ncol(parsAWEN)
     # nClimID <- prebOut$nClimID
     soilC <- array(0., dim=c((nYears+1),5,3,nLayers))
-    soilC[1,,,1] <- initSoilC
+    soilC[1,,,] <- initSoilC
     
     soilC <- .Fortran("runYasso",
                       litter = as.array(litter),
@@ -1022,7 +1022,7 @@ yassoPREBASin <- function(prebOut,initSoilC,pYASSO = pYAS,
     nSp <- ncol(parsAWEN)
     nClimID <- prebOut$nClimID
     soilC <- array(0., dim=c(nSites,(nYears+1),5,3,nLayers))
-    soilC[,1,,,1] <- initSoilC
+    soilC[,1,,,] <- initSoilC
     
     soilC <- .Fortran("runYasso",
                       litter = as.array(litter),
