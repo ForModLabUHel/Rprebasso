@@ -154,7 +154,7 @@ real (kind=8) :: dailySW(365)
 
 !fire disturbances
 real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(365)
-real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year!
+real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year,lightnings(nYears*365),popden(nYears*365),a_nd
 !BB disturbances
 real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
 
@@ -204,10 +204,16 @@ endif
   ! open(2,file="test2.txt")
 
 !###initialize model###!
+popden(:) = dailyPRELES(:,1) !read population density and reset to 0 the dailyPreles output
+dailyPRELES(:,1) = 0.0
+lightnings(:) = dailyPRELES(:,2) !read daily lightnings and reset to 0 the dailyPreles output
+dailyPRELES(:,2) = 0.0
 NI(:) = dailyPRELES(:,3) !read nestorov index and reset to -999 the dailyPreles output
 dailyPRELES(:,3) = -999.0
+a_nd = output(1,47,1,2)
 SMIt0 = output(1,46,1,2) !initialize SMI previous year
 output(1,46,1,2) = 0.d0
+output(1,47,1,2) = 0.d0
 lastGVout = 0.
 thinClx = 0.
 energyWood = 0.
@@ -1814,7 +1820,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   FDI(:) = 0.
   call fireDist(Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture, &
 	weatherPRELES(year,:,2),NI((1+((year-1)*365)):(365*year)),weatherPRELES(year,:,4),&
-	FDI,n_fire_year,latitude)
+	FDI,n_fire_year,latitude,lightnings,popden,a_nd)
   modOut((year+1),47,:,2) = 0.
   modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
  ! endif
