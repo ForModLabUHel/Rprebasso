@@ -147,7 +147,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers),deltaSiteTypeFert=1.
 real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
-integer :: yearMan_GV,CO2model, AinitFix, etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
+integer :: FDIout,yearMan_GV,CO2model, AinitFix, etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
 integer, intent(inout) :: prebasFlags(10)
 real (kind=8) :: dailySW(365),resp_factor
 
