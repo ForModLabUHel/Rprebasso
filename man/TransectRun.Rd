@@ -69,7 +69,12 @@ TransectRun(
   soilC_steadyState = FALSE,
   disturbanceON = NA,
   ingrowth = FALSE,
-  CO2model = 2
+  CO2model = 2,
+  lightnings = NA,
+  popden = NA,
+  a_nd = NA,
+  NIout = F,
+  FDIout = 0
 )
 }
 \arguments{
@@ -144,6 +149,16 @@ TransectRun(
 \item{ingrowth}{# flag to simulate ingrowth}
 
 \item{CO2model}{CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari)}
+
+\item{lightnings}{used in fire disturbance module. is the frequency of lightning-caused ignition events (ha-1 d-1) used in the fire module it is a matrix of dimensions nSites,ndays}
+
+\item{popden}{used in fire disturbance module. It is the population density (individuals km-2). it is a matrix of dimensions nSites,ndays}
+
+\item{a_nd}{used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites}
+
+\item{NIout}{flag to return the nesterov index}
+
+\item{FDIout}{flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI}
 }
 \value{
 The output from multiPrebas()

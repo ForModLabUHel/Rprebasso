@@ -8,7 +8,8 @@ forest_management_update(
   initPrebas,
   forest_type_management_tab,
   country,
-  management
+  management,
+  est_bau_pars = est_bau_pars_def
 )
 }
 \arguments{
