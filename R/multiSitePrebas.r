@@ -717,7 +717,8 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     siteInfoDist = siteInfoDist,
     dist_flag = dist_flag,
     CO2model = CO2model,
-    NI = NI
+    NI = NI,
+    FDIout = FDIout
   )
   return(multiSiteInit)
 }
