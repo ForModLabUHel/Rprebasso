@@ -64,6 +64,7 @@
 #' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a matrix of dimensions nSites,ndays 
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
 #' @param NIout flag to return the nesterov index
+#' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
 #' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -134,7 +135,8 @@ InitMultiSite <- function(nYearsMS,
                           lightnings = NA,
                           popden = NA,
                           a_nd = NA,
-                          NIout = F
+                          NIout = F, 
+                          FDIout = 0
                           ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -675,7 +677,8 @@ if(alpharNcalc){
     TsumSBBs = TsumSBBs,
     dist_flag = dist_flag,
     CO2model = CO2model,
-    NI = NI
+    NI = NI,
+    FDIout = FDIout
   )
 
     return(multiSiteInit)
@@ -825,8 +828,9 @@ multiPrebas <- function(multiSiteInit,
                               dist_flag,
                               multiSiteInit$CO2model,
                               0,### fixAinit
-                              -777)) ###ingrowth flag
-  
+                              -777,###ingrowth flag
+                              multiSiteInit$FDIout ####output FDI instead of SW
+                    )) 
 
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -1057,7 +1061,9 @@ if(ageHarvPrior>0){
                               dist_flag,
                               multiSiteInit$CO2model,
                               0,### fixAinit
-                              -777)) ###ingrowth flag
+                              -777	 -777,###ingrowth flag
+                              multiSiteInit$FDIout ####output FDI instead of SW
+                      ))
 
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
