@@ -73,7 +73,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules !wdimpl
  logical :: disturbance_wind, disturbance_bb ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
 
- integer, intent(inout) :: prebasFlags(9)
+ integer, intent(inout) :: prebasFlags(10)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)

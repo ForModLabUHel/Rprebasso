@@ -146,7 +146,8 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
  real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
  integer :: CO2model, AinitFix,etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(inout) :: prebasFlags(9)
+ integer, intent(inout) :: prebasFlags(10)
+ integer :: outFDI
 
  !fire disturbances
  real (kind=8) :: dailySW(365)
@@ -164,6 +165,7 @@ oldLayer = int(prebasFlags(4))
 ECMmod = int(prebasFlags(5))
 CO2model = int(prebasFlags(7))
 AinitFix = int(prebasFlags(8))
+outFDI = int(prebasFlags(10))
 
 !!set disturbance flags
 ! set all dist to 0 and then choose based on flag
@@ -1925,6 +1927,7 @@ FDI(:) = 0.
 
   modOut((year+1),47,:,2) = 0.
   modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
+  if(outFDI==1) dailyPRELES((1+((year-1)*365)):(365*year),3) = FDI
  ! endif
 
 
