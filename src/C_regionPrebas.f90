@@ -88,7 +88,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites),fixAinitXX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
- integer, intent(inout) :: prebasFlags(9)
+ integer, intent(inout) :: prebasFlags(10)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)

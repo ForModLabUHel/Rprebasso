@@ -70,6 +70,7 @@
 #' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a matrix of dimensions nSites,ndays 
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
 #' @param NIout flag to return the nesterov index
+#' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
 #' 
 #' @importFrom plyr aaply
 #'
@@ -168,7 +169,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         lightnings = NA,
                         popden = NA,
                         a_nd = NA,
-                        NIout = F
+                        NIout = F,
+                        FDIout = 0
 ) {
   
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -318,7 +320,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     lightnings = lightnings,
     popden = popden,
     a_nd = a_nd,
-    NIout = NIout
+    NIout = NIout,
+    FDIout = FDIout
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
