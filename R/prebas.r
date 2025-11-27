@@ -259,8 +259,8 @@ prebas <- function(nYears,
   }else{
     NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2]) 
   }
-  if(is.na(lightnings)) lightnings <- rep(0,length(PAR))
-  if(is.na(popden)) lightnings <- rep(0,length(PAR))
+  if(all(is.na(lightnings))) lightnings <- rep(0,length(PAR))
+  if(all(is.na(popden))) lightnings <- rep(0,length(PAR))
   if(is.na(a_nd)) a_nd <- 0
   
   ####initialize disturbance module if exists
