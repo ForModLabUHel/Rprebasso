@@ -243,9 +243,9 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
       NI[i,] <- NesterovInd(rain = Precip[i,],tmin = TminTmax[i,,1],tmax = TminTmax[i,,2])
     }
   }
-  if(is.na(lightnings)) lightnings <- matrix(0,nSites,ncol(PAR))
-  if(is.na(popden)) popden <- matrix(0,nSites,ncol(PAR))
-  if(is.na(a_nd)) a_nd <- rep(0,nSites)
+  if(all(is.na(lightnings))) lightnings <- matrix(0,nSites,ncol(PAR))
+  if(all(is.na(popden))) popden <- matrix(0,nSites,ncol(PAR))
+  if(all(is.na(a_nd))) a_nd <- rep(0,nSites)
   
   layerNam <- paste("layer",1:maxNlayers)
   multiOut <- array(0, dim=c(nSites,(maxYears),nVar,maxNlayers,2),
