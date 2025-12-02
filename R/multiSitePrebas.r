@@ -189,6 +189,10 @@ InitMultiSite <- function(nYearsMS,
     siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118,3),nSites,13,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
+  ### automatically add tauDrainage if missing ###
+  if(dim(siteInfo)[2]==12) siteInfo <- cbind(siteInfo,pPRELES[4])
+  ### --- ###  
+  
   if(ingrowth){
     ingrowthStep <- 25
     # nTreeIngrowth <- 10
