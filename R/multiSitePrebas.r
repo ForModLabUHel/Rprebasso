@@ -186,7 +186,7 @@ InitMultiSite <- function(nYearsMS,
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
-    siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118),nSites,12,byrow = T) ###default values for nspecies and site type = 3
+    siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118,3),nSites,13,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
   if(ingrowth){
@@ -199,7 +199,7 @@ InitMultiSite <- function(nYearsMS,
   }
   colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit", 
                           "SOGinit", "Sinit", "nLayers", "nSpecies", "soildepth", 
-                          "effective field capacity", "permanent wilting point") 
+                          "effective field capacity", "permanent wilting point","tauDreinage") 
   
   nLayers <- siteInfo[,8]
   # nSp <- siteInfo[,9]
