@@ -1111,7 +1111,7 @@ prebas <- .Fortran("regionPrebas",
                      thinning=as.array(multiSiteInit$thinning),
                      pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
                      allSp = as.integer(multiSiteInit$allSp),       ####
-                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:12)]),  ####
+                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:13)]),  ####
                      maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
