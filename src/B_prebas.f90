@@ -71,7 +71,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
- real (kind=8), intent(inout) :: siteInfo(10)
+ real (kind=8), intent(inout) :: siteInfo(11)
  real (kind=8), intent(inout) :: output(nYears, nVar, nLayers, 2), energyWood(nYears, nLayers, 2) ! last dimension: 1 is for stand and 2 is for harvested sum of wood.
  real (kind=8), intent(inout) :: soilCinOut(nYears, 5, 3, nLayers), soilCtotInOut(nYears) ! dimensions: nyears, AWENH, woody/fineWoody/foliage, layers
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
@@ -228,6 +228,7 @@ soilC = 0.
 countThinning = 1
 pars = pPRELES
 pars(1:3) = siteInfo(8:10)
+pars(4) = siteInfo(11) !tauDreinage
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
@@ -1626,8 +1627,6 @@ endif
   stand_all(13,ij) = BA
     Nthd = max(0.,(Nold - N))
     Hc = min(stand_all(14,ij),0.9*H)
-  if(siteInfo(1)==719400.) then
-  endif
 
   Wdb = stand_all(51,ij)
     Lc = H - Hc !Lc

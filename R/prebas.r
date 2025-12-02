@@ -8,7 +8,7 @@
 #' @param pYASSO A vector of YASSO parameters. Default is global pYAS
 #' @param pAWEN (12 x nSpecies(11) matrix) Matrix of parameter sets for litterfal decomposition in YASSO pools. Default is parsAWEN
 #' @param etmodel Evapotranspiration model for PRELES. Default etmodel = 0. Possible values -1, 0, 1, 2
-#' @param siteInfo vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3,160,0,0,20,413.,0.45,0.118), i.e. siteType = 3. 
+#' @param siteInfo vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point, tauDrenage (Drainage delay used in PRELES). Default = c(1,1,3,160,0,0,20,413.,0.45,0.118,3), i.e. siteType = 3. 
 #' @param thinning A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
 #' @param initClearcut A numeric vector with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches measurable size. If NA the default values from initSeedling.def are used Ainit and is automatically computed using air temperature.
 #' @param fixBAinitClarcut If 1, when clearcuts occur the species initial biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year 
@@ -313,7 +313,7 @@ prebas <- function(nYears,
       nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
     }
   nSp = ncol(pCROBAS)
-  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118) ###default values for nspecies and site type = 3
+  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3) ###default values for nspecies and site type = 3
                                   
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
