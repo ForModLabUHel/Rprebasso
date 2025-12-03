@@ -373,7 +373,7 @@ bau_in_thinningMatrix <- function(initPrebas,siteXs,
     initPrebas$clct_pars[siteXs,,3] <- ClCut_H
   }
 
-  if(!is.na(yearThin)){
+  if(all(!is.na(yearThin))){
     nThinMat <- length(yearThin)
     
     # names(thinning) <- c("year","species","layer","H","D","B","Hc","frac_flag","N","Ac","pHarvTrees")
@@ -461,12 +461,12 @@ bau_in_thinningMatrix <- function(initPrebas,siteXs,
     thinning[,,11] <- 1
     
     for(i in 1:initPrebas$nSites){
-      thinning[i,1:initPrebas$nThinning[i],] <- initPrebas$thinning[i,1:initPrebas$nThinning[i],]
+      if(initPrebas$nThinning[i]>0) thinning[i,1:initPrebas$nThinning[i],] <- initPrebas$thinning[i,1:initPrebas$nThinning[i],]
     }
     initPrebas$nThinning[sitesThinned] <- nthin
     for(i in sitesThinned){
       initPrebas$nThinning[i] <- nrow(thinningX[[as.character(i)]])
-      thinning[i,1:initPrebas$nThinning[i],] <- thinningX[[as.character(i)]]
+      if(initPrebas$nThinning[i]>0) thinning[i,1:initPrebas$nThinning[i],] <- thinningX[[as.character(i)]]
     }
     initPrebas$thinning <- thinning
   }
@@ -716,13 +716,13 @@ irl_bau_pars_def$BL_softwood_limited$nTree_seedlings = 2500
 irl_bau_pars_def$BL_softwood_limited$year_seedling=3
 
 # BL_hardwood_limited
-irl_bau_pars_def$PicSi_low$ClCut_age = 90
-irl_bau_pars_def$PicSi_low$nTree_seedlings = 2500
-irl_bau_pars_def$PicSi_low$year_seedling = 4
-irl_bau_pars_def$PicSi_low$baThin = c(0.7)
-irl_bau_pars_def$PicSi_low$yearThin = c(25)
-irl_bau_pars_def$PicSi_low$hThin = c(1.02)
-irl_bau_pars_def$PicSi_low$dbhThin = c(1.02)
+irl_bau_pars_def$BL_hardwood_limited$ClCut_age = 90
+irl_bau_pars_def$BL_hardwood_limited$nTree_seedlings = 2500
+irl_bau_pars_def$BL_hardwood_limited$year_seedling = 4
+irl_bau_pars_def$BL_hardwood_limited$baThin = c(0.7)
+irl_bau_pars_def$BL_hardwood_limited$yearThin = c(25)
+irl_bau_pars_def$BL_hardwood_limited$hThin = c(1.02)
+irl_bau_pars_def$BL_hardwood_limited$dbhThin = c(1.02)
 
 #### Latvia BAU parameters
 #### parameters for the bau_in_thinningMatrix function 
@@ -950,7 +950,7 @@ forest_management_update <- function(initPrebas,
                                      irl_bau_pars=irl_bau_pars_def,
                                      lat_bau_pars=lat_bau_pars_def,
                                      lit_bau_pars=lit_bau_pars_def){
-  available_countries <- c("Sweden","Finland","Estonia","Denmark","Irland","Latvia","Lithuania")
+  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                                                  " is not between the available countries: ", available_countries,fill = TRUE))
