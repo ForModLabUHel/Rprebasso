@@ -928,6 +928,85 @@ lit_bau_pars_def[[forType]]$baThin = c(1,1,0.2,0.5)
 lit_bau_pars_def[[forType]]$yearThin = c(31,60,121,126)
 lit_bau_pars_def[[forType]]$dens_after_Thin = c(400,200,-999,-999)
 
+#### Germany BAU parameters
+#### parameters for the bau_in_thinningMatrix function 
+de_bau_pars_def <- list()
+
+forType <- "General_CC"
+de_bau_pars_def[[forType]]$ClCut_age = 95
+de_bau_pars_def[[forType]]$nTree_seedlings = 2000
+de_bau_pars_def[[forType]]$year_seedling = 3
+de_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.75)
+de_bau_pars_def[[forType]]$yearThin = c(35,45,55)
+de_bau_pars_def[[forType]]$hThin = c(0.98,0.98,0.98)
+de_bau_pars_def[[forType]]$dbhThin = c(0.98,0.98,0.98)
+
+forType <- "BLSCON_GSC"
+de_bau_pars_def[[forType]]$ClCut_age = 125
+de_bau_pars_def[[forType]]$nTree_seedlings = 2500
+de_bau_pars_def[[forType]]$year_seedling = 3
+de_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.75,0.5,0.5)
+de_bau_pars_def[[forType]]$yearThin = c(35,55,75,95,110)
+de_bau_pars_def[[forType]]$hThin = c(0.98,0.98,0.98,1,1)
+de_bau_pars_def[[forType]]$dbhThin = c(0.98,0.98,0.98,1,1)
+
+forType <- "PicAb_CC"
+de_bau_pars_def[[forType]]$ClCut_age = 90
+de_bau_pars_def[[forType]]$nTree_seedlings = 2500
+de_bau_pars_def[[forType]]$year_seedling = 3
+de_bau_pars_def[[forType]]$baThin = c(0.8,0.8,0.8,0.8)
+de_bau_pars_def[[forType]]$yearThin = c(20,35,50,65)
+de_bau_pars_def[[forType]]$hThin = c(1.02,1.02,0.98,0.98)
+de_bau_pars_def[[forType]]$dbhThin = c(1.02,1.02,0.98,0.98)
+
+forType <- "QueSp_FagSy_SS"
+de_bau_pars_def[[forType]]$ClCut_age = 125
+de_bau_pars_def[[forType]]$nTree_seedlings = 2500
+de_bau_pars_def[[forType]]$year_seedling = 3
+de_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.75,0.2,0.5)
+de_bau_pars_def[[forType]]$yearThin = c(35,55,75,105,115)
+de_bau_pars_def[[forType]]$hThin = c(0.98,0.98,0.98,1,1)
+de_bau_pars_def[[forType]]$dbhThin = c(0.98,0.98,0.98,1,1)
+
+forType <- "QueSp_SS"
+de_bau_pars_def[[forType]]$ClCut_age = 130
+de_bau_pars_def[[forType]]$nTree_seedlings = 2500
+de_bau_pars_def[[forType]]$year_seedling = 3
+de_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.75,0.2,0.5)
+de_bau_pars_def[[forType]]$yearThin = c(40,65,90,110,120,130)
+de_bau_pars_def[[forType]]$hThin = c(0.98,0.98,0.98,1,1)
+de_bau_pars_def[[forType]]$dbhThin = c(0.98,0.98,0.98,1,1)
+
+#### Poland BAU parameters
+#### parameters for the bau_in_thinningMatrix function 
+pl_bau_pars_def <- list()
+
+forType <- "FagSy_SW"
+pl_bau_pars_def[[forType]]$ClCut_age = 130
+pl_bau_pars_def[[forType]]$nTree_seedlings = 7000
+pl_bau_pars_def[[forType]]$year_seedling = 3
+pl_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.7,0.5)
+pl_bau_pars_def[[forType]]$yearThin = c(30,45,100,110)
+pl_bau_pars_def[[forType]]$hThin = c(1,1,1,1)
+pl_bau_pars_def[[forType]]$dbhThin = c(1,1,1,1)
+
+forType <- "QueSp_SW"
+pl_bau_pars_def[[forType]]$ClCut_age = 150
+pl_bau_pars_def[[forType]]$nTree_seedlings = 7000
+pl_bau_pars_def[[forType]]$year_seedling = 3
+pl_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.6,0.6)
+pl_bau_pars_def[[forType]]$yearThin = c(30,45,120,130)
+pl_bau_pars_def[[forType]]$hThin = c(0.98,0.98,1,1)
+pl_bau_pars_def[[forType]]$dbhThin = c(0.98,0.98,1,1)
+
+forType <- "CON_CC"
+pl_bau_pars_def[[forType]]$ClCut_age = 80
+pl_bau_pars_def[[forType]]$nTree_seedlings = 4000
+pl_bau_pars_def[[forType]]$year_seedling = 3
+pl_bau_pars_def[[forType]]$baThin = c(0.7,0.80,0.9,0.95)
+pl_bau_pars_def[[forType]]$yearThin = c(25,35,45,55,65)
+pl_bau_pars_def[[forType]]$hThin = c(1,1,1,1)
+pl_bau_pars_def[[forType]]$dbhThin = c(1,1,1,1)
 
 
 #' management function updater (ForestNavigator)
@@ -949,7 +1028,9 @@ forest_management_update <- function(initPrebas,
                                      den_bau_pars=den_bau_pars_def,
                                      irl_bau_pars=irl_bau_pars_def,
                                      lat_bau_pars=lat_bau_pars_def,
-                                     lit_bau_pars=lit_bau_pars_def){
+                                     lit_bau_pars=lit_bau_pars_def,
+                                     de_bau_pars=de_bau_pars_def,
+                                     pl_bau_pars=pl_bau_pars_def){
   available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
@@ -1986,9 +2067,6 @@ forest_management_update <- function(initPrebas,
       pHarvTreeThin = 1)
   }
   
-
-  
-  
   if(country == "UK" & management=="bau"){
     
     ##find the sites with alternative management##
@@ -2053,23 +2131,22 @@ forest_management_update <- function(initPrebas,
       dens_after_Thin = -999,
       acThin = -999,
       pHarvTreeThin = 1)
-  }
   # PinCo_CC_good
-  if(length(PinCo_CC_good_sites)>0){initPrebas <- bau_in_thinningMatrix(
+  if(length(PinCo_CC_good_sites)>0) initPrebas <- bau_in_thinningMatrix(
     initPrebas=initPrebas,
     siteXs=PinCo_CC_good_sites,
     ClCut_age= irl_bau_pars$PinCo_CC_good$ClCut_age,
     nTree_seedlings=irl_bau_pars$PinCo_CC_good$nTree_seedlings,
     year_seedling=irl_bau_pars$PinCo_CC_good$year_seedling)
-  }
+  
   # PinCo_CC_low
-  if(length(PinCo_CC_low_sites)>0){initPrebas <- bau_in_thinningMatrix(
+  if(length(PinCo_CC_low_sites)>0) initPrebas <- bau_in_thinningMatrix(
     initPrebas=initPrebas,
     siteXs=PinCo_CC_low_sites,
     ClCut_age= irl_bau_pars$PinCo_CC_low$ClCut_age,
     nTree_seedlings=irl_bau_pars$PinCo_CC_low$nTree_seedlings,
     year_seedling=irl_bau_pars$PinCo_CC_low$year_seedling)
-  }
+  
   # PicSi_good
   if(length(PicSi_good_sites)>0) initPrebas <- bau_in_thinningMatrix(
     initPrebas=initPrebas,
@@ -2135,7 +2212,173 @@ forest_management_update <- function(initPrebas,
     dens_after_Thin = est_bau_pars$QueSp_CC$dens_after_Thin,
     acThin = -999,
     pHarvTreeThin = 1)
+ }
+  if(country == "Germany" & management=="bau"){
+    
+    ##find the sites with alternative management##
+    General_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
+                                      c("General_CC"))])
+    BLSCON_GSC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
+                                      c("BLSCON_GSC"))])
+    PicAb_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
+                                      c("PicAb_CC"))])
+    QueSp_FagSy_SS_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "QueSp_FagSy_SS")])
+    QueSp_SS_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "QueSp_SS")])
+    ##----##
+    
+    ## update the initialization##
+    # General_CC
+    if(length(General_CC_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=General_CC_sites,
+      ClCut_age= de_bau_pars$General_CC$ClCut_age,
+      nTree_seedlings=de_bau_pars$General_CC$nTree_seedlings,
+      year_seedling=de_bau_pars$General_CC$year_seedling,
+      baThin=de_bau_pars$General_CC$baThin,
+      yearThin=de_bau_pars$General_CC$yearThin,
+      hThin = de_bau_pars$General_CC$hThin,
+      dbhThin = de_bau_pars$General_CC$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+    
+    # BLSCON_GSC
+    if(length(BLSCON_GSC_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=BLSCON_GSC_sites,
+      ClCut_age= de_bau_pars$BLSCON_GSC$ClCut_age,
+      nTree_seedlings=de_bau_pars$BLSCON_GSC$nTree_seedlings,
+      year_seedling=de_bau_pars$BLSCON_GSC$year_seedling,
+      baThin=de_bau_pars$BLSCON_GSC$baThin,
+      yearThin=de_bau_pars$BLSCON_GSC$yearThin,
+      hThin = de_bau_pars$BLSCON_GSC$hThin,
+      dbhThin = de_bau_pars$BLSCON_GSC$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+    
+
+    # PicAb_CC
+    if(length(PicAb_CC_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=PicAb_CC_sites,
+      ClCut_age= de_bau_pars$PicAb_CC$ClCut_age,
+      nTree_seedlings=de_bau_pars$PicAb_CC$nTree_seedlings,
+      year_seedling=de_bau_pars$PicAb_CC$year_seedling,
+      baThin=de_bau_pars$PicAb_CC$baThin,
+      yearThin=de_bau_pars$PicAb_CC$yearThin,
+      hThin = de_bau_pars$PicAb_CC$hThin,
+      dbhThin = de_bau_pars$PicAb_CC$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+
+    # QueSp_FagSy_SS
+    if(length(QueSp_FagSy_SS_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=QueSp_FagSy_SS_sites,
+      ClCut_age= de_bau_pars$QueSp_FagSy_SS$ClCut_age,
+      nTree_seedlings=de_bau_pars$QueSp_FagSy_SS$nTree_seedlings,
+      year_seedling=de_bau_pars$QueSp_FagSy_SS$year_seedling,
+      baThin=de_bau_pars$QueSp_FagSy_SS$baThin,
+      yearThin=de_bau_pars$QueSp_FagSy_SS$yearThin,
+      hThin = de_bau_pars$QueSp_FagSy_SS$hThin,
+      dbhThin = de_bau_pars$QueSp_FagSy_SS$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+
+    # QueSp_SS
+    if(length(QueSp_SS_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=QueSp_SS_sites,
+      ClCut_age= de_bau_pars$QueSp_SS$ClCut_age,
+      nTree_seedlings=de_bau_pars$QueSp_SS$nTree_seedlings,
+      year_seedling=de_bau_pars$QueSp_SS$year_seedling,
+      baThin=de_bau_pars$QueSp_SS$baThin,
+      yearThin=de_bau_pars$QueSp_SS$yearThin,
+      hThin = de_bau_pars$QueSp_SS$hThin,
+      dbhThin = de_bau_pars$QueSp_SS$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+  }
   
+  if(country == "Poland" & management=="bau"){
+    
+    ##find the sites with alternative management##
+    FagSy_SW_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
+                                                                     c("FagSy_SW"))])
+    QueSp_SW_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
+                                                                     c("QueSp_SW"))])
+    CON_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
+                                                                   c("CON_CC"))])
+    ##----##
+    
+    ## update the initialization##
+    # FagSy_SW
+    if(length(FagSy_SW_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=FagSy_SW_sites,
+      ClCut_age= pl_bau_pars$FagSy_SW$ClCut_age,
+      nTree_seedlings=pl_bau_pars$FagSy_SW$nTree_seedlings,
+      year_seedling=pl_bau_pars$FagSy_SW$year_seedling,
+      baThin=pl_bau_pars$FagSy_SW$baThin,
+      yearThin=pl_bau_pars$FagSy_SW$yearThin,
+      hThin = pl_bau_pars$FagSy_SW$hThin,
+      dbhThin = pl_bau_pars$FagSy_SW$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+    
+    # QueSp_SW
+    if(length(QueSp_SW_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=QueSp_SW_sites,
+      ClCut_age= pl_bau_pars$QueSp_SW$ClCut_age,
+      nTree_seedlings=pl_bau_pars$QueSp_SW$nTree_seedlings,
+      year_seedling=pl_bau_pars$QueSp_SW$year_seedling,
+      baThin=pl_bau_pars$QueSp_SW$baThin,
+      yearThin=pl_bau_pars$QueSp_SW$yearThin,
+      hThin = pl_bau_pars$QueSp_SW$hThin,
+      dbhThin = pl_bau_pars$QueSp_SW$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+    
+    
+    # CON_CC
+    if(length(CON_CC_sites)>0) initPrebas <- bau_in_thinningMatrix(
+      initPrebas=initPrebas,
+      siteXs=CON_CC_sites,
+      ClCut_age= pl_bau_pars$CON_CC$ClCut_age,
+      nTree_seedlings=pl_bau_pars$CON_CC$nTree_seedlings,
+      year_seedling=pl_bau_pars$CON_CC$year_seedling,
+      baThin=pl_bau_pars$CON_CC$baThin,
+      yearThin=pl_bau_pars$CON_CC$yearThin,
+      hThin = pl_bau_pars$CON_CC$hThin,
+      dbhThin = pl_bau_pars$CON_CC$dbhThin,
+      hcThin = 1,
+      fracThin = 1,
+      dens_after_Thin = -999,
+      acThin = -999,
+      pHarvTreeThin = 1)
+    
+  }
   
   return(initPrebas)    
 }
