@@ -1031,7 +1031,7 @@ forest_management_update <- function(initPrebas,
                                      lit_bau_pars=lit_bau_pars_def,
                                      de_bau_pars=de_bau_pars_def,
                                      pl_bau_pars=pl_bau_pars_def){
-  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland")
+  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland","UK")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                                                  " is not between the available countries: ", available_countries,fill = TRUE))
@@ -2070,24 +2070,24 @@ forest_management_update <- function(initPrebas,
   if(country == "UK" & management=="bau"){
     
     ##find the sites with alternative management##
-    PopTr_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    PopTr_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                 c("FRA_PopTr","FRA_PopX"))])
-    BL_softwood_limited_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    BL_softwood_limited_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                 c("FRA_BLS09","FRA_BLS01","IRL_BLS02","FRA_BLS02","FRA_BLSCON02","FRA_CONBLS02"))])
-    BL_hardwood_limited_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    BL_hardwood_limited_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                 c("FRA_MIX06","FRA_BLSCON03","FRA_CasSa","FRA_BetPe","FRA_MIX03","IRL_BLS01",
                                   "FRA_MIX04", "FRA_MIX11", "IRL_MIX02"))])
-    PinCo_CC_good_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    PinCo_CC_good_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                 c("FRA_PinNi","IRL_MIX01"))])
-    PinCo_CC_low_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    PinCo_CC_low_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                 c("FRA_CONBLS05","IRL_CON02"))])
-    PicSi_good_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    PicSi_good_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                 c("IRL_PicSi"))])
-    FagSy_SW_High_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    FagSy_SW_High_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                       c("FRA_FagSy","FRA_FagSy-AbiAl"))])
-    conif_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type %in% 
+    conif_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                                     c("IRL_CON01", "FRA_PinSy","FRA_CON03","IRL_CONBLS02"))])
-    QueSp_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$forest_type == "FRA_QueRo-PinSy")])
+    QueSp_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "FRA_QueRo-PinSy")])
     ##----##
     
     ## update the initialization##
