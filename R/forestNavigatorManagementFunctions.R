@@ -1031,7 +1031,7 @@ forest_management_update <- function(initPrebas,
                                      lit_bau_pars=lit_bau_pars_def,
                                      de_bau_pars=de_bau_pars_def,
                                      pl_bau_pars=pl_bau_pars_def){
-  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland","UK")
+  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland","United Kindom")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                                                  " is not between the available countries: ", available_countries,fill = TRUE))
@@ -2067,7 +2067,7 @@ forest_management_update <- function(initPrebas,
       pHarvTreeThin = 1)
   }
   
-  if(country == "UK" & management=="bau"){
+  if(country == "United Kindom" & management=="bau"){
     
     ##find the sites with alternative management##
     PopTr_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
