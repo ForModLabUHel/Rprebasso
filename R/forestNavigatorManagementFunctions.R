@@ -973,7 +973,7 @@ de_bau_pars_def[[forType]]$ClCut_age = 130
 de_bau_pars_def[[forType]]$nTree_seedlings = 2500
 de_bau_pars_def[[forType]]$year_seedling = 3
 de_bau_pars_def[[forType]]$baThin = c(0.75,0.75,0.75,0.2,0.5)
-de_bau_pars_def[[forType]]$yearThin = c(40,65,90,110,120,130)
+de_bau_pars_def[[forType]]$yearThin = c(40,80,110,120,130)
 de_bau_pars_def[[forType]]$hThin = c(0.98,0.98,0.98,1,1)
 de_bau_pars_def[[forType]]$dbhThin = c(0.98,0.98,0.98,1,1)
 
@@ -1003,10 +1003,10 @@ forType <- "CON_CC"
 pl_bau_pars_def[[forType]]$ClCut_age = 80
 pl_bau_pars_def[[forType]]$nTree_seedlings = 4000
 pl_bau_pars_def[[forType]]$year_seedling = 3
-pl_bau_pars_def[[forType]]$baThin = c(0.7,0.80,0.9,0.95)
+pl_bau_pars_def[[forType]]$baThin = c(0.7,0.80,0.85,0.9,0.95)
 pl_bau_pars_def[[forType]]$yearThin = c(25,35,45,55,65)
-pl_bau_pars_def[[forType]]$hThin = c(1,1,1,1)
-pl_bau_pars_def[[forType]]$dbhThin = c(1,1,1,1)
+pl_bau_pars_def[[forType]]$hThin = c(1,1,1,1,1)
+pl_bau_pars_def[[forType]]$dbhThin = c(1,1,1,1,1)
 
 
 #' management function updater (ForestNavigator)
@@ -1031,7 +1031,7 @@ forest_management_update <- function(initPrebas,
                                      lit_bau_pars=lit_bau_pars_def,
                                      de_bau_pars=de_bau_pars_def,
                                      pl_bau_pars=pl_bau_pars_def){
-  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania")
+  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland")
   available_managements <- c("bau", "noman")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                                                  " is not between the available countries: ", available_countries,fill = TRUE))
@@ -1442,7 +1442,7 @@ forest_management_update <- function(initPrebas,
     
     ##find the sites with alternative management##
     PicSi_good_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
-                           c("PicSi_CC_good", "PicSi_CC_CT_good"))])
+                           c("PicSi_CC_good", "PicSi_CC_CT_good","PicSi_CT_CC_good"))])
     PicSi_low_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% 
                            c("PicSi_CC_low", "PicSi_CC_CT_low"))])
     PicSidom_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PicSidom_CC")])
@@ -1790,7 +1790,7 @@ forest_management_update <- function(initPrebas,
     PicAb_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PicAb_CC")])
     PicAb_GSC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PicAb_GSC")])
     
-    PicAb_BeSp_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PicAb_BeSp_CC")])
+    PicAb_BeSp_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% c("PicAb_BeSp_CC","PicAb_BetSp_CC"))])
     PinSy_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PinSy_CC")])
     PinSy_SW_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PinSy_SW")])
     PinSy_BetPe_CC_sites <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man == "PinSy_BetPe_CC")])
