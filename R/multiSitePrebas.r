@@ -51,9 +51,7 @@
 #' @param LUEtrees
 #' @param LUEgv
 #' @param alpharNcalc #alphar calculations based on Nitrogen availability. deafault value is FALSE (no nitrogen impact). =1calculates N uptake
-#' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
-#' @param TcurrClim # vector of average annual temperature for the climIDs at current climate. if NA the first five years of the simulations will be used to calculate it.
-#' @param PcurrClim # vector of average annual precipitation for the climIDs current climate. if NA the first five years of the simulations will be used to calculate it.
+#' @param p0currClim # vector of average annual P0 for the climIDs at current climate. if NA the first yearsCurrClimAv years of the simulations will be used to calculate it.
 #' @param latitude latitude of the site
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #' @param SMIt0 site vector of initial SoilMoirture index
