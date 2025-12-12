@@ -1078,9 +1078,10 @@ endif
 !set species from thinning matrix (strart)
    species = int(thinning(countThinning,2))
    stand(4) = thinning(countThinning,2)
-   D = STAND_all(12,ij)
-   H = STAND_all(11,ij)
-   BA = STAND_all(13,ij)
+   D = STAND(12)
+   H = STAND(11)
+   BA = STAND(13)
+   hc = STAND(14)
    
      !!!check if ingrowth and calculate dominant species
    if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
@@ -1094,7 +1095,6 @@ endif
 	prebasFlags(9) = ij
    endif
 !set species from thinning matrix (end)
-
 
   ! if(year >= yearX) then
     STAND_tot = STAND
@@ -1156,8 +1156,8 @@ endif
      if (thinning(countThinning,4) /= -999.) H = thinning(countThinning,4)
      if (thinning(countThinning,7) /= -999.) stand(14) = thinning(countThinning,7)
      if (thinning(countThinning,5) /= -999.) D = thinning(countThinning,5)
-     Hc=stand(14)
-     Lc = H - Hc !Lc
+	 Hc=stand(14)
+	 Lc = H - Hc !Lc
      rc = Lc / (H-1.3) !crown ratio
      Nold = N
      wf_STKG_old = wf_STKG
@@ -1170,7 +1170,8 @@ endif
      else
        A = stand(16) * B/stand(35)
      endif
-     ! Update dependent variables
+	 
+	 ! Update dependent variables
      hb = par_betab * Lc**par_x
      gammaC = par_cR/stand(36)
      par_rhof = par_rhof1 * ETS + par_rhof2
@@ -1192,7 +1193,6 @@ endif
       yearX = 0.
      endif
      !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
-
       if(isnan(stand(50))) stand(50) = 0
       if(isnan(stand(53))) stand(53) = 0
       if(isnan(stand(54))) stand(54) = 0
@@ -1251,7 +1251,6 @@ endif
   S_branch = S_branch + remhW_branch + remhW_croot * 0.83 + remhWdb
   S_wood = S_wood + remhW_croot*0.17 + remhW_stem
   endif
-
 
      outt(11,ij,2) = STAND_tot(11)
      outt(12,ij,2) = STAND_tot(12)
