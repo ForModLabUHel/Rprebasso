@@ -35,7 +35,7 @@ TransectRun(
   inDclct = NA,
   inAclct = NA,
   inHclct = NA,
-  yassoRun = 0,
+  yassoRun = 1,
   smoothP0 = 1,
   smoothETS = 1,
   smoothYear = 5,

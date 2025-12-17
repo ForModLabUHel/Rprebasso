@@ -83,7 +83,9 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
  alpha_fuel = (alpha_fuel_1hr*fuel_1hr+alpha_fuel_10hr*fuel_10hr+alpha_fuel_100hr*fuel_100hr)/fuel_1to100hr_sum
 
  leaf_moisture = max(0., (10./9.*soil_moisture-1./9.)) ! Eq. B2 in TH2010
- alpha_livegrass = -log(leaf_moisture)/NI
+do i = 1, nDays
+ if(NI(i)>0.) alpha_livegrass(i) = -log(leaf_moisture)/NI(i)
+enddo
  char_alpha_fuel = alpha_fuel*ratio_dead_fuel+alpha_livegrass*ratio_live_fuel
 
 ! Moisture of extinction
@@ -112,5 +114,6 @@ do i = 1, nDays
  if(net_fuel(i)>0.001) numfire(i) = FDI(i) * (human_i(i)+lightning_i(i))*0.01d0*0.22d0
 enddo
  n_fire_year = sum(numfire)
+ ! FDI =char_moistfactor*rel_fuel_moisture
 
 end subroutine
