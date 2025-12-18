@@ -1020,7 +1020,7 @@ if(!is.null(yearFert)){
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
-  names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  # names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   prebas$alpharNcalc = multiSiteInit$alpharNcalc
   dimnames(prebas$outDist) <- dimnames(outDist)
   dimnames(prebas$siteinfoDist) <- dimnames(multiSiteInit$siteInfoDist)
@@ -1313,7 +1313,7 @@ regionPrebas <- function(multiSiteInit,
 
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
-  names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  # names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   prebas$alpharNcalc = multiSiteInit$alpharNcalc
   
   if(!is.null(multiSiteInit$NI)) prebas$NI <- multiSiteInit$NI
@@ -1611,6 +1611,6 @@ reStartRegionPrebas <- function(multiSiteInit,
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
    dimnames(prebas$siteInfoDist) <- dimnames(multiSiteInit$siteInfoDist)
   dimnames(prebas$outDist) <- dimnames(multiSiteInit$outDist)
-  names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
+  # names(prebas$siteInfo) <- names(multiSiteInit$siteInfo)
   return(prebas)
 }
