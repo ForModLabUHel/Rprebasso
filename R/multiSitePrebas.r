@@ -602,8 +602,8 @@ if(alpharNcalc){
 } 
 
   dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3))#### build daily output array for PRELES
-  dailyPRELES[,,1] <- popden ###fill preles daily output with population density that will be used internalkly in prebas for fire risk calculations
-  dailyPRELES[,,2] <- lightnings ###fill preles daily output with lightnings that will be used internalkly in prebas for fire risk calculations
+  dailyPRELES[,,1] <- popden[,1:(maxYears*365)] ###fill preles daily output with population density that will be used internalkly in prebas for fire risk calculations
+  dailyPRELES[,,2] <- lightnings[,1:(maxYears*365)] ###fill preles daily output with lightnings that will be used internalkly in prebas for fire risk calculations
   dailyPRELES[,,3] <- NI[climIDs,1:(maxYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
 
   multiOut[,1,46,1,2] <- SMIt0 #initialize SMI first year 
