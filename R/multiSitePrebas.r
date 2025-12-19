@@ -1231,8 +1231,9 @@ regionPrebas <- function(multiSiteInit,
                               dist_flag,
                               multiSiteInit$CO2model,
                               0,### fixAinit
-                              -777)) ###ingrowth flag
-
+                              -777,###ingrowth flag
+                              multiSiteInit$FDIout ####output FDI instead of SW
+                              )) 
 
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
