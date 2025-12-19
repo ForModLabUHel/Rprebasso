@@ -1269,7 +1269,9 @@ reStartRegionPrebas <- function(multiSiteInit,
                               dist_flag,
                               multiSiteInit$CO2model,
                               0,### fixAinit
-                              -777)) ###ingrowth flag
+                              -777,###ingrowth flag
+                              multiSiteInit$FDIout ####output FDI instead of SW
+  )) 
 
   # if(length(startSimYear)==1) startSimYear <- rep(startSimYear,multiSiteInit$nSites)
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
