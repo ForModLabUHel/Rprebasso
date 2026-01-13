@@ -363,18 +363,19 @@ prebas <- function(nYears,
     if(is.na(inDclct)) inDclct <- 9999999.99
     if(is.na(inAclct)) inAclct <- 9999999.99
   }
-  # if(ClCut==1 & all(is.na(initVar)) & is.na(inDclct)) inDclct <-
-  if(ClCut==1 & all(is.na(inDclct))) inDclct <-
-    c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]), ####pine in Finland
-      ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
-      ClCutD_Birch(ETSmean,ETSthres,siteInfo[3]), ####birch in Finland
-      NA,NA,NA,NA,NA)  ###"fasy","pipi","eugl","rops"
-  # if(ClCut==1 & all(is.na(initVar)) & is.na(inAclct)) inAclct <-
-  if(ClCut==1 & all(is.na(inAclct))) inAclct <-
-    c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),   ####pine in Finland
-      ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
-      ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]),  ####birch in Finland
-      80,50,13,30,80)  ###"fasy","pipi","eugl","rops"
+  if(ClCut==1 & all(is.na(inDclct))){
+    inDclct <- inDclct_def
+    inDclct <- c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]), ####pine in Finland
+                 ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
+                 ClCutD_Birch(ETSmean,ETSthres,siteInfo[3])) ####birch in Finland
+  } 
+  
+  if(ClCut==1 & all(is.na(inAclct))){
+    inAclct <- inAclct_def
+    inAclct <- c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),   ####pine in Finland
+                 ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland 
+                 ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]))  ####birch in Finland
+  } 
   if(any(is.na(inDclct))) inDclct[which(is.na(inDclct))] <- 9999999.99
   if(length(inDclct)==1) inDclct<- rep(inDclct,nSp)
   if(any(is.na(inAclct))) inAclct[which(is.na(inAclct))] <- 9999999.99
