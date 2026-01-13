@@ -119,6 +119,11 @@ pCROB[,12] <- c(0.051373436,237.3752612,35,0.260359518,0.995872355,2.440734706,
                -2.948,0.059,-0.03,0.035899753,50,10,0.962722532,0,1.1,1.091,1,2.5,0.8,
                0.0,0.0,-9999,-9999,-9999,-9999)
 
+#####default clearcut parameters 
+inDclct_def <- rep(NA,(dim(pCROB)[2]))  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
+inAclct_def <- c(80,80,80,80,50,13,30,50,13,120,100,80)  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
+
+
 pCROBAS_Ritika <- pCROB
 pCROBAS_Ritika[,1] <- c(2.499834e-01, 2.083953e+02, 2.148298e+01, 3.132079e-01, 3.850065e+00,
                         8.716194e-01, 2.994706e-01, 2.154444e-01, 2.014719e-01, 3.937977e-02,
