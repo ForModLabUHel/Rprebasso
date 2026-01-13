@@ -154,6 +154,10 @@ pCROBAS_Ritika[,3] <- c(1.567602e-01, 2.521491e+02, 4.213800e+01, 3.111809e-01, 
             2.500000e+00, 8.000000e-01, 9.999000e+00, 4.600000e-01, -9.999000e+03,
             -9.999000e+03, -9.999000e+03, -9.999000e+03)
 
+#####default clearcut parameters
+inDclct_def <- rep(NA,(dim(pCROB)[2]))  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
+inAclct_def <- c(80,80,80,80,50,13,30,50,13,120,100,80)  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
+
 
 pPREL = c(413.000000, 0.450000, 0.118000, 3.000000, 0.745700, 10.930000, -3.063000, 17.720000,
           -0.102700, 0.036730, 0.777900, 2000,0.4, 0.271500, 0.835100, 0.073480,
@@ -611,6 +615,7 @@ tTapio[2,3,2,1:7] <- c(1000, 0.2, 4, 7, 2000, 2500, 7)
 tTapio[3,3,2,1:7] <- c(1000, 0.2, 4, 7, 2000, 2500, 7)
 tTapio[4,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
 tTapio[5,3,2,1:7] <- c(1000, 0.2, 999, 999, 99999, 99999, 999)
+
 
 ###default value for the Hc model selection. 1 uses the pipemodel: HcPipeMod() function
 HcModV_def <- 1
