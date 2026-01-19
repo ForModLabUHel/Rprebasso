@@ -197,7 +197,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
   siteInfo[, 3] <- SiteType
   siteInfo[, 2] <- siteInfo[, 1] <- 1:nSites
   
-  if (is.na(species) & all(is.na(initVar))) {
+  if (all(is.na(species)) & all(is.na(initVar))) {
     species <- "Pine"
     warning("Species was assigned to 'Pine' since species was not provided")
   }
@@ -207,30 +207,44 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     if(length(dim(initVar))>2) siteInfo[, 8:9] <- dim(initVar)[3]
   }
   
-  if (species == "Pine" & all(is.na(initVar))) {
-    initVar <- aperm(array(c(1, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
-    siteInfo[, 8:9] <- 1 # even-aged pure forests
-  }
-  
-  if (species == "Spruce" & all(is.na(initVar))) {
-    initVar <- aperm(array(c(2, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
-    siteInfo[, 8:9] <- 1 # even-aged pure forests
-  }
-  
-  if (species == "Birch" & all(is.na(initVar))) {
-    initVar <- aperm(array(c(3, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
-    siteInfo[, 8:9] <- 1 # even-aged pure forests
+  if(is.character(species)){
+    if (species == "Pine" & all(is.na(initVar))) {
+      initVar <- aperm(array(c(1, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
+      siteInfo[, 8:9] <- 1 # even-aged pure forests
+    }
+    
+    if (species == "Spruce" & all(is.na(initVar))) {
+      initVar <- aperm(array(c(2, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
+      siteInfo[, 8:9] <- 1 # even-aged pure forests
+    }
+    
+    if (species == "Birch" & all(is.na(initVar))) {
+      initVar <- aperm(array(c(3, NA, initSeedling.def), dim = c(7, 7, 1)), c(2, 1, 3))
+      siteInfo[, 8:9] <- 1 # even-aged pure forests
+    }
+
+    if (species == "Mixed" & all(is.na(initVar))) {
+      initVar <- array(NA, dim = c(7, 7, 3))
+      initVar[, , 1] <- matrix(c(1, NA, initSeedling.def), 7, 7, byrow = T)
+      initVar[, , 2] <- matrix(c(2, NA, initSeedling.def), 7, 7, byrow = T)
+      initVar[, , 3] <- matrix(c(3, NA, initSeedling.def), 7, 7, byrow = T)
+      initVar[, 5, 1:2] <- initVar[, 5, 1:2] * 0.45 ## 45% basal area is pine and 45% spruce
+      initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
+    }
+    
   }
   
   if(!all(is.na(soilPar))) siteInfo[,10:12] <- soilPar 
   
-  if (species == "Mixed" & all(is.na(initVar))) {
-    initVar <- array(NA, dim = c(7, 7, 3))
-    initVar[, , 1] <- matrix(c(1, NA, initSeedling.def), 7, 7, byrow = T)
-    initVar[, , 2] <- matrix(c(2, NA, initSeedling.def), 7, 7, byrow = T)
-    initVar[, , 3] <- matrix(c(3, NA, initSeedling.def), 7, 7, byrow = T)
-    initVar[, 5, 1:2] <- initVar[, 5, 1:2] * 0.45 ## 45% basal area is pine and 45% spruce
-    initVar[, 5, 3] <- initVar[, 5, 3] * 0.1 ## 10% basal area is birch
+  
+  if (is.numeric(species) & all(is.na(initVar))) {
+    initVar <- array(NA, dim = c(7, 7, length(species)))
+    for(jkl in 1:(length(species))){
+      initVar[, , jkl] <- matrix(c(species[jkl], NA, initSeedling.def), 7, 7, byrow = T)
+    } 
+    initVar[, 5,] <- initSeedling.def[3]/length(species)
+    siteInfo[, 8] <- length(species) #nLAyesr
+    siteInfo[, 9] <- length(unique(species)) #nSpecies
   }
   
   if (AgeEffect == T) {

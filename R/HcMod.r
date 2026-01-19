@@ -181,3 +181,23 @@ HcModDef[[7]] <- HcModDef[[8]] <-function(inputs){
   Hc_sim <- H/(1+exp(pValues[1]-pValues[2]*log(BA_tot)+pValues[3]*D/H))
   return(pmin(Hc_sim,0.95*H,na.rm = T)) 
 } 
+
+
+###default HCmodel for catalonian calibrations
+HcModDef[[13]] <- HcModDef[[14]] <- HcModDef[[15]] <- 
+  HcModDef[[16]] <- HcModDef[[17]] <- HcModDef[[18]] <- 
+  HcModDef[[19]]<- HcModDef[[20]] <- HcModDef[[21]] <- 
+  HcModDef[[22]] <- function(inputs){ 
+  pValues=inputs[1:7]
+  H=inputs[8]
+  D=inputs[9]
+  age=inputs[10]
+  BA_sp=inputs[11]
+  BA_tot=inputs[12]
+  if(H>pValues[1]){
+    Hc_sim <- pValues[2] + pValues[3] * H
+  }else{
+    Hc_sim <- pValues[3] * H
+  }
+  return(pmin(Hc_sim,0.95*H,na.rm = T)) 
+} 
