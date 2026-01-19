@@ -167,7 +167,7 @@ initBiomasses <- function(pCro,initVarX){
   initVarX<-as.matrix(initVarX) #change vector to matrix when maxlayer=1
   siteType <- initVarX[8,1]
   par_alfar0 <- initVarX[9,]
-  layerXs <- which(initVarX[1,] %in% 1:ncol(pCROB))
+  layerXs <- which(initVarX[1,] %in% 1:ncol(pCro))
   ##set parameters
   par_betab <- pCro[13,initVarX[1,layerXs]]
   par_x <- pCro[19,initVarX[1,layerXs]]
@@ -220,7 +220,7 @@ initBiomasses <- function(pCro,initVarX){
   V = W_stem / par_rhow
   biomassesX <- rbind(wf_STKG,W_froot,W_wsap,W_c,W_s,W_branch,W_croot,Wsh,Wdb,W_stem,V,W_crh)
   biomasses<-matrix(0,nrow = nrow(biomassesX), ncol = ncol(initVarX))
-  biomasses[,layerXs]<-biomassesX
+  biomasses[,layerXs]<-as.matrix(biomassesX)
   # biomasses[which(is.na(biomasses))] <- 0.
   return(biomasses)
 }
