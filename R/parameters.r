@@ -1,10 +1,10 @@
 # ####code to create parameters objects  ##start
 # 
-# # library(data.table)
-# # library(readxl)
+# library(data.table)
+# library(readxl)
 # 
 # ####default pcrobas parameters
-# pCROB <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pCROBAS")) 
+# pCROB <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pCROBAS"))
 # pCROBASnames <- pCROB$pNames
 # pCROB <- pCROB[,2:(dim(pCROB)[2])]
 # speciesNam <- names(pCROB)
@@ -12,17 +12,17 @@
 # rownames(pCROB) <- pCROBASnames
 # 
 # ###new parameters from ritika's calibration for the boreal species
-# pCROBAS_Ritika_new <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pCROBAS_Ritika")) 
+# pCROBAS_Ritika_new <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pCROBAS_Ritika"))
 # pCROBAS_Ritika <- pCROB
 # pCROBAS_Ritika[,1:3] <- pCROBAS_Ritika_new[,2:4]
 # 
 # #####default clearcut parameters
-# pars_clcut <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pClearcut")) 
-# inDclct_def <- rep(NA,(dim(pCROB)[2]))  
+# pars_clcut <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pClearcut"))
+# inDclct_def <- rep(NA,(dim(pCROB)[2]))
 # inAclct_def <- pars_clcut$inAclct_def
 # 
 # ####read preles parameters
-# pPRELES_tab <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES")) 
+# pPRELES_tab <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES"))
 # pPREL <- pPRELES_tab$pPREL
 # pPRELESeugl <-  pPRELES_tab$eucalyptus
 # pPRELESpiabDE <- pPRELES_tab$pPRELESpiabDE
@@ -42,10 +42,10 @@
 # pLUEgv <- pPREL[5]
 # 
 # ####read parsAWEN
-# parsAWEN <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pAWEN")) 
+# parsAWEN <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pAWEN"))
 # 
 # ####read Hcmodel parameters
-# pHcM <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pHcM")) 
+# pHcM <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pHcM"))
 # 
 # save(pCROB,pCROBAS_Ritika,
 #      speciesNam, nparsAll,
