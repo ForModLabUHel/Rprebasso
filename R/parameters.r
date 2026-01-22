@@ -47,6 +47,12 @@
 # ####read Hcmodel parameters
 # pHcM <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pHcM"))
 # 
+# ###convert to matrices
+# pCROB = as.matrix(pCROB)
+# pCROBAS_Ritika = as.matrix(pCROBAS_Ritika)
+# parsAWEN = as.matrix(parsAWEN)
+# pHcM = as.matrix(pHcM)
+# 
 # save(pCROB,pCROBAS_Ritika,
 #      speciesNam, nparsAll,
 #      inDclct_def,inAclct_def,
