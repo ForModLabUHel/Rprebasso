@@ -222,7 +222,7 @@ initBiomasses <- function(pCro,initVarX){
   biomassesX <- rbind(wf_STKG,W_froot,W_wsap,W_c,W_s,W_branch,W_croot,Wsh,Wdb,W_stem,V,W_crh)
   biomasses<-matrix(0,nrow = nrow(biomassesX), ncol = ncol(initVarX))
   biomasses[,layerXs]<-as.matrix(biomassesX)
-  # biomasses[which(is.na(biomasses))] <- 0.
+  biomasses[which(is.na(biomasses))] <- 0.
   return(biomasses)
 }
 
