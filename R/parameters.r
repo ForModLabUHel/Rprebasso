@@ -112,7 +112,7 @@ pCROB_prior[,11] <- c(0.05,400,26,0.33,2.5,0.25,0.25,0.45,0.45,0.020088308,2,1.1
                 0.2,0.7,0.7,0.0,0.001,-4.5752, 0.942) # Quercus ilex in Spain (Literature-based/guessed)
 
 #####default clearcut parameters 
-inDclct_def <- rep(NA,(dim(pCROB)[2]))  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
+inDclct_def <- rep(NA,(dim(pCROB_prior)[2]))  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
 inAclct_def <- c(80,80,80,80,50,13,30,50,13,120,100,80)  ###pisy,piab,birch, "fasy","pipi","eugl","rops","popu",'eugrur','piab(DE)','quil')
 
 pCROBAS_Ritika <- pCROB_prior ####Use Ritika's parameters as default
