@@ -1,4 +1,6 @@
 useDynLib(Rprebasso)
 exportPattern("^[[:alpha:]]+")
-importFrom(plyr,aaply)
-importFrom(abind,abind)
+importFrom(plyr)
+importFrom(dplyr)
+importFrom(abind)
+importFrom(data.table)
