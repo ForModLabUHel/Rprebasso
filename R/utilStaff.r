@@ -1067,12 +1067,18 @@ getVarNam <- function(){
   #' @examples
   NesterovInd <- function(rain, tmin, tmax){
     nDays <- length(rain)
-    NI <- rep(0,nDays)
-    daysX <- (which(rain[2:nDays]< 3 & (tmin[2:nDays]-4)>=0))+1 #do not consider the first day
-    if(length(daysX)>0){
-      NI[daysX] = (tmax[daysX]*(tmax[daysX]-tmin[daysX]-4.))+
-        (tmax[daysX-1]*(tmax[daysX-1]-tmin[daysX-1]-4))  
-    }
+    tdew <- tmin-4
+    NIraw <- tmax*(tmax-tdew)
+    daysx <- as.integer(tdew >= 0 & rain < 3)
+    # Group id increases every time ind == 0, so cumsum restarts after zeros
+    grp <- cumsum(daysx == 0)
+    
+    # Cumulative sum of x within each group, but only where ind == 1
+    NI <- ave(NIraw * as.integer(daysx == 1), grp, FUN = cumsum)
+    
+    # Optional: set output to 0 (or NA) where ind == 0
+    NI[daysx == 0] <- 0  # or NA_real_
+    
     return(NI)
   }
   
