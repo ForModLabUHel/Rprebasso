@@ -16,15 +16,20 @@ contains
   function fS_model(S, T, GPP_par) result(fS)
     real(8), intent(inout) :: S          
     real(8), intent(in)    :: T
-    type(p2), intent(in)    :: GPP_par
+    real(8), intent(in)    :: GPP_par(13)
     real(8)                :: fS
     real(8)                :: temp
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
+
+!read parameters
+	include 'init_gppPar_preles.h'
 
     ! *S = *S + (T-*S)/GPP_par.tau;
-    S = S + (T - S) / GPP_par%tau
+    S = S + (T - S) / GPP_par_tau
 
     ! if (0 > *S-GPP_par.S0) fS=0; else fS= *S-GPP_par.S0;
-    temp = S - GPP_par%S0
+    temp = S - GPP_par_S0
     if (temp < 0.0) then
        fS = 0.0
     else
@@ -32,7 +37,7 @@ contains
     end if
 
     ! if (1 < fS/GPP_par.Smax) fS=1; else fS=fS/GPP_par.Smax;
-    temp = fS / GPP_par%Smax
+    temp = fS / GPP_par_Smax
     if (temp > 1.0) then
        fS = 1.0
     else
@@ -45,25 +50,30 @@ contains
   !  fPheno_model – phenology model
   !=================================================================
   function fPheno_model(GPP_par, T, PhenoS, DOY, fS) result(fPheno)
-    type(p2),    intent(in)    :: GPP_par
+    real(8), intent(in)    :: GPP_par(13)
     real(8),    intent(in)    :: T
     real(8),    intent(inout) :: PhenoS   ! updated in place
     integer,     intent(in)    :: DOY
     real(8),    intent(in)    :: fS
     real(8)                   :: fPheno
     real(8)                   :: m
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
 
-    if (GPP_par%t0 > -998.0) then
+!read parameters
+	include 'init_gppPar_preles.h'
+
+    if (GPP_par_t0 > -998.0) then
        ! Budbreak must occur between specified min. date and end of July
-       if ( (DOY > (GPP_par%t0 - 0.5)) .and. (DOY < 213) ) then
-          m = T - GPP_par%tcrit
+       if ( (DOY > (GPP_par_t0 - 0.5)) .and. (DOY < 213) ) then
+          m = T - GPP_par_tcrit
           if (m < 0.0) m = 0.0
           PhenoS = PhenoS + m
        else
           PhenoS = 0.0
        end if
 
-       if (PhenoS > GPP_par%tsumcrit - 0.005) then
+       if (PhenoS > GPP_par_tsumcrit - 0.005) then
           fPheno = 1.0
        else
           fPheno = 0.0
@@ -87,19 +97,25 @@ contains
  
   function fCO2_model_mean(CO2model, CO2, GPP_par) result(fCO2)
     real(8), intent(in) :: CO2
-    type(p2), intent(in) :: GPP_par
+    real(8), intent(in)    :: GPP_par(13)
     integer,  intent(in) :: CO2model
     real(8)             :: fCO2
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
+
+!read parameters
+	include 'init_gppPar_preles.h'
+
  
     select case (CO2model)
     case (1)      ! Kolari
-    fCO2 = 1.0 + (CO2 - 380.0) / (CO2 - 380.0 + GPP_par%bCO2)
+    fCO2 = 1.0 + (CO2 - 380.0) / (CO2 - 380.0 + GPP_par_bCO2)
  
     case (2)      ! Launiainen
-    fCO2 = 1.0 + (CO2-380)/(CO2-380+GPP_par%bCO2)
+    fCO2 = 1.0 + (CO2-380)/(CO2-380+GPP_par_bCO2)
      
    case default   ! Kolari
-   fCO2 = 1.0 + (CO2 - 380.0) / (CO2 - 380.0 + GPP_par%bCO2)
+   fCO2 = 1.0 + (CO2 - 380.0) / (CO2 - 380.0 + GPP_par_bCO2)
   
     end select
     
@@ -113,23 +129,28 @@ end function fCO2_model_mean
       
   function fCO2_ET_model_mean(CO2model, CO2, GPP_par) result(fCO2_ET)
     real(8), intent(in) :: CO2
-    type(p2), intent(in) :: GPP_par
+    real(8), intent(in)    :: GPP_par(13)
     integer,  intent(in) :: CO2model
     real(8)             :: fCO2_ET
     REAL(8)             :: f_C_P
     REAL(8)             :: f_C_ET
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
+
+!read parameters
+	include 'init_gppPar_preles.h'
     
     select case (CO2model)
     case (1)   ! Kolari
-    fCO2_ET = 1.0 - (CO2 - 380.0) / (CO2 - 380.0 + GPP_par%bCO2)
+    fCO2_ET = 1.0 - (CO2 - 380.0) / (CO2 - 380.0 + GPP_par_bCO2)
   
    case (2)   ! Launiainen
-   f_C_P = 1 + GPP_par%bCO2 * log(CO2/380);
-   f_C_ET = 1 + GPP_par%xCO2 * log(CO2/380);
+   f_C_P = 1 + GPP_par_bCO2 * log(CO2/380);
+   f_C_ET = 1 + GPP_par_xCO2 * log(CO2/380);
    fCO2_ET = (1/f_C_P)*f_C_ET;
  
    case default   ! Kolari
-   fCO2_ET = 1.0 - (CO2 - 380.0) / (CO2 - 380.0 + GPP_par%bCO2)
+   fCO2_ET = 1.0 - (CO2 - 380.0) / (CO2 - 380.0 + GPP_par_bCO2)
    
    endselect
    
@@ -183,8 +204,8 @@ end function fCO2_model_mean
     real(8), intent(in)    :: theta
     real(8), intent(in)    :: fAPAR
     real(8), intent(in)    :: fSsub
-    type(p2), intent(in)    :: GPP_par
-    type(p1), intent(in)    :: Site_par
+    real(8), intent(in)    :: GPP_par(13)
+    real(8), intent(in)    :: Site_par(10)
     real(8), intent(out)   :: fL           ! light stress factor
     real(8), intent(out)   :: fD           ! drought stress factor
     real(8), intent(out)   :: fW           ! water stress factor
@@ -196,13 +217,21 @@ end function fCO2_model_mean
     real(8) :: thetavol, REW
     real(8) :: fCO2, fDsub, fWsub, fLsub, fEsub
     real(8) :: pow_term
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
+	real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+
+!read parameters
+	include 'init_gppPar_preles.h'
+	include 'init_sitePar_preles.h'
 
     ! --------------------------------------------------------------
     ! Soil water potential (relative to field capacity)
     ! --------------------------------------------------------------
-    thetavol = theta / Site_par%soildepth
-    REW = (thetavol - Site_par%ThetaPWP) / &
-          (Site_par%ThetaFC - Site_par%ThetaPWP)
+    thetavol = theta / Site_par_soildepth
+    REW = (thetavol - Site_par_ThetaPWP) / &
+          (Site_par_ThetaFC - Site_par_ThetaPWP)
 
     ! --------------------------------------------------------------
     ! Drought stress – exponential response : select
@@ -211,20 +240,20 @@ end function fCO2_model_mean
     select case (CO2model)
     case (1)   ! Kolari
     
-    pow_term = (380.0 / CO2) ** GPP_par%xCO2
-    fDsub = exp( GPP_par%kappa * pow_term * D )
+    pow_term = (380.0 / CO2) ** GPP_par_xCO2
+    fDsub = exp( GPP_par_kappa * pow_term * D )
     if (fDsub > 1.0) fDsub = 1.0
     
     case (2)   ! Launiainen
     
-    pow_term = (380.0 / CO2) ** GPP_par%xCO2
-    fDsub = exp( GPP_par%kappa * D )
+    pow_term = (380.0 / CO2) ** GPP_par_xCO2
+    fDsub = exp( GPP_par_kappa * D )
     if (fDsub > 1.0) fDsub = 1.0
     
     case default   ! Kolari
     
-    pow_term = (380.0 / CO2) ** GPP_par%xCO2
-    fDsub = exp( GPP_par%kappa * pow_term * D )
+    pow_term = (380.0 / CO2) ** GPP_par_xCO2
+    fDsub = exp( GPP_par_kappa * pow_term * D )
     if (fDsub > 1.0) fDsub = 1.0
     
     endselect
@@ -232,16 +261,16 @@ end function fCO2_model_mean
     ! --------------------------------------------------------------
     ! Water stress – based on relative extractable water (REW)
     ! --------------------------------------------------------------
-    if (GPP_par%soilthres < -998.0) then
+    if (GPP_par_soilthres < -998.0) then
        fWsub = 1.0                     ! no water control
     else
-        fWsub = fREW_fun(REW, GPP_par%soils, GPP_par%soilthres, REWmodel)
+        fWsub = fREW_fun(REW, GPP_par_soils, GPP_par_soilthres, REWmodel)
     end if
 
     ! --------------------------------------------------------------
     ! Light limitation factor (L)
     ! --------------------------------------------------------------
-    fLsub = 1.0 / ( GPP_par%gamma * ppfd + 1.0 )
+    fLsub = 1.0 / ( GPP_par_gamma * ppfd + 1.0 )
 
     ! --------------------------------------------------------------
     ! Combined stress factor (minimum of drought and water stress)
@@ -261,7 +290,7 @@ end function fCO2_model_mean
     ! --------------------------------------------------------------
     ! Reference GPP (CO₂ = 380 ppm)
     ! --------------------------------------------------------------
-    gpp380 = GPP_par%beta * ppfd * fAPAR * fSsub * fLsub * fEsub
+    gpp380 = GPP_par_beta * ppfd * fAPAR * fSsub * fLsub * fEsub
 
     ! --------------------------------------------------------------
     ! Apply CO₂ effect

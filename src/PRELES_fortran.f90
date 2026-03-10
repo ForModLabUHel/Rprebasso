@@ -8,10 +8,20 @@
  !   4. Estimates Evapotranspiration
  !   5. Updates soil water balance
     
+! module preles_module
+	  ! use gpp_module
+	  ! use water_module
+	  ! use prelesglobalsF_module
+	  ! use initruns_module
+
+
+      ! implicit none
+      
+    ! contains
     
   
-    subroutine fpreles(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, NpPRELES, pPRELES,etmodel, &
-                  WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,        &                              
+    subroutine preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
+                  Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
                    fW, fE, Throughfall, Interception, Snowmelt, Drainage, Canopywater, GPPmeas, ETmeas, SWmeas, &
                   S, LOGFLAG, multisiteNday, day, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel)
 	  
@@ -19,10 +29,18 @@
 	  use water_module
 	  use prelesglobalsF_module
 	  use initruns_module
+
+      implicit none
+      
     
-    integer, intent(in) :: NofDays,NpPRELES
+    integer, intent(in) :: NofDays,dimTable
     real(8), intent(inout) :: PAR(NofDays), TAir(NofDays), VPD(NofDays), Precip(NofDays), CO2(NofDays), fAPAR(NofDays)
-	real(8), intent(inout) :: pPRELES(NpPRELES)
+    real(8), intent(in) :: Site_par(10)
+    real(8), intent(in) :: GPP_par(13)
+    real(8), intent(in) :: ET_par(5)
+    real(8), intent(in) :: SnowRain_par(5)
+    real(8), intent(in) :: Genuchten_par(8)
+    real(8), intent(in) :: Ksat(15)
     integer, intent(in)  :: etmodel
     real(8), intent(out) :: GPP(NofDays), ET(NofDays)
     real(8), intent(inout) :: ST(NofDays), SR(NofDays), WL(NofDays), SW(NofDays), SOG(NofDays), S(NofDays)
@@ -37,87 +55,31 @@
     integer, intent(in) ::  CO2model   ! 1 for Kolari, 2 for Launiainen, default Kolari
     integer, intent(in) ::  soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
     integer, intent(in) ::  REWmodel   ! 1 for smooth function, 2 for piecewise linear, default smooth
-    integer, intent(in) ::  dimTable   ! dimension of look-up table
+    ! integer, intent(in) ::  dimTable   ! dimension of look-up table
     integer :: i, kk,  jj
     real(8) :: SWTable(dimTable+1, dimTable+3)
     real(8) :: II, T, D, P, theta, theta_snow, theta_canopy, theta_top, theta_root, pond, S_state
     real(8) :: PhenoS, fPheno
     real(8) :: fEgpp, gpp380
-    real(8) Qdrain,gwl
-    type(p1) :: Site_par
-    type(p2) :: GPP_par
-    type(p3) :: ET_par
-    type(p4) :: SnowRain_par
-    type(p5) :: Init_par
-    type(p7) :: Genuchten_par
-    real(8) :: Ksat(15)
+    real(8) :: Qdrain,gwl
+	real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
+	real(8) :: ET_par_beta,ET_par_kappa,ET_par_chi,ET_par_soilthres,ET_par_nu
+	real(8) :: SnowRain_par_MeltCoef, SnowRain_par_I0, SnowRain_par_CWmax, SnowRain_par_SnowThreshold, SnowRain_par_T_0
+	real(8) :: Genuchten_par_thetaS,Genuchten_par_thetaR,Genuchten_par_alpha,Genuchten_par_n
+	real(8) :: Genuchten_par_thetaST,Genuchten_par_thetaRT,Genuchten_par_alphaT,Genuchten_par_nT
+
+!read parameters
+	include 'init_gppPar_preles.h'
+	include 'init_sitePar_preles.h'
+	include 'init_etPar_preles.h'
+	include 'init_SnowRainPar_preles.h'
+	include 'init_GenuchtenPar_preles.h'
 
     
    ! Initialize variables
-    Site_par%soildepth = pPRELES(1)
-    Site_par%ThetaFC = pPRELES(2)
-    Site_par%ThetaPWP = pPRELES(3)
-    Site_par%tauDrainage = pPRELES(4)
-    Site_par%topdepth = pPRELES(5)   !new  (mm)
-    Site_par%orgthres = pPRELES(6)   !new  (unitless)
-    Site_par%MaxPond = pPRELES(7)    !new  (mm)
-    Site_par%ditchDepth = pPRELES(8) !new  (m)
-    Site_par%ditchDist = pPRELES(9)  !new  (m)
-    Site_par%peatdepth = pPRELES(10)
-	
-	GPP_par%beta = pPRELES(11)
-    GPP_par%tau = pPRELES(12)
-    GPP_par%S0 = pPRELES(13)
-    GPP_par%Smax = pPRELES(14)
-    GPP_par%kappa = pPRELES(15)
-    GPP_par%gamma = pPRELES(16)
-    GPP_par%soilthres = pPRELES(17)
-    GPP_par%bCO2 = pPRELES(18)
-    GPP_par%xCO2 = pPRELES(19)
-    GPP_par%t0 = pPRELES(20)
-    GPP_par%tcrit = pPRELES(21)
-    GPP_par%tsumcrit = pPRELES(22)
-    GPP_par%soils = pPRELES(23) !new  - parameter for soil threshold function
-
-    ET_par%beta = pPRELES(24)
-    ET_par%kappa = pPRELES(25)
-    ET_par%chi = pPRELES(26)
-    ET_par%soilthres = pPRELES(27)
-    ET_par%nu = pPRELES(28)
-
-    SnowRain_par%MeltCoef = pPRELES(29)
-    SnowRain_par%I0 = pPRELES(30)
-    SnowRain_par%CWmax = pPRELES(31)
-    SnowRain_par%SnowThreshold = pPRELES(32)
-    SnowRain_par%T_0 = pPRELES(33)
-
-    Init_par%SW = pPRELES(34)
-    Init_par%CW = pPRELES(35)
-    Init_par%SOG = pPRELES(36)
-    Init_par%S = pPRELES(37)
-    Init_par%ST = pPRELES(38)  !new  (initial water level in top layer, mm)
-    Init_par%WL = pPRELES(39)   !new (initial water table depth, mm, needs to be synchronised with water storage SW, to be consistent with SWTable)
-  
-    Genuchten_par%thetaS = pPRELES(40)
-    Genuchten_par%thetaR = pPRELES(41)
-    Genuchten_par%alpha = pPRELES(42)
-    Genuchten_par%n = pPRELES(43)
-    Genuchten_par%thetaST = pPRELES(44)
-    Genuchten_par%thetaRT = pPRELES(45)
-    Genuchten_par%alphaT = pPRELES(46)
-    Genuchten_par%nT = pPRELES(47)
-   
-    Ksat = pPRELES(48:62)
-	
-    SW(1) = Init_par%SW
-    Canopywater(1) = Init_par%CW
-    SOG(1) = Init_par%SOG
-	S(1) = Init_par%S
-	ST(1) = Init_par%ST
-	WL(1) = Init_par%WL / 1000.
-	SR(1) = Site_par%ThetaFC * 200.
-
-
     PhenoS = 0.0d0
     fPheno = 0.0d0
     fEgpp = 0.0d0
@@ -131,7 +93,7 @@
     S_state = S(1)
     theta_top = ST(1)
     theta_root = SR(1)
-    pond = Site_par%MaxPond
+    pond = Site_par_MaxPond
     Drainage(1) = 0.
     gwl = WL(1)
   
@@ -140,7 +102,13 @@
     ! SWTable is output from this subroutine
     call waterTable(Genuchten_par, Site_par, Ksat, dimTable, SWTable)
 
-    
+	open(1,file="test1.txt")
+    write(1,*) dimTable
+	write(1,*) Genuchten_par
+	write(1,*) Site_par
+	write(1,*) Ksat
+	write(1,*) SWTable
+	close(1)
 ! ---------------------------------------------------------------------
 ! START LOOPING DAYS
 ! ---------------------------------------------------------------------
@@ -208,12 +176,12 @@ do i = 1, NofDays
 
   ! Excess water from canopy will drip down to soil if not evaporated
   ! during the day, rest remains in canopy for the next day
-  if (SnowRain_par%CWmax <= 1.0e-8) then
+  if (SnowRain_par_CWmax <= 1.0e-8) then
     Throughfall(i) = Throughfall(i) + Interception(i)
   else
-    if (Interception(i) + theta_canopy > SnowRain_par%CWmax * fAPAR(i)) then
-      Throughfall(i) = Throughfall(i) + Interception(i) + theta_canopy - SnowRain_par%CWmax * fAPAR(i)
-      theta_canopy = SnowRain_par%CWmax * fAPAR(i)
+    if (Interception(i) + theta_canopy > SnowRain_par_CWmax * fAPAR(i)) then
+      Throughfall(i) = Throughfall(i) + Interception(i) + theta_canopy - SnowRain_par_CWmax * fAPAR(i)
+      theta_canopy = SnowRain_par_CWmax * fAPAR(i)
     else
       theta_canopy = Interception(i) + theta_canopy
     end if
@@ -298,7 +266,7 @@ do i = 1, NofDays
    end do   ! day loop
 
 
-    end subroutine fpreles
+    end subroutine preles_fortran
 
     ! end module preles_module
     

@@ -29,15 +29,15 @@ module water_module
     real(8), intent(in)    :: ppfd
     real(8), intent(in)    :: fAPAR
     real(8), intent(in)    :: T
-    type(p3), intent(in)    :: ET_par
-    type(p1), intent(in)    :: Site_par
+    real(8), intent(in)    :: ET_par(5)
+    real(8), intent(in)    :: Site_par(10)
     real(8), intent(in)    :: canw
     real(8), intent(in)    :: theta_top
     real(8), intent(inout)   :: fE
     real(8), intent(in)    :: A
     real(8), intent(inout)    :: fWgpp
     real(8), intent(inout)   :: fOrg
-    type(p2), intent(in)    :: GPP_par
+    real(8), intent(in)    :: GPP_par(13)
     real(8), intent(in)    :: CO2
     integer,  intent(in)    :: LOGFLAG
     integer,  intent(in)    :: etmodel
@@ -59,16 +59,24 @@ module water_module
     real(8), parameter :: pressure = 101300.0_8  ! Pa (default)
 
     real(8) :: D_loc   ! mutable copy of D (C code may modify D)
-   
+	real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+	real(8) :: GPP_par_beta,GPP_par_tau, GPP_par_S0,GPP_par_Smax,GPP_par_kappa, GPP_par_gamma,GPP_par_soilthres
+	real(8) :: GPP_par_bCO2,GPP_par_xCO2,GPP_par_t0, GPP_par_tcrit,GPP_par_tsumcrit,GPP_par_soils
+	real(8) :: ET_par_beta,ET_par_kappa,ET_par_chi,ET_par_soilthres,ET_par_nu
+
+   	include 'init_gppPar_preles.h'
+	include 'init_sitePar_preles.h'
+	include 'init_etPar_preles.h'
 
     !-----------------------------------------------------------------
     !  contents of subroutine follow
     !-----------------------------------------------------------------
     D_loc = D
-    thetavol = theta / Site_par%soildepth
-    REW = (thetavol - Site_par%ThetaPWP) / (Site_par%ThetaFC - Site_par%ThetaPWP)
+    thetavol = theta / Site_par_soildepth
+    REW = (thetavol - Site_par_ThetaPWP) / (Site_par_ThetaFC - Site_par_ThetaPWP)
     
-    thetavol_top = theta_top / Site_par%topdepth
+    thetavol_top = theta_top / Site_par_topdepth
     REW_top = thetavol_top
 
     fWsub = 1.0
@@ -84,17 +92,17 @@ module water_module
         / (T + 237.3 )**2                                          ! Pa/°C
 
     !--- Soil water constraint -----------------------------------------
-    if (ET_par%soilthres < -998.0 ) then
+    if (ET_par_soilthres < -998.0 ) then
        fWsub = 1.0 
     else
-        fWsub = fREW_fun(REW, GPP_par%soils, ET_par%soilthres, REWmodel)
+        fWsub = fREW_fun(REW, GPP_par_soils, ET_par_soilthres, REWmodel)
     end if
 
     !--- Top soil water constraint -----------------------------------------
-    if (Site_par%orgthres < -998.0 ) then
+    if (Site_par_orgthres < -998.0 ) then
        fOrg = 1.0 
     else
-        fOrg = fREW_fun(REW_top, GPP_par%soils, Site_par%orgthres, REWmodel)
+        fOrg = fREW_fun(REW_top, GPP_par_soils, Site_par_orgthres, REWmodel)
     end if
     
     !--- Canopy water overrides soil constraint ------------------------
@@ -126,28 +134,28 @@ module water_module
     !--- Model selection ------------------------------------------------
     select case (etmodel)
     case (-1)                         ! simple Penman–Monteith style
-       transp = D_loc * ET_par%beta * A / D_loc**ET_par%kappa * &
-                fWgpp**ET_par%nu * fCO2mean
-       evap   = ET_par%chi * (1.0  - fAPAR) * fOrg * ppfd
+       transp = D_loc * ET_par_beta * A / D_loc**ET_par_kappa * &
+                fWgpp**ET_par_nu * fCO2mean
+       evap   = ET_par_chi * (1.0  - fAPAR) * fOrg * ppfd
        et = (transp + evap) * s / (s + psychom)
 
     case (0)                          ! same as -1 but evap term includes s/(s+psychom)
-       transp = D_loc * ET_par%beta * A / D_loc**ET_par%kappa * &
-                fWgpp**ET_par%nu * fCO2mean
-       evap   = ET_par%chi * s / (s + psychom) * (1.0  - fAPAR) * &
+       transp = D_loc * ET_par_beta * A / D_loc**ET_par_kappa * &
+                fWgpp**ET_par_nu * fCO2mean
+       evap   = ET_par_chi * s / (s + psychom) * (1.0  - fAPAR) * &
                 fOrg * ppfd
        et = transp + evap
 
     case (1)                          ! ET not limited by psychrometric term
-       transp = D_loc * ET_par%beta * A / D_loc**ET_par%kappa * &
-                fWgpp**ET_par%nu * fCO2mean
-       evap   = ET_par%chi * (1.0  - fAPAR) * fOrg * ppfd
+       transp = D_loc * ET_par_beta * A / D_loc**ET_par_kappa * &
+                fWgpp**ET_par_nu * fCO2mean
+       evap   = ET_par_chi * (1.0  - fAPAR) * fOrg * ppfd
        et = transp + evap
 
     case (2)                          ! alternative formulation
-       et = D_loc * (1.0  + ET_par%beta / D_loc**ET_par%kappa) * &
-            A / CO2 * fWgpp**ET_par%nu * fCO2mean + &
-            ET_par%chi * (1.0  - fAPAR) * fOrg * ppfd
+       et = D_loc * (1.0  + ET_par_beta / D_loc**ET_par_kappa) * &
+            A / CO2 * fWgpp**ET_par_nu * fCO2mean + &
+            ET_par_chi * (1.0  - fAPAR) * fOrg * ppfd
 
     case default
        et = 0.0 
@@ -165,11 +173,15 @@ module water_module
     real(kind=8), intent(inout) :: rain        ! Incoming rainfall (mm)
     real(kind=8), intent(out)   :: intercepted ! Rain intercepted (mm)
     real(kind=8), intent(in)    :: Temp        ! Air temperature (°C)
-    type(p4), intent(in)   :: SnowRain_par
+    real(kind=8), intent(in)   :: SnowRain_par(5)
     real(kind=8), intent(in)    :: fAPAR       ! Fraction of absorbed PAR
+	real(8) :: SnowRain_par_MeltCoef, SnowRain_par_I0, SnowRain_par_CWmax, SnowRain_par_SnowThreshold, SnowRain_par_T_0
 
-    if (Temp > SnowRain_par%SnowThreshold) then
-       intercepted = rain * (SnowRain_par%I0 * fAPAR / 0.75)
+!read parameters
+	include 'init_SnowRainPar_preles.h'
+
+    if (Temp > SnowRain_par_SnowThreshold) then
+       intercepted = rain * (SnowRain_par_I0 * fAPAR / 0.75)
        rain        = rain - intercepted
     else
        intercepted = 0.0
@@ -180,27 +192,34 @@ module water_module
   !=================================================================
   !  Soil water balance update mineral soils
   !=================================================================
-  subroutine sw_balance(theta, throughfall, snowmelt, et, sitepar, &
+  subroutine sw_balance(theta, throughfall, snowmelt, et, Site_par, &
                         drainage, snow, canw, SnowRain_par)
     real(kind=8), intent(inout) :: theta        ! Soil moisture (mm)
     real(kind=8), intent(in)    :: throughfall  ! Canopy throughfall (mm)
     real(kind=8), intent(in)    :: snowmelt     ! Snow melt (mm)
     real(kind=8), intent(inout) :: et           ! Evapotranspiration (mm)
-    type(p1), intent(in)   :: sitepar
+    real(8), intent(in)    :: Site_par(10)
     real(kind=8), intent(out)   :: drainage     ! Drainage (mm)
     real(kind=8), intent(inout) :: snow         ! Snow water equivalent (mm)
     real(kind=8), intent(inout) :: canw         ! Canopy water (mm)
-    type(p4), intent(in)   :: SnowRain_par
+    real(kind=8), intent(in)   :: SnowRain_par(5)
 
     real(kind=8) :: st0
     real(kind=8) :: et_from_veg_and_soil
+	real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+	real(8) :: SnowRain_par_MeltCoef, SnowRain_par_I0, SnowRain_par_CWmax, SnowRain_par_SnowThreshold, SnowRain_par_T_0
+
+!read parameters
+	include 'init_sitePar_preles.h'
+	include 'init_SnowRainPar_preles.h'
 
     et_from_veg_and_soil = 0.0 
 
     !--------------------------------------------------------------
     !  Evaporation first from wet canopy and then from snow
     !--------------------------------------------------------------
-    if (SnowRain_par%CWmax > 1.0e-8 ) then
+    if (SnowRain_par_CWmax > 1.0e-8 ) then
        if ( (canw + snow - et) > 0.0  ) then
           if ( (canw - et) > 0.0  ) then
              canw = canw - et
@@ -238,10 +257,10 @@ module water_module
     !--------------------------------------------------------------
     !  Drainage (simple time‑delay model)
     !--------------------------------------------------------------
-    if (sitepar%tauDrainage > 0.0 ) then
-       if (st0 > sitepar%ThetaFC * sitepar%soildepth) then
-          drainage = (st0 - sitepar%ThetaFC * sitepar%soildepth) / &
-                     sitepar%tauDrainage
+    if (Site_par_tauDrainage > 0.0 ) then
+       if (st0 > Site_par_ThetaFC * Site_par_soildepth) then
+          drainage = (st0 - Site_par_ThetaFC * Site_par_soildepth) / &
+                     Site_par_tauDrainage
        else
           drainage = 0.0 
        end if
@@ -267,11 +286,11 @@ end subroutine sw_balance
     real(kind=8), intent(inout) :: evap         ! Evaporation (mm)
     real(kind=8), intent(inout) :: transp       ! Transpiration (mm)
     real(kind=8), intent(inout) :: et           ! Evaporanspiration (mm)
-    type(p1), intent(in)        :: site_par
+    real(kind=8), intent(in)        :: Site_par(10)
     real(kind=8), intent(in)    :: Qdrain       ! Drainage in ditches (mm)
     real(kind=8), intent(inout) :: snow         ! Snow water equivalent (mm)
     real(kind=8), intent(inout) :: canw         ! Canopy water (mm)
-    type(p4), intent(in)        :: SnowRain_par
+    real(kind=8), intent(in)        :: SnowRain_par(5)
 
     real(kind=8) :: st0, st1, st2               ! temp variables for water storage (mm)
     real(kind=8) :: et_from_veg_and_soil        ! evap after subtracting canopy and snow evap (mm/day)
@@ -282,13 +301,20 @@ end subroutine sw_balance
     real(kind=8) :: Exf_top                     ! exfiltration to top layer (mm/day)
     real(kind=8) :: Exf_pond                    ! exfiltration to pond (mm/day)
     real(kind=8) :: SurfRunoff                  ! surface runoff: remainder of exfiltration (mm/day)
-    
+    real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+	real(8) :: SnowRain_par_MeltCoef, SnowRain_par_I0, SnowRain_par_CWmax, SnowRain_par_SnowThreshold, SnowRain_par_T_0
+
+!read parameters
+	include 'init_sitePar_preles.h'
+	include 'init_SnowRainPar_preles.h'
+
     et_from_veg_and_soil = 0.0 
 
     !--------------------------------------------------------------
     !  Evaporation first from wet canopy and then from snow
     !--------------------------------------------------------------
-    if (SnowRain_par%CWmax > 1.0e-8 ) then
+    if (SnowRain_par_CWmax > 1.0e-8 ) then
        if ( (canw + snow - evap) > 0.0  ) then
           if ( (canw - evap) > 0.0  ) then
              canw = canw - evap
@@ -323,11 +349,11 @@ end subroutine sw_balance
     !-----------------------------------------------------------------
     
     Dr_pond = pond + throughfall + snowmelt
-    Interc_top = (Site_par%topdepth - theta_top) * (1 - EXP(-Dr_pond/Site_par%topdepth))
+    Interc_top = (Site_par_topdepth - theta_top) * (1 - EXP(-Dr_pond/Site_par_topdepth))
     Dr_top = Dr_pond - Interc_top
-    Exf_SW = MAX(theta + (Dr_top - transp - Qdrain) - Site_par%peatdepth, 0.0)
-    Exf_top = MIN(Exf_SW, (Site_par%topdepth - theta_top))
-    Exf_pond = MIN(Exf_SW - Exf_top , Site_par%MaxPond - pond)
+    Exf_SW = MAX(theta + (Dr_top - transp - Qdrain) - Site_par_peatdepth, 0.0)
+    Exf_top = MIN(Exf_SW, (Site_par_topdepth - theta_top))
+    Exf_pond = MIN(Exf_SW - Exf_top , Site_par_MaxPond - pond)
     SurfRunoff = Exf_SW - Exf_top - Exf_pond
     
     
@@ -357,20 +383,25 @@ end subroutine sw_balance
     real(kind=8), intent(in)    :: T            ! Air temperature (°C)
     real(kind=8), intent(inout) :: rain         ! Rainfall (mm)
     real(kind=8), intent(inout) :: snow         ! Snow water equivalent (mm)
-    type(p4), intent(in)   :: SnowRain_par
+    real(kind=8), intent(in)   :: SnowRain_par(5)
     real(kind=8), intent(out)   :: SnowMelt     ! Snow melt (mm)
 
     real(kind=8) :: new_snow
+	real(8) :: SnowRain_par_MeltCoef, SnowRain_par_I0, SnowRain_par_CWmax, SnowRain_par_SnowThreshold, SnowRain_par_T_0
 
-    if (T < SnowRain_par%SnowThreshold) then
+!read parameters
+	include 'init_SnowRainPar_preles.h'
+
+
+    if (T < SnowRain_par_SnowThreshold) then
        new_snow = rain
        rain     = 0.0 
     else
        new_snow = 0.0 
     end if
 
-    if (T > SnowRain_par%T_0) then
-       SnowMelt = SnowRain_par%MeltCoef * (T - SnowRain_par%T_0)
+    if (T > SnowRain_par_T_0) then
+       SnowMelt = SnowRain_par_MeltCoef * (T - SnowRain_par_T_0)
     else
        SnowMelt = 0.0 
     end if
@@ -388,7 +419,7 @@ end subroutine sw_balance
   !=================================================================
   function thetaFun(psi, Genuchten_par, layerswitch) result(theta)
     real(kind=8), intent(in)    :: psi           ! suction pressure (cm of water);
-    type(p7), intent(in)        :: Genuchten_par ! eight parameters (two layers)
+    real(kind=8), intent(in)    :: Genuchten_par(8) ! eight parameters (two layers)
     integer, intent(in)         :: layerswitch
  
     real(kind=8)                :: theta         ! water retention curve [m3m−3]; 
@@ -397,25 +428,30 @@ end subroutine sw_balance
     real(kind=8)                :: alpha         ! parameter related to the inverse of the air entry suction,  (cm−1); 
     real(kind=8)                :: n             ! measure of the pore-size distribution,  (dimensionless)
     real(kind=8)                :: m             ! derived parameter (dimensionless)
-    
+    real(8) :: Genuchten_par_thetaS,Genuchten_par_thetaR,Genuchten_par_alpha,Genuchten_par_n
+	real(8) :: Genuchten_par_thetaST,Genuchten_par_thetaRT,Genuchten_par_alphaT,Genuchten_par_nT
+
+!read parameters
+	include 'init_GenuchtenPar_preles.h'
+
     select case (layerswitch)
     case (1)  ! top
-    thetaR = Genuchten_par%thetaRT
-    thetaS = Genuchten_par%thetaST
-    alpha  = Genuchten_par%alphaT
-    n      = Genuchten_par%nT
+    thetaR = Genuchten_par_thetaRT
+    thetaS = Genuchten_par_thetaST
+    alpha  = Genuchten_par_alphaT
+    n      = Genuchten_par_nT
     
     case (2)  ! lower part
-    thetaR = Genuchten_par%thetaR
-    thetaS = Genuchten_par%thetaS
-    alpha  = Genuchten_par%alpha
-    n      = Genuchten_par%n
+    thetaR = Genuchten_par_thetaR
+    thetaS = Genuchten_par_thetaS
+    alpha  = Genuchten_par_alpha
+    n      = Genuchten_par_n
     
     case default
-    thetaR = Genuchten_par%thetaR
-    thetaS = Genuchten_par%thetaS
-    alpha  = Genuchten_par%alpha
-    n      = Genuchten_par%n
+    thetaR = Genuchten_par_thetaR
+    thetaS = Genuchten_par_thetaS
+    alpha  = Genuchten_par_alpha
+    n      = Genuchten_par_n
     
     end select 
     
@@ -442,8 +478,8 @@ end subroutine sw_balance
   !=================================================================
   subroutine waterTable(Genuchten_par, Site_par, Ksat, dimTable, SWTable) 
     integer, intent(in)         :: dimTable      ! water retention curve [m3m−3]; 
-    type(p7), intent(in)        :: Genuchten_par ! eight parameters 
-    type(p1), intent(in)        :: Site_par      ! water retention parameters for site
+    real(kind=8), intent(in)        :: Genuchten_par(8) ! eight parameters 
+    real(kind=8), intent(in)        :: Site_par(10)      ! water retention parameters for site
     real(kind=8), intent(in)    :: Ksat(15)     ! saturated conductivity for peat profile, Ksat_par%ksat(dimTable) (m/d)
     real(kind=8), intent(out)   :: SWTable(dimTable+1, dimTable + 3)            ! water retention table
     real(kind=8)                :: gwl           ! water table depth, running (m);
@@ -461,10 +497,17 @@ end subroutine sw_balance
     real(kind=8)                :: sum_var
     integer                     :: kk
     integer                     :: jj
-    
+    real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+	real(8) :: Genuchten_par_thetaS,Genuchten_par_thetaR,Genuchten_par_alpha,Genuchten_par_n
+	real(8) :: Genuchten_par_thetaST,Genuchten_par_thetaRT,Genuchten_par_alphaT,Genuchten_par_nT
+
+!read parameters
+	include 'init_sitePar_preles.h'
+	include 'init_GenuchtenPar_preles.h'
    
-    ditchD = site_par%ditchdepth * 100   ! convert from m to cm
-    soilD = site_par%peatdepth / 10.     ! convert from mm to cm
+    ditchD = Site_par_ditchdepth * 100   ! convert from m to cm
+    soilD = Site_par_peatdepth / 10.     ! convert from mm to cm
     
     ! dimTable must be divisible by 3
     
@@ -479,9 +522,9 @@ end subroutine sw_balance
     
     ! fill table with saturated values to begin with
     do kk = 1, dimTable + 1
-        SWTable(kk,1) = Genuchten_par%thetaST
+        SWTable(kk,1) = Genuchten_par_thetaST
         do jj = 2, dimTable 
-             SWTable(kk,jj) = Genuchten_par%thetaS
+             SWTable(kk,jj) = Genuchten_par_thetaS
         end do
     end do
     
@@ -565,7 +608,7 @@ end subroutine sw_balance
       !--------------------------------------------------------------
       subroutine water_level(theta, SWTable, gwl, Qdrain, theta_root, Site_par, dimTable)
       
-    type(p1), intent(in)        :: Site_par      ! For ditch depth and distance
+    real(kind=8), intent(in)        :: Site_par(10)      ! For ditch depth and distance
     integer, intent(in)         :: dimTable      ! soil water table dimension variable 
     real(kind=8), intent(in)    :: SWTable(dimTable+1, dimTable + 3)            ! water retention table
     real(kind=8), intent(inout) :: gwl           ! water table depth from previous timestep to be updated (m)
@@ -580,13 +623,17 @@ end subroutine sw_balance
     integer                     :: kk            ! index
     integer                     :: k0            ! index
     integer                     :: NtoRoot       ! nr of slices occupied by roots 
+    real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
+	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
+
+!read parameters
+	include 'init_sitePar_preles.h'
+   
     
-    
-    
-    ditchD = site_par%ditchdepth   ! m
-    ditchL = site_par%ditchDist        ! m
+    ditchD = Site_par_ditchdepth   ! m
+    ditchL = Site_par_ditchDist        ! m
     slice = SWTable(2,dimTable + 3)
-    NtoRoot = ceiling(site_par%soildepth * 0.001 / slice) ! nr of slices occupied by roots
+    NtoRoot = ceiling(Site_par_soildepth * 0.001 / slice) ! nr of slices occupied by roots
         
     k0 = 0    
     
