@@ -18,7 +18,108 @@
       ! implicit none
       
     ! contains
+    subroutine preles_f_crobas(weather,DOY,fAPAR,prelesOut,pars,pPeattp,&
+				GPP,ET,SW,etmodel,CO2model,soilmodel,REWmodel)!,p0)
+
+     implicit none
+
+
+		integer, parameter :: NofDays=365, dimTable=15
+		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
+		real (kind=8), intent(inout) :: prelesOut(16)!,p0
+		real (kind=8), intent(inout) :: pars(39),pPeattp(20)
+		integer, intent(inout):: DOY(NofDays), etmodel,CO2model
+		real(8), intent(out) :: GPP(NofDays), ET(NofDays),SW(NofDays)
+		integer, intent(in) ::  soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
+		integer, intent(in) ::  REWmodel   ! 1 for smooth function, 2 for piecewise linear, default smooth
+		
     
+		real(8) :: PAR(NofDays), TAir(NofDays), VPD(NofDays), Precip(NofDays), CO2(NofDays)
+		real(8) :: Site_par(10)
+		real(8) :: GPP_par(13)
+		real(8) :: Init_par(6)
+		real(8) :: ET_par(5)
+		real(8) :: SnowRain_par(5)
+		real(8) :: Genuchten_par(8)
+		real(8) :: Ksat(12)
+		real(8) :: ST(NofDays), SR(NofDays), WL(NofDays), SOG(NofDays), S(NofDays)
+		real(8) :: fS(NofDays), fD(NofDays), fW(NofDays), fE(NofDays), fL(NofDays)
+		real(8) :: Throughfall(NofDays), Interception(NofDays), Snowmelt(NofDays)
+		real(8) :: Drainage(NofDays), Canopywater(NofDays)
+		real(8) :: GPPmeas(NofDays), ETmeas(NofDays), SWmeas(NofDays)
+		integer :: LOGFLAG = 1
+		integer :: multisiteNday = 1
+		real(8) :: transp(NofDays), evap(NofDays), fWE(NofDays), fOrg(NofDays)
+
+
+
+Ksat=0.
+		PAR = weather(:,1)
+		TAir = weather(:,2)
+		VPD = weather(:,3)
+		Precip = weather(:,4)
+		CO2 = weather(:,5)
+		Site_par=pars(1:10)
+		GPP_par(1:10)=pars(11:20)
+		ET_par=pars(21:25)
+		SnowRain_par=pars(26:30)
+		Init_par=pars(31:36)
+		GPP_par(11:13)=pars(37:39)
+
+		Genuchten_par=pPeattp(1:8)
+		Ksat=pPeattp(9:20)
+
+		SW  = 0.
+		ST  = 0.
+		SR  = 0.
+		SOG = 0.
+		S   = 0.
+  
+  
+! LOGFLAG = 1
+! multisiteNday = 1
+
+!N of simulation days
+! N = length(PAR)
+
+! day = 1:N
+
+
+		SW(1) = Init_par(1)
+		Canopywater(1) = Init_par(2)
+		SOG(1) = Init_par(3)
+		S(1) = Init_par(4)
+		ST(1) = Init_par(5)
+		WL(1) = Init_par(6)/1000
+		SR(1) = Site_par(2)*200
+
+		call preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
+                  Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
+                   fW, fE, Throughfall, Interception, Snowmelt, Drainage, Canopywater, GPPmeas, ETmeas, SWmeas, &
+                  S, LOGFLAG, multisiteNday, doy, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel)
+
+
+		prelesOut(1) = sum(GPP(1:NofDays))
+		prelesOut(2) = sum(ET(1:NofDays))
+		prelesOut(3) = SW(NofDays)
+		prelesOut(4) = SOG(NofDays)
+		prelesOut(5) = fS(NofDays)
+		prelesOut(6) = fD(NofDays)
+		! prelesOut(7) = fW(NofDays)
+		prelesOut(8) = fE(NofDays)
+		prelesOut(9) = Throughfall(NofDays)
+		prelesOut(10) = Interception(NofDays)
+		prelesOut(11) = Snowmelt(NofDays)
+		prelesOut(12) = Drainage(NofDays)
+		prelesOut(13) = Canopywater(NofDays)
+		prelesOut(14) = S(NofDays)
+		prelesOut(15) = sum(SW(1:NofDays))/NofDays
+		prelesOut(16) = sum(SW(152:243))/92
+
+	end subroutine preles_f_crobas
+
+
+
   
     subroutine preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
                   Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
@@ -40,7 +141,7 @@
     real(8), intent(in) :: ET_par(5)
     real(8), intent(in) :: SnowRain_par(5)
     real(8), intent(in) :: Genuchten_par(8)
-    real(8), intent(in) :: Ksat(15)
+    real(8), intent(in) :: Ksat(12)
     integer, intent(in)  :: etmodel
     real(8), intent(out) :: GPP(NofDays), ET(NofDays)
     real(8), intent(inout) :: ST(NofDays), SR(NofDays), WL(NofDays), SW(NofDays), SOG(NofDays), S(NofDays)
@@ -102,13 +203,13 @@
     ! SWTable is output from this subroutine
     call waterTable(Genuchten_par, Site_par, Ksat, dimTable, SWTable)
 
-	open(1,file="test1.txt")
-    write(1,*) dimTable
-	write(1,*) Genuchten_par
-	write(1,*) Site_par
-	write(1,*) Ksat
-	write(1,*) SWTable
-	close(1)
+	! open(1,file="test1.txt")
+    ! write(1,*) dimTable
+	! write(1,*) Genuchten_par
+	! write(1,*) Site_par
+	! write(1,*) Ksat
+	! write(1,*) SWTable
+	! close(1)
 ! ---------------------------------------------------------------------
 ! START LOOPING DAYS
 ! ---------------------------------------------------------------------

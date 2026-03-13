@@ -480,7 +480,7 @@ end subroutine sw_balance
     integer, intent(in)         :: dimTable      ! water retention curve [m3m−3]; 
     real(kind=8), intent(in)        :: Genuchten_par(8) ! eight parameters 
     real(kind=8), intent(in)        :: Site_par(10)      ! water retention parameters for site
-    real(kind=8), intent(in)    :: Ksat(15)     ! saturated conductivity for peat profile, Ksat_par%ksat(dimTable) (m/d)
+    real(kind=8), intent(in)    :: Ksat(12)     ! saturated conductivity for peat profile, Ksat_par%ksat(dimTable) (m/d)
     real(kind=8), intent(out)   :: SWTable(dimTable+1, dimTable + 3)            ! water retention table
     real(kind=8)                :: gwl           ! water table depth, running (m);
     real(kind=8)                :: thetaS        ! saturated water content [m3m−3];
