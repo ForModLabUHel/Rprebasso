@@ -71,6 +71,8 @@
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
 #' @param NIout flag to return the nesterov index
 #' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
+#' @param pPeattp parameters for peat soil
+#' @param peatType type of peat used to select the PPeattp parameters
 #' 
 #' @importFrom plyr aaply
 #'
@@ -170,7 +172,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         popden = NA,
                         a_nd = NA,
                         NIout = F,
-                        FDIout = 0
+                        FDIout = 0,
+                        pPeattp = NA,
+                        peatType = 1 # vary between 1 and 2, is a vector of nSites length
 ) {
   
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -335,7 +339,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     popden = popden,
     a_nd = a_nd,
     NIout = NIout,
-    FDIout = FDIout
+    FDIout = FDIout,
+    pPeattp = pPeattp,
+    peatType=peatType
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age

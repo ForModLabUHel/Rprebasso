@@ -11,24 +11,26 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
     flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
-	latitude, TsumSBBs)
+	latitude, TsumSBBs,pPeat,peatType)
 
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53!, nSp=3
+integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither in prebas subroutine nor multiPrebas() R function
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
- integer, intent(in) :: DOY(365),layerPRELES !, ECMmod fvec
- real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
+ integer, intent(in) :: DOY(365),layerPRELES,peatType(nSites) !, ECMmod fvec
+ real (kind=8), intent(in) :: pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
+ real (kind=8), intent(in) :: pPRELES(npar_preles),pPeat(npar_peat,2)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
  real (kind=8), intent(inout) :: siteInfo(nSites,11),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
+ 
  real (kind=8), intent(inout) :: initClearcut(nSites,5),fixBAinitClarcut(nSites),initCLcutRatio(nSites,maxNlayers)  !initial stand conditions after clear cut. (H,D,totBA,Hc,Ainit)
 ! real (kind=8), intent(in) :: pSp1(npar),pSp2(npar),pSp3(npar)!,par_common
  real (kind=8), intent(in) :: defaultThin(nSites),ClCut(nSites),yassoRun(nSites)
@@ -62,7 +64,8 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
 
  integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
- integer, intent(inout) :: prebasFlags(10)
+ integer, intent(inout) :: prebasFlags(12)
+ real (kind=8) :: pPRELES_all(npar_preles+npar_peat)
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -108,12 +111,15 @@ do i = 1,nSites
   mortModX = mortMod(1) !!mortality model to be used in the managed forests
   if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
   
+  pPRELES_all(1:npar_preles) = pPRELES
+  pPRELES_all((1+npar_preles):(npar_preles+npar_peat)) = pPeat(:,peatType(i))
+    
   thinningX = thinning(i,:,:)
   ! nYears(i) = nYears(i)
     call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
     initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
-    P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES, &
+    P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES_all, &
     soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
     litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
     ClCutX,energyCuts(i),clct_pars(i,:,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&

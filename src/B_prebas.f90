@@ -19,13 +19,13 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=53, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=53,npar_preles=59, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
  integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
- real (kind=8), intent(inout) :: pPRELES(30), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
+ real (kind=8), intent(inout) :: pPRELES(npar_preles), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(4)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  real (kind=8), intent(inout) :: tTapio(5,nSp,2,7), ftTapio(5,nSp,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
@@ -94,7 +94,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  integer :: time, ki, year, yearX, Ainit, countThinning, domSp(1)
  real (kind=8) :: step, totBA,GVnpp(nYears)
 
- real (kind=8) :: stand_all(nVar, nLayers)
+ real (kind=8) :: stand_all(nVar, nLayers),pPeattp(20)
  real (kind=8) :: outt(nVar, nLayers, 2)
  real (kind=8) :: modOut((nYears+1), nVar, nLayers, 2)
  real (kind=8) :: soilC((nYears+1), 5, 3, nLayers), soilCtot((nYears+1))
@@ -109,7 +109,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas ! crobas param
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort ! crobas param
  real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test, par_thetaMax, par_H0max, par_kH, par_gamma,par_H0 ! more variables and crobas params.
- real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(30), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
+ real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(npar_preles), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
 
 !management routines
  real (kind=8) :: A_clearcut, D_clearcut,H_clearcut, BAr(nLayers), BA_tot, BA_lim, BA_thd, ETSthres = 1000
@@ -149,7 +149,8 @@ real (kind=8) :: pHarvTrees, hW_branch, hW_croot, hW_stem, hWdb
 real (kind=8) :: remhW_branch, remhW_croot,remhW_stem,remhWdb
 
 integer :: FDIout,CO2model, AinitFix,etmodel, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec
-integer, intent(inout) :: prebasFlags(10)
+integer :: soilmodel,REWmodel
+integer, intent(inout) :: prebasFlags(12)
 real (kind=8) :: dailySW(365)
 
 !fire disturbances
@@ -167,6 +168,8 @@ ECMmod = int(prebasFlags(5))
 CO2model = int(prebasFlags(7))
 AinitFix = int(prebasFlags(8))
 FDIout = int(prebasFlags(10))
+soilmodel = int(prebasFlags(11))
+REWmodel = int(prebasFlags(12))
 
 !!set disturbance flags
 ! set all dist to 0 and then choose based on flag
@@ -624,11 +627,11 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    if(layerPRELES == 0) then
 
   !run preles
-     call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+     call preles_f_crobas(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel,CO2model)    !type of ET model
+    etmodel,CO2model,soilmodel,REWmodel)    !type of ET model
 
    !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)    !ET
@@ -655,11 +658,11 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
   LUElayers(1 + nLayers) = LUEgv !!fill for GV
   LUEsite = sum(fAPARlayers * LUElayers)/fAPARsite
   pars(5) = LUEsite
-    call preles(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+    call preles_f_crobas(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel,CO2model)    !type of ET model
+    etmodel,CO2model,soilmodel,REWmodel)    !type of ET model
 
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
     STAND_all(22,:) = prelesOut(2)    !ET

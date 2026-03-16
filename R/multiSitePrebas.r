@@ -64,7 +64,9 @@
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
 #' @param NIout flag to return the nesterov index
 #' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
-#'  
+#' @param pPeattp parameters for peat soil
+#' @param peatType type of peat used to select the PPeattp parameters
+#' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
 #'
@@ -135,7 +137,9 @@ InitMultiSite <- function(nYearsMS,
                           popden = NA,
                           a_nd = NA,
                           NIout = F, 
-                          FDIout = 0
+                          FDIout = 0,
+                          pPeattp = NA,
+                          peatType = 1 # vary between 1 and 2, is a vector of nSites length
     ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -143,7 +147,10 @@ InitMultiSite <- function(nYearsMS,
   
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[12:13] <- pCO2model[CO2model,]
+    pPRELES[18:19] <- pCO2model[CO2model,]
+  }
+  if(all(is.na(pPeattp))){
+    pPeattp <- pPeattp_def
   }
   if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROBAS),,]
   if(all(is.na(ftTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
@@ -172,6 +179,7 @@ InitMultiSite <- function(nYearsMS,
   }
   
   nSites <- length(nYearsMS)
+  if(length(peatType)==1) rep(peatType,nSites)
   if(all(is.na(SMIt0))) SMIt0 = rep(-999,nSites) 
   if(length(mortMod)==1) mortMod <- rep(mortMod,2)
   if(length(thinInt)==1) thinInt <- rep(thinInt,nSites)
@@ -682,7 +690,10 @@ if(alpharNcalc){
     dist_flag = dist_flag,
     CO2model = CO2model,
     NI = NI,
-    FDIout = FDIout
+    FDIout = FDIout,
+    pPeattp = pPeattp,
+    peatType = peatType
+    
    )
 
 
@@ -930,7 +941,9 @@ multiPrebas <- function(multiSiteInit,
                      outDist = as.array(outDist),
                      prebasFlags = as.integer(prebasFlags),
                      latitude = as.double(multiSiteInit$latitude),
-                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs),
+                     pPeattp = as.matrix(multiSiteInit$pPeattp),
+                     peatType = as.matrix(multiSiteInit$peatType)
 )
 
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
@@ -1168,7 +1181,9 @@ prebas <- .Fortran("regionPrebas",
                      outDist = as.array(outDist),
                      prebasFlags = as.integer(prebasFlags),
                    latitude = as.double(multiSiteInit$latitude),
-                   TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
+                   TsumSBBs = as.matrix(multiSiteInit$TsumSBBs),
+                   pPeattp = as.matrix(multiSiteInit$pPeattp),
+                   peatType = as.matrix(multiSiteInit$peatType)
                      #disturbanceSwitch = as.logical(disturbanceON)#fvec
   )
   class(prebas) <- "regionPrebas"
@@ -1422,7 +1437,9 @@ reStartRegionPrebas <- function(multiSiteInit,
                      outDist = as.array(outDist),
                      prebasFlags = as.integer(prebasFlags),
                      latitude = as.double(multiSiteInit$latitude),
-                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
+                     TsumSBBs = as.matrix(multiSiteInit$TsumSBBs),
+                     pPeattp = as.matrix(multiSiteInit$pPeattp),
+                     peatType = as.matrix(multiSiteInit$peatType)
   )
   class(prebas) <- "regionPrebas"
   if(prebas$maxNlayers>1){

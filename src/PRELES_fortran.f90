@@ -18,7 +18,7 @@
       ! implicit none
       
     ! contains
-    subroutine preles_f_crobas(weather,DOY,fAPAR,prelesOut,pars,pPeattp,&
+    subroutine preles_f_crobas(weather,DOY,fAPAR,prelesOut,pars,&
 				GPP,ET,SW,etmodel,CO2model,soilmodel,REWmodel)!,p0)
 
      implicit none
@@ -27,7 +27,7 @@
 		integer, parameter :: NofDays=365, dimTable=15
 		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
 		real (kind=8), intent(inout) :: prelesOut(16)!,p0
-		real (kind=8), intent(inout) :: pars(39),pPeattp(20)
+		real (kind=8), intent(inout) :: pars(59)
 		integer, intent(inout):: DOY(NofDays), etmodel,CO2model
 		real(8), intent(out) :: GPP(NofDays), ET(NofDays),SW(NofDays)
 		integer, intent(in) ::  soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
@@ -53,7 +53,7 @@
 
 
 
-Ksat=0.
+		Ksat=0.
 		PAR = weather(:,1)
 		TAir = weather(:,2)
 		VPD = weather(:,3)
@@ -66,8 +66,8 @@ Ksat=0.
 		Init_par=pars(31:36)
 		GPP_par(11:13)=pars(37:39)
 
-		Genuchten_par=pPeattp(1:8)
-		Ksat=pPeattp(9:20)
+		Genuchten_par=pars(40:47)
+		Ksat=pars(48:59)
 
 		SW  = 0.
 		ST  = 0.

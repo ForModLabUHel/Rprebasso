@@ -11,7 +11,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, &
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags,&
-	latitude, TsumSBBs)
+	latitude, TsumSBBs,pPeat,peatType)
 ! pre-flag-grouping version:
 ! subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
 !     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
@@ -27,7 +27,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53!, nSp=3
+integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20!, nSp=3
 real (kind=8), parameter :: pi = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,layerPRELES !oldLayer fvec
@@ -35,8 +35,9 @@ integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,startSimYear
 integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
- integer, intent(in) :: DOY(365)!,etmodel, ECMmod fvec
- real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
+ integer, intent(in) :: DOY(365),peatType(nSites)!,etmodel, ECMmod fvec
+ real (kind=8), intent(in) :: pCrobas(npar,allSP),pECMmod(12)
+ real (kind=8), intent(in) :: pPRELES(npar_preles),pPeat(npar_peat,2)
 
 !disturbances
  logical :: disturbance_wind ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
@@ -88,7 +89,9 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites),fixAinitXX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
- integer, intent(inout) :: prebasFlags(10)
+ integer, intent(inout) :: prebasFlags(12)
+ real (kind=8) :: pPRELES_all(npar_preles+npar_peat)
+
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -476,10 +479,13 @@ endif
    output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
   endif
 
+  pPRELES_all(1:npar_preles) = pPRELES
+  pPRELES_all((1+npar_preles):(npar_preles+npar_peat)) = pPeat(:,peatType(i))
+
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
     fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
-    weatherPRELES(climID,ij,:,:),DOY,pPRELES, &
+    weatherPRELES(climID,ij,:,:),DOY,pPRELES_all, &
     soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
     litterSize,soilCtot(i,ij),&
     defaultThinX,ClCutX,energyCutX,clct_pars(i,:,:), & !!energCuts
