@@ -73,6 +73,8 @@
 #' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
 #' @param pPeattp parameters for peat soil
 #' @param peatType type of peat used to select the PPeattp parameters
+#' @param soilmodel vector (nSites) of soil types per sites. type of soil: 1= mineral, 2 = peat
+#' @param REWmodel vector (nSites) = ?
 #' 
 #' @importFrom plyr aaply
 #'
@@ -174,7 +176,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         NIout = F,
                         FDIout = 0,
                         pPeattp = NA,
-                        peatType = 1 # vary between 1 and 2, is a vector of nSites length
+                        peatType = 1, # vary between 1 and 2, is a vector of nSites length
+                        soilmodel = 1,
+                        REWmodel = 1
 ) {
   
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -341,7 +345,9 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     NIout = NIout,
     FDIout = FDIout,
     pPeattp = pPeattp,
-    peatType=peatType
+    peatType=peatType,
+    soilmodel = soilmodel,
+    REWmodel = REWmodel
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age

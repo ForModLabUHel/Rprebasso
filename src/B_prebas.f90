@@ -4,7 +4,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      nThinning,maxYearSite,fAPAR,initClearcut,&
-     fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,DOY,pPRELES,&
+     fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,pPRELES,&
      soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,clct_pars,&
      dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
@@ -24,7 +24,6 @@ implicit none
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
- integer, intent(in) :: DOY(365)!, ECMmod, etmodel fvec
  real (kind=8), intent(inout) :: pPRELES(npar_preles), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(4)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  real (kind=8), intent(inout) :: tTapio(5,nSp,2,7), ftTapio(5,nSp,3,7) ! Tending and first thinning parameter.
@@ -34,6 +33,7 @@ implicit none
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
 !disturbances
 
+ integer :: DOY(365)!, ECMmod, etmodel fvec
  logical :: disturbance_wind, disturbance_bb, disturbance_fire !fvec
  real (kind=8), intent(inout) :: siteInfoDist(10), outDist(nYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  real (kind=8) :: rndm !random number for disturbance sampling
@@ -160,6 +160,7 @@ real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year,ligh
 real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
 
 !!! 'un-vectorise' flags, fvec
+DOY = [(i, i = 1, 365)]
 etmodel = int(prebasFlags(1))
 gvRun = int(prebasFlags(2))
 fertThin = int(prebasFlags(3))
@@ -627,7 +628,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    if(layerPRELES == 0) then
 
   !run preles
-     call preles_f_crobas(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+     call preles_f_crobas(365,weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
@@ -645,10 +646,10 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
      STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite * coeff! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
 !initialize for next year
-     pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-     pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-     pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-     pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+     pars(31) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+     pars(32) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+     pars(33) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+     pars(34) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
    endif
 
    if(layerPRELES == 1) then
@@ -658,7 +659,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
   LUElayers(1 + nLayers) = LUEgv !!fill for GV
   LUEsite = sum(fAPARlayers * LUElayers)/fAPARsite
   pars(5) = LUEsite
-    call preles_f_crobas(weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
+    call preles_f_crobas(365,weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
@@ -677,10 +678,10 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
 
 !initialize for next year
-     pars(24) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-     pars(25) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-     pars(26) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-     pars(27) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+     pars(31) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+     pars(32) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+     pars(33) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+     pars(34) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
    endif
 

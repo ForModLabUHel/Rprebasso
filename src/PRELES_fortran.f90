@@ -18,13 +18,14 @@
       ! implicit none
       
     ! contains
-    subroutine preles_f_crobas(weather,DOY,fAPAR,prelesOut,pars,&
+    subroutine preles_f_crobas(NofDays,weather,DOY,fAPAR,prelesOut,pars,&
 				GPP,ET,SW,etmodel,CO2model,soilmodel,REWmodel)!,p0)
 
      implicit none
 
 
-		integer, parameter :: NofDays=365, dimTable=15
+		integer, parameter :: dimTable=15
+		integer, intent(in) :: NofDays
 		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
 		real (kind=8), intent(inout) :: prelesOut(16)!,p0
 		real (kind=8), intent(inout) :: pars(59)

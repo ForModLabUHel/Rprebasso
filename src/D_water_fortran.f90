@@ -341,7 +341,7 @@ end subroutine sw_balance
        end if
     end if
 
-    et = et_from_veg_and_soil + transp
+    et = et_from_veg_and_soil 
 
     !-----------------------------------------------------------------
     !  Calculate flux rates in soil including pond, top, and main pool
@@ -362,7 +362,7 @@ end subroutine sw_balance
     !--------------------------------------------------------------
    
      st0 = pond + throughfall + snowmelt + Exf_pond - Dr_pond
-     st1 = theta_top + Dr_pond + Exf_top - evap - Dr_top
+     st1 = theta_top + Dr_pond + Exf_top - et - Dr_top
      st2 = theta + Dr_top - transp - Qdrain -  Exf_top - Exf_pond
      
      if (st0 <= 0.0 ) st0 = 1.0e-4 
@@ -476,27 +476,29 @@ end subroutine sw_balance
   !=================================================================
   ! Calculate tables for estimating water table depth
   !=================================================================
-  subroutine waterTable(Genuchten_par, Site_par, Ksat, dimTable, SWTable) 
+  subroutine waterTable(Genuchten_par, Site_par, Ksat_in, dimTable, SWTable) 
     integer, intent(in)         :: dimTable      ! water retention curve [m3m−3]; 
     real(kind=8), intent(in)        :: Genuchten_par(8) ! eight parameters 
     real(kind=8), intent(in)        :: Site_par(10)      ! water retention parameters for site
-    real(kind=8), intent(in)    :: Ksat(12)     ! saturated conductivity for peat profile, Ksat_par%ksat(dimTable) (m/d)
-    real(kind=8), intent(out)   :: SWTable(dimTable+1, dimTable + 3)            ! water retention table
+    real(kind=8), intent(in)    :: Ksat_in(12)     ! saturated conductivity for peat profile, Ksat_par%ksat(dimTable) (m/d)
+    real(kind=8), intent(out)   :: SWTable(dimTable, dimTable + 3)            ! water retention table
     real(kind=8)                :: gwl           ! water table depth, running (m);
     real(kind=8)                :: thetaS        ! saturated water content [m3m−3];
     real(kind=8)                :: thetaST       ! saturated water content in topsoil [m3m−3];
     real(kind=8)                :: z             ! soil depth (cm)
+    REAL(kind=8)                :: Ksat(dimTable) ! for storing interpolated Ksat values
     real(kind=8)                :: half1         ! half of peat slice (cm)
     real(kind=8)                :: half2         ! half of peat slice below ditch depth (cm)
     real(kind=8)                :: soilD         ! depth of peat soil considered (mm)
     real(kind=8)                :: ditchD        ! ditch depth (m)
     integer                     :: NToDitch      ! nr of slices to ditch bottom
     integer                     :: NToBot        ! nr of slices to soil bottom
+    integer                     :: nper10cm      ! for use in denser grid
     real(kind=8)                :: slice1        ! thickness of slice above ditch bottom (cm)
-    real(kind=8)                :: slice2        ! thickness of slice below ditch bottom (cm)
     real(kind=8)                :: sum_var
     integer                     :: kk
     integer                     :: jj
+    integer                     :: kcount
     real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
 	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
 	real(8) :: Genuchten_par_thetaS,Genuchten_par_thetaR,Genuchten_par_alpha,Genuchten_par_n
@@ -509,24 +511,25 @@ end subroutine sw_balance
     ditchD = Site_par_ditchdepth * 100   ! convert from m to cm
     soilD = Site_par_peatdepth / 10.     ! convert from mm to cm
     
-    ! dimTable must be divisible by 3
-    
-    
-    NToDitch = int(2.0 * dimTable/3.0 + 0.1)     ! added 0.1 to make sure that value truncated to correct integer
-    NToBot   = int(dimTable/3.0 + 0.1)
-    
-    slice1 = ditchD / NToDitch   
-    slice2 = (soilD - ditchD ) / NToBot
+    slice1 = soilD / dimTable
+    NToDitch = ditchD / soilD  * dimTable  
+    NtoBot = dimTable - NToDitch 
     half1 = slice1/2.0
-    half2 = slice2/2.0
+    nper10cm = 10. / soilD * dimTable
+    thetaS = Genuchten_par_thetaS
+    thetaST = Genuchten_par_thetaST
     
-    ! fill table with saturated values to begin with
-    do kk = 1, dimTable + 1
-        SWTable(kk,1) = Genuchten_par_thetaST
-        do jj = 2, dimTable 
+    
+    
+   ! fill table with saturated values to begin with
+    do kk = 1, dimTable 
+        do jj = 1, nper10cm
+        SWTable(kk,jj) = Genuchten_par_thetaST
+        end do
+        do jj = nper10cm + 1, dimTable 
              SWTable(kk,jj) = Genuchten_par_thetaS
         end do
-    end do
+    end do 
     
     ! fill table for non-saturated cases, first above ditch bottom
     
@@ -542,64 +545,83 @@ end subroutine sw_balance
         end do
     end do
     
-    ! fill table for non-saturated cases, now below ditch bottom
+    ! fill table for non-saturated cases, first above ditch bottom
     
-     do kk = 1 , NToBot                                       
-        gwl = - kk * slice2 - ditchD
-        do jj = 1 , NToDitch 
-            z = - jj * slice1 
-            if(jj < 2) then
-                SWTable(NToDitch+kk+1, jj) = thetaFun(gwl - z - half1, Genuchten_par,1 )
+    do kk = 1 , dimTable 
+        gwl = - (kk) * slice1
+        do jj = 1 , kk
+            z = - jj * slice1
+            if (jj < nper10cm + 1) then
+                SWTable(kk,jj) = thetaFun(gwl - z - half1, Genuchten_par,1 )
             else
-                SWTable(NToDitch+kk+1, jj) = thetaFun(gwl - z - half1, Genuchten_par,2 )
-            end if
+                SWTable(kk,jj) = thetaFun(gwl - z - half1, Genuchten_par,2 )
+            endif
         end do
-        do jj = 1, kk 
-            z = - ditchD - jj * slice2 
-            SWTable(NToDitch+kk+1, NToDitch+jj) = thetaFun(gwl - z - half2, Genuchten_par,2 )
-        end do
-     end do
+    end do
      
      ! Water content, insert in SWTable(kk,dimTable + 1)
-     do kk = 1, dimTable + 1
+     do kk = 1, dimTable 
          sum_var = 0
-         do jj = 1,NtoDitch
+         do jj = 1,dimTable
              sum_var = sum_var + SWTable(kk,jj) * slice1
          end do
-         do jj = NtoDitch + 1, dimTable
-             sum_var = sum_var + SWTable(kk,jj) * slice2
-         end do
+         
          SWTable(kk, dimTable + 1) = sum_var * 10.  ! from cm to mm
      end do
      
      ! Ksat, insert in SWTable(kk,dimTable + 2)
      ! first insert zeros to all
-     do kk = 1, dimTable + 1
+     do kk = 1, dimTable 
          SWTable(kk,dimTable + 2) = 0.
      end do
-     ! start insertinf Ksat_av
-     do kk = 1, NtoDitch 
+     
+     ! Interpolate Ksat values to slices based on slice thickness
+     ! 10 Ksat values are given for soil depth 0 - 1m and 2 values for the lower part (Ksat_in input has 12 components)
+     
+     
+     ! top 10 cm
+     do kk = 1, nper10cm
+         Ksat(kk) = Ksat_in(1) 
+     end do
+     
+   !  the rest of the soil
+     
+     do jj = 2,10
+       kcount = 0
+       do kk = (jj-1) * nper10cm  + 1, (jj-1) * nper10cm + nper10cm
+         kcount = kcount + 1
+         Ksat(kk) = - (Ksat_in(jj-1) - Ksat_in(jj))  * float(kcount)/FLOAT(nper10cm) + Ksat_in(jj-1) 
+       end do   
+     end do
+                 
+    ! interpolate Ksat values from 1 m to 2 m using 2 given values and Ksat_in(10)
+     do jj = 11, 12
+         kcount = 0
+         do kk = 10 * nper10cm + (jj-11) * nper10cm * 5 + 1, 10 * nper10cm + (jj-10) * nper10cm * 5
+             kcount = kcount + 1
+             Ksat(kk) = - (Ksat_in(jj-1) - Ksat_in(jj)) * float(kcount)/FLOAT(5*nper10cm) + Ksat_in(jj-1) 
+        end do
+     end do
+     
+    ! calculate average Ksat values to insert to SWTable
+
+     do kk = 1, dimTable 
           sum_var = 0
-          do jj =  kk , NtoDitch
+          do jj =  kk+1 , NtoDitch 
              sum_var = sum_var + Ksat(jj) 
           end do
-          if (NtoDitch - kk + 1 > 0) then
-            SWTable(kk, dimTable + 2) = sum_var / (NtoDitch - kk + 1)
+          if (NtoDitch - kk  > 0) then
+            SWTable(kk, dimTable + 2) = sum_var / (NtoDitch - kk )
           else
              SWTable(kk, dimTable + 2) = 0.
           end if   
      end do
      
-     do kk = 1, NtoDitch + 1
-          SWTable(kk,dimTable + 3) = (kk-1) * slice1 * 0.01 ! conversion from cm to m
+     do kk = 1, dimTable 
+          SWTable(kk,dimTable + 3) = (kk) * slice1 * 0.01 ! conversion from cm to m
      end do
-     do kk = 1 , NtoBot
-         SWTable(kk+ NtoDItch + 1,dimTable + 3) = (DitchD + kk * slice2) * 0.01 ! conversion from cm to m
-     end do
-     
          
-         
-     
+          
     
   end subroutine waterTable
   
@@ -610,7 +632,7 @@ end subroutine sw_balance
       
     real(kind=8), intent(in)        :: Site_par(10)      ! For ditch depth and distance
     integer, intent(in)         :: dimTable      ! soil water table dimension variable 
-    real(kind=8), intent(in)    :: SWTable(dimTable+1, dimTable + 3)            ! water retention table
+    real(kind=8), intent(in)    :: SWTable(dimTable, dimTable + 3)            ! water retention table
     real(kind=8), intent(inout) :: gwl           ! water table depth from previous timestep to be updated (m)
     real(kind=8), intent(in)    :: theta         ! soil water
     real(kind=8), intent(inout) :: Qdrain        ! ditch drainage
@@ -618,11 +640,16 @@ end subroutine sw_balance
     
     real(kind=8)                :: ditchD        ! ditch depth (m)
     real(kind=8)                :: ditchL        ! distance between ditches (m)
+    real(kind=8)                :: peatD         ! peat depth (mm)
     real(kind=8)                :: slice         ! thickness of peat slice (m)
     real(kind=8)                :: sum           ! for calculating theta_root
-    integer                     :: kk            ! index
-    integer                     :: k0            ! index
+    real(kind=8)                :: theta_mid     ! mean of consecutive water storages at gwl mid slice (mm)
+    real(kind=8)                :: gwl_mid       ! mid point of gwl slice at theta (m)
+    integer                     :: kk , kstart   ! index
+    integer                     :: k0 , k00      ! index
     integer                     :: NtoRoot       ! nr of slices occupied by roots 
+    integer                     :: nperslice     ! nr of slices in 10 cm 
+  
     real(8) :: Site_par_soildepth,Site_par_ThetaFC,Site_par_ThetaPWP,Site_par_tauDrainage,Site_par_topdepth
 	real(8) :: Site_par_orgthres,Site_par_MaxPond, Site_par_ditchDepth, Site_par_ditchDist, Site_par_peatdepth
 
@@ -630,46 +657,73 @@ end subroutine sw_balance
 	include 'init_sitePar_preles.h'
    
     
-    ditchD = Site_par_ditchdepth   ! m
-    ditchL = Site_par_ditchDist        ! m
-    slice = SWTable(2,dimTable + 3)
-    NtoRoot = ceiling(Site_par_soildepth * 0.001 / slice) ! nr of slices occupied by roots
+    ditchD = site_par_ditchdepth   ! m
+    ditchL = site_par_ditchDist        ! m
+    slice = SWTable(1,dimTable + 3)  ! m
+    NtoRoot = ceiling(site_par_soildepth * 0.001 / slice) ! nr of slices occupied by roots
+    peatD = site_par_peatdepth    ! mm
+    nperslice =  100. / peatD * dimTable
         
-    k0 = 0    
+    k0 = 0
+    k00 = 0
     
-    if(theta >= SWTable(1,dimTable + 1)) then
-        gwl = 0.
-        k0 = 1
-      else          
-       do kk = 2, dimTable+1
-                     
-       if(theta > SWTable(kk,dimTable+1)) then
-           if(k0 < 1) then
-               k0 = kk
-           else
-               k0 = k0
+   if(theta >= SWTable(1,dimTable+1) ) then
+       k00 = 1
+       gwl = (SWTable(k00,dimTable+3))*0.5
+   end if
+   
+    if(theta < SWTable(1,dimTable+1) ) then 
+        do kk = nperslice ,dimTable, nperslice       ! first search through sparse resolution to find where approximately the water level is
+           if(theta > SWTable(kk,dimTable+1) ) then
+               if(k0 < 1) then
+                k0 = kk
+               else
+                k0 = k0
+               endif
+           endif
+        end do 
+    end if 
+        
+     if(k0 + k00 < 1)then
+        k00 = dimTable 
+      
+     else
+         if(k0>0) then
+         kstart = Max(k0 - nperslice , 1)
+            
+       do kk = kstart, k0
+             
+       if(theta > SWTable(kk,dimTable+1) ) then
+           if(k00 < 1) then
+               k00 = kk
+            else
+               k00 = k00
            endif
        endif
        
       end do
-    endif
-      
+      end if 
+         
+   end if   
        
-       if(theta < SWTable(dimTable+1,dimTable+1) )then
-        k0 = dimTable + 1
-      endif
       
-      ! calculate drainage
-      if(k0 > 1) then
-          gwl = (SWTable(k0,dimTable+3) + SWTable(k0 - 1 , dimTable+3))*0.5
+      ! calculate drainage, interpolate for gwl
+      if(k00 > 1) then
+          theta_mid = (SWTable(k00,dimTable+1) + SWTable(k00 - 1 , dimTable+1))*0.5
+          gwl_mid = (SWTable(k00,dimTable+3) + SWTable(k00 - 1 , dimTable+3))*0.5
+          if(theta > 0.) then 
+             gwl = gwl_mid * theta_mid / theta
+          else
+              gwl = gwl_mid
+          end if
       end if
            
-      Qdrain = 345600000.0 * SWTable(k0,dimTable+2) * ((-gwl + ditchD)/ditchL)**2  ! Qdrain is in mm / d
+      Qdrain = 345600000.0 * SWTable(k00,dimTable+2) * ((-gwl + ditchD)/ditchL)**2  ! Qdrain is in mm / d
       
       ! calculate theta in root zone
       sum = 0.
       do kk = 1,NtoRoot
-          sum = sum + SWTable(k0,kk)
+          sum = sum + SWTable(k00,kk)
       end do
       theta_root = sum  * slice * 1000.   ! theta in mm
           

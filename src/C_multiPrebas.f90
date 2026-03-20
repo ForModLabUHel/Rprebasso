@@ -5,24 +5,25 @@
 subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
     nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
-    weatherPRELES,DOY,pPRELES, soilC,pYasso,&
+    weatherPRELES,pPRELES, soilC,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtot, &
     defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiEnergyWood, &
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,thinInt, &
     flagFert,nYearsFert,mortMod,pECMmod,& !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
-	latitude, TsumSBBs,pPeat,peatType)
+	latitude, TsumSBBs,pPeat,peatType,soilmodel,REWmodel)
 
 
 implicit none
 
 integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
+integer, intent(in) :: soilmodel(nSites),REWmodel(nSites)
 integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither in prebas subroutine nor multiPrebas() R function
 
  integer :: i,climID,ij,iz,ijj,ki,n,jj,az
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
- integer, intent(in) :: DOY(365),layerPRELES,peatType(nSites) !, ECMmod fvec
+ integer, intent(in) :: layerPRELES,peatType(nSites) !, ECMmod fvec
  real (kind=8), intent(in) :: pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
  real (kind=8), intent(in) :: pPRELES(npar_preles),pPeat(npar_peat,2)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
@@ -100,6 +101,8 @@ enddo
 
 do i = 1,nSites
  prebasFlags(8) = int(multiOut(i,1,7,1,2))
+ prebasFlags(11) = soilmodel(i)
+ prebasFlags(12) = REWmodel(i)
  multiOut(i,1,7,1,2) = 0.
  output(:,:,:,:) = multiOut(i,:,:,:,:)
 
@@ -119,7 +122,7 @@ do i = 1,nSites
     call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
     initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
-    P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES_all, &
+    P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),pPRELES_all, &
     soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
     litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
     ClCutX,energyCuts(i),clct_pars(i,:,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
