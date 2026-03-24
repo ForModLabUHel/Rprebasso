@@ -143,7 +143,7 @@ InitMultiSite <- function(nYearsMS,
                           pPeattp = NA,
                           peatType = 1, # vary between 1 and 2, is a vector of nSites length
                           soilmodel = 1,
-                          REWmodel = 1
+                          REWmodel = 2
     ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")

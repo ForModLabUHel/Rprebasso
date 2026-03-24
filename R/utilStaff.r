@@ -1088,7 +1088,7 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       length(ET_par) == 5L,
       length(SnowRain_par) == 5L,
       length(Genuchten_par) == 8L,
-      length(Ksat) == 15L
+      length(Ksat) == 12L
     )
     
     # Initialize inout state vectors if not supplied
