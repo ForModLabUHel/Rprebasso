@@ -24,7 +24,7 @@
      implicit none
 
 
-		integer, parameter :: dimTable=15
+		integer, parameter :: dimTable=12
 		integer, intent(in) :: NofDays
 		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
 		real (kind=8), intent(inout) :: prelesOut(16)!,p0
@@ -159,7 +159,7 @@
     integer, intent(in) ::  REWmodel   ! 1 for smooth function, 2 for piecewise linear, default smooth
     ! integer, intent(in) ::  dimTable   ! dimension of look-up table
     integer :: i, kk,  jj
-    real(8) :: SWTable(dimTable+1, dimTable+3)
+    real(8) :: SWTable(dimTable, dimTable+3)
     real(8) :: II, T, D, P, theta, theta_snow, theta_canopy, theta_top, theta_root, pond, S_state
     real(8) :: PhenoS, fPheno
     real(8) :: fEgpp, gpp380

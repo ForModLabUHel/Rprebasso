@@ -555,7 +555,7 @@ InitMultiSite <- function(nYearsMS,
         etmodel=etmodel,
         CO2model=CO2model,
         soilmodel=1,
-        REWmodel=REWmodel)$GPP
+        REWmodel=1)$GPP
    
 
       P0 <- matrix(P0,365,nYearsX)
