@@ -24,7 +24,7 @@
      implicit none
 
 
-		integer, parameter :: dimTable=12
+		integer, parameter :: dimTable=200
 		integer, intent(in) :: NofDays
 		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
 		real (kind=8), intent(inout) :: prelesOut(16)!,p0
