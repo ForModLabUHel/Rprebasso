@@ -44,7 +44,7 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
  ! Parameters for the fire model
  ! Surface area to volume of fuels
  SurfArea2Vol = (/66.,3.58,0.98/)
- moisture_scaling = 1.*10.**4. !this was 3.*10.**4. !# changed
+ moisture_scaling = 3.*10.**4. !this was 3.*10.**4. !# changed
 ! Allocate C pools to fuel classes
  frac_green_active = 0.3
  frac_1hr_wood = 0.045
