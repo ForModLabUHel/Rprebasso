@@ -4,7 +4,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
-    nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
+    nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy, initVar,&
     weatherPRELES,pPRELES, soilC,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtot, &
     defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiEnergyWood, &
@@ -27,7 +27,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(in) :: pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
  real (kind=8), intent(in) :: pPRELES(npar_preles),pPeat(npar_peat,2)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
- real (kind=8), intent(inout) :: siteInfo(nSites,11),thdPer(nSites),limPer(nSites)
+ real (kind=8), intent(inout) :: siteInfo(nSites,14),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv
@@ -54,7 +54,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
 ! integer, intent(in) :: siteThinning(nSites)
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
- real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
+ real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2),latitude(nSites), TsumSBBs(nSites,4)
  real (kind=8), intent(inout) :: multiEnergyWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilC(nSites,maxYears,5,3,maxNlayers),soilCtot(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -122,7 +122,7 @@ do i = 1,nSites
     call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
     initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
-    P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),pPRELES_all, &
+    weatherPRELES(climID,1:nYears(i),:,:),pPRELES_all, &
     soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
     litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
     ClCutX,energyCuts(i),clct_pars(i,:,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&

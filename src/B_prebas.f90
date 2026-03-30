@@ -4,7 +4,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      nThinning,maxYearSite,fAPAR,initClearcut,&
-     fixBAinitClarcut,initCLcutRatio,ETSy,P0y,weatherPRELES,pPRELES,&
+     fixBAinitClarcut,initCLcutRatio,ETSy,weatherPRELES,pPRELES,&
      soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,clct_pars,&
      dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
@@ -70,8 +70,8 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  !integer :: gvRun !!! flag for including ground vegetation !fvec
  real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
- real (kind=8), intent(inout) :: initVar(7, nLayers), P0y(nYears,2), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
- real (kind=8), intent(inout) :: siteInfo(11)
+ real (kind=8), intent(inout) :: initVar(7, nLayers), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
+ real (kind=8), intent(inout) :: siteInfo(14)
  real (kind=8), intent(inout) :: output(nYears, nVar, nLayers, 2), energyWood(nYears, nLayers, 2) ! last dimension: 1 is for stand and 2 is for harvested sum of wood.
  real (kind=8), intent(inout) :: soilCinOut(nYears, 5, 3, nLayers), soilCtotInOut(nYears) ! dimensions: nyears, AWENH, woody/fineWoody/foliage, layers
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
@@ -233,13 +233,14 @@ countThinning = 1
 pars = pPRELES
 pars(1:3) = siteInfo(8:10)
 pars(4) = siteInfo(11) !tauDreinage
+pars(8:10) = siteInfo(12:14)
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 pars(24) = siteInfo(4)!SWinit
 pars(25) = siteInfo(5)!CWinit
 pars(26) = siteInfo(6) !SOGinit
 pars(27) = siteInfo(7) !Sinit
 Ainit = initClearcut(5)
-P0yX = P0y
+P0yX = output(:,6,1,:)
 Reineke(:) = 0.
 ETSmean = sum(ETSy)/nYears
 

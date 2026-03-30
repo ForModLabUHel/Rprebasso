@@ -99,7 +99,7 @@
                    fW, fE, Throughfall, Interception, Snowmelt, Drainage, Canopywater, GPPmeas, ETmeas, SWmeas, &
                   S, LOGFLAG, multisiteNday, doy, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel)
 
-
+		ET = transp + evap
 		prelesOut(1) = sum(GPP(1:NofDays))
 		prelesOut(2) = sum(ET(1:NofDays))
 		prelesOut(3) = SW(NofDays)
@@ -367,7 +367,7 @@ do i = 1, NofDays
 
    end do   ! day loop
 
-
+ET = evap+transp
     end subroutine preles_fortran
 
     ! end module preles_module

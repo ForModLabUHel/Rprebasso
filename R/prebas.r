@@ -70,6 +70,11 @@
 #' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a vector of length nYearsnDays
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter
 #' @param NIout flag to return the nesterov index
+#' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
+#' @param pPeattp parameters for peat soil
+#' @param peatType type of peat used to select the PPeattp parameters
+#' @param soilmodel soil types per sites. type of soil: 1= mineral, 2 = peat
+#' @param REWmodel  = ?
 #' 
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
@@ -214,16 +219,24 @@ prebas <- function(nYears,
                    lightnings = NA,
                    popden = NA,
                    a_nd = NA,
-                   NIout = F
+                   NIout = F,
+                   FDIout = 0,
+                   pPeattp = NA,
+                   peatType = 1, # vary between 1 and 2, is a vector of nSites length
+                   soilmodel = 1,
+                   REWmodel = 2
+                   
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[12:13] <- pCO2model[CO2model,]
+    pPRELES[18:19] <- pCO2model[CO2model,]
   }
-  
+  if(is.na(pPeattp)){
+    pPeattp <- pPeattp_def
+  }
   if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROBAS),,]
   if(all(is.na(ftTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
   
@@ -313,7 +326,7 @@ prebas <- function(nYears,
       nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
     }
   nSp = ncol(pCROBAS)
-  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3) ###default values for nspecies and site type = 3
+  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3,1,30,2000) ###default values for nspecies and site type = 3
                                   
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
@@ -385,9 +398,22 @@ prebas <- function(nYears,
   # domSp <- initVar[1,which.max(initVar[5,])]
   # pPRELESx <- pPRELES[,domSp]
   if(is.na(P0)){
-    P0 <- PRELES(DOY=rep(1:365,nYears),
-                 PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
-                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES,CO2model=CO2model)$GPP
+    weathX <- cbind(PAR, TAir,
+                    VPD,Precip, CO2)
+    
+    P0 <- preles_crobas_r(weathX,
+                          DOY=rep(1:365,nYears),
+                          fAPAR=rep(1,(365*nYears)),
+                          rep(0,16),
+                          c(pPRELES,pPeattp[,peatType]),
+                          GPP=rep(0,(365*nYearsX)),
+                          ET=rep(0,(365*nYearsX)),
+                          SW=rep(0,(365*nYearsX)),
+                          etmodel=etmodel,
+                          CO2model=CO2model,
+                          soilmodel=soilmodel,
+                          REWmodel=REWmodel)$GPP
+    
     P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
   }
   P0 <- matrix(P0,nYears,2)
@@ -395,7 +421,7 @@ prebas <- function(nYears,
     P0[1,2] <- P0[1,1]
     for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
   } 
-  
+  output[,6,1,] <- P0
     
   ####if Height of the crown base is not available use model
   initVar <- findHcNAs(initVar,pHcMod,pCROBAS,HcModV)
@@ -490,7 +516,11 @@ prebas <- function(nYears,
                             dist_flag,
                             CO2model,
                             fixAinit,
-                            -777)) ###ingrowth flag
+                            -777,###ingrowth flag
+                            multiSiteInit$FDIout, ####output FDI instead of SW
+                            0,### this flag will be filled by soilmodel internally in prebas in the site loop
+                            0 ### this flag will be filled by REWmodel internally in prebas in the site loop
+                            )) 
   
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
@@ -539,7 +569,7 @@ prebas <- function(nYears,
                      fixBAinitClarcut=as.numeric(fixBAinitClarcut),
                      initCLcutRatio = as.double(initCLcutRatio),
                      ETS = as.numeric(ETS),
-                     P0 = as.matrix(P0),
+                     # P0 = as.matrix(P0),
                      weather=as.array(weatherPreles),
                      DOY= as.integer(1:365),
                      pPRELES=as.numeric(pPRELES),

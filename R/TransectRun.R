@@ -184,7 +184,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[12:13] <- pCO2model[CO2model,]
+    pPRELES[18:19] <- pCO2model[CO2model,]
   }
   
   if(all(!is.na(soilC))){
@@ -197,7 +197,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   
   nSites <- 7
-  siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118,3), nSites, 13, byrow = T)
+  siteInfo <- matrix(c(NA, NA, NA, 160, 0, 0, 20, 3, 3, 413, 0.45, 0.118,3,1,30,2000), nSites, 16, byrow = T)
   if (all(is.na(SiteType))) {
     SiteType <- 3
     warning("siteType 3 was assigned to all sites since SiteType was not provided")
