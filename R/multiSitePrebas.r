@@ -151,7 +151,7 @@ InitMultiSite <- function(nYearsMS,
   
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[18:19] <- pCO2model[CO2model,]
+    pPRELES[18:19,] <- pCO2model[CO2model,]
   }
   if(all(is.na(pPeattp))){
     pPeattp <- pPeattp_def
@@ -203,8 +203,8 @@ InitMultiSite <- function(nYearsMS,
   }
   siteInfo <- as.matrix(siteInfo)
   ### automatically add tauDrainage,ditchDepth, ditchDist, peatDepth if missing ###
-  if(dim(siteInfo)[2]==12) siteInfo <- cbind(siteInfo,pPRELES[c(4,8,9,10)])
-  if(dim(siteInfo)[2]==13) siteInfo <- cbind(siteInfo,pPRELES[c(8,9,10)])
+  if(dim(siteInfo)[2]==12) siteInfo <- cbind(siteInfo,pPRELES[c(4,8,9,10),1])
+  if(dim(siteInfo)[2]==13) siteInfo <- cbind(siteInfo,pPRELES[c(8,9,10),1])
   ### --- ###  
   
   if(ingrowth){
@@ -545,11 +545,13 @@ InitMultiSite <- function(nYearsMS,
       weathX <- cbind(PAR[ijk,1:(365*nYearsX)], TAir[ijk,1:(365*nYearsX)],
             VPD[ijk,1:(365*nYearsX)],Precip[ijk,1:(365*nYearsX)], CO2[ijk,1:(365*nYearsX)])
       
+      spx <- multiInitVar[ijk,1,which.max(multiInitVar[ijk,5,])]
+      
       P0 <- preles_crobas_r(weathX,
         DOY=rep(1:365,nYearsX),
         fAPAR=rep(1,(365*nYearsX)),
         rep(0,16),
-        c(pPRELES,pPeattp[,peatType[ijk]]),
+        c(pPRELES[,spx],pPeattp[,peatType[ijk]]),
         GPP=rep(0,(365*nYearsX)),
         ET=rep(0,(365*nYearsX)),
         SW=rep(0,(365*nYearsX)),

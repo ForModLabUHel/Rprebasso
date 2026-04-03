@@ -25,7 +25,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5)
  integer, intent(in) :: layerPRELES,peatType(nSites) !, ECMmod fvec
  real (kind=8), intent(in) :: pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
- real (kind=8), intent(in) :: pPRELES(npar_preles),pPeat(npar_peat,2)
+ real (kind=8), intent(in) :: pPRELES(npar_preles,allSP),pPeat(npar_peat,2)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
  real (kind=8), intent(inout) :: siteInfo(nSites,14),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
@@ -62,11 +62,14 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  real (kind=8), intent(in) :: pYasso(35), weatherYasso(nClimID,maxYears,3),litterSize(3,allSP) !litterSize dimensions: treeOrgans,species
  real (kind=8) :: output(maxYears,nVar,maxNlayers,2),totBA(nSites), relBA(nSites,maxNlayers),mortModX
  real (kind=8) :: ClCutX, HarvArea,defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
- integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species
+ integer :: maxYearSite = 300,yearX(nSites),Ainit,sitex,ops(1),species,spx
 
  integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
  integer, intent(inout) :: prebasFlags(12)
- real (kind=8) :: pPRELES_all(npar_preles+npar_peat)
+ real (kind=8) :: pPRELES_all((npar_preles+npar_peat),allSP)
+
+! open(1,file="test1.txt")
+! open(2,file="test2.txt")
 
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
@@ -82,8 +85,7 @@ CO2model = prebasFlags(7)
 !outDist(1,10) = siteInfoDist(1,1)
 !!!!initialize run
 ! multiOut = 0.
-! open(1,file="test1.txt")
-! open(2,file="test2.txt")
+
 
 output = 0.
 yearX = 0.
@@ -114,11 +116,12 @@ do i = 1,nSites
   mortModX = mortMod(1) !!mortality model to be used in the managed forests
   if(ClCut(i) < 0.5 .and. defaultThin(i) < 0.5) mortModX = mortMod(2) !!mortality model to be used in the unmanaged forests
   
-  pPRELES_all(1:npar_preles) = pPRELES
-  pPRELES_all((1+npar_preles):(npar_preles+npar_peat)) = pPeat(:,peatType(i))
+  pPRELES_all(1:npar_preles,:) = pPRELES
+  do spx=1,allSP 
+	pPRELES_all((1+npar_preles):(npar_preles+npar_peat),spx) = pPeat(:,peatType(i))
+  end do
     
   thinningX = thinning(i,:,:)
-  ! nYears(i) = nYears(i)
     call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
     initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
@@ -131,24 +134,9 @@ do i = 1,nSites
     flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
     siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags,latitude(i), TsumSBBs(i,:))
     
-    ! pre flag vectorisatio:
-    ! call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
-    ! thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
-    ! initClearcut(i,:),fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,1:nYears(i)),&
-    ! P0y(climID,1:nYears(i),:),weatherPRELES(climID,1:nYears(i),:,:),DOY,pPRELES,etmodel, &
-    ! soilC(i,1:nYears(i),:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,1:nYears(i),:),&
-    ! litterSize,soilCtot(i,1:nYears(i)),defaultThinX,&
-    ! ClCutX,energyCuts(i),inDclct(i,:),inAclct(i,:),dailyPRELES(i,1:(nYears(i)*365),:),yassoRun(i),&
-    ! multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
-    ! GVout(i,1:nYears(i),:),GVrun,thinInt(i), &
-    ! fertThin,flagFert,nYearsFert,protect,mortModX,ECMmod,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-    ! disturbanceON, siteInfoDist(i,:), outDist(i,1:nYears(i),:))
-    
-    
-    
     multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
 end do
- ! close(1)
+ close(1)
  ! close(2)
 end subroutine
 

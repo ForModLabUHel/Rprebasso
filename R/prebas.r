@@ -232,7 +232,7 @@ prebas <- function(nYears,
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[18:19] <- pCO2model[CO2model,]
+    pPRELES[18:19,] <- pCO2model[CO2model,]
   }
   if(is.na(pPeattp)){
     pPeattp <- pPeattp_def
@@ -400,12 +400,12 @@ prebas <- function(nYears,
   if(is.na(P0)){
     weathX <- cbind(PAR, TAir,
                     VPD,Precip, CO2)
-    
+    spx <- initVar[1,which.max(multiInitVar[5,])]
     P0 <- preles_crobas_r(weathX,
                           DOY=rep(1:365,nYears),
                           fAPAR=rep(1,(365*nYears)),
                           rep(0,16),
-                          c(pPRELES,pPeattp[,peatType]),
+                          c(pPRELES[,spx],pPeattp[,peatType]),
                           GPP=rep(0,(365*nYearsX)),
                           ET=rep(0,(365*nYearsX)),
                           SW=rep(0,(365*nYearsX)),

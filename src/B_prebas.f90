@@ -19,12 +19,12 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=53,npar_preles=59, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=53,npar_preles_all=59, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
  real (kind=8), intent(in) :: weatherPRELES(nYears,365,5) ! R, T, VPD, P, CO2
- real (kind=8), intent(inout) :: pPRELES(npar_preles), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
+ real (kind=8), intent(inout) :: pPRELES(npar_preles_all,nSp), tapioPars(5,2,3,20), thdPer, limPer ! tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
  real (kind=8), intent(inout) :: LUEtrees(nSp),LUEgv,latitude, TsumSBBs(4)!TsumSBB = temp sums bark beetle (1)= previous two years,(2)= previous year, (1)= current year
  real (kind=8), intent(inout) :: tTapio(5,nSp,2,7), ftTapio(5,nSp,3,7) ! Tending and first thinning parameter.
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
@@ -109,7 +109,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas ! crobas param
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort ! crobas param
  real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test, par_thetaMax, par_H0max, par_kH, par_gamma,par_H0 ! more variables and crobas params.
- real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(npar_preles), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
+ real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(npar_preles_all), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
 
 !management routines
  real (kind=8) :: A_clearcut, D_clearcut,H_clearcut, BAr(nLayers), BA_tot, BA_lim, BA_thd, ETSthres = 1000
@@ -230,15 +230,24 @@ modOut = 0.
 modOut(1,:,:,:) = output(1,:,:,:)
 soilC = 0.
 countThinning = 1
-pars = pPRELES
-pars(1:3) = siteInfo(8:10)
-pars(4) = siteInfo(11) !tauDreinage
-pars(8:10) = siteInfo(12:14)
+! pars = pPRELES
+! pars(1:3) = siteInfo(8:10)
+! pars(4) = siteInfo(11) !tauDreinage
+! pars(8:10) = siteInfo(12:14)
+do i=1,nSp 
+	pPRELES(1:3,i) = siteInfo(8:10)
+	pPRELES(4,i) = siteInfo(11) !tauDreinage
+	pPRELES(8:10,i) = siteInfo(12:14)
+    pPRELES(31,i) = siteInfo(4)!SWinit
+	pPRELES(32,i) = siteInfo(5)!CWinit
+	pPRELES(33,i) = siteInfo(6) !SOGinit
+	pPRELES(34,i) = siteInfo(7) !Sinit
+enddo
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
-pars(24) = siteInfo(4)!SWinit
-pars(25) = siteInfo(5)!CWinit
-pars(26) = siteInfo(6) !SOGinit
-pars(27) = siteInfo(7) !Sinit
+! pars(24) = siteInfo(4)!SWinit
+! pars(25) = siteInfo(5)!CWinit
+! pars(26) = siteInfo(6) !SOGinit
+! pars(27) = siteInfo(7) !Sinit
 Ainit = initClearcut(5)
 P0yX = output(:,6,1,:)
 Reineke(:) = 0.
@@ -275,7 +284,6 @@ ETSmean = sum(ETSy)/nYears
   modOut(1,35,i,1) = 0.
   endif
  enddo
-
 
 !######! SIMULATION START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 do year = 1, (nYears)
@@ -608,7 +616,7 @@ if (year <= maxYearSite) then
          sum(P0yX(:,1))/nYears, AWENgv,GVout(year,4))
    else
     fAPARgvX=0.
-  GVout(year,:) = 0.
+    GVout(year,:) = 0.
    endif
 
 if(isnan(fAPARgvX)) fAPARgvX = 0.
@@ -624,10 +632,13 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    ! if(fAPARsite>0.) then
 
    ! pars(4:23) = pPRELES(4:23)
-     ! pars(28:30) = pPRELES(28:30)
+   ! pars(28:30) = pPRELES(28:30)
+
+     call dom_species(modOut(year,13,:,1), int(modOut(year,4,:,1)), species,nLayers)
+	 pars = pPRELES(:,species)
 
    if(layerPRELES == 0) then
-
+	 
   !run preles
      call preles_f_crobas(365,weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
@@ -646,11 +657,6 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 	 if(GVout(year,1)<0.00000001) GVout(year,:) = 0.
      STAND_all(10,:) = prelesOut(1)/1000. * fAPARtrees/fAPARsite * coeff! trees Photosynthesis in g C m-2 (converted to kg C m-2)
 
-!initialize for next year
-     pars(31) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-     pars(32) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-     pars(33) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-     pars(34) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
    endif
 
    if(layerPRELES == 1) then
@@ -676,15 +682,13 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
 
      STAND_all(10,:) = prelesOut(1)/1000. * fAPARlayers(1:nLayers)/fAPARsite * &
               LUElayers(1:nLayers)/LUEsite! trees Photosynthesis in g C m-2 (converted to kg C m-2)
-
+   endif
 
 !initialize for next year
-     pars(31) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
-     pars(32) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
-     pars(33) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
-     pars(34) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
-
-   endif
+     pPRELES(31,:) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+     pPRELES(32,:) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
+     pPRELES(33,:) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
+     pPRELES(34,:) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
 
 
     outt(46,1,2)  = prelesOut(7) !SMI
@@ -1818,7 +1822,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:))
   Cpool_litter_green = sum(soilC((year+1),1:4,3,:)) * sum(outt(26,:,1))/sum(outt(26,:,1)+outt(27,:,1))
   livegrass = 0.!GVout(year,4)
-  soil_moisture(:) = ((dailySW/pPRELES(1))-pPRELES(3))/(pPRELES(2)-pPRELES(3)) !relative extractable soil water
+  soil_moisture(:) = ((dailySW/pars(1))-pars(3))/(pars(2)-pars(3)) !relative extractable soil water
   Tmin = weatherPRELES(year,:,2) - 3.6
   Tmax = weatherPRELES(year,:,2) + 3.7
   FDI(:) = 0.

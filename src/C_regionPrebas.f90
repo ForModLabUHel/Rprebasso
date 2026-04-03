@@ -38,7 +38,7 @@ integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
  integer, intent(in) :: peatType(nSites)!,etmodel, ECMmod fvec
  real (kind=8), intent(in) :: pCrobas(npar,allSP),pECMmod(12)
- real (kind=8), intent(in) :: pPRELES(npar_preles),pPeat(npar_peat,2)
+ real (kind=8), intent(in) :: pPRELES(npar_preles,allSP),pPeat(npar_peat,2)
 
 !disturbances
  logical :: disturbance_wind ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
@@ -75,7 +75,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,deltaSiteTypeFert=1.,energy_flag=0., siteHarv(nSites) !!energCuts
 
- integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
+ integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual,spx
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
  real (kind=8) :: tTapioX(5,allSP,2,7), ftTapioX(5,allSP,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
 
@@ -91,7 +91,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  integer, intent(inout) :: prebasFlags(12)
- real (kind=8) :: pPRELES_all(npar_preles+npar_peat)
+ real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP)
 
 
 !!! 'un-vectorise' flags, fvec
@@ -417,7 +417,10 @@ endif
 
   if(ij>1) then
     if(oldLayer==1) output(1,3,:,:) = multiOut(i,(ij-1),3,:,:)
-    output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
+    ! output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
+    output(1,1:5,1:nLayers(i),:) = multiOut(i,(ij-1),1:5,1:nLayers(i),:)
+    output(1,6,1:nLayers(i),:) = multiOut(i,(ij),6,1:nLayers(i),:)
+    output(1,7,1:nLayers(i),:) = multiOut(i,(ij-1),7,1:nLayers(i),:)
     output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
   else
     output(1,:,:,1) = multiOut(i,1,:,:,1)
@@ -480,8 +483,10 @@ endif
    output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
   endif
 
-  pPRELES_all(1:npar_preles) = pPRELES
-  pPRELES_all((1+npar_preles):(npar_preles+npar_peat)) = pPeat(:,peatType(i))
+  pPRELES_all(1:npar_preles,:) = pPRELES
+  do spx=1,allSP 
+	pPRELES_all((1+npar_preles):(npar_preles+npar_peat),spx) = pPeat(:,peatType(i))
+  end do
   
   prebasFlags(11) = soilmodel(i)
   prebasFlags(12) = REWmodel(i)

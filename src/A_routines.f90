@@ -2498,3 +2498,46 @@ subroutine alternative_chooseThin(species,H,age, BA, density, tTapio, ftTapio, t
  endif  
 
 end subroutine alternative_chooseThin
+
+
+    subroutine dom_species(ba, speciesID, maxSpecies,nLayers)
+        implicit none
+        ! Inputs
+        real(8), intent(in)  :: ba(nLayers)
+        integer, intent(in)  :: speciesID(nLayers),nLayers
+        ! Output
+        real(8) :: maxSpeciesBA
+        integer, intent(out) :: maxSpecies
+
+        ! Local variables
+        integer :: i, n, maxID
+        integer :: maxSpeciesID
+        real(8), allocatable :: sumBA(:)
+
+        ! Determine maximum species ID to size array
+        maxID = maxval(speciesID)
+        allocate(sumBA(maxID))
+        sumBA = 0d0
+
+        ! Number of records
+        n = size(ba)
+
+        ! Sum basal area by species
+        do i = 1, n
+            sumBA(speciesID(i)) = sumBA(speciesID(i)) + ba(i)
+        end do
+        ! Find species with highest total BA
+        maxSpeciesID = 1
+        do i = 2, maxID
+            if (sumBA(i) > sumBA(maxSpeciesID)) then
+                maxSpeciesID = i
+            end if
+        end do
+
+        ! Return values
+        maxSpecies    = maxSpeciesID
+        maxSpeciesBA  = sumBA(maxSpeciesID)
+
+        deallocate(sumBA)
+    end subroutine dom_species
+
