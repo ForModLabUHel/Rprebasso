@@ -203,8 +203,10 @@ InitMultiSite <- function(nYearsMS,
   }
   siteInfo <- as.matrix(siteInfo)
   ### automatically add tauDrainage,ditchDepth, ditchDist, peatDepth if missing ###
-  if(dim(siteInfo)[2]==12) siteInfo <- cbind(siteInfo,pPRELES[c(4,8,9,10),1])
-  if(dim(siteInfo)[2]==13) siteInfo <- cbind(siteInfo,pPRELES[c(8,9,10),1])
+  if(dim(siteInfo)[2]==12) siteInfo <- cbind(siteInfo,pPRELES[4,1],pPRELES[8,1],
+                                             pPRELES[9,1],pPRELES[10,1])
+  if(dim(siteInfo)[2]==13) siteInfo <- cbind(siteInfo,pPRELES[8,1],pPRELES[9,1],
+                                          pPRELES[10,1])
   ### --- ###  
   
   if(ingrowth){
