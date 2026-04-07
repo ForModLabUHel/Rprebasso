@@ -61,11 +61,13 @@
 		Precip = weather(:,4)
 		CO2 = weather(:,5)
 		Site_par=pars(1:10)
-		GPP_par(1:10)=pars(11:20)
+		GPP_par(1:9)=pars(11:19)
+		GPP_par(10:12)=pars(37:39)
+		GPP_par(13) = pars(20)
 		ET_par=pars(21:25)
 		SnowRain_par=pars(26:30)
 		Init_par=pars(31:36)
-		GPP_par(11:13)=pars(37:39)
+		
 
 		Genuchten_par=pars(40:47)
 		Ksat=pars(48:59)
