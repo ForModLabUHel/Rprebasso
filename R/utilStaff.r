@@ -1298,6 +1298,14 @@ preles_crobas_r <- function(
     SW            <- as.double(SW)
     prelesOut     <- as.double(prelesOut)
     
+    dimTable = 200
+    SWTable <- matrix(0,dimTable,dimTable+3)
+    calcSW = 1
+    SWTable       <- as.double(SWTable)
+    calcSW        <- as.integer(calcSW)
+    
+    
+    
     # ---------- Call Fortran subroutine ----------
     # IMPORTANT: the argument order MUST exactly match the Fortran signature.
     out <- .Fortran(
@@ -1315,7 +1323,9 @@ preles_crobas_r <- function(
       etmodel      = etmodel,
       CO2model     = CO2model,
       soilmodel    = soilmodel,
-      REWmodel     = REWmodel#,
+      REWmodel     = REWmodel,
+      SWTable      = SWTable,
+      calcSW       = calcSW#,
       # PACKAGE      = "Rprebasso"  # set to your package name if you embed in a package
     )
     
