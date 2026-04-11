@@ -11,7 +11,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      ftTapio,tTapio,GVout,thinInt, &
    flagFert,nYearsFert,mortMod,pECMmod, &
    layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
-   latitude, TsumSBBs)
+   latitude, TsumSBBs,SWTable)
 
 
 
@@ -19,7 +19,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=53,npar_preles_all=59, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=53,npar_preles_all=59, inttimes = 1,dimTable=200 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -30,6 +30,7 @@ implicit none
  real (kind=8), intent(inout) :: thinning(nThinning, 11) ! User defined thinnings, BA, height of remaining trees, year, etc. Both Tapio rules and user defined can act at the same time. Documented in R interface
  real (kind=8), intent(inout) :: initClearcut(5) !initial stand conditions after clear cut: (H, D, totBA, Hc, Ainit). If not given, defaults are applied. Ainit is the year new stand appears.
  real (kind=8), intent(inout) :: pCrobas(npar, nSp), pAWEN(12, nSp),mortMod,pECMmod(12)
+ real(8), intent(in) :: SWTable(dimTable, dimTable+3)
  integer, intent(in) :: maxYearSite ! absolute maximum duration of simulation.
 !disturbances
 
@@ -644,7 +645,7 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
     dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
     dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
     dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel,CO2model,soilmodel,REWmodel)    !type of ET model
+    etmodel,CO2model,soilmodel,REWmodel,SWTable, 0)    !0 is for the SW calculations inside PREBAS is always deactivated
 
    !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
      STAND_all(22,:) = prelesOut(2)    !ET
@@ -667,10 +668,10 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
   LUEsite = sum(fAPARlayers * LUElayers)/fAPARsite
   pars(5) = LUEsite
     call preles_f_crobas(365,weatherPRELES(year,:,:),DOY,fAPARprel,prelesOut, pars, &
-    dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
-    dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
-    dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
-    etmodel,CO2model,soilmodel,REWmodel)    !type of ET model
+		dailyPRELES((1+((year-1)*365)):(365*year),1), &  !daily GPP
+		dailyPRELES((1+((year-1)*365)):(365*year),2), &  !daily ET
+		dailyPRELES((1+((year-1)*365)):(365*year),3), &  !daily SW
+		etmodel,CO2model,soilmodel,REWmodel,SWTable, 0)    !0 is for the SW calculations inside PREBAS is always deactivated
 
   !store ET of the ECOSYSTEM!!!!!!!!!!!!!!
     STAND_all(22,:) = prelesOut(2)    !ET

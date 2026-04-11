@@ -23,12 +23,12 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 !     ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,startSimYear,ECMmod,pECMmod, &
 !     layerPRELES,LUEtrees,LUEgv,disturbanceON)!, siteInfoDist, outDist)
 
-
+  use water_module
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20!, nSp=3
-real (kind=8), parameter :: pi = 3.1415927
+integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20,dimTable=200!, nSp=3
+real (kind=8), parameter :: pi_par = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,layerPRELES !oldLayer fvec
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
@@ -91,6 +91,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  integer, intent(inout) :: prebasFlags(12)
+ real(8) :: SWTable(nSites,dimTable,dimTable+3)
  real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP)
 
 
@@ -105,6 +106,8 @@ fixAinitXX = multiOut(:,1,7,1,2)
 multiOut(:,1,7,1,2) = 0.
 ! set ingrowtflag
 prebasFlags(9) = -777
+
+SWTable(:,:,:) = 0.
 
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
@@ -137,6 +140,22 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
 !!inititialize A and biomasses
 do i = 1,nSites
 
+  pPRELES_all(1:npar_preles,:) = pPRELES
+  do spx=1,allSP 
+	pPRELES_all((1+npar_preles):(npar_preles+npar_peat),spx) = pPeat(:,peatType(i))
+  end do
+  
+  prebasFlags(11) = soilmodel(i)
+  prebasFlags(12) = REWmodel(i)
+
+  if(soilmodel(i)==2) then
+!just update site parameters	
+	pPRELES_all(1:3,1) = siteInfo(i,8:10)
+	pPRELES_all(4,1) = siteInfo(i,11) !tauDreinage
+	pPRELES_all(8:10,1) = siteInfo(i,12:14)
+	call waterTable(pPeat(1:8,peatType(i)), pPRELES_all(1:10,1), pPeat(9:20,peatType(i)), dimTable, SWTable(i,:,:)) 
+  endif
+ 
  prebasFlags(8) = int(multiOut(i,1,7,1,2))
  multiOut(i,1,7,1,2) = 0.
 
@@ -491,7 +510,6 @@ endif
   prebasFlags(11) = soilmodel(i)
   prebasFlags(12) = REWmodel(i)
 
-
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
     fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),&
@@ -502,7 +520,7 @@ endif
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:))
+    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:),SWTable(i,:,:))
 
 
 
@@ -763,7 +781,7 @@ endif
    maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
   ! if(ClCut(i) > 0.) then
     ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI
-        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
+        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi_par)*100./25.)**(1.66)
   else
    maxState(i) = 0.
   endif
@@ -1034,7 +1052,7 @@ endif
   if(ClCut(i) > 0. .and. multiOut(i,ij,7,layerX,1) > 50. .and. multiOut(i,ij,7,layerX,1) < 100.) then
    maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
     ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI
-        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
+        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi_par)*100./25.)**(1.66)
   else
    maxState(i) = 0.
   endif

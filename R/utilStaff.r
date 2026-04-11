@@ -1098,6 +1098,10 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     if (is.null(SOG)) SOG <- rep(0, N)
     if (is.null(S))   S   <- rep(0, N)
     
+    dimTable=200
+    SWTable <- matrix(0,dimTable,dimTable+3)
+    calcSW = 1
+    
     stopifnot(length(SW) == N, length(ST) == N, length(SR) == N,
               length(SOG) == N, length(S) == N)
     
@@ -1154,6 +1158,9 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
     CO2model      <- as.integer(CO2model)
     soilmodel     <- as.integer(soilmodel)
     REWmodel      <- as.integer(REWmodel)
+    SWTable       <- as.double(SWTable)
+    calcSW        <- as.integer(calcSW)
+    
     
     # ---------- Allocate outputs (all length N) ----------
     GPP           <- double(N)
@@ -1225,7 +1232,9 @@ varNames  <- c('siteID','gammaC','sitetype','species','ETS' ,'P0','age', 'DeadWo
       fOrg         = fOrg,
       CO2model     = CO2model,
       soilmodel    = soilmodel,
-      REWmodel     = REWmodel#,
+      REWmodel     = REWmodel,
+      SWTable      = SWTable,
+      calcSW       = calcSW
       # PACKAGE      = "Rprebasso"  # set to your package name if you embed in a package
     )
     

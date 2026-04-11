@@ -19,21 +19,21 @@
       
     ! contains
     subroutine preles_f_crobas(NofDays,weather,DOY,fAPAR,prelesOut,pars,&
-				GPP,ET,SW,etmodel,CO2model,soilmodel,REWmodel)!,p0)
+				GPP,ET,SW,etmodel,CO2model,soilmodel,REWmodel,SWTable, calc_SWtable)!,p0)
 
      implicit none
 
 
 		integer, parameter :: dimTable=200
-		integer, intent(in) :: NofDays
+		integer, intent(inout) :: NofDays, calc_SWtable
 		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
 		real (kind=8), intent(inout) :: prelesOut(16)!,p0
 		real (kind=8), intent(inout) :: pars(59)
 		integer, intent(inout):: DOY(NofDays), etmodel,CO2model
 		real(8), intent(out) :: GPP(NofDays), ET(NofDays),SW(NofDays)
-		integer, intent(in) ::  soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
-		integer, intent(in) ::  REWmodel   ! 1 for smooth function, 2 for piecewise linear, default smooth
-		
+		integer, intent(in) :: soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
+		integer, intent(in) :: REWmodel   ! 1 for smooth function, 2 for piecewise linear, default smooth
+		real(8), intent(inout) :: SWTable(dimTable, dimTable+3)
     
 		real(8) :: PAR(NofDays), TAir(NofDays), VPD(NofDays), Precip(NofDays), CO2(NofDays)
 		real(8) :: Site_par(10)
@@ -99,7 +99,7 @@
 		call preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
                   Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
                    fW, fE, Throughfall, Interception, Snowmelt, Drainage, Canopywater, GPPmeas, ETmeas, SWmeas, &
-                  S, LOGFLAG, multisiteNday, doy, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel)
+                  S, LOGFLAG, multisiteNday, doy, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel,SWTable, calc_SWtable)
 
 		ET = transp + evap
 		prelesOut(1) = sum(GPP(1:NofDays))
@@ -125,9 +125,9 @@
 
   
     subroutine preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
-                  Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
+                  Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,      &
                    fW, fE, Throughfall, Interception, Snowmelt, Drainage, Canopywater, GPPmeas, ETmeas, SWmeas, &
-                  S, LOGFLAG, multisiteNday, day, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel)
+                  S, LOGFLAG, multisiteNday, day, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel,SWTable,calc_SWtable)
 	  
 	  use gpp_module
 	  use water_module
@@ -137,7 +137,7 @@
       implicit none
       
     
-    integer, intent(in) :: NofDays,dimTable
+    integer, intent(in) :: NofDays,dimTable, calc_SWtable
     real(8), intent(inout) :: PAR(NofDays), TAir(NofDays), VPD(NofDays), Precip(NofDays), CO2(NofDays), fAPAR(NofDays)
     real(8), intent(in) :: Site_par(10)
     real(8), intent(in) :: GPP_par(13)
@@ -159,9 +159,9 @@
     integer, intent(in) ::  CO2model   ! 1 for Kolari, 2 for Launiainen, default Kolari
     integer, intent(in) ::  soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
     integer, intent(in) ::  REWmodel   ! 1 for smooth function, 2 for piecewise linear, default smooth
+    real(8), intent(inout) :: SWTable(dimTable, dimTable+3)
     ! integer, intent(in) ::  dimTable   ! dimension of look-up table
     integer :: i, kk,  jj
-    real(8) :: SWTable(dimTable, dimTable+3)
     real(8) :: II, T, D, P, theta, theta_snow, theta_canopy, theta_top, theta_root, pond, S_state
     real(8) :: PhenoS, fPheno
     real(8) :: fEgpp, gpp380
@@ -204,7 +204,9 @@
     
     ! calculate look-up table for estimating water table depth
     ! SWTable is output from this subroutine
-    call waterTable(Genuchten_par, Site_par, Ksat, dimTable, SWTable)
+	!the subroutine is used only if 
+	! a peat site is simulated and if the model runs independently from crobas
+    if(soilmodel==2 .and. calc_SWtable==1) call waterTable(Genuchten_par, Site_par, Ksat, dimTable, SWTable)
 
 	! open(1,file="test1.txt")
     ! write(1,*) dimTable

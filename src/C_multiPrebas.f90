@@ -13,10 +13,11 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags, &
 	latitude, TsumSBBs,pPeat,peatType,soilmodel,REWmodel)
 
+  use water_module
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20!, nSp=3
+integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20,dimTable=200!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: soilmodel(nSites),REWmodel(nSites)
 integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither in prebas subroutine nor multiPrebas() R function
@@ -67,7 +68,7 @@ real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears
  integer :: etmodel,CO2model, gvRun, fertThin, ECMmod, oldLayer !not direct inputs anymore, but in prebasFlags fvec !wdimpl pflags
  integer, intent(inout) :: prebasFlags(12)
  real (kind=8) :: pPRELES_all((npar_preles+npar_peat),allSP)
-
+ real (kind=8) :: SWTable(dimTable,dimTable+3)
 ! open(1,file="test1.txt")
 ! open(2,file="test2.txt")
 
@@ -78,6 +79,7 @@ fertThin = prebasFlags(3)
 oldLayer = prebasFlags(4)
 ECMmod = prebasFlags(5)
 CO2model = prebasFlags(7)
+SWTable(:,:) = 0.
 ! if(prebasFlags(6)==0) disturbanceON = .FALSE.
 ! if(prebasFlags(6)==1) disturbanceON = .TRUE.
 
@@ -120,7 +122,15 @@ do i = 1,nSites
   do spx=1,allSP 
 	pPRELES_all((1+npar_preles):(npar_preles+npar_peat),spx) = pPeat(:,peatType(i))
   end do
-    
+  if(soilmodel(i)==2) then
+  	pPRELES_all(1:3,1) = siteInfo(i,8:10)
+	pPRELES_all(4,1) = siteInfo(i,11) !tauDreinage
+	pPRELES_all(8:10,1) = siteInfo(i,12:14)
+	call waterTable(pPeat(1:8,peatType(i)), pPRELES_all(1:10,1), pPeat(9:20,peatType(i)), dimTable, SWTable) 
+  else
+	SWTable(:,:) = 0.!reset waterTable
+  endif
+  
   thinningX = thinning(i,:,:)
     call prebas(nYears(i),nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:nThinning(i),:),output(1:nYears(i),:,1:nLayers(i),:),nThinning(i),maxYearSite,fAPAR(i,1:nYears(i)), &
@@ -132,11 +142,13 @@ do i = 1,nSites
     multiEnergyWood(i,1:nYears(i),1:nLayers(i),:),tapioPars,thdPer(i),limPer(i),ftTapio,tTapio,&
     GVout(i,1:nYears(i),:),thinInt(i), &
     flagFert,nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, & !protect removed btw nYearsFert and mortModX, neither in prebas subroutine nor multiPrebas() R function
-    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags,latitude(i), TsumSBBs(i,:))
+    siteInfoDist(i,:), outDist(i,1:nYears(i),:), prebasFlags,latitude(i), TsumSBBs(i,:),SWTable)
     
     multiOut(i,1:nYears(i),:,1:nLayers(i),:) = output(1:nYears(i),:,1:nLayers(i),:)
+	
+	
 end do
- close(1)
+ ! close(1)
  ! close(2)
 end subroutine
 
