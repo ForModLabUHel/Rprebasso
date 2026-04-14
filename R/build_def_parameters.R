@@ -23,6 +23,7 @@
 # 
 # ####read preles parameters
 # pPREL <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES_matrix"))
+# rownames(pPREL) <- pPREL$pNames
 # pPREL <- as.matrix(pPREL[,2:ncol(pPREL)])
 # # pPRELES_tab <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES_matrix"))
 # # pPREL <- pPRELES_tab$pPREL

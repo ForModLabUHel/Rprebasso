@@ -326,7 +326,7 @@ prebas <- function(nYears,
       nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
     }
   nSp = ncol(pCROBAS)
-  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3,1,30,2000) ###default values for nspecies and site type = 3
+  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3,1,30,2000,22,250,-999) ###default values for nspecies and site type = 3
                                   
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)

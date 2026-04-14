@@ -17,7 +17,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20,dimTable=200!, nSp=3
+integer, parameter :: nVar=54,npar=53,npar_preles=40,npar_peat=20,dimTable=200!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: soilmodel(nSites),REWmodel(nSites)
 integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither in prebas subroutine nor multiPrebas() R function
@@ -28,7 +28,7 @@ integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither 
  real (kind=8), intent(in) :: pCrobas(npar,allSP),tapioPars(5,2,3,20),pECMmod(12)
  real (kind=8), intent(in) :: pPRELES(npar_preles,allSP),pPeat(npar_peat,2)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
- real (kind=8), intent(inout) :: siteInfo(nSites,14),thdPer(nSites),limPer(nSites)
+ real (kind=8), intent(inout) :: siteInfo(nSites,17),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv

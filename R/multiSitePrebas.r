@@ -198,15 +198,15 @@ InitMultiSite <- function(nYearsMS,
   if(all(is.na(limPer))) limPer <- rep(0.5,nSites)
   if(all(is.na(areas))) areas <- rep(1.,nSites) ###each site is 1 ha (used to scale regional harvest)
   if(all(is.na(siteInfo))){
-    siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118,3,1,30,2000),nSites,16,byrow = T) ###default values for nspecies and site type = 3
+    siteInfo = matrix(c(1,1,3,160,0,0,20,3,3,413.,0.45,0.118,3,1,30,2000,22,250,-999),nSites,19,byrow = T) ###default values for nspecies and site type = 3
     siteInfo[,1] <- 1:nSites
   }
   siteInfo <- as.matrix(siteInfo)
   ### automatically add tauDrainage,ditchDepth, ditchDist, peatDepth if missing ###
   if(dim(siteInfo)[2]==12) siteInfo <- cbind(siteInfo,pPRELES[4,1],pPRELES[8,1],
-                                             pPRELES[9,1],pPRELES[10,1])
+                  pPRELES[9,1],pPRELES[10,1],pPRELES[35,1],pPRELES[36,1],pPRELES[37,1])
   if(dim(siteInfo)[2]==13) siteInfo <- cbind(siteInfo,pPRELES[8,1],pPRELES[9,1],
-                                          pPRELES[10,1])
+                  pPRELES[10,1],pPRELES[35,1],pPRELES[36,1],pPRELES[37,1])
   ### --- ###  
   
   if(ingrowth){
@@ -220,7 +220,7 @@ InitMultiSite <- function(nYearsMS,
   colnames(siteInfo) <- c("siteID", "climID", "siteType", "SWinit", "CWinit", 
                           "SOGinit", "Sinit", "nLayers", "nSpecies", "soildepth", 
                           "effective field capacity", "permanent wilting point",
-                          "tauDrenage","ditchDepth", "ditchDist", "peatDepth") 
+                          "tauDrenage","ditchDepth", "ditchDist", "peatDepth","STinit","WLinit","SRinit") 
   
   nLayers <- siteInfo[,8]
   # nSp <- siteInfo[,9]
@@ -552,7 +552,7 @@ InitMultiSite <- function(nYearsMS,
       P0 <- preles_crobas_r(weathX,
         DOY=rep(1:365,nYearsX),
         fAPAR=rep(1,(365*nYearsX)),
-        rep(0,16),
+        rep(0,19),
         c(pPRELES[,spx],pPeattp[,peatType[ijk]]),
         GPP=rep(0,(365*nYearsX)),
         ET=rep(0,(365*nYearsX)),
@@ -920,7 +920,7 @@ multiPrebas <- function(multiSiteInit,
                      thinning=as.array(multiSiteInit$thinning),
                      pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
                      allSp = as.integer(multiSiteInit$allSp),       ####
-                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:16)]),  ####
+                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:19)]),  ####
                      maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
@@ -1160,7 +1160,7 @@ prebas <- .Fortran("regionPrebas",
                      thinning=as.array(multiSiteInit$thinning),
                      pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
                      allSp = as.integer(multiSiteInit$allSp),       ####
-                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:16)]),  ####
+                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:19)]),  ####
                      maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
@@ -1418,7 +1418,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                      thinning=as.array(multiSiteInit$thinning),
                      pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
                      allSp = as.integer(multiSiteInit$allSp),       ####
-                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:16)]),  ####
+                     siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:19)]),  ####
                      maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),

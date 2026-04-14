@@ -27,8 +27,8 @@
 		integer, parameter :: dimTable=200
 		integer, intent(inout) :: NofDays, calc_SWtable
 		real (kind=8), intent(inout) :: weather(NofDays,5),fAPAR(NofDays)
-		real (kind=8), intent(inout) :: prelesOut(16)!,p0
-		real (kind=8), intent(inout) :: pars(59)
+		real (kind=8), intent(inout) :: prelesOut(19)!,p0
+		real (kind=8), intent(inout) :: pars(60)
 		integer, intent(inout):: DOY(NofDays), etmodel,CO2model
 		real(8), intent(out) :: GPP(NofDays), ET(NofDays),SW(NofDays)
 		integer, intent(in) :: soilmodel   ! 1 for mineral soil, 2 for drained peatland, default mineral
@@ -38,7 +38,7 @@
 		real(8) :: PAR(NofDays), TAir(NofDays), VPD(NofDays), Precip(NofDays), CO2(NofDays)
 		real(8) :: Site_par(10)
 		real(8) :: GPP_par(13)
-		real(8) :: Init_par(6)
+		real(8) :: Init_par(7)
 		real(8) :: ET_par(5)
 		real(8) :: SnowRain_par(5)
 		real(8) :: Genuchten_par(8)
@@ -62,15 +62,15 @@
 		CO2 = weather(:,5)
 		Site_par=pars(1:10)
 		GPP_par(1:9)=pars(11:19)
-		GPP_par(10:12)=pars(37:39)
+		GPP_par(10:12)=pars(38:40)
 		GPP_par(13) = pars(20)
 		ET_par=pars(21:25)
 		SnowRain_par=pars(26:30)
-		Init_par=pars(31:36)
+		Init_par=pars(31:37)
 		
 
-		Genuchten_par=pars(40:47)
-		Ksat=pars(48:59)
+		Genuchten_par=pars(41:48)
+		Ksat=pars(49:60)
 
 		SW  = 0.
 		ST  = 0.
@@ -93,8 +93,12 @@
 		SOG(1) = Init_par(3)
 		S(1) = Init_par(4)
 		ST(1) = Init_par(5)
-		WL(1) = Init_par(6)/1000
-		SR(1) = Site_par(2)*200
+		WL(1) = Init_par(6)!/1000.
+		if(Init_par(7)<0.) then
+			SR(1) = Site_par(2)*200.
+		else
+			SR(1) = Init_par(7)
+		endif
 
 		call preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
                   Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
@@ -118,7 +122,11 @@
 		prelesOut(14) = S(NofDays)
 		prelesOut(15) = sum(SW(1:NofDays))/NofDays
 		prelesOut(16) = sum(SW(152:243))/92
-
+		prelesOut(17) = ST(NofDays)
+		prelesOut(18) = SR(NofDays)
+		prelesOut(19) = WL(NofDays)
+		
+		! ET = WL
 	end subroutine preles_f_crobas
 
 

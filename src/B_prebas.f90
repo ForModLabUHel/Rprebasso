@@ -19,7 +19,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=53,npar_preles_all=59, inttimes = 1,dimTable=200 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=53,npar_preles_all=60, inttimes = 1,dimTable=200 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -72,13 +72,13 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  real (kind=8), intent(inout) :: fAPAR(nYears), GVout(nYears, 5) ! GVout contains: fAPAR_gv, litGV, photoGV, Wgv,GVnpp !!! ground vegetation
  real (kind=8), intent(inout) :: dailyPRELES((nYears*365), 3) ! GPP, ET, SW
  real (kind=8), intent(inout) :: initVar(7, nLayers), ETSy(nYears), initCLcutRatio(nLayers) ! initCLcutRatio sets the initial layer compositions after clearcut.
- real (kind=8), intent(inout) :: siteInfo(14)
+ real (kind=8), intent(inout) :: siteInfo(17)
  real (kind=8), intent(inout) :: output(nYears, nVar, nLayers, 2), energyWood(nYears, nLayers, 2) ! last dimension: 1 is for stand and 2 is for harvested sum of wood.
  real (kind=8), intent(inout) :: soilCinOut(nYears, 5, 3, nLayers), soilCtotInOut(nYears) ! dimensions: nyears, AWENH, woody/fineWoody/foliage, layers
  real (kind=8), intent(inout) :: pYasso(35), weatherYasso(nYears,3), litterSize(3, nSp) ! litterSize dimensions: treeOrgans, species
 
 !! Parameters internal to the model
- real (kind=8) :: prelesOut(16), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5), minFapar  !!!state of the GV at the last year
+ real (kind=8) :: prelesOut(19), fAPARsite, fAPARgvX, fAPARtrees, lastGVout(5), minFapar  !!!state of the GV at the last year
  real (kind=8) :: fAPARlayers(1+nLayers), LUElayers(1+nLayers),LUEsite
  real (kind=8) :: leac=0 ! leaching parameter for Yasso, not used
  real (kind=8), DIMENSION(nLayers, 5) :: fbAWENH, folAWENH, stAWENH
@@ -243,6 +243,9 @@ do i=1,nSp
 	pPRELES(32,i) = siteInfo(5)!CWinit
 	pPRELES(33,i) = siteInfo(6) !SOGinit
 	pPRELES(34,i) = siteInfo(7) !Sinit
+	pPRELES(35,i) = siteInfo(15)!STinit
+	pPRELES(36,i) = siteInfo(16) !WLinit
+	pPRELES(37,i) = siteInfo(17) !SRinit
 enddo
 soilC(1,:,:,:) = soilCinout(1,:,:,:)
 ! pars(24) = siteInfo(4)!SWinit
@@ -686,10 +689,14 @@ if(isnan(fAPARgvX)) fAPARgvX = 0.
    endif
 
 !initialize for next year
-     pPRELES(31,:) = prelesOut(3);siteInfo(4) = prelesOut(3)!SWinit
+     pPRELES(31,:) = prelesOut(3); siteInfo(4) = prelesOut(3)!SWinit
      pPRELES(32,:) = prelesOut(13); siteInfo(5) = prelesOut(13) !CWinit
      pPRELES(33,:) = prelesOut(4); siteInfo(6) = prelesOut(4) !SOGinit
      pPRELES(34,:) = prelesOut(14); siteInfo(7) = prelesOut(14) !Sinit
+	 pPRELES(35,i) = prelesOut(17); siteInfo(15) = prelesOut(17) !STinit
+	 pPRELES(36,i) = prelesOut(18); siteInfo(16) = prelesOut(18) !WLinit
+	 pPRELES(37,i) = prelesOut(19); siteInfo(17) = prelesOut(19) !SRinit
+
 
 
     outt(46,1,2)  = prelesOut(7) !SMI

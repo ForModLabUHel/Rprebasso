@@ -27,7 +27,7 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53,npar_preles=39,npar_peat=20,dimTable=200!, nSp=3
+integer, parameter :: nVar=54,npar=53,npar_preles=40,npar_peat=20,dimTable=200!, nSp=3
 real (kind=8), parameter :: pi_par = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,layerPRELES !oldLayer fvec
@@ -49,7 +49,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
- real (kind=8), intent(inout) :: siteInfo(nSites,14), areas(nSites),HarvLim(maxYears,2)
+ real (kind=8), intent(inout) :: siteInfo(nSites,17), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv,latitude(nSites), TsumSBBs(nSites,4)
