@@ -952,6 +952,7 @@ multiPrebas <- function(multiSiteInit,
 #' @param minDharv 
 #' @param cutAreas 
 #' @param compHarv 
+#' @param clcutlimiter max share of harvested volume from clear cuts (range 0:1). Remainder towards harvLim needs to be filled by thinnings. Length either 1 or maxYears. Note: internally superseedes cutarea limit for clearcuts. 
 #' @param thinFact 
 #' @param ageHarvPrior 
 #' @param siteOrder 
@@ -968,6 +969,7 @@ regionPrebas <- function(multiSiteInit,
                          HarvLim = NA, ##harvest limit matrix (nyears,2) col1= roundwood limit, col2= energyWood limit. If col1 between 0 and 10 harvest limits is calculated as fraction of the average gross growth of the previous 10 years                          
                          minDharv = 999.,
                          cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
+                         clcutlimiter = NA, # max share of harvested volume from clear cuts (range 0:1). Remainder needs to be filled by thinnings.
                          ### set to -1001 if you want to switch off the clearcut
                          ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
                          ####precom-thin target(3), sim(4); area firstThin targ(5), sim(6)
@@ -1022,6 +1024,16 @@ regionPrebas <- function(multiSiteInit,
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
+  
+  if(all(!is.na(clcutlimiter))){ # if clcutlimiter is given as input, replace clearcut area limits with it (less objects passed to fortran, would be in conflict anyway)
+    warning("clcutlimiter input given, superseedes cutArea limits for clearcuts!")
+    if(length(clcutlimiter) != 1 & length(clcutlimiter) != multiSiteInit$maxYears) stop("clcutlimiter neither of length 1 nor N years")
+    if(length(clcutlimiter) == 1) clcutlimiter <- rep(clcutlimiter, multiSiteInit$maxYears)
+    cutAreas[,1] <- clcutlimiter
+  } 
+  
+  
+
   compHarv <- c(compHarv,thinFact)
   if(ageHarvPrior > 0.){
     sitesCl1 <- which(multiSiteInit$siteInfo[,3]<3.5)
