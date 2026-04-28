@@ -108,9 +108,9 @@ if (mortMod==1. .or. mortMod==3. .or. mortMod==4. .or. mortMod==5.) then
      if(.true.) then
       Rein = Reineke(ij) / par_kRein
 
-if(mortMod==1. .or. mortMod==5.) then !new reineke version on its own = 1, new & siipilehto = 5
+if(mortMod==1. .or. mortMod==3.) then !new reineke version on its own = 1, new & siipilehto = 3
 dN = - 0.02 * N * Rein**5.
-else !implicitely 3 (old + sl) or 4 (old) 
+else !implicitely 4 (old) or  5 (old + sl)
 
       if(Rein > 1.) then
          dN = - 0.02 * N * Rein
