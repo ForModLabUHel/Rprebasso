@@ -1,7 +1,7 @@
 !Reineke mortality model
   STAND_all(42,:) = 0.
 
-if (mortMod==1. .or. mortMod==3.) then 
+if (mortMod==1. .or. mortMod==3. .or. mortMod==4. .or. mortMod==5.) then
    do ij = 1 , nLayers     !loop Species
      dN=0.d0
 
@@ -52,11 +52,11 @@ if (mortMod==1. .or. mortMod==3.) then
    par_fAb = param(46)
    par_fAc = param(47)
 
-   !!!!update kRein and cR   
-   !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-   if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-   !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-   if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+   !!!!update kRein and cR
+   !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided
+   if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein)
+   !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided
+   if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR)
 
   if (year > maxYearSite) then
     STAND(2) = 0. !!newX
@@ -87,7 +87,7 @@ if (mortMod==1. .or. mortMod==3.) then
     V = stand(30)
     mort = stand(41)
     par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
-    
+
    if (N>0.) then
 
     par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
@@ -108,13 +108,18 @@ if (mortMod==1. .or. mortMod==3.) then
      if(.true.) then
       Rein = Reineke(ij) / par_kRein
 
+if(mortMod==1. .or. mortMod==3.) then !new reineke version on its own = 1, new & siipilehto = 3
+dN = - 0.02 * N * Rein**5.
+else !implicitely 4 (old) or  5 (old + sl)
+
       if(Rein > 1.) then
          dN = - 0.02 * N * Rein
       else
          dN = 0.
       endif
+endif
       if(mort == 0.) then
-      dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+	   dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
 !      mort = 0.
 !      stand(40) = 0.
       endif
@@ -179,7 +184,7 @@ if (mortMod==1. .or. mortMod==3.) then
 !    STAND(29) = 0.
       endif
      endif
-    
+
     STAND(11) = H
     STAND(12) = D
     STAND(13) = BA ! * par_ops2
@@ -206,7 +211,7 @@ endif
 
 !!!!!empirical Mortality model (siilipehto et al. 2020)
 ! if(.FALSE.) then
-if(mortMod==2. .or. mortMod==3.) then
+if(mortMod==2. .or. mortMod==3. .or. mortMod==5.) then
 
   if(mortMod==2.) then
 !  STAND_all(26,:) = 0.
@@ -215,7 +220,7 @@ if(mortMod==2. .or. mortMod==3.) then
 !  STAND_all(29,:) = 0.
   STAND_all(42,:) = 0.
   endif
-  
+
 ! ! calculate relative basal area to be used in the mortality calculations
   BA_tot = sum(STAND_all(13,:))
   BAr = STAND_all(13,:)/BA_tot
@@ -235,11 +240,11 @@ if(mortMod==2. .or. mortMod==3.) then
    rBirch, & !relative BA birch
    0.048d0, & !slope
    314.16d0, & !plotSize
-   pMort, & 
-   perBAmort, & 
+   pMort, &
+   perBAmort, &
    1.d0, &
    BAmort)
-   
+
   do ij = 1 , nLayers     !loop Species
 dN=0.d0
    STAND=STAND_all(:,ij)
@@ -288,11 +293,11 @@ dN=0.d0
    par_fAb = param(46)
    par_fAc = param(47)
 
-!!!!update kRein and cR   
-   !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided 
-   if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein) 
-   !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided 
-   if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR) 
+!!!!update kRein and cR
+   !!!!update par_kRein as a function of sitetype if parameters (param(50>-999.))) are are provided
+   if(param(50)>-999.d0) call linearUpdateParam(param(50:51),stand(3),par_kRein)
+   !!!!update par_cR as a function of sitetype if parameters (param(52>-999.))) are are provided
+   if(param(52)>-999.d0) call linearUpdateParam(param(52:53),stand(3),par_cR)
 
   if (year > maxYearSite) then
     STAND(2) = 0. !!newX
@@ -323,7 +328,7 @@ dN=0.d0
     V = stand(30)
     mort = stand(41)
     par_sla = par_sla + (par_sla0 - par_sla) * Exp(-ln2 * (age / par_tsla) ** 2.)
-    
+
    if (N>0.) then
 
     par_rhof0 = par_rhof1 * ETS_ref + par_rhof2
@@ -343,13 +348,13 @@ dN=0.d0
      !if(time==inttimes) then
      if(.true.) then
     !report BA and N to ha using the relative BA
-    
+
      Vold = stand(30)
      Nold = stand(17)
     if(BAmort > 0.) then !check if mortality occurs
      dN = -Nold * (BAmort/(BA/BAr(ij)))
     else
-     dN = 0.  
+     dN = 0.
     endif
       if(mortMod==2. .and. mort == 0.) then
       dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
@@ -415,7 +420,7 @@ dN=0.d0
 !    STAND(42) = STAND(42)
       endif
      endif
-    
+
     STAND(11) = H
     STAND(12) = D
     STAND(13) = BA ! * par_ops2
@@ -437,6 +442,6 @@ dN=0.d0
 
    STAND_all(:,ij)=STAND
   end do !!!!!!!end loop layers
-  
+
 endif
 ! endif

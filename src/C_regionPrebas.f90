@@ -216,8 +216,7 @@ do ij = startSimYear,maxYears
    n_years_smooth_cut_actual = min(n_years_smooth_cut,(ij-1))
    do i = 1,nSites
      if(defaultThin(i)>0. .or. ClCut(i)>0.) then
-        siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) - &
-                                     multiOut(i,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
+        siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) / n_years_smooth_cut_actual
      else
         siteHarv(i)=0.
      endif
