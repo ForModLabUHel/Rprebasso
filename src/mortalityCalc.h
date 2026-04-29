@@ -114,7 +114,7 @@ if (mortMod==1. .or. mortMod==3.) then
          dN = 0.
       endif
       if(mort == 0.) then
-      dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
+	   dN = min(dN,-(0.03*N)) !!!!reduce try density of 3% if there is no growth
 !      mort = 0.
 !      stand(40) = 0.
       endif
