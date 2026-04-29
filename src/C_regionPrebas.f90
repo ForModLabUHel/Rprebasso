@@ -43,6 +43,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  real (kind=8), intent(inout):: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules
  !integer :: siteOrderX(nSites) ! for site order prio due to disturbance
 
+real (kind=8) :: cclimiter, totharv_cc !clearcut limiter: share of harvested V allowed from clearcuts, 0-1. totharv_cc: accumulator for volume retrieved from clearcuts
 !cuttingArea columns are clcutA target(1) simuation(2);tending target(3), sim(4);firstThin targ(5) sim(6)
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
@@ -90,6 +91,12 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  integer, intent(inout) :: prebasFlags(10)
 
+
+
+ logical :: cc_occ ! clearcut?
+ ! ===================================================
+
+ !
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
 gvRun = prebasFlags(2)
@@ -167,27 +174,49 @@ else
  multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
 endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!! STARTING YEAR LOOP !!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 do ij = startSimYear,maxYears
     ! open(1,file="test1.txt")
   ! write(1,*) ij, "start"
   ! close(1)
 
+
+
   !initialize annual harvest
  roundWood = 0.
  energyWood = 0.  !!energCuts
+
+!cclimiter: limit share of harvested V obtained from clearcuts. input from cuttingArea[,1], converted from -1:-0.00001 to 0.00001:1. 1= no limitations, 0.8 = 80% of harvested V can be obtained from ccs.
+ totharv_cc = 0.!cclim
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!! TROUBLESHOOTING !!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! below outcommented, cclimiter hardcoded above to check if input precdure produces instability
+!cclimiter = 0.8 !cclim cclimiter inactive by default. retrieve from cuttingArea[1,] if in range -1:-0.000001 within year loop
+
+ cclimiter = 1. !cclim cclimiter inactive by default. retrieve from cuttingArea[1,] if in range -1:-0.000001 within year loop
+ if(cuttingArea(ij, 1) > 0.01 .AND. cuttingArea(ij, 1) < 1.01) then !retrieve from cuttingArea[1,] if in range -1:-0.000001
+   cclimiter = cuttingArea(ij, 1)
+   cuttingArea(ij, 1) = -999.5
+ endif
+
+
 ! if Harvlim is between 0 and 10 calculates the Harvest limit as % of net growth
  if(HarvLim(ij,1)>0. .and. HarvLim(ij,1)<10.) then
   if(ij==1) then
    HarvLim(ij,1) = 0.
-
    HarvLim(ij,2) = 0.
   else
    year_smooth_cut_start = max(ij-n_years_smooth_cut,1)
    n_years_smooth_cut_actual = min(n_years_smooth_cut,(ij-1))
    do i = 1,nSites
      if(defaultThin(i)>0. .or. ClCut(i)>0.) then
-        siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) - &
-                                     multiOut(i,year_smooth_cut_start:(ij-1),42,:,1)) / n_years_smooth_cut_actual
+        siteHarv(i) = areas(i) * sum(multiOut(i,year_smooth_cut_start:(ij-1),43,:,1) / n_years_smooth_cut_actual
      else
         siteHarv(i)=0.
      endif
@@ -196,7 +225,6 @@ do ij = startSimYear,maxYears
    energy_flag = 1.
   endif
  endif
-
 
  ! counting last year's salvage logging from sites where tapio harvests were already stopped due to the harvest limit being met
  ! towards current years roundwood aggregate. !salvnext
@@ -239,7 +267,7 @@ endif
 
 ! prioritisation of disturbed sites earmarked for management reaction in siteOrder (from previous year)
 if (disturbance_wind .eqv. .TRUE.) then
-    if (ij > 1) then!call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
+    if (ij > 1.) then!call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij), siteorderX)
       !call prioDistInSO(outDist(:, (ij-1), :), nSites, siteOrder(:,ij))
      call prioDistInSO(outDist(:, (ij-1), :), nSites, maxYears, ij, siteOrder(:,:)) ! disable to test; does this alter ij??
 !siteOrder(:,ij) = siteOrderX
@@ -329,9 +357,19 @@ endif
   if ((cuttingArea(ij,1) > 0. .and. cuttingArea(ij,2) > cuttingArea(ij,1)) .or. (cuttingArea(ij,1) < -1000.)) then !!!swithch off clear cuts if threshold area (cuttingArea(1)), has been reached
    ClCutX = 0.
   endif
+
+  if (HarvLim(ij,1) > 0.) then !!! safeguard for HarvLim=0
+      if (totharv_cc > HarvLim(ij,1) * cclimiter) then    !!!switch off clear cuts if v harvested in clear cuts exceeds cclimiter share
+          ClCutX = 0.
+          !outDist(i, ij, 1) = 353. !debugging
+      endif
+  endif
+
   if (HarvLim(ij,1) > 0. .and. roundWood >= HarvLim(ij,1)) then
    ClCutX = 0.
    defaultThinX = 0.
+  ! outDist(i, ij, 1) = 361. !debugging: cclim indicate triggering
+
   endif
   if (HarvLim(ij,2) > 0. .and.  energyWood >= HarvLim(ij,2)) then    !!energCuts
    energyCutX = 0.
@@ -359,7 +397,7 @@ endif
   if(ij==int(yearXrepl(i)))then
   !if(ij==int(min(yearXrepl(i),maxYears)))then
    ! initClearcut(i,5) = int(min(initClearcut(i,5), initClearcut(i,5) + maxYears - yearXrepl(i)))
-   
+
    if(fixAinitXX(i)>0.) then
     initClearcut(i,5) = int(fixAinitXX(i))
    else
@@ -464,7 +502,7 @@ endif
    endif
 
 
-   if(Clcut(i) < 0) then !protected area / unmanaged site flag: Clcut = -1, needs to override setting to 0 to block tapio mgmt above in order to also block salvage logging/mgmtreaction to disturbances
+   if(Clcut(i) < 0.) then !protected area / unmanaged site flag: Clcut = -1, needs to override setting to 0 to block tapio mgmt above in order to also block salvage logging/mgmtreaction to disturbances
      ClCutX = Clcut(i)
    endif
 
@@ -475,6 +513,11 @@ endif
   if(ij>1) then
    output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
   endif
+
+  !! BUGFIXING CCLIMITER
+    !output(1,37,:,:)=0.
+    !outDist(i, ij, 10) = totharv_cc
+!!/ BUGFIXING CCLIMITER
 
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
@@ -570,15 +613,27 @@ endif
 
 
 
+  cc_occ = (sum(output(1,13,1:nLayers(i),1)) == 0.d0) .AND. (sum(output(1,37,1:nLayers(i),1)) > 0.d0) !clearcut indicator
+
+
+
+
 
   ! initVar(i,8,1:nLayers(i)) = output(1,2,1:nLayers(i),1)  !!newX
   if(isnan(sum(output(1,37,1:nLayers(i),1)))) then
     roundWood = roundWood
     energyWood = energyWood
+    totharv_cc = totharv_cc
   else
     roundWood = roundWood + sum(output(1,37,1:nLayers(i),1))* areas(i)
     energyWood = energyWood + sum(wood(1,1:nLayers(i),1))* areas(i)   !!energCuts !!!we are looking at volumes
+    if(cc_occ .eqv. .TRUE. ) then
+      totharv_cc = totharv_cc + sum(output(1,37,1:nLayers(i),1))* areas(i) !cclim accumulate v collected in V
+    endif
   endif
+
+
+
  end do !iz i site loop
 
  !!! check if the harvest limit of the area has been reached otherwise clearcut the stands sorted by DBH
@@ -654,6 +709,7 @@ endif
 !!   !!clearcut!!
    cuttingArea(ij,2) = cuttingArea(ij,2) + areas(siteX) !calculate the clearcut area
      roundWood = roundWood + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)*areas(siteX) !!energCuts
+     !totharv_cc = totharv_cc + sum(multiOut(siteX,ij,30,1:jj,1)*harvRatio)*areas(siteX) !cclim accumulate v collected in V
      multiOut(siteX,ij,37,:,1) = multiOut(siteX,ij,37,1:jj,1) + &
       multiOut(siteX,ij,30,1:jj,1)*harvRatio
      multiOut(siteX,ij,38,:,1) = multiOut(siteX,ij,38,1:jj,1) + &
