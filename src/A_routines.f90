@@ -406,154 +406,154 @@ end do
 
 
 
-subroutine preles(weather,DOY,fAPAR,prelesOut,pars,GPP,ET,SW,etmodel,CO2model)!,p0)
+! subroutine preles(weather,DOY,fAPAR,prelesOut,pars,GPP,ET,SW,etmodel,CO2model)!,p0)
 
-implicit none
+! implicit none
 
- INTERFACE
-   SUBROUTINE call_preles( &
-        PAR, TAir, VPD, Precip, CO2, fAPARc, &  !inputs
-         GPPmeas, ETmeas, SWmeas, &
-                GPP, ET, SW, SOG, fS, fD, fW, fE, & !outputs
-    Throughfall, Interception, Snowmelt, Drainage, &
-    Canopywater, S, &
-      soildepth,ThetaFC, ThetaPWP, tauDrainage, beta, & !parameters
-    tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2, &
-    ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef, &
-    I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit, &
-    Sinit,t0,tcrit,tsumcrit, &  
-    etmodel, LOGFLAG,NofDays, &
-    day, &!!!!this is DOY
-    transp, evap, fWE,CO2model) BIND(C)
-    USE, INTRINSIC :: ISO_C_BINDING, ONLY : C_INT, C_CHAR, C_PTR, C_DOUBLE  
-     real ( C_DOUBLE ) :: PAR(365), TAir(365), VPD(365), Precip(365), CO2(365), fAPARc(365)
-     real ( c_double ) :: GPPmeas(365), ETmeas(365), SWmeas(365)
-     real ( c_double ) :: GPP(365), ET(365), SW(365), SOG(365), fS(365), fD(365), fW(365), fE(365)
-     real ( c_double ) :: Throughfall(365), Interception(365), Snowmelt(365), Drainage(365)
-     real ( c_double ) :: Canopywater(365), S(365)
-     real ( c_double ) :: soildepth,ThetaFC, ThetaPWP, tauDrainage, beta !parameters
-     real ( c_double ) :: tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2
-     real ( c_double ) :: ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef
-     real ( c_double ) :: I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit
-     real ( c_double ) :: Sinit,t0,tcrit,tsumcrit
-     integer(c_int) :: etmodel, LOGFLAG,NofDays,CO2model
-     integer(c_int) :: day(365)
-     real ( c_double ) :: transp(365), evap(365), fWE(365)
-   END SUBROUTINE call_preles
- END INTERFACE
+ ! INTERFACE
+   ! SUBROUTINE call_preles( &
+        ! PAR, TAir, VPD, Precip, CO2, fAPARc, &  !inputs
+         ! GPPmeas, ETmeas, SWmeas, &
+                ! GPP, ET, SW, SOG, fS, fD, fW, fE, & !outputs
+    ! Throughfall, Interception, Snowmelt, Drainage, &
+    ! Canopywater, S, &
+      ! soildepth,ThetaFC, ThetaPWP, tauDrainage, beta, & !parameters
+    ! tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2, &
+    ! ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef, &
+    ! I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit, &
+    ! Sinit,t0,tcrit,tsumcrit, &  
+    ! etmodel, LOGFLAG,NofDays, &
+    ! day, &!!!!this is DOY
+    ! transp, evap, fWE,CO2model) BIND(C)
+    ! USE, INTRINSIC :: ISO_C_BINDING, ONLY : C_INT, C_CHAR, C_PTR, C_DOUBLE  
+     ! real ( C_DOUBLE ) :: PAR(365), TAir(365), VPD(365), Precip(365), CO2(365), fAPARc(365)
+     ! real ( c_double ) :: GPPmeas(365), ETmeas(365), SWmeas(365)
+     ! real ( c_double ) :: GPP(365), ET(365), SW(365), SOG(365), fS(365), fD(365), fW(365), fE(365)
+     ! real ( c_double ) :: Throughfall(365), Interception(365), Snowmelt(365), Drainage(365)
+     ! real ( c_double ) :: Canopywater(365), S(365)
+     ! real ( c_double ) :: soildepth,ThetaFC, ThetaPWP, tauDrainage, beta !parameters
+     ! real ( c_double ) :: tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2
+     ! real ( c_double ) :: ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef
+     ! real ( c_double ) :: I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit
+     ! real ( c_double ) :: Sinit,t0,tcrit,tsumcrit
+     ! integer(c_int) :: etmodel, LOGFLAG,NofDays,CO2model
+     ! integer(c_int) :: day(365)
+     ! real ( c_double ) :: transp(365), evap(365), fWE(365)
+   ! END SUBROUTINE call_preles
+ ! END INTERFACE
 
- real (kind=8), intent(inout) :: weather(365,5),fAPAR(365)
- real (kind=8), intent(out) :: prelesOut(16)!,p0
- real (kind=8), intent(inout) :: pars(30)
- integer, intent(in):: DOY(365), etmodel,CO2model
+ ! real (kind=8), intent(inout) :: weather(365,5),fAPAR(365)
+ ! real (kind=8), intent(out) :: prelesOut(16)!,p0
+ ! real (kind=8), intent(inout) :: pars(30)
+ ! integer, intent(in):: DOY(365), etmodel,CO2model
 
-     real (kind=8) PAR(365), TAir(365), VPD(365), Precip(365), CO2(365), fAPARc(365)
-     real (kind=8) GPPmeas(365), ETmeas(365), SWmeas(365)
-     real (kind=8), intent(inout) :: GPP(365), ET(365),SW(365)
-     real (kind=8) SOG(365), fS(365), fD(365), fW(365), fE(365)
-     real (kind=8) Throughfall(365), Interception(365), Snowmelt(365), Drainage(365)
-     real (kind=8) Canopywater(365), S(365)
-     real (kind=8) :: soildepth,ThetaFC, ThetaPWP, tauDrainage, beta !parameters
-     real (kind=8) :: tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2
-     real (kind=8) :: ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef
-     real (kind=8) :: I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit
-     real (kind=8) :: Sinit,t0,tcrit,tsumcrit
-     integer LOGFLAG,NofDays
-     integer day(365),nDays
-     real (kind=8) transp(365), evap(365), fWE(365)!,fAPAR0
+     ! real (kind=8) PAR(365), TAir(365), VPD(365), Precip(365), CO2(365), fAPARc(365)
+     ! real (kind=8) GPPmeas(365), ETmeas(365), SWmeas(365)
+     ! real (kind=8), intent(inout) :: GPP(365), ET(365),SW(365)
+     ! real (kind=8) SOG(365), fS(365), fD(365), fW(365), fE(365)
+     ! real (kind=8) Throughfall(365), Interception(365), Snowmelt(365), Drainage(365)
+     ! real (kind=8) Canopywater(365), S(365)
+     ! real (kind=8) :: soildepth,ThetaFC, ThetaPWP, tauDrainage, beta !parameters
+     ! real (kind=8) :: tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2
+     ! real (kind=8) :: ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef
+     ! real (kind=8) :: I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit
+     ! real (kind=8) :: Sinit,t0,tcrit,tsumcrit
+     ! integer LOGFLAG,NofDays
+     ! integer day(365),nDays
+     ! real (kind=8) transp(365), evap(365), fWE(365)!,fAPAR0
 
-!init inputs
-PAR = weather(:,1)
-TAir = weather(:,2)
-VPD = weather(:,3)
-Precip = weather(:,4)
-CO2 = weather(:,5)
+! !init inputs
+! PAR = weather(:,1)
+! TAir = weather(:,2)
+! VPD = weather(:,3)
+! Precip = weather(:,4)
+! CO2 = weather(:,5)
 
-day = DOY
-NofDays = 365
-!fAPAR0 = 1
+! day = DOY
+! NofDays = 365
+! !fAPAR0 = 1
 
-GPPmeas(:) = 0.
-ETmeas(:) = 0.
-SWmeas(:) = 0.
-!etmodel=0.
-LOGFLAG=0
+! GPPmeas(:) = 0.
+! ETmeas(:) = 0.
+! SWmeas(:) = 0.
+! !etmodel=0.
+! LOGFLAG=0
 
-!if(PAR(366)==-999) then
- nDays = 365 
-!else
-! nDays = 366
-!endif
+! !if(PAR(366)==-999) then
+ ! nDays = 365 
+! !else
+! ! nDays = 366
+! !endif
 
-!init preles parameters
-soildepth = pars(1)
-ThetaFC = pars(2)
-ThetaPWP = pars(3)
-tauDrainage = pars(4)
-beta = pars(5)
-tau = pars(6)
-S0 = pars(7)
-Smax = pars(8)
-kappa = pars(9)
-gamma = pars(10)
-soilthres = pars(11)
-bCO2 = pars(12)
-xCO2 = pars(13)
-ETbeta = pars(14)
-ETkappa = pars(15)
-ETchi = pars(16)
-ETsoilthres = pars(17)
-ETnu = pars(18)
-MeltCoef = pars(19)
-I0 = pars(20)
-CWmax = pars(21)
-SnowThreshold = pars(22)
-T_0 = pars(23)
-SWinit = pars(24)
-CWinit = pars(25)
-SOGinit = pars(26)
-Sinit = pars(27)
-t0 = pars(28)
-tcrit = pars(29)
-tsumcrit = pars(30)
+! !init preles parameters
+! soildepth = pars(1)
+! ThetaFC = pars(2)
+! ThetaPWP = pars(3)
+! tauDrainage = pars(4)
+! beta = pars(5)
+! tau = pars(6)
+! S0 = pars(7)
+! Smax = pars(8)
+! kappa = pars(9)
+! gamma = pars(10)
+! soilthres = pars(11)
+! bCO2 = pars(12)
+! xCO2 = pars(13)
+! ETbeta = pars(14)
+! ETkappa = pars(15)
+! ETchi = pars(16)
+! ETsoilthres = pars(17)
+! ETnu = pars(18)
+! MeltCoef = pars(19)
+! I0 = pars(20)
+! CWmax = pars(21)
+! SnowThreshold = pars(22)
+! T_0 = pars(23)
+! SWinit = pars(24)
+! CWinit = pars(25)
+! SOGinit = pars(26)
+! Sinit = pars(27)
+! t0 = pars(28)
+! tcrit = pars(29)
+! tsumcrit = pars(30)
 
 
-fAPARc = fAPAR
- call call_preles( &
-        PAR, TAir, VPD, Precip, CO2, fAPARc, &  !inputs
-         GPPmeas, ETmeas, SWmeas, &!end inputs
-                GPP, ET, SW, SOG, fS, fD, fW, fE, & !outputs
-    Throughfall, Interception, Snowmelt, Drainage, &
-    Canopywater, S, & !end outputs
-      soildepth,ThetaFC, ThetaPWP, tauDrainage, beta, & !parameters
-    tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2, &
-    ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef, &
-    I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit, &
-    Sinit,t0,tcrit,tsumcrit, & !end parameters  
-    etmodel, LOGFLAG, NofDays, &
-    day, &!!!!this is DOY
-    transp, evap, fWE,CO2model)
+! fAPARc = fAPAR
+ ! call call_preles( &
+        ! PAR, TAir, VPD, Precip, CO2, fAPARc, &  !inputs
+         ! GPPmeas, ETmeas, SWmeas, &!end inputs
+                ! GPP, ET, SW, SOG, fS, fD, fW, fE, & !outputs
+    ! Throughfall, Interception, Snowmelt, Drainage, &
+    ! Canopywater, S, & !end outputs
+      ! soildepth,ThetaFC, ThetaPWP, tauDrainage, beta, & !parameters
+    ! tau,S0,Smax,kappa,gamma, soilthres, bCO2, xCO2, &
+    ! ETbeta, ETkappa, ETchi,ETsoilthres,ETnu, MeltCoef, &
+    ! I0,CWmax,SnowThreshold,T_0,SWinit,CWinit,SOGinit, &
+    ! Sinit,t0,tcrit,tsumcrit, & !end parameters  
+    ! etmodel, LOGFLAG, NofDays, &
+    ! day, &!!!!this is DOY
+    ! transp, evap, fWE,CO2model)
 
- call SMIfromPRELES(GPP,fW,prelesOut(7),sum(fAPARc)/365.)
+ ! call SMIfromPRELES(GPP,fW,prelesOut(7),sum(fAPARc)/365.)
 
-prelesOut(1) = sum(GPP(1:nDays))
-prelesOut(2) = sum(ET(1:nDays))
-prelesOut(3) = SW(nDays)
-prelesOut(4) = SOG(nDays)
-prelesOut(5) = fS(nDays)
-prelesOut(6) = fD(nDays)
-! prelesOut(7) = fW(nDays)
-prelesOut(8) = fE(nDays)
-prelesOut(9) = Throughfall(nDays)
-prelesOut(10) = Interception(nDays)
-prelesOut(11) = Snowmelt(nDays)
-prelesOut(12) = Drainage(nDays)
-prelesOut(13) = Canopywater(nDays)
-prelesOut(14) = S(nDays)
-prelesOut(15) = sum(SW(1:nDays))/nDays
-prelesOut(16) = sum(SW(152:243))/92
+! prelesOut(1) = sum(GPP(1:nDays))
+! prelesOut(2) = sum(ET(1:nDays))
+! prelesOut(3) = SW(nDays)
+! prelesOut(4) = SOG(nDays)
+! prelesOut(5) = fS(nDays)
+! prelesOut(6) = fD(nDays)
+! ! prelesOut(7) = fW(nDays)
+! prelesOut(8) = fE(nDays)
+! prelesOut(9) = Throughfall(nDays)
+! prelesOut(10) = Interception(nDays)
+! prelesOut(11) = Snowmelt(nDays)
+! prelesOut(12) = Drainage(nDays)
+! prelesOut(13) = Canopywater(nDays)
+! prelesOut(14) = S(nDays)
+! prelesOut(15) = sum(SW(1:nDays))/nDays
+! prelesOut(16) = sum(SW(152:243))/92
 
-end subroutine
+! end subroutine
 
 
 SUBROUTINE mod5c(theta,time,climate,init,b,d,leac,xt,steadystate_pred)
@@ -2498,3 +2498,46 @@ subroutine alternative_chooseThin(species,H,age, BA, density, tTapio, ftTapio, t
  endif  
 
 end subroutine alternative_chooseThin
+
+
+    subroutine dom_species(ba, speciesID, maxSpecies,nLayers)
+        implicit none
+        ! Inputs
+        real(8), intent(in)  :: ba(nLayers)
+        integer, intent(in)  :: speciesID(nLayers),nLayers
+        ! Output
+        real(8) :: maxSpeciesBA
+        integer, intent(out) :: maxSpecies
+
+        ! Local variables
+        integer :: i, n, maxID
+        integer :: maxSpeciesID
+        real(8), allocatable :: sumBA(:)
+
+        ! Determine maximum species ID to size array
+        maxID = maxval(speciesID)
+        allocate(sumBA(maxID))
+        sumBA = 0d0
+
+        ! Number of records
+        n = size(ba)
+
+        ! Sum basal area by species
+        do i = 1, n
+            sumBA(speciesID(i)) = sumBA(speciesID(i)) + ba(i)
+        end do
+        ! Find species with highest total BA
+        maxSpeciesID = 1
+        do i = 2, maxID
+            if (sumBA(i) > sumBA(maxSpeciesID)) then
+                maxSpeciesID = i
+            end if
+        end do
+
+        ! Return values
+        maxSpecies    = maxSpeciesID
+        maxSpeciesBA  = sumBA(maxSpeciesID)
+
+        deallocate(sumBA)
+    end subroutine dom_species
+

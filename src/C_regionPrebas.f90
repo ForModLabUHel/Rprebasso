@@ -4,14 +4,14 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
-    nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy,P0y, initVar,&
-    weatherPRELES,DOY,pPRELES, soilCinOut,pYasso,&
+    nThinning,fAPAR,initClearcut,fixBAinitClarcut,initCLcutRatio,ETSy, initVar,&
+    weatherPRELES,pPRELES, soilCinOut,pYasso,&
     pAWEN,weatherYasso,litterSize,soilCtotInOut, &
     defaultThin,ClCut,energyCuts,clct_pars,dailyPRELES,yassoRun,multiWood,&
     tapioPars,thdPer,limPer,ftTapio,tTapio,GVout,cuttingArea,compHarv,thinInt, &
     ageMitigScen, flagFert, nYearsFert,mortMod,startSimYear, pECMmod, &
     layerPRELES,LUEtrees,LUEgv, siteInfoDist, outDist, prebasFlags,&
-	latitude, TsumSBBs)
+	latitude, TsumSBBs,pPeat,peatType,soilmodel,REWmodel)
 ! pre-flag-grouping version:
 ! subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID,nLayers,maxYears,maxThin, &
 !     nYears,thinning,pCrobas,allSP,siteInfo, maxNlayers, &
@@ -23,20 +23,22 @@ subroutine regionPrebas(siteOrder,HarvLim,minDharv,multiOut,nSites,areas,nClimID
 !     ageMitigScen, fertThin,flagFert,nYearsFert,oldLayer,mortMod,startSimYear,ECMmod,pECMmod, &
 !     layerPRELES,LUEtrees,LUEgv,disturbanceON)!, siteInfoDist, outDist)
 
-
+  use water_module
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53!, nSp=3
-real (kind=8), parameter :: pi = 3.1415927
+integer, parameter :: nVar=54,npar=53,npar_preles=40,npar_peat=20,dimTable=200!, nSp=3
+real (kind=8), parameter :: pi_par = 3.1415927
 real (kind=8), parameter :: harvRatio = 0.9, energyRatio = 0.7
 integer, intent(in) :: nYears(nSites),nLayers(nSites),allSP,layerPRELES !oldLayer fvec
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az
 integer, intent(in) :: nSites, maxYears, maxThin,nClimID,maxNlayers,startSimYear
+integer, intent(in) :: soilmodel(nSites),REWmodel(nSites)
 integer, intent(inout) :: siteOrder(nSites,maxYears)
 real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageMitigScen
- integer, intent(in) :: DOY(365)!,etmodel, ECMmod fvec
- real (kind=8), intent(in) :: pPRELES(30),pCrobas(npar,allSP),pECMmod(12)
+ integer, intent(in) :: peatType(nSites)!,etmodel, ECMmod fvec
+ real (kind=8), intent(in) :: pCrobas(npar,allSP),pECMmod(12)
+ real (kind=8), intent(in) :: pPRELES(npar_preles,allSP),pPeat(npar_peat,2)
 
 !disturbances
  logical :: disturbance_wind ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
@@ -48,7 +50,7 @@ real (kind=8) :: cclimiter, totharv_cc !clearcut limiter: share of harvested V a
  real (kind=8), intent(inout) :: compHarv(2),cuttingArea(maxYears,6)
  real (kind=8), intent(in) :: tapioPars(5,2,3,20),thdPer(nSites),limPer(nSites)
  real (kind=8), intent(inout) :: tTapio(5,allSP,2,7), ftTapio(5,allSP,3,7),mortMod(2)
- real (kind=8), intent(inout) :: siteInfo(nSites,11), areas(nSites),HarvLim(maxYears,2)
+ real (kind=8), intent(inout) :: siteInfo(nSites,17), areas(nSites),HarvLim(maxYears,2)
  real (kind=8), intent(in) :: thinning(nSites,maxThin,11),pAWEN(12,allSP)
  real (kind=8), intent(inout) :: dailyPRELES(nSites,(maxYears*365),3)
  real (kind=8), intent(inout) :: LUEtrees(allSP),LUEgv,latitude(nSites), TsumSBBs(nSites,4)
@@ -64,7 +66,7 @@ real (kind=8) :: cclimiter, totharv_cc !clearcut limiter: share of harvested V a
  real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV      !!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
  real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
- real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears)!,par_common
+ real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
  real (kind=8), intent(inout) :: multiWood(nSites,maxYears,maxNlayers,2)!!energCuts
  real (kind=8), intent(inout) :: soilCinOut(nSites,maxYears,5,3,maxNlayers),soilCtotInOut(nSites,maxYears) !dimensions = nyears,AWENH,treeOrgans(woody,fineWoody,Foliage),species
@@ -74,7 +76,7 @@ real (kind=8) :: cclimiter, totharv_cc !clearcut limiter: share of harvested V a
  real (kind=8) :: ClCutX, defaultThinX,maxState(nSites),check(maxYears), thinningX(maxThin,11)
  real (kind=8) :: energyWood, roundWood, energyCutX,thinFact,deltaSiteTypeFert=1.,energy_flag=0., siteHarv(nSites) !!energCuts
 
- integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual
+ integer :: year_smooth_cut_start,n_years_smooth_cut=10,n_years_smooth_cut_actual,spx
  integer :: maxYearSite = 300,Ainit,sitex,ops(1),species,layerX,domSp(1)
  real (kind=8) :: tTapioX(5,allSP,2,7), ftTapioX(5,allSP,3,7), Vmort, D,randX,yearXrepl(nSites),mortModX,perVmort
 
@@ -89,7 +91,10 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  real(8) :: alfarFert(nYearsFert,maxNlayers,2),pDomRem, age(nSites), siteOrdX(nSites),fixAinitXX(nSites)
 
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
- integer, intent(inout) :: prebasFlags(10)
+ integer, intent(inout) :: prebasFlags(12)
+ real(8) :: SWTable(nSites,dimTable,dimTable+3)
+ real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP)
+
 
 
 
@@ -108,6 +113,8 @@ fixAinitXX = multiOut(:,1,7,1,2)
 multiOut(:,1,7,1,2) = 0.
 ! set ingrowtflag
 prebasFlags(9) = -777
+
+SWTable(:,:,:) = 0.
 
 
 if(prebasFlags(6)==1 .or. prebasFlags(6)==12 .or. prebasFlags(6)==13 .or. prebasFlags(6)==123) disturbance_wind = .TRUE.
@@ -140,6 +147,22 @@ multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
 !!inititialize A and biomasses
 do i = 1,nSites
 
+  pPRELES_all(1:npar_preles,:) = pPRELES
+  do spx=1,allSP 
+	pPRELES_all((1+npar_preles):(npar_preles+npar_peat),spx) = pPeat(:,peatType(i))
+  end do
+  
+  prebasFlags(11) = soilmodel(i)
+  prebasFlags(12) = REWmodel(i)
+
+  if(soilmodel(i)==2) then
+!just update site parameters	
+	pPRELES_all(1:3,1) = siteInfo(i,8:10)
+	pPRELES_all(4,1) = siteInfo(i,11) !tauDreinage
+	pPRELES_all(8:10,1) = siteInfo(i,12:14)
+	call waterTable(pPeat(1:8,peatType(i)), pPRELES_all(1:10,1), pPeat(9:20,peatType(i)), dimTable, SWTable(i,:,:)) 
+  endif
+ 
  prebasFlags(8) = int(multiOut(i,1,7,1,2))
  multiOut(i,1,7,1,2) = 0.
 
@@ -452,7 +475,10 @@ endif
 
   if(ij>1) then
     if(oldLayer==1) output(1,3,:,:) = multiOut(i,(ij-1),3,:,:)
-    output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
+    ! output(1,1:7,1:nLayers(i),:) = multiOut(i,(ij-1),1:7,1:nLayers(i),:)
+    output(1,1:5,1:nLayers(i),:) = multiOut(i,(ij-1),1:5,1:nLayers(i),:)
+    output(1,6,1:nLayers(i),:) = multiOut(i,(ij),6,1:nLayers(i),:)
+    output(1,7,1:nLayers(i),:) = multiOut(i,(ij-1),7,1:nLayers(i),:)
     output(1,9:nVar,1:nLayers(i),:) = multiOut(i,(ij-1),9:nVar,1:nLayers(i),:)
   else
     output(1,:,:,1) = multiOut(i,1,:,:,1)
@@ -520,17 +546,25 @@ endif
     !outDist(i, ij, 10) = totharv_cc
 !!/ BUGFIXING CCLIMITER
 
+  pPRELES_all(1:npar_preles,:) = pPRELES
+  do spx=1,allSP 
+	pPRELES_all((1+npar_preles):(npar_preles+npar_peat),spx) = pPeat(:,peatType(i))
+  end do
+  
+  prebasFlags(11) = soilmodel(i)
+  prebasFlags(12) = REWmodel(i)
+
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
-    fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&
-    weatherPRELES(climID,ij,:,:),DOY,pPRELES, &
+    fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),&
+    weatherPRELES(climID,ij,:,:),pPRELES_all, &
     soilC(i,ij,:,:,1:nLayers(i)),pYasso,pAWEN,weatherYasso(climID,ij,:),&
     litterSize,soilCtot(i,ij),&
     defaultThinX,ClCutX,energyCutX,clct_pars(i,:,:), & !!energCuts
     dailyPRELES(i,(((ij-1)*365)+1):(ij*365),:),yassoRun(i),wood(1,1:nLayers(i),:),&
     tapioPars,thdPer(i),limPer(i),ftTapioX,tTapioX,GVout(i,ij,:),thinInt(i), &
     flagFert(i),nYearsFert,mortModX,pECMmod,layerPRELES,LUEtrees,LUEgv, &
-    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:))
+    siteInfoDist(i,:), outDist(i,ij,:), prebasFlags,latitude(i), TsumSBBs(i,:),SWTable(i,:,:))
 
 
 
@@ -804,7 +838,7 @@ endif
    maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
   ! if(ClCut(i) > 0.) then
     ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI
-        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
+        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi_par)*100./25.)**(1.66)
   else
    maxState(i) = 0.
   endif
@@ -1075,7 +1109,7 @@ endif
   if(ClCut(i) > 0. .and. multiOut(i,ij,7,layerX,1) > 50. .and. multiOut(i,ij,7,layerX,1) < 100.) then
    maxState(i) = sum(multiOut(i,ij,30,1:jj,1))!!!search for site with highest volume
     ! maxState(i) = sum(multiOut(i,ij,17,1:jj,1))*(sqrt(sum(multiOut(i,ij,13,1:jj,1))/ &  !!!use SDI
-        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi)*100./25.)**(1.66)
+        ! sum(multiOut(i,ij,30,1:jj,1))*4/pi_par)*100./25.)**(1.66)
   else
    maxState(i) = 0.
   endif

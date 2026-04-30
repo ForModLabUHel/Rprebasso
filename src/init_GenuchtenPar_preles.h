@@ -1,0 +1,10 @@
+ 
+!   !Genuchten_par (all new, for one peat type)
+    Genuchten_par_thetaS = Genuchten_par(1)
+    Genuchten_par_thetaR = Genuchten_par(2)
+    Genuchten_par_alpha = Genuchten_par(3)
+    Genuchten_par_n = Genuchten_par(4)
+    Genuchten_par_thetaST = Genuchten_par(5)
+    Genuchten_par_thetaRT = Genuchten_par(6)
+    Genuchten_par_alphaT = Genuchten_par(7)
+    Genuchten_par_nT = Genuchten_par(8)
