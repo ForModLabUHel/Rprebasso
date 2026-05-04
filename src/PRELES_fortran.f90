@@ -101,7 +101,7 @@
 		endif
 
 		call preles_fortran(NofDays, PAR, TAir, VPD, Precip, CO2, fAPAR, Site_par, GPP_par, ET_par, SnowRain_par, etmodel, &
-                  Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,                                                             &
+                  Genuchten_par, Ksat, WL, dimTable, GPP, ET, SW, ST, SR, SOG, fL, fS, fD,  &
                    fW, fE, Throughfall, Interception, Snowmelt, Drainage, Canopywater, GPPmeas, ETmeas, SWmeas, &
                   S, LOGFLAG, multisiteNday, doy, transp, evap, fWE, fOrg, CO2model, soilmodel, REWmodel,SWTable, calc_SWtable)
 
