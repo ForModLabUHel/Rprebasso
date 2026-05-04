@@ -544,8 +544,8 @@ InitMultiSite <- function(nYearsMS,
       #              Precip=Precip[ijk,1:(365*nYearsX)],CO2=CO2[ijk,1:(365*nYearsX)],
       #              fAPAR=rep(1,(365*nYearsX)),LOGFLAG=0,p=pPRELES,CO2model=CO2model)$GPP
       # 
-      weathX <- cbind(PAR[ijk,1:(365*nYearsX)], TAir[ijk,1:(365*nYearsX)],
-            VPD[ijk,1:(365*nYearsX)],Precip[ijk,1:(365*nYearsX)], CO2[ijk,1:(365*nYearsX)])
+      weathX <- cbind(PAR[siteInfo[ijk,2],1:(365*nYearsX)], TAir[siteInfo[ijk,2],1:(365*nYearsX)],
+            VPD[siteInfo[ijk,2],1:(365*nYearsX)],Precip[siteInfo[ijk,2],1:(365*nYearsX)], CO2[siteInfo[ijk,2],1:(365*nYearsX)])
       
       spx <- multiInitVar[ijk,1,which.max(multiInitVar[ijk,5,])]
       
