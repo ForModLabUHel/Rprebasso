@@ -3,3 +3,4 @@ distBB.o
 distFire.o
 distSandboxWind.o
 PRELES_fortran.o
+initruns_module.mod
