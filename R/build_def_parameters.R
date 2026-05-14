@@ -25,15 +25,15 @@
 # pPREL <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES_matrix"))
 # rownames(pPREL) <- pPREL$pNames
 # pPREL <- as.matrix(pPREL[,2:ncol(pPREL)])
-# # pPRELES_tab <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES_matrix"))
+# pPRELES_tab <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPRELES"))
 # # pPREL <- pPRELES_tab$pPREL
-# # pPRELESeugl <-  pPRELES_tab$eucalyptus
-# # pPRELESpiabDE <- pPRELES_tab$pPRELESpiabDE
-# # pPRELESfasy <- pPRELES_tab$pPRELESfasy
-# # pPRELES.Df.DBF <- pPRELES_tab$pPRELES.Df.DBF
-# # pPRELESpipi <- pPRELES_tab$pPRELESpipi
-# # pPRELES_Ritika <- pPRELES_tab$pPRELES_Ritika
-# # pPRELES_catalonia <- pPRELES_tab$Catalonia
+# pPRELESeugl <-  pPRELES_tab$eucalyptus
+# pPRELESpiabDE <- pPRELES_tab$pPRELESpiabDE
+# pPRELESfasy <- pPRELES_tab$pPRELESfasy
+# pPRELES.Df.DBF <- pPRELES_tab$pPRELES.Df.DBF
+# pPRELESpipi <- pPRELES_tab$pPRELESpipi
+# pPRELES_Ritika <- pPRELES_tab$pPRELES_Ritika
+# pPRELES_catalonia <- pPRELES_tab$Catalonia
 # 
 # ####read preles parameters
 # pPeattp_tab <- data.table(read_excel("data/PREBAS_parameters.xlsx", sheet = "pPeattp"))
@@ -64,8 +64,8 @@
 # save(pCROB,pCROBAS_Ritika,
 #      speciesNam, nparsAll,
 #      inDclct_def,inAclct_def,pPeattp_def,
-#      pPREL,#pPRELESeugl,pPRELESpiabDE,pPRELESfasy,pPRELES.Df.DBF,
-#      # pPRELESpipi,pPRELES_Ritika,pPRELES_catalonia,
+#      pPREL,pPRELESeugl,pPRELESpiabDE,pPRELESfasy,pPRELES.Df.DBF,
+#      pPRELESpipi,pPRELES_Ritika,pPRELES_catalonia,
 #      pLUEtrees,pLUEgv,
 #      parsAWEN,
 #      pHcM,file="data/parameters.rda")
