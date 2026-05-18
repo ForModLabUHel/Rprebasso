@@ -560,8 +560,10 @@ InitMultiSite <- function(nYearsMS,
   
   for(i in 1:maxNlayers){
     sitxx <- which(multiInitVar[,3,i]==0)
-    multiOut[sitxx,,,i,] <- 0.
+    varsz <- c(1:5,7:dim(multiOut)[3])
+    if(length(sitxx)>0) multiOut[sitxx,,varsz,i,] <- 0.
   }
+  
   
   dimnames(multiInitVar) <-  list(site=NULL,
                                   variable=c("SpeciesID","age","H","D","BA","Hc","Ac"),layer=layerNam)
