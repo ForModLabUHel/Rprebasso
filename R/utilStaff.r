@@ -1342,3 +1342,264 @@ preles_crobas_r <- function(
     res
   }
   
+
+
+
+
+check_prebas_inputs <- function(
+    nYears, nLayers, nSp,
+    weatherPreles, pPRELES, pCROBAS,
+    initVar, thinning, output,
+    fAPAR, initClearcut,
+    initCLcutRatio, ETS,
+    soilC, pYASSO, pAWEN,
+    weatherYasso, litterSize,
+    soilCtot, tapioPars,
+    ftTapioPar, tTapioPar,
+    energyWood, outDist,
+    LUEtrees, pECMmod
+) {
+  
+  # helper
+  err <- function(msg) stop(paste("INPUT ERROR:", msg), call. = FALSE)
+  
+  ## =====================
+  ## DIMENSION CHECKS
+  ## =====================
+  
+  if (!all(dim(weatherPreles) == c(nYears, 365, 5)))
+    err("weatherPreles must be (nYears,365,5)")
+  
+  if (!all(dim(pPRELES)[2] == nSp))
+    err("pPRELES second dim must be nSp")
+  
+  if (!all(dim(pCROBAS) == c(53, nSp)))
+    err("pCROBAS must be (53,nSp)")
+  
+  if (!all(dim(initVar)[2] == nLayers))
+    err("initVar must have nLayers columns")
+  
+  if (ncol(thinning) != 11)
+    err("thinning must have 11 columns")
+  
+  if (!all(dim(output)[1] == nYears))
+    err("output dim1 must be nYears")
+  
+  if (length(fAPAR) != nYears)
+    err("fAPAR must have length nYears")
+  
+  if (length(initClearcut) != 5)
+    err("initClearcut must have length 5")
+  
+  if (length(initCLcutRatio) != nLayers)
+    err("initCLcutRatio must match nLayers")
+  
+  if (!all(dim(soilC)[1] == nYears))
+    err("soilC dim1 must be nYears")
+  
+  if (length(soilCtot) != nYears)
+    err("soilCtot must be length nYears")
+  
+  if (!all(dim(pAWEN)[2] == nSp))
+    err("pAWEN must have nSp columns")
+  
+  if (!all(dim(weatherYasso) == c(nYears, 3)))
+    err("weatherYasso must be (nYears,3)")
+  
+  if (!all(dim(litterSize)[2] == nSp))
+    err("litterSize must match nSp")
+  
+  if (!all(dim(tapioPars)[1] == 5))
+    err("tapioPars first dim must be 5")
+  
+  if (!all(dim(ftTapioPar)[2] == nSp))
+    err("ftTapioPar must match nSp")
+  
+  if (!all(dim(tTapioPar)[2] == nSp))
+    err("tTapioPar must match nSp")
+  
+  if (!all(dim(energyWood)[1] == nYears))
+    err("energyWood dim1 must be nYears")
+  
+  if (!all(dim(outDist)[1] == nYears))
+    err("outDist dim1 must be nYears")
+  
+  if (length(LUEtrees) != nSp)
+    err("LUEtrees must have length nSp")
+  
+  if (length(pECMmod) != 12)
+    err("pECMmod must have length 12")
+  
+  ## =====================
+  ## TYPE CHECKS
+  ## =====================
+  
+  check_numeric <- function(x, name) {
+    if (!is.numeric(x)) err(paste(name, "must be numeric"))
+  }
+  
+  check_numeric(weatherPreles, "weatherPreles")
+  check_numeric(pPRELES, "pPRELES")
+  check_numeric(pCROBAS, "pCROBAS")
+  check_numeric(initVar, "initVar")
+  check_numeric(soilC, "soilC")
+  check_numeric(pYASSO, "pYASSO")
+  check_numeric(pAWEN, "pAWEN")
+  check_numeric(weatherYasso, "weatherYasso")
+  
+  ## =====================
+  ## NA / INF CHECKS
+  ## =====================
+  
+  has_bad <- function(x) any(!is.finite(x))
+  
+  if (has_bad(weatherPreles)) err("weatherPreles contains NA/Inf")
+  if (has_bad(pPRELES)) err("pPRELES contains NA/Inf")
+  if (has_bad(pCROBAS)) err("pCROBAS contains NA/Inf")
+  if (has_bad(initVar)) err("initVar contains NA/Inf")
+  
+  ## =====================
+  ## VALUE CHECKS
+  ## =====================
+  
+  if (nYears <= 0) err("nYears must be > 0")
+  if (nLayers <= 0) err("nLayers must be > 0")
+  if (nSp <= 0) err("nSp must be > 0")
+  
+  ## =====================
+  ## FORTRAN STORAGE MODE
+  ## =====================
+  
+  to_double <- function(x) storage.mode(x) <- "double"
+  
+  to_double(weatherPreles)
+  to_double(pPRELES)
+  to_double(pCROBAS)
+  
+  message("✅ All checks passed")
+  
+  return(TRUE)
+}
+
+
+
+check_prebas_strict <- function(args) {
+  
+  err <- function(msg) stop(paste0("❌ PREBAS INPUT ERROR: ", msg), call. = FALSE)
+  
+  ## ========= helpers =========
+  check_type <- function(x, type, name) {
+    if (typeof(x) != type)
+      err(sprintf("%s must be %s (got %s)", name, type, typeof(x)))
+  }
+  
+  check_dim <- function(x, expected, name) {
+    if (!all(dim(x) == expected))
+      err(sprintf("%s dim must be %s (got %s)",
+                  name,
+                  paste(expected, collapse="x"),
+                  paste(dim(x), collapse="x")))
+  }
+  
+  check_len <- function(x, n, name) {
+    if (length(x) != n)
+      err(sprintf("%s length must be %d (got %d)", name, n, length(x)))
+  }
+  
+  check_finite <- function(x, name) {
+    if (any(!is.finite(x)))
+      err(sprintf("%s contains NA/NaN/Inf", name))
+  }
+  
+  ## ========= extract =========
+  with(args, {
+    
+    ## ===== scalars =====
+    if (nYears <= 0) err("nYears must be > 0")
+    if (nLayers <= 0) err("nLayers must be > 0")
+    if (nSp <= 0) err("nSp must be > 0")
+    
+    ## ===== arrays =====
+    check_dim(weatherPRELES, c(nYears, 365, 5), "weatherPRELES")
+    
+    check_dim(pPRELES, c(60, nSp), "pPRELES")
+    check_dim(pCROBAS, c(53, nSp), "pCROBAS")
+    check_dim(pAWEN, c(12, nSp), "pAWEN")
+    
+    check_dim(initVar, c(7, nLayers), "initVar")
+    check_dim(litterSize, c(3, nSp), "litterSize")
+    
+    check_dim(weatherYasso, c(nYears, 3), "weatherYasso")
+    
+    check_dim(tapioPars, c(5, 2, 3, 20), "tapioPars")
+    check_dim(ftTapioPar, c(5, nSp, 3, 7), "ftTapioPar")
+    check_dim(tTapioPar, c(5, nSp, 2, 7), "tTapioPar")
+    
+    check_dim(soilC, c(nYears, 5, 3, nLayers), "soilC")
+    check_dim(output, c(nYears, 54, nLayers, 2), "output")
+    check_dim(energyWood, c(nYears, nLayers, 2), "energyWood")
+    
+    check_dim(outDist, c(nYears, 10), "outDist")
+    
+    ## ===== vectors =====
+    check_len(fAPAR, nYears, "fAPAR")
+    check_len(soilCtot, nYears, "soilCtot")
+    check_len(ETS, nYears, "ETS")
+    
+    check_len(initClearcut, 5, "initClearcut")
+    check_len(initCLcutRatio, nLayers, "initCLcutRatio")
+    
+    check_len(LUEtrees, nSp, "LUEtrees")
+    check_len(pYASSO, 35, "pYASSO")
+    check_len(pECMmod, 12, "pECMmod")
+    check_len(siteInfo, 17, "siteInfo")
+    check_len(siteInfoDist, 10, "siteInfoDist")
+    check_len(prebasFlags, 12, "prebasFlags")
+    check_len(TsumSBBs, 4, "TsumSBBs")
+    
+    ## ===== special =====
+    if (nrow(thinning) != nThinning)
+      err("nrow(thinning) must equal nThinning")
+    
+    if (ncol(thinning) != 11)
+      err("thinning must have 11 columns")
+    
+    if (!all(dim(dailyPRELES) == c(nYears * 365, 3)))
+      err("dailyPRELES must be (nYears*365, 3)")
+    
+    if (maxYearSite < nYears)
+      err("maxYearSite must be >= nYears")
+    
+    ## ===== numeric check =====
+    numeric_vars <- list(
+      weatherPRELES, pPRELES, pCROBAS, initVar,
+      soilC, pYASSO, pAWEN, weatherYasso,
+      litterSize, tapioPars, ftTapioPar, tTapioPar
+    )
+    
+    for (i in seq_along(numeric_vars)) {
+      if (!is.numeric(numeric_vars[[i]]))
+        err("All numeric arrays must be numeric(double)")
+    }
+    
+    ## ===== NA check =====
+    for (nm in names(args)) {
+      obj <- args[[nm]]
+      if (is.numeric(obj) && any(!is.finite(obj)))
+        err(paste0(nm, " contains NA/NaN/Inf"))
+    }
+    
+    ## ===== storage mode =====
+    convert_double <- function(x) {
+      if (is.numeric(x) && typeof(x) != "double")
+        storage.mode(x) <- "double"
+      x
+    }
+    
+    args[] <- lapply(args, convert_double)
+    
+    message("✅ ALL PREBAS INPUTS ARE VALID (strict mode)")
+  })
+  
+  return(TRUE)
+}

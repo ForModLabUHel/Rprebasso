@@ -225,7 +225,6 @@ prebas <- function(nYears,
                    peatType = 1, # vary between 1 and 2, is a vector of nSites length
                    soilmodel = 1,
                    REWmodel = 2
-                   
               ){
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -315,10 +314,11 @@ prebas <- function(nYears,
     thinning[,9:10] <- -999
     thinning[,11] <- 1
   }
-  if(ncol(thinning==10)) thinning <- cbind(thinning,1)
+  if(ncol(thinning)==10) thinning <- cbind(thinning,1)
   thinning[is.na(thinning)] <- -999
   nThinning = max(1,nrow(thinning))
   thinning <- thinning[order(thinning[,2],thinning[,1],thinning[,3]),]
+  if(is.null(nrow(thinning))) thinning <- matrix(thinning,nrow = 1, ncol = 11)
   ###
   
   if(all(is.na(initVar))) {
@@ -389,26 +389,24 @@ prebas <- function(nYears,
   }
   
   ###set PRELES parameters
-  # if(layerPRELES==0){
-  #   if(!is.vector(pPRELES)) stop("check pPRELES parameters, it should be a vector")
-  #   pPRELES <- matrix(pPRELES, nrow =length(pPRELES), ncol=ncol(pCROBAS))
-  # }
-    
+  pPRELES <- rbind(pPRELES,matrix(pPeattp[,peatType],
+                    nrow=nrow(pPeattp),ncol=ncol(pCROBAS)))
+  
   ###if P0 is not provided use preles to compute P0
   # domSp <- initVar[1,which.max(initVar[5,])]
   # pPRELESx <- pPRELES[,domSp]
   if(is.na(P0)){
     weathX <- cbind(PAR, TAir,
                     VPD,Precip, CO2)
-    spx <- initVar[1,which.max(multiInitVar[5,])]
+    spx <- initVar[1,which.max(initVar[5,])]
     P0 <- preles_crobas_r(weathX,
                           DOY=rep(1:365,nYears),
                           fAPAR=rep(1,(365*nYears)),
-                          rep(0,16),
-                          c(pPRELES[,spx],pPeattp[,peatType]),
-                          GPP=rep(0,(365*nYearsX)),
-                          ET=rep(0,(365*nYearsX)),
-                          SW=rep(0,(365*nYearsX)),
+                          rep(0,19),
+                          pPRELES[,spx],
+                          GPP=rep(0,(365*nYears)),
+                          ET=rep(0,(365*nYears)),
+                          SW=rep(0,(365*nYears)),
                           etmodel=etmodel,
                           CO2model=CO2model,
                           soilmodel=soilmodel,
@@ -517,7 +515,7 @@ prebas <- function(nYears,
                             CO2model,
                             fixAinit,
                             -777,###ingrowth flag
-                            multiSiteInit$FDIout, ####output FDI instead of SW
+                            FDIout, ####output FDI instead of SW
                             0,### this flag will be filled by soilmodel internally in prebas in the site loop
                             0 ### this flag will be filled by REWmodel internally in prebas in the site loop
                             )) 
@@ -553,6 +551,44 @@ prebas <- function(nYears,
   output[1,46,1,2] <- SMIt0 #initialize SMI first year
   output[1,47,1,2] <- a_nd #initialize a_nd first year
   
+  args <- list(
+    nYears = nYears,
+    nLayers = nLayers,
+    nSp = nSp,
+    weatherPRELES = weatherPreles,
+    pPRELES = pPRELES,
+    pCROBAS = pCROBAS,
+    initVar = initVar,
+    thinning = thinning,
+    output = output,
+    nThinning = nThinning,
+    maxYearSite = nYears,
+    fAPAR = fAPAR,
+    initClearcut = initClearcut,
+    initCLcutRatio = initCLcutRatio,
+    ETS = ETS,
+    soilC = soilC,
+    pYASSO = pYASSO,
+    pAWEN = pAWEN,
+    weatherYasso = weatherYasso,
+    litterSize = litterSize,
+    soilCtot = soilCtot,
+    tapioPars = tapioPars,
+    ftTapioPar = ftTapioPar,
+    tTapioPar = tTapioPar,
+    energyWood = energyWood,
+    outDist = outDist,
+    LUEtrees = LUEtrees,
+    pECMmod = pECMmod,
+    siteInfo = siteInfo,
+    siteInfoDist = siteInfoDist,
+    prebasFlags = prebasFlags,
+    TsumSBBs = TsumSBBs,
+    dailyPRELES = dailyPRELES
+  )
+  
+  check_prebas_strict(args)
+  
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
                      nLayers=as.integer(nLayers),
@@ -571,7 +607,7 @@ prebas <- function(nYears,
                      ETS = as.numeric(ETS),
                      # P0 = as.matrix(P0),
                      weather=as.array(weatherPreles),
-                     DOY= as.integer(1:365),
+                     # DOY= as.integer(1:365),
                      pPRELES=as.numeric(pPRELES),
                      #etmodel = as.integer(etmodel), #fvec
                      soilC = as.array(soilC),
@@ -610,7 +646,8 @@ prebas <- function(nYears,
                      outDist = as.matrix(outDist),
                      prebasFlags = as.integer(prebasFlags),
                      latitude = as.double(latitude),
-                     TsumSBBs = as.double(TsumSBBs)
+                     TsumSBBs = as.double(TsumSBBs),
+                     SWtable = matrix(0,200,203)
                      )
   if(NIout) prebas$NI <- NI
   class(prebas) <- "prebas"
