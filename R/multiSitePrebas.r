@@ -1033,7 +1033,8 @@ regionPrebas <- function(multiSiteInit,
                          deltaSiteTypeFert = 1,
                          nYearsFert = 20,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
-                         startSimYear=1
+                         startSimYear=1,
+                         frac_clct=NULL
 ){
   
   
@@ -1158,6 +1159,7 @@ if(ageHarvPrior>0){
                                               yearFert=as.integer(yearFert))$siteTAlpha
   } 
   
+  if(!is.null(frac_clct)) multiSiteInit$fAPAR[1,1] <- frac_clct
 prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),

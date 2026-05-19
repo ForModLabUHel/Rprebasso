@@ -65,7 +65,7 @@ real (kind=8) :: cclimiter, totharv_cc !clearcut limiter: share of harvested V a
  !integer, intent(in) :: gvRun      !!!ground vegetation fvec
  real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV      !!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
- real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
+ real (kind=8), intent(inout) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),ETSy(nClimID,maxYears)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
  real (kind=8), intent(inout) :: multiWood(nSites,maxYears,maxNlayers,2)!!energCuts
@@ -93,7 +93,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  integer, intent(inout) :: prebasFlags(12)
  real(8) :: SWTable(nSites,dimTable,dimTable+3)
- real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP)
+ real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP),frac_clct
 
 
 
@@ -103,6 +103,7 @@ real (kind=8) :: minFapar,fAparFactor=0.9
 
  !
 !!! 'un-vectorise' flags, fvec
+frac_clct = fAPAR(1,1)
 etmodel = prebasFlags(1)
 gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
@@ -553,7 +554,7 @@ endif
   
   prebasFlags(11) = soilmodel(i)
   prebasFlags(12) = REWmodel(i)
-
+    fAPAR(i,ij) = frac_clct
     call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
     fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),&
