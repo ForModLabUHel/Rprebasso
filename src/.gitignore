@@ -4,3 +4,5 @@ distFire.o
 distSandboxWind.o
 PRELES_fortran.o
 initruns_module.mod
+B_prebas.f90
+C4_regionPrebas.o

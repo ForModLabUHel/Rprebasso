@@ -159,7 +159,7 @@ real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(36
 real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year,lightnings(nYears*365),popden(nYears*365),a_nd
 !BB disturbances
 real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
-real (kind=8) :: dist_to_clct, frac_clct, Dlim = 650.0d,c_clct_prob, c_clct_PI
+real (kind=8) :: dist_to_clct, frac_clct, Dlim = 650.,c_clct_prob, c_clct_PI
 logical :: useDistToClct = .true.
                                
 
