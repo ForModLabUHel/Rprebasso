@@ -75,6 +75,7 @@
 #' @param peatType type of peat used to select the PPeattp parameters
 #' @param soilmodel vector (nSites) of soil types per sites. type of soil: 1= mineral, 2 = peat
 #' @param REWmodel vector (nSites) = ?
+#' @param frac_clct #fraction of forest area with clearcuts from previous 1-5 years (FROM YEARLY VARIABLES!)
 #' 
 #' @importFrom plyr aaply
 #'
@@ -178,7 +179,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         pPeattp = NA,
                         peatType = 1, # vary between 1 and 2, is a vector of nSites length
                         soilmodel = 1,
-                        REWmodel = 1
+                        REWmodel = 1,
+                        frac_clct = NULL 
 ) {
   
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -359,7 +361,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                                 nYearsFert = nYearsFert,
                                 yearFert=yearFert,
                                 deltaSiteTypeFert = deltaSiteTypeFert,
-                                oldLayer=oldLayer)
+                                oldLayer=oldLayer,
+                                frac_clct=frac_clct)
   } 
   if(modVersion=="multiSite"){
     TransectOut <- multiPrebas(initPrebas,

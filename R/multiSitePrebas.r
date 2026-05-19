@@ -1003,7 +1003,8 @@ multiPrebas <- function(multiSiteInit,
 #' @param fertThin 
 #' @param nYearsFert 
 #' @param oldLayer 
-#' @param startSimYear 
+#' @param startSimYear
+#' @param frac_clct fraction of forest area with clearcuts from previous 1-5 years (FROM YEARLY VARIABLES!)
 #'
 #' @return
 #' @export
