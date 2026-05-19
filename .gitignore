@@ -13,3 +13,4 @@ src/initruns.o
 src/preles.o
 src/water.o
 inst/doc
+.positai
