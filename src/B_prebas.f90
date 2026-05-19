@@ -156,7 +156,10 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  !BB disturbances
  real (kind=8) :: spruceStandVars(3),pBB(5), SMI, SMIt0,SHI,intenSpruce,rBAspruce(nLAyers) !SMIt0 = SMI previous year
 ! real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
+ real (kind=8) :: dist_to_clct, frac_clct, Dlim = 650.,c_clct_prob, c_clct_PI
+ logical :: useDistToClct = .true. 
 
+frac_clct = fAPAR(1)
 !!! 'un-vectorise' flags, fvec !wdimpl
 etmodel = int(prebasFlags(1))
 gvRun = int(prebasFlags(2))

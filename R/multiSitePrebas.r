@@ -1046,6 +1046,7 @@ if(!is.null(yearFert)){
 #' @param nYearsFert
 #' @param oldLayer
 #' @param startSimYear
+#' @param frac_clct fraction of clearcutted area over the total area of the region
 #'
 #' @return
 #' @export
@@ -1074,7 +1075,8 @@ regionPrebas <- function(multiSiteInit,
                          yearFert=NULL,
                          deltaSiteTypeFert = 1,
                          oldLayer=0, ####oldLayer == 1 will leave 5-10% basal area at clearcut in the old layer
-                         startSimYear=1
+                         startSimYear=1,
+                         frac_clct=NULL
 ){
    ###disturbance modules activation
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
@@ -1237,7 +1239,8 @@ regionPrebas <- function(multiSiteInit,
                               -777,###ingrowth flag
                               multiSiteInit$FDIout ####output FDI instead of SW
                               )) 
-
+  
+  if(!is.null(frac_clct)) multiSiteInit$fAPAR[1,1] <- frac_clct 
   prebas <- .Fortran("regionPrebas",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),

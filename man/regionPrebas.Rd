@@ -18,11 +18,12 @@ regionPrebas(
   yearFert = NULL,
   deltaSiteTypeFert = 1,
   oldLayer = 0,
-  startSimYear = 1
+  startSimYear = 1,
+  frac_clct = NULL
 )
 }
 \arguments{
-\item{startSimYear}{}
+\item{frac_clct}{fraction of clearcutted area over the total area of the region}
 }
 \description{
 Title

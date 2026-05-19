@@ -43,7 +43,7 @@ real (kind=8), intent(in) :: weatherPRELES(nClimID,maxYears,365,5),minDharv,ageM
  !integer, intent(in) :: gvRun      !!!ground vegetation !wdimpl pflags
  real (kind=8), intent(inout) :: GVout(nSites,maxYears,5) !fAPAR_gv,litGV,photoGV,wGV      !!!ground vegetation
  integer, intent(inout) :: nThinning(nSites)
- real (kind=8), intent(out) :: fAPAR(nSites,maxYears)
+ real (kind=8), intent(inout) :: fAPAR(nSites,maxYears)
  real (kind=8), intent(inout) :: initVar(nSites,7,maxNlayers),P0y(nClimID,maxYears,2),ETSy(nClimID,maxYears),ETSstart(nClimID)!,par_common
  real (kind=8), intent(inout) :: multiOut(nSites,maxYears,nVar,maxNlayers,2)
  real (kind=8), intent(inout) :: multiWood(nSites,maxYears,maxNlayers,2)!!energCuts
@@ -74,7 +74,10 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  logical :: disturbance_wind, disturbance_bb ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
 
  integer, intent(inout) :: prebasFlags(10)
+ real (kind=8) :: frac_clct
 
+
+frac_clct = fAPAR(1,1)
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
 gvRun = prebasFlags(2)
@@ -398,7 +401,8 @@ endif
   if(ij>1) then
    output(1,46,1,2) = multiOut(i,(ij-1),46,1,2) !!SMI previous year, used in bark beetle intensity calculation
   endif
-
+  
+  fAPAR(i,ij) = frac_clct
   call prebas(1,nLayers(i),allSP,siteInfo(i,:),pCrobas,initVar(i,:,1:nLayers(i)),&
     thinningX(1:az,:),output(1,:,1:nLayers(i),:),az,maxYearSite,fAPAR(i,ij),initClearcut(i,:),&
     fixBAinitClarcut(i),initCLcutRatio(i,1:nLayers(i)),ETSy(climID,ij),P0y(climID,ij,:),&

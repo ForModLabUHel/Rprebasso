@@ -74,7 +74,8 @@ TransectRun(
   popden = NA,
   a_nd = NA,
   NIout = F,
-  FDIout = 0
+  FDIout = 0,
+  frac_clct = NULL
 )
 }
 \arguments{
@@ -159,6 +160,8 @@ TransectRun(
 \item{NIout}{flag to return the nesterov index}
 
 \item{FDIout}{flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI}
+
+\item{frac_clct}{fraction of clearcutted area over the total area of the region}
 }
 \value{
 The output from multiPrebas()
