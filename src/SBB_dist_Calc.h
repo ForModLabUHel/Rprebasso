@@ -12,7 +12,8 @@
   call dist_to_neigh_clct(frac_clct, dist_to_clct)
   call compute_clct_effect(useDistToClct, dist_to_clct, Dlim,   &
                                c_clct_prob, c_clct_PI)
-  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3),spruceStandVars(2),(SMI+SMIt0)/2.,outt(3,1,1),c_clct_prob, c_clct_PI)
+  call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3), &
+			spruceStandVars(2),(SMI+SMIt0)/2.,outt(3,1,1),c_clct_prob, c_clct_PI)
   !update output
   !modOut((year+1),45,:,2) = 0.
   !modOut((year+1),45,1,2) = pBB(1)
