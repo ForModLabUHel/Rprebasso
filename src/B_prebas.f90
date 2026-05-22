@@ -1831,7 +1831,7 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
 !!!fire disturbance calculations
  ! if(fireDistFlag)
-  Cpool_litter_wood =  sum(soilC((year+1),1:4,1,:)) + sum(soilC((year+1),1:4,2,:))
+  Cpool_litter_wood =  sum(soilC((year+1),1:4,2,:)) !+ sum(soilC((year+1),1:4,1,:))
   Cpool_litter_green = sum(soilC((year+1),1:4,3,:)) * sum(outt(26,:,1))/sum(outt(26,:,1)+outt(27,:,1))
   livegrass = 0.!GVout(year,4)
   soil_moisture(:) = ((dailySW/pars(1))-pars(3))/(pars(2)-pars(3)) !relative extractable soil water

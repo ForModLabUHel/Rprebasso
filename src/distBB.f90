@@ -148,8 +148,8 @@ subroutine riskBB(pBB,TsumSBBs,BA_spruce,BAtot,age_spruce,SMI,sitetype,c_clct_pr
   x2 = 1.65
 
 ! SBB probability
-  pBB(1) =(1.0d0-exp(x1*PI**x2)**gen) * f0
-  pBB(1) =pBB(1) * c_clct_prob
+  pBB(1) = (1.0d0-exp(x1*PI**x2)**gen) * f0
+  pBB(1) = pBB(1) * c_clct_prob
   pBB(2) = PI_spruceFract
   pBB(3) = PI_agespruce 
   pBB(4) = PI_BAspruce 
