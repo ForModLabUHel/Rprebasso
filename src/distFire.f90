@@ -111,8 +111,8 @@ enddo
 !### The number of fires (Eq. 3 in Thonicke et al. 2010)
  numfire = 0.d0
 do i = 1, nDays
- if(net_fuel(i)>0.001) numfire(i) = FDI(i) * (human_i(i)+lightning_i(i))*0.01d0*0.22d0
- ! numfire(i) = FDI(i) * (human_i(i)+lightning_i(i))*0.01d0*0.22d0
+ ! if(net_fuel(i)>0.001) numfire(i) = FDI(i) * (human_i(i)+lightning_i(i))*0.01d0*0.22d0
+ numfire(i) = FDI(i) * (human_i(i)+lightning_i(i))*0.01d0*0.22d0
 enddo
  n_fire_year = sum(numfire)
  ! FDI =char_moistfactor*rel_fuel_moisture
