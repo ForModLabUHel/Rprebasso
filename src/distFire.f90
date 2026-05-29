@@ -99,7 +99,7 @@ do i = 1, nDays
   FDI(i) = max(0., (1.-(1./char_moistfactor(i)*rel_fuel_moisture(i)))) !Fire Danger Index
 enddo
 
- human_i = 0.4 * popden* (EXP(-0.5 * sqrt(popden))) * a_nd/ 100.
+ human_i(:) = 0.4 * popden(:)* (EXP(-0.5 * sqrt(popden(:)))) * a_nd/ 100.
 
 ! Only a fraction of cloud to ground flashes can ignite a fire
  lightning_i(:) = lightnings(:)*0.04
