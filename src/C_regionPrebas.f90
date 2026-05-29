@@ -1079,6 +1079,7 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
      multiOut(:,ij,37,:,1) = multiOut(:,ij,37,:,1) + multiOut(:,(ij-1),42,:,2)
   endif
 
+	multiOut(1,ij,52,1,2) = frac_clct
   end do !end Year loop
 
  do i = 1,nSites

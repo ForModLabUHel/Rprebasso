@@ -1933,8 +1933,6 @@ FDI(:) = 0.
   modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
   if(FDIout .eq. 1) dailyPRELES((1+((year-1)*365)):(365*year),3) = FDI
  ! endif
-
-  modOut((year+1),52,1,2) = frac_clct  !just for BB checking
 enddo !end year loop
 
 !update ETSstart
