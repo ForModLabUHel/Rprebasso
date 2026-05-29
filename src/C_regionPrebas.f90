@@ -72,12 +72,14 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  real (kind=8), intent(inout) :: siteInfoDist(nSites,10), outDist(nSites,maxYears,10) !inputs(siteInfoDist) & outputs(outDist) of disturbance modules !wdimpl
  logical :: disturbance_wind, disturbance_bb ! necessary for wind disturbance to activate management reaction; might be needed for other agents' mgmt reaction as well
-
+ 
  integer, intent(inout) :: prebasFlags(10)
- real (kind=8) :: frac_clct
+ real (kind=8) :: frac_clct,area_clcut,agemax
+ logical :: auto_frac_clct = .false. 
 
 
 frac_clct = fAPAR(1,1)
+if(frac_clct > 2.) auto_frac_clct = .true. !set automatic calculations based on tru if the value of frac_clct is higher than 2 . meaning that the caluclations are updated dynamically based on the area clearcutted (last 5 years)   
 !!! 'un-vectorise' flags, fvec
 etmodel = prebasFlags(1)
 gvRun = prebasFlags(2)
@@ -264,6 +266,22 @@ endif! (disturbanceOn .eqv. .TRUE.)
 
 endif
 !!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
+
+!!!!start automatic calculations of fraction of clear cut area
+area_clcut = 0.
+if(auto_frac_clct) then 
+	do iz = 1,nSites
+		if(oldLayer==1) then
+			jj = max((nLayers(iz)-1),1) ! exclude oldLayer from age considerations
+		else
+			jj = nLayers(iz)
+		endif
+		agemax = maxval(initVar(iz,2,1:jj))
+		if(agemax < 5.) area_clcut = area_clcut + areas(iz)
+	enddo
+	frac_clct = area_clcut / sum(areas)
+endif
+
  do iz = 1,nSites
    i=siteOrder(iz,ij)
   ClCutX = ClCut(i)
