@@ -93,17 +93,14 @@ real (kind=8) :: minFapar,fAparFactor=0.9
  integer :: etmodel, CO2model,gvRun, fertThin, oldLayer, ECMmod !not direct inputs anymore, but in prebasFlags !wdimpl pflags
  integer, intent(inout) :: prebasFlags(12)
  real(8) :: SWTable(nSites,dimTable,dimTable+3)
- real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP),frac_clct
-
-
-
-
- logical :: cc_occ ! clearcut?
+ real (kind=8) :: pPRELES_all(npar_preles+npar_peat,allSP),frac_clct,area_clcut,agemax
+ logical :: cc_occ, auto_frac_clct = .false. ! clearcut?
  ! ===================================================
 
  !
 !!! 'un-vectorise' flags, fvec
 frac_clct = fAPAR(1,1)
+if(frac_clct > 2.) auto_frac_clct = .true. !set automatic calculations based on tru if the value of frac_clct is higher than 2 . meaning that the caluclations are updated dynamically based on the area clearcutted (last 5 years) 
 etmodel = prebasFlags(1)
 gvRun = prebasFlags(2)
 fertThin = prebasFlags(3)
@@ -362,6 +359,21 @@ endif! (disturbanceOn .eqv. .TRUE.)
 
 endif
 !!!!! //END TEST SITE FOR BLOCKING MGMT RESPONSE TO DISTURBANCES IF ageMitigScen/ageHarvPrior IS ACTIVE
+!!!!start automatic calculations of fraction of clear cut area
+	area_clcut = 0.
+    if(auto_frac_clct) then 
+	 do iz = 1,nSites
+		if(oldLayer==1) then
+			jj = max((nLayers(iz)-1),1) ! exclude oldLayer from age considerations
+		else
+			jj = nLayers(iz)
+		endif
+		agemax = maxval(initVar(iz,2,1:jj))
+	    if(agemax < 5.) area_clcut = area_clcut + areas(iz)
+	 enddo
+	 frac_clct = area_clcut / sum(areas)
+	endif
+
 
  do iz = 1,nSites
   i=siteOrder(iz,ij)

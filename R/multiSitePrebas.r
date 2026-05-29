@@ -1039,6 +1039,8 @@ regionPrebas <- function(multiSiteInit,
 ){
   
   
+  ##
+  if(is.null(frac_clct)) frac_clct = 999
   ###disturbance modules activation
   if(is.null(multiSiteInit$siteInfoDist)) siteInfoDist = NA
   if(!is.null(multiSiteInit$siteInfoDist)) siteInfoDist = multiSiteInit$siteInfoDist
