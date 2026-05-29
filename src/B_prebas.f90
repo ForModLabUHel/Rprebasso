@@ -1845,7 +1845,6 @@ modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
   modOut((year+1),47,1,2) = n_fire_year !maxval(FDI)
   if(FDIout==1) dailyPRELES((1+((year-1)*365)):(365*year),3) = FDI
  ! endif
-  modOut((year+1),52,1,2) = frac_clct
 enddo !end year loop
 
 !soil and harvested volume outputs

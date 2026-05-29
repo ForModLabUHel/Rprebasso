@@ -1247,6 +1247,8 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
      !output(1,37,:,2) = 99.
   endif
 
+  multiOut(1,ij,52,1,2) = 0.
+  multiOut(1,ij,52,1,2) = frac_clct
 end do !end Year loop
 !if(disturbanceON)  close(1) !tswrite
 
