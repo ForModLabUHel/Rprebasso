@@ -1,7 +1,7 @@
-A_presel_f.o
-distBB.o
-distFire.o
-distSandboxWind.o
-PRELES_fortran.o
-initruns_module.mod
-C4_regionPrebas.o
+src/A_presel_f.o
+src/distBB.o
+src/distFire.o
+src/distSandboxWind.o
+src/PRELES_fortran.o
+src/initruns_module.mod
+src/C4_regionPrebas.o
