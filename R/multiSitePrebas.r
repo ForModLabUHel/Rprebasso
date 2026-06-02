@@ -104,7 +104,7 @@ InitMultiSite <- function(nYearsMS,
                           smoothP0 = 1,
                           smoothETS = 1,
                           smoothYear=5,
-                          HcModV=HcModV_def,  ####version of model to compute Hc 1 uses the version of based on ksi parameter 2 uses the empirical model; default value (HcModV_def) is 1
+                          HcModV=HcModV_def,  ####version of model to compute Hc 1 uses the version based on ksi parameter 2 uses the empirical model; default value (HcModV_def) is 1
                           tapioPars=pTapio,
                           thdPer = NA,
                           limPer = NA,
@@ -113,12 +113,12 @@ InitMultiSite <- function(nYearsMS,
                           GVrun = 1,
                           thinInt = -999.,
                           mortMod = 1, #flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models
-                          ECMmod=0, #flag for ECM modelling MAkela et al.2022
+                          ECMmod=1, #flag for ECM modelling MAkela et al.2022
                           pECMmod = parsECMmod,
                           ETSstart = NULL,
-                          pCN_alfar=NULL,##parameters for calculating alfar from CN ratio
-                          latitude=NULL, #vector of latitudes of sites
-                          alpharNcalc=FALSE,
+                          pCN_alfar=1,##parameters for calculating alfar from CN ratio
+                          latitude, #vector of latitudes of sites
+                          alpharNcalc=TRUE,
                           p0currClim = NA,
                           fT0AvgCurrClim = NA, ####a  vector (climID) fT0 calculated with the annual mean of fTfun for current climate data
                           alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
