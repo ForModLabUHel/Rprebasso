@@ -116,7 +116,7 @@ InitMultiSite <- function(nYearsMS,
                           ECMmod=1, #flag for ECM modelling MAkela et al.2022
                           pECMmod = parsECMmod,
                           ETSstart = NULL,
-                          pCN_alfar=1,##parameters for calculating alfar from CN ratio
+                          pCN_alfar=parsCN_alfar,##parameters for calculating alfar from CN ratio
                           latitude, #vector of latitudes of sites
                           alpharNcalc=TRUE,
                           p0currClim = NA,
