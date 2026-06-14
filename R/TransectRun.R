@@ -67,6 +67,7 @@
 #' @param NIout flag to return the nesterov index
 #' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
 #' @param frac_clct fraction of clearcutted area over the total area of the region
+#' @param ingrowthInterval interval in year for ingrowth calculations. the default is 25y
 #'
 #' @importFrom plyr aaply
 #'
@@ -165,7 +166,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         a_nd = NA,
                         NIout = F,
                         FDIout = 0,
-                        frac_clct=NULL
+                        frac_clct=NULL,
+                        ingrowthInterval=25
 ){
 
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -316,7 +318,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     popden = popden,
     a_nd = a_nd,
     NIout = NIout,
-    FDIout = FDIout
+    FDIout = FDIout,
+    ingrowthInterval = ingrowthInterval
   )
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], initPrebas$ETSstart) # Initial age
 

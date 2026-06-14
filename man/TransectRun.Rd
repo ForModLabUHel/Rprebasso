@@ -75,7 +75,8 @@ TransectRun(
   a_nd = NA,
   NIout = F,
   FDIout = 0,
-  frac_clct = NULL
+  frac_clct = NULL,
+  ingrowthInterval = 25
 )
 }
 \arguments{
@@ -162,6 +163,8 @@ TransectRun(
 \item{FDIout}{flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI}
 
 \item{frac_clct}{fraction of clearcutted area over the total area of the region}
+
+\item{ingrowthInterval}{interval in year for ingrowth calculations. the default is 25y}
 }
 \value{
 The output from multiPrebas()

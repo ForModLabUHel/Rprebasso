@@ -4,14 +4,14 @@
 #' @param nYears number of years of the simulations
 #' @param pCROBAS (49 x nSpecies(11) matrix) Matrix of parameter sets of CROBAS growth model, each column corresponds to a species. Default values pCROBAS = pCROB are the parameter sets for Scots pine (Pinus sylvestris), Norway spruce (Picea abies), Silver birch (Betula pendula), European beech (Fagus sylvatica), Maritime pine (Pinus pinaster), Blue gum (Eucalyptus globulus), Black locust (Robinia pseudoacacia), Populus(in Romania), Eucalyptus grandis x Eucalyptus urophylla (in Paraguay), and Norway spruce(in Germany), Quercus Ilex. Default is pCROB, print(pCROB) to see the parameter values and names.
 #' @param pHcMod  (7 x nSpecies(11) matrix) Matrix of parameter sets Height of the crown base model.
-#' @param pPRELES A vector of PRELES parameter. Default is the boreal forest version pPREL.
+#' @param pPRELES A vector of PRELES parameter. Default is the boreal forest version pPREL.  
 #' @param pYASSO A vector of YASSO parameters. Default is global pYAS
 #' @param pAWEN (12 x nSpecies(11) matrix) Matrix of parameter sets for litterfal decomposition in YASSO pools. Default is parsAWEN
 #' @param etmodel Evapotranspiration model for PRELES. Default etmodel = 0. Possible values -1, 0, 1, 2
-#' @param siteInfo vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point. Default = c(1,1,3,160,0,0,20,413.,0.45,0.118), i.e. siteType = 3.
-#' @param thinning A matrix with thinning inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
+#' @param siteInfo vector of site info SiteID, climID, siteType, SWinit (initial soil water), CWinit (initial crown water), SOGinit (initial snow on ground), Sinit (initial temperature acclimation state), soildepth, effective field capacity, permanent wilthing point, tauDrenage (Drainage delay used in PRELES). Default = c(1,1,3,160,0,0,20,413.,0.45,0.118,3), i.e. siteType = 3. 
+#' @param thinning A matrix with thinnig inputs. Rows correspond to a thinning event. Column 1 year from the start of the simulation; column 2 is siteID; column 3 layer where thinnings are carried out; column 4 to 7 stand variables (H, D, B, Hc); column 8 parameter that indicates if the stand variables (column 4:7) are provided as fraction of the actual model outputs (value=1 means that fraction is used); column 9 is the stand density after thinning if its value is not -999; colum 10 is Sapwood area of average tree at crown base (m2) if its value is not -999 (see examples).
 #' @param initClearcut A numeric vector with initial stand variables after clearcut: H, D, BA, Hc, Ainit. Ainit is the year when the stand reaches measurable size. If NA the default values from initSeedling.def are used Ainit and is automatically computed using air temperature.
-#' @param fixBAinitClarcut If 1, when clearcuts occur the species initial biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year
+#' @param fixBAinitClarcut If 1, when clearcuts occur the species initial biomass is fixed at replanting using the values in initCLcutRatio else at replanting the replanting follows species relative basal area at last year 
 #' @param initCLcutRatio vector (of the length of the number of layers) with basal area fraction (to the total basal area)  at replanting it fixBAinitClarcut == 1
 #' @param PAR A numeric vector of daily sums of photosynthetically active radiation, mmol/m2
 #' @param TAir A numeric vector of daily mean temperature, degrees C.
@@ -20,57 +20,62 @@
 #' @param CO2 A numeric vector of air CO2, ppm
 #' @param P0 A numeric vector with the annual potential photosynthesis (gC m-2 y-1). If P0 is not provided PRELES is used to compute P0 using fAPAR = 1.
 #' @param initVar initial state of the forest. matrix with VarsIn,nLayers dimentions: VarsIn = initial state input variables (speciesID, age(if NA is calculated by initialAgeSeedl function),h,dbh,ba(by layer),hc,Ac(NA))
-#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (stem,branch,foliage ).
+#' @param soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (stem, branch,foliage).
 #' @param weatherYasso Annual weather inputs for Yasso, matrix with nYears and 3 columns. If NA it is internally calculated using the daily weather inputs
 #' @param litterSize Marix with litter inputs for YASSO. Rows are tree organs, columns correspond to the species of pCROBAS.
 #' @param soilCtot total annual soilcarbon per year
-#' @param defaultThin If defaultThin = 1 (default) Finnish standard managment practices are applied (ref).
+#' @param defaultThin If defaultThin = 1 (default) Finnish standard managment practices are applied (ref). 
 #' @param ClCut If ClCut = 1 clearcuts are applied. If inDclct = NA and inAclct = NA Finnish standard clearcut practices are applied (ref).
 #' @param energyCut if==1 energy wood is harvested at thinning and clearcut
 #' @param inDclct Vector of Diameter (cm) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
 #' @param inAclct Vector of Age (year) threshold for clearcut.  Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
-#' @param inHclct Vector of H (m) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
+#' @param inDclct Vector of H (m) threshold for clearcut. Each element correspond to a layer of the stand, if only one value is provided the same value is applied to all the layers. The different elements of the vector are for the different layers. The dominant species (highest basal area) is considered for clearcut.
 #' @param yassoRun flag for YASSO calculations. If yassoRun=1 the YASSO model is run to compute the carbon balance of the soil.
-#' @param smoothP0 if 1 P0 is smoothed using an average window of smoothYear (see below) # years
-#' @param smoothETS if 1 ETS is smoothed using an average window of smoothYear (see below) # years
+#' @param smoothP0 if 1 P0 is smoothed using an average window of smoothYear (see below) # years 
+#' @param smoothETS if 1 ETS is smoothed using an average window of smoothYear (see below) # years 
 #' @param smoothYear # of years for smoothing P0 and ETS
 #' @param tapioPars parameters for the tapio rules applied at harvests in Finalnd. tapioPars(sitetype, conif/decid, south/center/north, thinning parameters), and parameters for modifying thinnig limits and thresholds
-#' @param thdPer value varying between 0 and 1 (default=0.5) defining the intensities of the thinnings based of Finnish default rules.
+#' @param thdPer value varying between 0 and 1 (default=0.5) defining the intensities of the thinnings based of Finnish default rules. 
 #' @param limPer value varying between 0 and 1 (default=0.5) defining the BASAL area threshold used for thinning implementation according to Finnish rules.
-#' @param ftTapioPar   first thinning parameters.
-#' @param tTapioPar  Tending  thinning parameters.
+#' @param ftTapioPar   first thinning parameters. 
+#' @param tTapioPar  Tending  thinning parameters. 
 #' @param GVrun flag for Ground vegetation model 1-> runs the GV model
 #' @param thinInt parameter that determines the thinning intensity; from below (thinInt>1) or above (thinInt<1);
-#' @param fertThin flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3
-#' @param nYearsFert number of years after thinnings for which the fertilization is effective
+#' @param fertThin flag for implementing fertilization at thinning. the number can be used to indicate the type of thinning for now only thinning 3 
+#' @param nYearsFert number of years after thinnings for which the fertilization is effective 
 #' @param oldLayer flag for retention trees after clearcut (randomly 5-10 percent basal area is left after clearcut)
 #' @param mortMod flag for mortality model selection 1= reineke model; 2: random mort mod based on Siilipehto et al.2020; 3 = both models. If one value is provided the same model is applied to managed and unmanaged (those forests where both ClCut and defaultThin are set to 0) forests. If two values are provided ,for example c(1,3), the first model is applied to managed forests and the second to unmanaged forests.
 #' @param ECMmod flag for activation of the ectomycoryzal model (ECMmod=1). see Makela et al. 2022
-#' @param pECMmod parameters of ECM model
+#' @param pECMmod parameters of ECM model 
 #' @param layerPRELES flag indicating if preles is going to be run by layer with species specific parameters or using 1 parameter set for the whole forest
 #' @param LUEtrees light use efficiency parameters for tree species
 #' @param LUEgv light use efficiency parameter for ground vegetation
-#' @param alpharNcalc
-#' @param alpharVersion ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-#' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
-#' @param SMIt0 site vector of initial SoilMoirture index
-#' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations
+#' @param alpharNcalc #alphar calculations based on Nitrogen availability. Default value is FALSE (no nitrogen impact). = True calculates N uptake
 #' @param p0currClim # average annual P0 of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param TcurrClim # average annual temperature of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param PcurrClim # average annual precipitation of the site at current climate. if NA the first five years of the simulations will be used to calculate it.
 #' @param HcModV flag for the Hc model: 1 use the pipe model defined in the HcPipeMod function, different from 1 uses empirical models; default value (HcModV_def) is 1
-#' @param prebasFlags vector of flags to reduce number of
 #' @param latitude latitude of the site
 #' @param TsumSBBs initial temperature sums for bark beetle risk for the two years before the first year if not available it will be calculated using the first year
 #' @param SMIt0 site vector of initial SoilMoirture index
-#' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations
-#' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb")
+#' @param TminTmax matrix(climaIDs,2) with daily Tmin Tmax values for each climID, Tmin and Tmax will be used to calculate the Nesterov Index that will be used in the fire risk calculations  
+#' @param disturbanceON flag for activating disturbance modules. can be one of "wind", "fire",  "bb" or a combination of the three, ex. c("fire", "bb") 
 #' @param CO2model CO2 model for PRELES. Default CO2model = 1 (Launaniemi) ; CO2model = 2 (Kolari) 
+#' @param fixAinit 
+#' @param inHclct 
+#' @param siteInfoDist 
+#' @param yearFert 
+#' @param deltaSiteTypeFert 
 #' @param lightnings used in fire disturbance module. is the frequency of lightning-caused ignition events (ha-1 d-1) used in the fire module it should be a vector of length ndays of simulations
 #' @param popden used in fire disturbance module. It is the population density (individuals km-2). it is a vector of length nYearsnDays
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter
 #' @param NIout flag to return the nesterov index
-#'
+#' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
+#' @param pPeattp parameters for peat soil
+#' @param peatType type of peat used to select the PPeattp parameters
+#' @param soilmodel soil types per sites. type of soil: 1= mineral, 2 = peat
+#' @param REWmodel  = ?
+#' 
 #' @return
 #'  soilC Initial soil carbon compartments for each layer. Array with dimentions = c(nYears,5,3,nLayers). The second dimention (5) corresponds to the AWENH pools; the third dimention (3) corresponds to the tree organs (foliage, branch and stem). \cr
 #'   \cr
@@ -105,7 +110,7 @@
 #' 25."WfineRoots" Fine roots biomass (kgC ha-1) \cr
 #' 26."Litter_fol" Foliage litter (kgC ha-1) \cr
 #' 27."Litter_fr" Fine root litter (kgC ha-1) \cr
-#' 28."Litter_fWoody" fine woody litter (kgC ha-1)\cr
+#' 28."Litter_fWoody" fine woody litter (kgC ha-1)\cr 
 #' 29."Litter_cWood" coarse woody litter (kgC ha-1) \cr
 #' 30."V" Layer volume (m3 ha-1) \cr
 #' 31."Wstem" Stem Biomass (kgC ha-1) \cr
@@ -137,7 +142,7 @@
 #'  1st dimension corresponds to the number of years of the simulation (nYears); \cr
 #'  2nd dimension corresponds to the layers;\cr
 #'  3rd dimension has 2 elements that correspond to volume and biomasses respectively\cr
-#'
+#' 
 #' \cr
 #'  dailyPRELES  A matrix with PRELES output: \cr
 #'  1st dimension corresponds to the days ; \cr
@@ -146,7 +151,7 @@
 #'  GVout  A matrix with the ground vegetation model output: \cr
 #'  1st dimension corresponds to the years ; \cr
 #'  2nd dimension corresponds to the GV outputs: fAPAR_gv, litGV, photoGV, Wgv,GVnpp. \cr
-#'
+#' 
 #' @export
 #'
 #' @examples
@@ -194,19 +199,18 @@ prebas <- function(nYears,
                    mortMod=1,
                    ECMmod=0, #flag for ECM modelling MAkela et al.2022
                    pECMmod=parsECMmod,
-                   ETSstart=NULL,
-                   pCN_alfar=NULL,
+                   layerPRELES = 0,
+                   LUEtrees = pLUEtrees,
+                   LUEgv = pLUEgv,
                    alpharNcalc=FALSE,
                    p0currClim = NA,
-                   fT0AvgCurrClim = NA, ####vector with temperature, precipitation and Tampl at currentclimate
+                   TcurrClim = NA,
+                   PcurrClim = NA,
                    HcModV = HcModV_def, #flag for the Hc model: T use the pipe model defined in the HcPipeMod function, False uses empirical models; default value (HcModV_def) is 1
-                   alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
-                   yearsCurrClimAv = 30,
                    siteInfoDist = NA,
                    yearFert=NULL,
                    deltaSiteTypeFert = 1,
                    latitude = NA,
-                   P00CN = NA,
                    TsumSBBs = NA,
                    SMIt0 = NA,
                    TminTmax = NA,
@@ -215,17 +219,23 @@ prebas <- function(nYears,
                    lightnings = NA,
                    popden = NA,
                    a_nd = NA,
-                   NIout = F
-){
-
-  if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
-  if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
+                   NIout = F,
+                   FDIout = 0,
+                   pPeattp = NA,
+                   peatType = 1, # vary between 1 and 2, is a vector of nSites length
+                   soilmodel = 1,
+                   REWmodel = 2
+              ){
   
+  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[12:13] <- pCO2model[CO2model,]
+    pPRELES[18:19,] <- pCO2model[CO2model,]
   }
-  
+  if(is.na(pPeattp)){
+    pPeattp <- pPeattp_def
+  }
   if(all(is.na(tTapioPar))) tTapioPar <- tTapio[,1:ncol(pCROBAS),,]
   if(all(is.na(ftTapioPar))) ftTapioPar <- ftTapio[,1:ncol(pCROBAS),,]
   
@@ -256,24 +266,19 @@ prebas <- function(nYears,
     latitude = 62
     warning("latitude was not provided. a default value of 62 was used. Itwill affect bark beetle risk calculations")
   }
-  if(all(is.na(TsumSBBs))) TsumSBBs = rep(-999,4)
+  if(is.na(TsumSBBs)) TsumSBBs = rep(-999,4)
   if(is.na(SMIt0)) SMIt0 <- -999
-
+  
   NI = rep(0,length(PAR))
   if(all(is.na(TminTmax))){
     warning("Tmin and Tmax data were not provided. Nesterov index set to 0 in fire risk calculations")
   }else{
-    NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2])
+    NI <- NesterovInd(rain = Precip,tmin = TminTmax[,1],tmax = TminTmax[,2]) 
   }
   if(all(is.na(lightnings))) lightnings <- rep(0,length(PAR))
   if(all(is.na(popden))) popden <- rep(0,length(PAR))
   if(is.na(a_nd)) a_nd <- 0
-
-  if(is.null(latitude) & ECMmod==1){
-    stop("you need to provide the latitudes of the site")
-  }else{
-    if(is.null(latitude)) latitude <- 999
-  }
+  
   ####initialize disturbance module if exists
   if(is.na(siteInfoDist)){
     #disturbanceON = FALSE
@@ -289,6 +294,7 @@ prebas <- function(nYears,
     #siteInfoDist = matrix(0,nSites,4)
     outDist = matrix(0,nYears,10)
   }
+  
   ###process weather###
   if(length(PAR) >= (nYears*365)){
     PAR = PAR[1:(nYears*365)]
@@ -300,81 +306,71 @@ prebas <- function(nYears,
     stop("daily weather inputs < nYears*365")
   }
   ###
-
+  
+  ###proc thinnings##
   ###proc thinnings##
   if(all(is.na(thinning))){
     thinning=matrix(0,1,11)
     thinning[,9:10] <- -999
     thinning[,11] <- 1
   }
-  if(ncol(thinning==10)) thinning <- cbind(thinning,1)
+  if(ncol(thinning)==10) thinning <- cbind(thinning,1)
   thinning[is.na(thinning)] <- -999
   nThinning = max(1,nrow(thinning))
   thinning <- thinning[order(thinning[,2],thinning[,1],thinning[,3]),]
+  if(is.null(nrow(thinning))) thinning <- matrix(thinning,nrow = 1, ncol = 11)
   ###
+  
   if(all(is.na(initVar))) {
     nLayers <- 3 }else {
       nLayers <- ifelse(is.null(ncol(initVar)),1,ncol(initVar))
     }
   nSp = ncol(pCROBAS)
-  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3) ###default values for nspecies and site type = 3
-
+  if(anyNA(siteInfo)) siteInfo = c(1,1,3,160,0,0,20,413.,0.45,0.118,3,1,30,2000,22,250,-999) ###default values for nspecies and site type = 3
+                                  
   if(all(is.na(initCLcutRatio))){
     initCLcutRatio <- rep(1/nLayers,nLayers)
   }
-
+  
   varNam <- varNames
-  nVar <- length(varNam)
-
+  nVar <- length(varNames)
+  
   layerNam <- paste("layer",1:nLayers)
   output <- array(0, dim=c((nYears),nVar,nLayers,2),
                   dimnames = list(year=NULL,variable=varNam,layer=layerNam,status=c("stand","thinned")))
   energyWood <- array(0, dim=c((nYears),nLayers,2),
                       dimnames = list(year=NULL,layer=layerNam,variable=c("volume","biomass")))
   fAPAR <- rep(0.7,nYears)
-
+  
   ###compute ETS year
   Temp <- TAir[1:(365*nYears)]-5
   ETS <- pmax(0,Temp,na.rm=T)
   ETS <- matrix(ETS,365,nYears); ETS <- colSums(ETS)
   if(smoothETS==1. & nYears>1) for(i in 2:nYears) ETS[i] <- ETS[(i-1)] + (ETS[i]-ETS[(i-1)])/min(i,smoothYear)
-  ###initialize ETSstart
-  if(is.null(ETSstart)) ETSstart <- mean(ETS[1:min(10,nYears)])
-  ETSmean <- ETSstart
-  ETSthres <- 1000
-
-  ###if P0 is not provided use preles to compute P0
-  if(is.na(P0)){
-    P0 <- PRELES(DOY=rep(1:365,nYears),
-                 PAR=PAR,TAir=TAir,VPD=VPD,Precip=Precip,CO2=CO2,
-                 fAPAR=rep(1,length(PAR)),LOGFLAG=0,p=pPRELES,CO2model = CO2model)$GPP
-    P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
-  }
-  P0 <- matrix(P0,nYears,2)
-  if(smoothP0==1.& nYears>1){
-    P0[1,2] <- P0[1,1]
-    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
-  }
-
-
+  
+  ETSthres <- 1000; ETSmean <- mean(ETS)
+  
   ####process clearcut
   if(any(!is.na(c(inDclct,inAclct)))){
     if(is.na(inDclct)) inDclct <- 9999999.99
     if(is.na(inAclct)) inAclct <- 9999999.99
   }
+  
+  # if(ClCut==1 & all(is.na(initVar)) & is.na(inDclct)) inDclct <-
   if(ClCut==1 & all(is.na(inDclct))){
     inDclct <- inDclct_def
     inDclct[1:3] <- c(ClCutD_Pine(ETSmean,ETSthres,siteInfo[3]), ####pine in Finland
-                 ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
-                 ClCutD_Birch(ETSmean,ETSthres,siteInfo[3])) ####birch in Finland
+        ClCutD_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland
+        ClCutD_Birch(ETSmean,ETSthres,siteInfo[3])) ####birch in Finland
   } 
-  
+  # if(ClCut==1 & all(is.na(initVar)) & is.na(inAclct)) inAclct <-
   if(ClCut==1 & all(is.na(inAclct))){
     inAclct <- inAclct_def
     inAclct[1:3] <- c(ClCutA_Pine(ETSmean,ETSthres,siteInfo[3]),   ####pine in Finland
-                 ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland 
-                 ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]))  ####birch in Finland
+        ClCutA_Spruce(ETSmean,ETSthres,siteInfo[3]), ####spruce in Finland 
+        ClCutA_Birch(ETSmean,ETSthres,siteInfo[3]))  ####birch in Finland
   } 
+      
   if(any(is.na(inDclct))) inDclct[which(is.na(inDclct))] <- 9999999.99
   if(length(inDclct)==1) inDclct<- rep(inDclct,nSp)
   if(any(is.na(inAclct))) inAclct[which(is.na(inAclct))] <- 9999999.99
@@ -391,11 +387,42 @@ prebas <- function(nYears,
     initVar[3,] <- initClearcut[1]; initVar[4,] <- initClearcut[2]
     initVar[5,] <- initClearcut[3]/nLayers; initVar[6,] <- initClearcut[4]
   }
-
-
+  
+  ###set PRELES parameters
+  pPRELES <- rbind(pPRELES,matrix(pPeattp[,peatType],
+                    nrow=nrow(pPeattp),ncol=ncol(pCROBAS)))
+  
+  ###if P0 is not provided use preles to compute P0
+  # domSp <- initVar[1,which.max(initVar[5,])]
+  # pPRELESx <- pPRELES[,domSp]
+  if(is.na(P0)){
+    weathX <- cbind(PAR, TAir,
+                    VPD,Precip, CO2)
+    spx <- initVar[1,which.max(initVar[5,])]
+    P0 <- preles_crobas_r(weathX,
+                          DOY=rep(1:365,nYears),
+                          fAPAR=rep(1,(365*nYears)),
+                          rep(0,19),
+                          pPRELES[,spx],
+                          GPP=rep(0,(365*nYears)),
+                          ET=rep(0,(365*nYears)),
+                          SW=rep(0,(365*nYears)),
+                          etmodel=etmodel,
+                          CO2model=CO2model,
+                          soilmodel=soilmodel,
+                          REWmodel=REWmodel)$GPP
+    
+    P0 <- matrix(P0,365,nYears);P0 <- colSums(P0)
+  }
+  P0 <- matrix(P0,nYears,2)
+  if(smoothP0==1.& nYears>1){
+    P0[1,2] <- P0[1,1]
+    for(i in 2:nYears) P0[i,2] <- P0[(i-1),2] + (P0[i,1]-P0[(i-1),2])/min(i,smoothYear)
+  } 
+  output[,6,1,] <- P0
+    
   ####if Height of the crown base is not available use model
   initVar <- findHcNAs(initVar,pHcMod,pCROBAS,HcModV)
-
   # initialize A
   for(ikj in 1:nLayers){
     p_ksi=pCROBAS[38,initVar[1,ikj]]
@@ -403,21 +430,22 @@ prebas <- function(nYears,
     p_z <- pCROBAS[11,initVar[1,ikj]]
     Lc <- initVar[3,ikj] - initVar[6,ikj]
     A <- p_ksi/p_rhof * Lc^p_z
-    initVar[7,ikj] <- A
-  }
-
+    initVar[7,ikj] <- A     
+  } 
+  
   # print(initVar)
-  Ainit = max((6 + 2*siteInfo[3] - 0.005*(ETSmean) + 2.25+2),2)
+  xx <- min(10,nYears)
+  Ainit = max((6 + 2*siteInfo[3] - 0.005*(sum(ETS[1:xx])/xx) + 2.25 +2),2)
   if(is.na(initClearcut[5])) initClearcut[5] <- Ainit
   if(length(initVar[2,which(is.na(initVar[2,]))])>0){
-    initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))
-  }
+     initVar[2,which(is.na(initVar[2,]))] <- as.numeric(round(Ainit))
+    }
   # print(initVar)
-
+  
   ####process weather PRELES (!!to check 365/366 days per year)
   weatherPreles <- array(c(PAR,TAir,VPD,Precip,CO2),dim=c(365,nYears,5))
   weatherPreles <- aperm(weatherPreles, c(2,1,3))
-
+  
   ###initialise soil inputs
   if(all(is.na(soilCtot))) soilCtot = numeric(nYears)
   if(all(is.na(soilC))) soilC = array(0,dim = c(nYears,5,3,nLayers))
@@ -426,7 +454,7 @@ prebas <- function(nYears,
   #   litterSize[2,] <- 2
   #   for (i in 1:nLayers) litterSize[1,i] <- ifelse(initVar[1,i]==3,10,30)
   # }
-
+  
   ##process weather inputs for YASSO
   if(all(is.na(weatherYasso))){
     weatherYasso = matrix(0,nYears,3)
@@ -434,98 +462,41 @@ prebas <- function(nYears,
     weatherYasso[,3] = aTampl(TAir,nYears)
     weatherYasso[,2] = aPrecip(Precip,nYears)
   }
-
-  ###calculate ETSmean based on a moving average window
-  ETSx <- c(ETSstart,ETS)
-  ETSmean <- ETSx[1:nYears]
-  for(i in 2:nYears) ETSmean[i] = ETSmean[i-1] + (ETSx[i]-ETSmean[i-1])/20.
-  output[,5,,2] <- ETSmean
-
-  ###initialize siteType and alfar parameter
-  if(is.null(pCN_alfar)){
-    output[,3,,1] <- siteInfo[3]
-    for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
-  }else{
-    pCROBAS[21:22,] <- pCN_alfar
-    pCROBAS[23,] <- -999
-    CNratioSites <- CNratio(latitude,output[,3,1,1],pars=pECMmod[6:8])
-    for(ijj in 1:nLayers){
-      output[,3,ijj,2] <-  pCROBAS[21,initVar[1,ijj]]* exp(pCROBAS[22,initVar[1,ijj]]*CNratioSites)
-    }
-  }
-
+  
   ###init biomasses
-  if(nLayers==1)initVarX <- matrix(c(initVar,siteInfo[3],output[1,3,1,2]),9,1)
-  if(nLayers>1){
-    initVarX <- rbind(initVar,siteInfo[3])
-    initVarX <- rbind(initVarX,output[1,3,,2])
-  }
+  if(nLayers==1)initVarX <- matrix(c(initVar,siteInfo[3]),8,1)
+  if(nLayers>1) initVarX <- rbind(initVar,siteInfo[3])
   biomasses <- initBiomasses(pCROBAS,as.matrix(initVarX))
   biomasses[which(is.na(biomasses))] <- 0.
   output[1,c(33,25,47:49,24,32,50,51,31,30,54),,1] <- biomasses
   # print(biomasses)
   initVar <- as.matrix(initVar[1:7,])
   # PREBASversion <- paste("prebas_v",PREBASversion,sep='')
-
+  
+  ###initialize siteType and alfar parameter
+  output[,3,,1] <- siteInfo[3]
+  for(ijj in 1:nLayers) output[,3,ijj,2] = pCROBAS[(20+min(siteInfo[3],5)),initVar[1,ijj]]
+  
   if(alpharNcalc){
     ###initialize alfar
-    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,yearsCurrClimAv),1])
-    P00CN <- p0currClim/CNratio(latitude = latitude, st = siteInfo[3], pars = pECMmod[6:8])
+    if(all(is.na(p0currClim))) p0currClim <- mean(P0[1:min(maxYears,10),1])
     p0ratio <- P0[,1]/p0currClim
-
-    fT <- fTfun(weatherYasso[,1],weatherYasso[,2],weatherYasso[,3])
-    if(all(is.na(fT0AvgCurrClim))){
-      fT0 <- mean(fT[1:min(yearsCurrClimAv,maxYears)])
-    }else{
-      fT0 <- fT0AvgCurrClim
+    if(all(is.na(TcurrClim))) TcurrClim <- mean(weatherYasso[1:min(10,maxYears),1])
+    if(all(is.na(PcurrClim))) PcurrClim <- mean(weatherYasso[1:min(10,maxYears),2])
+    fT0 <- fTfun(TcurrClim,PcurrClim)
+    fT <- fTfun(weatherYasso[,1],weatherYasso[,2])
+    fTratio <- fT/fT0 
+    alpharNfact <- p0ratio * fTratio
+    if(nLayers==1) output[,3,,2] <- output[,3,,2] * alpharNfact
+    if(nLayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfact,FUN="*") 
+    ####alphar is smoothed using a running average of 10 years
+    if(nLayers==1) output[1,3,,2] <- mean(output[1:10,3,1,2])
+    if(nLayers>1) output[1,3,,2] <- apply(output[1:10,3,,2],2,mean)
+    for(ijj in 2:maxYears){
+      output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
     }
-    # fT0 <- fTfun(TcurrClim,PcurrClim,TamplCurrClim)
-    fTratio <- fT/fT0
-
-
-    if(!alpharVersion %in% 1:3) warning("alpharVersion needs to be 1, 2, or 3. 1 was used")
-    if(!alpharVersion %in% 2:3){
-      alpharNfact <- p0ratio/fTratio
-      UmaxFactor <- fTratio
-    }
-    if(alpharVersion == 2){
-      alpharNfact <- p0ratio
-      UmaxFactor <- 1
-    }
-    if(alpharVersion == 3){
-      alpharNfact <- alpharNfact <- rep(1,length(fTratio))
-      UmaxFactor <- p0ratio
-    }
-
-    ###calculate rolling average
-    alpharNfactMean <- alpharNfact
-    UmaxFactorMean <- UmaxFactor
-    kx=min(maxYears,smoothYear) ####this is the lag for the rolling average, maybe it could be an input
-    ###fill first values
-    alpharNfactMean[1:(kx-1)] <- cumsum(alpharNfact[1:(kx-1)])
-    alpharNfactMean[1:(kx-1)] <- alpharNfactMean[1:(kx-1)]/(1:(kx-1))
-    UmaxFactorMean[1:(kx-1)] <- cumsum(fT[1:(kx-1)])
-    UmaxFactorMean[1:(kx-1)] <- UmaxFactorMean[1:(kx-1)]/(1:(kx-1))
-    # calculate rolling mean
-    alpharNfactMean[kx:length(alpharNfact)] <- rollmean(alpharNfactMean,k=kx)
-    alpharNfact <- alpharNfactMean
-    UmaxFactorMean[kx:length(fT)] <- rollmean(UmaxFactorMean,k=kx)
-
-    output[,5,,2] <- 0
-    # alpharNfact <- p0ratio * fTratio
-    if(nLayers==1) output[,3,1,2] <- output[,3,1,2] * alpharNfactMean
-    if(nLayers>1) output[,3,,2] <- sweep(output[,3,,2],1,alpharNfactMean,FUN="*")
-    if(nLayers==1) output[,55,1,2] <- UmaxFactorMean
-    if(nLayers>1) output[,55,,2] <- sweep(output[,55,,2],1,UmaxFactorMean,FUN="+")
-
-    # for(ijj in 2:maxYears){
-    #   output[ijj,3,,2] <- output[(ijj-1),3,,2] + (output[ijj,3,,2] - output[(ijj-1),3,,2])/10
-    # }
-  }else{
-    alpharNfact=NA
-    pCROBAS[41,] = 0
-  }
-
+  } 
+  
   #### vectorisation of flags ####
   # under development; putting run-wide flags into a vector to avoid using too many arguments when calling fortran subroutine
   if(fixAinit > 0){
@@ -533,44 +504,45 @@ prebas <- function(nYears,
     fixAinit <- 1
   } 
   
+  
   # disturbanceSwitch <- ifelse(disturbanceON==T, 1, 0)
   prebasFlags <- as.integer(c(etmodel, #int
-                            GVrun,     #int
+                            GVrun,     #int  
                             fertThin,
                             oldLayer,
                             ECMmod,
                             dist_flag,
                             CO2model,
                             fixAinit,
-                            -777)) ###ingrowth flag
-
+                            -777,###ingrowth flag
+                            FDIout, ####output FDI instead of SW
+                            0,### this flag will be filled by soilmodel internally in prebas in the site loop
+                            0 ### this flag will be filled by REWmodel internally in prebas in the site loop
+                            )) 
+  
   ###modify alphar if fertilization is included
   if(!is.null(yearFert)){
-    species <- initVar[1,,]
+    species <- initVar[1,]
     nSp <- ncol(pCROBAS)
     npar <- nrow(pCROBAS)
-    parsCN <- pECMmod[6:8]
     siteTypeOrig <- siteInfo[3]
-
+    
     maxYearSim = min((nYears-yearFert+1),nYearsFert)
-    siteTAlpha <- array(0,dim=c(nYearsFert,nLayers,2))
-
-    output[yearFert:(maxYearSim+yearFert-1),3,,] <- .Fortran("calcAlfarFert",
-                             siteTAlpha = as.array(siteTAlpha),
-                             latitude = as.double(latitude),
-                             species = as.double(species),
-                             pCrobas = as.matrix(pCROBAS),
-                             nLayers = as.integer(nLayers),
-                             nSp=as.integer(nSp),
-                             nYearsFert=as.integer(nYearsFert),
-                             npar=as.integer(npar),
-                             siteTypeOrig=as.double(siteTypeOrig),
-                             deltaSiteTypeFert=as.double(deltaSiteTypeFert),
-                             parsCN=as.double(parsCN))$siteTAlpha[1:maxYearSim,,]
-  }
-
-  if(is.na(P00CN)) P00CN <- 0
-
+    siteTAlpha <- array(0,dim=c(nYearsFert,nLayers,2))#output[yearFert:(maxYearSim+yearFert-1),3,,]
+    
+    output[yearFert:(maxYearSim+yearFert-1),3,,] <- .Fortran("calcAlfar",
+              siteTypeOrig=as.double(siteTypeOrig),
+              species = as.double(species),
+              pCrobas = as.matrix(pCROBAS),
+              nLayers = as.integer(nLayers),
+              siteTAlpha = as.array(siteTAlpha),
+              nSp=as.integer(nSp),
+              nYearsFert=as.integer(nYearsFert),
+              npar=as.integer(npar),
+              deltaSiteTypeFert=as.double(deltaSiteTypeFert)
+              )$siteTAlpha[1:maxYearSim,,]
+  } 
+  
   dailyPRELES = matrix(-999,(nYears*365),3) #### build daily output array for PRELES
   dailyPRELES[,1] <- popden[1:(nYears*365)] ###fill preles daily output with nestorov index that will be used internalkly in prebas for fire risk calculations
   dailyPRELES[,2] <- lightnings[1:(nYears*365)] ###fill preles daily output with  that will be used internalkly in prebas for fire risk calculations
@@ -578,6 +550,44 @@ prebas <- function(nYears,
   
   output[1,46,1,2] <- SMIt0 #initialize SMI first year
   output[1,47,1,2] <- a_nd #initialize a_nd first year
+  
+  args <- list(
+    nYears = nYears,
+    nLayers = nLayers,
+    nSp = nSp,
+    weatherPRELES = weatherPreles,
+    pPRELES = pPRELES,
+    pCROBAS = pCROBAS,
+    initVar = initVar,
+    thinning = thinning,
+    output = output,
+    nThinning = nThinning,
+    maxYearSite = nYears,
+    fAPAR = fAPAR,
+    initClearcut = initClearcut,
+    initCLcutRatio = initCLcutRatio,
+    ETS = ETS,
+    soilC = soilC,
+    pYASSO = pYASSO,
+    pAWEN = pAWEN,
+    weatherYasso = weatherYasso,
+    litterSize = litterSize,
+    soilCtot = soilCtot,
+    tapioPars = tapioPars,
+    ftTapioPar = ftTapioPar,
+    tTapioPar = tTapioPar,
+    energyWood = energyWood,
+    outDist = outDist,
+    LUEtrees = LUEtrees,
+    pECMmod = pECMmod,
+    siteInfo = siteInfo,
+    siteInfoDist = siteInfoDist,
+    prebasFlags = prebasFlags,
+    TsumSBBs = TsumSBBs,
+    dailyPRELES = dailyPRELES
+  )
+  
+  check_prebas_strict(args)
   
   prebas <- .Fortran("prebas",
                      nYears=as.integer(nYears),
@@ -595,11 +605,11 @@ prebas <- function(nYears,
                      fixBAinitClarcut=as.numeric(fixBAinitClarcut),
                      initCLcutRatio = as.double(initCLcutRatio),
                      ETS = as.numeric(ETS),
-                     P0 = as.matrix(P0),
+                     # P0 = as.matrix(P0),
                      weather=as.array(weatherPreles),
-                     DOY= as.integer(1:365),
+                     # DOY= as.integer(1:365),
                      pPRELES=as.numeric(pPRELES),
-                     #etmodel = as.integer(etmodel),#wdimpl pflags
+                     #etmodel = as.integer(etmodel), #fvec
                      soilC = as.array(soilC),
                      pYASSO=as.numeric(pYASSO),
                      pAWEN = as.matrix(pAWEN),
@@ -619,24 +629,28 @@ prebas <- function(nYears,
                      ftTapioPar = as.array(ftTapioPar),
                      tTapioPar = as.array(tTapioPar),
                      GVout = matrix(0,nYears,5),
-                     #GVrun = as.integer(GVrun),#wdimpl pflags
+                     #GVrun = as.integer(GVrun), #fvec
                      thinInt = as.double(thinInt),
-                     #fertThin = as.integer(fertThin),#wdimpl pflags
+                     #fertThin = as.integer(fertThin), #fvec
                      flagFert = as.integer(0),
                      nYearsFert = as.integer(nYearsFert),
-                     #protect = as.integer(protect),#wdimpl pflags
+                     #oldLayer = as.integer(oldLayer),
                      mortMod = as.double(mortMod),
-                    # ECMmod = as.integer(ECMmod),#wdimpl pflags
+                    # ECMmod = as.integer(ECMmod), # fvec
                      pECMmod = as.numeric(pECMmod),
-                     ETSstart = as.double(ETSstart),
-                    siteInfoDist = as.double(siteInfoDist),
+                     layerPRELES = as.integer(layerPRELES),
+                     LUEtrees = as.double(LUEtrees),
+                     LUEgv = as.double(LUEgv),
+                    # disturbanceON = as.logical(disturbanceON), #fvec
+                     siteInfoDist = as.double(siteInfoDist),
                      outDist = as.matrix(outDist),
                      prebasFlags = as.integer(prebasFlags),
                      latitude = as.double(latitude),
-                     P00CN = as.double(P00CN),
-                     TsumSBBs = as.double(TsumSBBs)
-  )
+                     TsumSBBs = as.double(TsumSBBs),
+                     SWtable = matrix(0,200,203)
+                     )
   if(NIout) prebas$NI <- NI
   class(prebas) <- "prebas"
   return(prebas)
 }
+

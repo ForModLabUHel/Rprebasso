@@ -1155,6 +1155,7 @@ endif
     species = int(thinning(countThinning,2))
     stand(4) = thinning(countThinning,2)
 !!!check if ingrowth and calculate dominant species
+	if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0 .and. yearX==0) then !start skip ingrowth thinning if after clearcut
    if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
     domSp = maxloc(STAND_all(13,:))
     layer = int(domSp(1))
@@ -1388,7 +1389,7 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = max(0.,energyWood(year,ij,2) /
   stand(50) = Wsh
   stand(51) = Wdb
     endif
-
+	endif !end skip ingrowth thinning if after clearcut
   countThinning = countThinning + 1
 
    End If

@@ -63,6 +63,7 @@
 #' @param a_nd used in fire disturbance module. a(ND) is a parameter expressing the propensity of people to produce ignition events (ignitions individual-1 d-1). site specific parameter. vector of lenght nSites
 #' @param NIout flag to return the nesterov index
 #' @param FDIout flag to return the fire danger index instead of SW daily preles, set to 1 to return the FDI
+#' @param ingrowthInterval interval in year for ingrowth calculations. the default is 25y
 #' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS
 #' @export
@@ -135,7 +136,8 @@ InitMultiSite <- function(nYearsMS,
                           popden = NA,
                           a_nd = NA,
                           NIout = F,
-                          FDIout = 0
+                          FDIout = 0,
+                          ingrowthInterval = 25
 ){
 
   if(nrow(pCROBAS)!=nrow(pCROB)) stop(paste0("check that pCROBAS has",nrow(pCROB), "parameters, see pCROB to compare"))
@@ -202,7 +204,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
   
   
   if(ingrowth){
-    ingrowthStep <- 25
+    ingrowthStep <- ingrowthInterval
     # nTreeIngrowth <- 10
     nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
     siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers
