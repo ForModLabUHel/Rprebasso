@@ -68,6 +68,7 @@
 #' @param peatType type of peat used to select the PPeattp parameters
 #' @param soilmodel vector (nSites) of soil types per sites. type of soil: 1= mineral, 2 = peat
 #' @param REWmodel vector (nSites) = ?
+#' @param ingrowthInterval time interval (in years) for calculating ingrowth. default value is 25y
 #' 
 #' @return Initialize PREBAS and return an object list that can be inputted to multiPrebas and regionPrebas functions to run PREBAS 
 #' @export
@@ -143,7 +144,8 @@ InitMultiSite <- function(nYearsMS,
                           pPeattp = NA,
                           peatType = 1, # vary between 1 and 2, is a vector of nSites length
                           soilmodel = 1,
-                          REWmodel = 2
+                          REWmodel = 2,
+                          ingrowthInterval = 25
     ){  
   
   if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
@@ -210,7 +212,7 @@ InitMultiSite <- function(nYearsMS,
   ### --- ###  
   
   if(ingrowth){
-    ingrowthStep <- 25
+    ingrowthStep <- ingrowthInterval
     # nTreeIngrowth <- 10
     nIngrowthLayers <- floor(max(nYearsMS)/ingrowthStep)
     siteInfo[,8] <- siteInfo[,8] + nIngrowthLayers

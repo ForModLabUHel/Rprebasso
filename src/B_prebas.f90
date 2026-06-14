@@ -4,7 +4,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
      nThinning,maxYearSite,fAPAR,initClearcut,&
-     fixBAinitClarcut,initCLcutRatio,ETSy,weatherPRELES,pPRELES,&
+     fixBAinitClearcut,initCLcutRatio,ETSy,weatherPRELES,pPRELES,&
      soilCinOut,pYasso,pAWEN,weatherYasso,&
      litterSize,soilCtotInOut,defaultThin,ClCut,energyCut,clct_pars,&
      dailyPRELES,yassoRun,energyWood,tapioPars,thdPer,limPer,&
@@ -50,7 +50,7 @@ REAL (kind=8)::  V_tot, vdam ! vol of all layers, site-level damaged vol
 REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
 
 
- real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClarcut  ! flags. Energy cuts takes harvest residues out from the forest.
+ real (kind=8), intent(in) :: defaultThin, ClCut, energyCut, yassoRun, fixBAinitClearcut  ! flags. Energy cuts takes harvest residues out from the forest.
  !!oldLayer scenario
  integer, intent(in) :: layerPRELES !oldLayer, fvec
 !!! fertilization parameters
@@ -308,24 +308,24 @@ siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind distu
     totBA = sum(modOut((year-Ainit-1), 13, :, 1)) ! BA structure before clearcut, used for estimating spec. proportions at initialization if fixBAratio is = 0 (1 is for user defined)
    do ijj = 1, nLayers
      species = int(max(1.,modOut(year, 4, ijj, 1)))  ! read species
-   if (fixBAinitClarcut==1) then
+   if (fixBAinitClearcut==1) then
     modOut(year,13,ijj,1) = initClearcut(3) * initCLcutRatio(ijj)
    else
-      modOut(year,13,ijj,1) = initClearcut(3) * modOut((year-Ainit-1),13,ijj,1)/ totBA
-     endif
+    modOut(year,13,ijj,1) = initClearcut(3) * modOut((year-Ainit-1),13,ijj,1)/ totBA
+   endif
    modOut(year,11,ijj,1) = initClearcut(1)
    modOut(year,2,ijj,1) = 0.
-     modOut(year,12,ijj,1) = initClearcut(2)
-     modOut(year,14,ijj,1) = initClearcut(4)
+   modOut(year,12,ijj,1) = initClearcut(2)
+   modOut(year,14,ijj,1) = initClearcut(4)
    modOut(year,16,ijj,1) = pCrobas(38,species)/pCrobas(15,species) * (initClearcut(1) - &
-    initClearcut(4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc**p_z
-  if(modOut(year,12,ijj,1) > 0.) then
+   initClearcut(4))**pCrobas(11,species)!A = p_ksi/p_rhof * Lc**p_z
+   if(modOut(year,12,ijj,1) > 0.) then
     modOut(year,17,ijj,1) = modOut(year,13,ijj,1)/(pi*((modOut(year,12,ijj,1)/2/100)**2))
     modOut(year,35,ijj,1) =  modOut(year,13,ijj,1)/modOut(year,17,ijj,1)
-    else
+   else
     modOut(year,17,ijj,1) = 0.
     modOut(year,35,ijj,1) = 0.
-    endif
+   endif
 
   siteType = modOut(year,3,ijj,1) !siteInfo(3)
   !!set parameters
@@ -1105,6 +1105,7 @@ endif
    hc = STAND(14)
    
      !!!check if ingrowth and calculate dominant species
+	if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0 .and. yearX==0) then !start skip ingrowth thinning if after clearcut
    if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
     domSp = maxloc(STAND_all(13,:))
 	layer = int(domSp(1))
@@ -1211,7 +1212,7 @@ endif
       Wdb = 0.
       A = par_ksi/par_rhof * Lc**par_z
       stand(7) = Ainit
-      yearX = 0.
+      yearX = 0
      endif
      !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
       if(isnan(stand(50))) stand(50) = 0
@@ -1323,6 +1324,7 @@ endif
     stand(51) = Wdb
     endif
   ! endif
+  endif !end skip ingrowth thinning if after clearcut
   countThinning = countThinning + 1
 
    End If

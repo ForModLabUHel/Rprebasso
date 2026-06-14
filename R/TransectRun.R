@@ -76,6 +76,7 @@
 #' @param soilmodel vector (nSites) of soil types per sites. type of soil: 1= mineral, 2 = peat
 #' @param REWmodel vector (nSites) = ?
 #' @param frac_clct #fraction of forest area with clearcuts from previous 1-5 years (FROM YEARLY VARIABLES!)
+#' @param ingrowthInterval time interval (in years) for calculating ingrowth. default value is 25y
 #' 
 #' @importFrom plyr aaply
 #'
@@ -180,7 +181,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
                         peatType = 1, # vary between 1 and 2, is a vector of nSites length
                         soilmodel = 1,
                         REWmodel = 1,
-                        frac_clct = NULL 
+                        frac_clct = NULL,
+                        ingrowthInterval = 25
 ) {
   
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
@@ -349,7 +351,8 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     pPeattp = pPeattp,
     peatType=peatType,
     soilmodel = soilmodel,
-    REWmodel = REWmodel
+    REWmodel = REWmodel,
+    ingrowthInterval = ingrowthInterval
     )
 
   initPrebas$multiInitVar[, 2, ] <- initialAgeSeedl(initPrebas$siteInfo[, 3], rowMeans(initPrebas$ETS)) # Initial age
