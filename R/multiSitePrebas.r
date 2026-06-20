@@ -913,27 +913,27 @@ multiPrebas <- function(multiSiteInit,
   
   
   prebas <- .Fortran("multiPrebas",
-                     multiOut = as.array(multiSiteInit$multiOut),
+                     multiOut = as.array(multiSiteInit$multiOut), #1
                      nSites = as.integer(multiSiteInit$nSites),
                      nClimID = as.integer(multiSiteInit$nClimID),
                      nLayers = as.integer(multiSiteInit$nLayers),######
-                     maxYears = as.integer(multiSiteInit$maxYears),
+                     maxYears = as.integer(multiSiteInit$maxYears), #5
                      maxThin = as.integer(multiSiteInit$maxThin),
                      nYears = as.integer(multiSiteInit$nYears),
                      thinning=as.array(multiSiteInit$thinning),
                      pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
-                     allSp = as.integer(multiSiteInit$allSp),       ####
+                     allSp = as.integer(multiSiteInit$allSp),       #10###
                      siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:19)]),  ####
                      maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
                      nThinning=as.integer(multiSiteInit$nThinning),
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
-                     initClearcut=as.matrix(multiSiteInit$initClearcut),
+                     initClearcut=as.matrix(multiSiteInit$initClearcut), #15
                      fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClearcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
                      ETSy=as.matrix(multiSiteInit$ETSy),
                      # P0y=as.array(multiSiteInit$P0y),
                      multiInitVar=as.array(multiSiteInit$multiInitVar),
-                     weather=as.array(multiSiteInit$weather),
+                     weather=as.array(multiSiteInit$weather), #20
                      pPRELES=as.matrix(multiSiteInit$pPRELES),
                      #etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
@@ -944,17 +944,17 @@ multiPrebas <- function(multiSiteInit,
                      soilCtot = as.matrix(multiSiteInit$soilCtot),
                      defaultThin=as.double(multiSiteInit$defaultThin),
                      ClCut=as.double(multiSiteInit$ClCut),
-                     energyCut=as.double(multiSiteInit$energyCut),
+                     energyCut=as.double(multiSiteInit$energyCut), #30
                      clct_pars=as.array(multiSiteInit$clct_pars),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
                      yassoRun=as.double(multiSiteInit$yassoRun),
                      multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
-                     tapioPars = as.array(multiSiteInit$tapioPars),
+                     tapioPars = as.array(multiSiteInit$tapioPars), #35
                      thdPer=as.double(multiSiteInit$thdPer),
                      limPer=as.double(multiSiteInit$limPer),
                      ftTapioPar = as.array(multiSiteInit$ftTapioPar),
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
-                     GVout = as.array(multiSiteInit$GVout),
+                     GVout = as.array(multiSiteInit$GVout), #40
                      #GVrun = as.integer(multiSiteInit$GVrun),
                      thinInt=as.double(multiSiteInit$thinInt),
                      #fertThin = as.integer(fertThin),
@@ -969,12 +969,12 @@ multiPrebas <- function(multiSiteInit,
                      LUEgv = as.double(multiSiteInit$LUEgv),
                      #disturbanceON = as.logical(disturbanceON),
                      siteInfoDist = as.matrix(siteInfoDist),
-                     outDist = as.array(outDist),
+                     outDist = as.array(outDist), #50
                      prebasFlags = as.integer(prebasFlags),
                      latitude = as.double(multiSiteInit$latitude),
                      TsumSBBs = as.matrix(multiSiteInit$TsumSBBs),
                      pPeattp = as.matrix(multiSiteInit$pPeattp),
-                     peatType = as.integer(multiSiteInit$peatType),
+                     peatType = as.integer(multiSiteInit$peatType), #55
                      soilmodel = as.integer(multiSiteInit$soilmodel),
                      REWmodel = as.integer(multiSiteInit$REWmodel)
 )

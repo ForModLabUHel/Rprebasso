@@ -19,7 +19,8 @@ initPrebas_subsetter <- function(initPrebas,sitex){
                  "mortMod", "ECMmod",  "pECMmod",
                  "layerPRELES", "LUEtrees","LUEgv",  
                  "alpharNcalc", "siteInfoDist", 
-                 "dist_flag", "CO2model" )
+                 "dist_flag", "CO2model", "FDIout",
+                 "pPeattp","ingrowthInterval" )
   
   # Subset all elements except 'notX'
   subset_initPrebas <- lapply(names(initPrebas), function(name) {
@@ -63,10 +64,10 @@ initPrebas_subsetter <- function(initPrebas,sitex){
     subset_initPrebas$weatherYasso <- subset_initPrebas$weatherYasso[climIDsunique,,]
   }
   
-  subset_initPrebas$maxYears <- max(subset_initPrebas$nYears)
+  # subset_initPrebas$maxYears <- max(subset_initPrebas$nYears)
   subset_initPrebas$maxThin <- max(subset_initPrebas$nThinning)
   subset_initPrebas$thinning <- subset_initPrebas$thinning[,1:subset_initPrebas$maxThin,]
-  subset_initPrebas$maxNlayers <- max(subset_initPrebas$nLayers)
+  # subset_initPrebas$maxNlayers <- max(subset_initPrebas$nLayers)
   return(subset_initPrebas)
 }
 
