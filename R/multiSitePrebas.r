@@ -119,7 +119,7 @@ InitMultiSite <- function(nYearsMS,
                           ETSstart = NULL,
                           pCN_alfar=parsCN_alfar,##parameters for calculating alfar from CN ratio
                           latitude, #vector of latitudes of sites
-                          alpharNcalc=TRUE,
+                          alpharNcalc=FALSE,
                           p0currClim = NA,
                           fT0AvgCurrClim = NA, ####a  vector (climID) fT0 calculated with the annual mean of fTfun for current climate data
                           alpharVersion = 1, ####flag for alphar calculations 1 is based on p0 and fT, 2 just p0, 3 uses alphar default value
@@ -431,8 +431,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
       multiP0[,,2] <- multiP0[,,1]
     }
   }
-  multiP0[which(is.na(multiP0))] <- 0.
-
+  
   if(all(is.na(multiInitVar))){
     multiInitVar <- array(NA,dim=c(nSites,7,(maxNlayers-nIngrowthLayers)))
     multiInitVar[,1,] <- rep(1:(maxNlayers-nIngrowthLayers),each=nSites)
@@ -576,7 +575,7 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
 
   if(alpharNcalc){
     ###initialize alfar
-    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,yearsCurrClimAv),1])
+    if(all(is.na(p0currClim))) p0currClim <- rowMeans(multiP0[,1:min(maxYears,yearsCurrClimAv),1],na.rm=TRUE)
     P00CN <- p0currClim[siteInfo[,2]]/CNratio(latitude = latitude, st = siteInfo[,3], pars = pECMmod[6:8])
     p0ratio <- multiP0[,,1]/p0currClim
     fT <- fTfun(weatherYasso[,,1],weatherYasso[,,2],weatherYasso[,,3])
@@ -617,6 +616,9 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     alpharNfact <- alpharNfactMean
     UmaxFactorMean[,kx:ncol(UmaxFactorMean)] <- t(apply(UmaxFactorMean,1,k=kx,rollmean))
 
+    alpharNfact[which(is.na(alpharNfact))] <- 1
+    UmaxFactorMean[which(is.na(UmaxFactorMean))] <- 1
+    
     # multiOut[,,5,,2] <- 0
     for(ijj in 1:nClimID){
       siteXs <- which(siteInfo[,2]==ijj)
@@ -641,6 +643,8 @@ if(all(is.na(TsumSBBs))) TsumSBBs <- matrix(-999,nSites,4) #wdimpl
     pCROBAS[41,] = 0
   }
 
+  multiP0[which(is.na(multiP0))] <- 0.
+  
   if(all(is.na(P00CN))) P00CN <- rep(0,nSites)
 
   dailyPRELES = array(-999,dim=c(nSites,(maxYears*365),3))#### build daily output array for PRELES
@@ -963,64 +967,64 @@ if(!is.null(yearFert)){
 
 
   prebas <- .Fortran("multiPrebas",
-                     multiOut = as.array(multiSiteInit$multiOut),
-                     nSites = as.integer(multiSiteInit$nSites),
-                     nClimID = as.integer(multiSiteInit$nClimID),
+                     multiOut = as.array(multiSiteInit$multiOut), #1
+                     nSites = as.integer(multiSiteInit$nSites),#2
+                     nClimID = as.integer(multiSiteInit$nClimID),#3
                      nLayers = as.integer(multiSiteInit$nLayers),######
-                     maxYears = as.integer(multiSiteInit$maxYears),
+                     maxYears = as.integer(multiSiteInit$maxYears),#5
                      maxThin = as.integer(multiSiteInit$maxThin),
                      nYears = as.integer(multiSiteInit$nYears),
                      thinning=as.array(multiSiteInit$thinning),
                      pCROBAS = as.matrix(multiSiteInit$pCROBAS),    ####
-                     allSp = as.integer(multiSiteInit$allSp),       ####
+                     allSp = as.integer(multiSiteInit$allSp),       #10###
                      siteInfo = as.matrix(multiSiteInit$siteInfo[,c(1:7,10:13)]),  ####
                      maxNlayers = as.integer(multiSiteInit$maxNlayers), ####
-                     nThinning=as.integer(multiSiteInit$nThinning),
+                     nThinning=as.integer(multiSiteInit$nThinning),#13
                      fAPAR=as.matrix(multiSiteInit$fAPAR),
                      initClearcut=as.matrix(multiSiteInit$initClearcut),
                      fixBAinitClearcut = as.double(multiSiteInit$fixBAinitClearcut),
                      initCLcutRatio = as.matrix(multiSiteInit$initCLcutRatio),
-                     ETSy=as.matrix(multiSiteInit$ETSy),
+                     ETSy=as.matrix(multiSiteInit$ETSy),#18
                      P0y=as.array(multiSiteInit$P0y),
-                     multiInitVar=as.array(multiSiteInit$multiInitVar),
+                     multiInitVar=as.array(multiSiteInit$multiInitVar), #20
                      weather=as.array(multiSiteInit$weather),
                      DOY= as.integer(multiSiteInit$DOY),
                      pPRELES=as.double(multiSiteInit$pPRELES),
                      #etmodel=as.integer(multiSiteInit$etmodel),
                      soilC = as.array(multiSiteInit$soilC),
-                     pYASSO=as.double(multiSiteInit$pYASSO),
+                     pYASSO=as.double(multiSiteInit$pYASSO),#25
                      pAWEN = as.matrix(multiSiteInit$pAWEN),
                      weatherYasso = as.array(multiSiteInit$weatherYasso),
                      litterSize = as.array(multiSiteInit$litterSize),
                      soilCtot = as.matrix(multiSiteInit$soilCtot),
-                     defaultThin=as.double(multiSiteInit$defaultThin),
+                     defaultThin=as.double(multiSiteInit$defaultThin), #30
                      ClCut=as.double(multiSiteInit$ClCut),
                      energyCut=as.double(multiSiteInit$energyCut),
                      clct_pars=as.array(multiSiteInit$clct_pars),
                      dailyPRELES = as.array(multiSiteInit$dailyPRELES),
-                     yassoRun=as.double(multiSiteInit$yassoRun),
+                     yassoRun=as.double(multiSiteInit$yassoRun), #35
                      multiEnergyWood = as.array(multiSiteInit$multiEnergyWood),
                      tapioPars = as.array(multiSiteInit$tapioPars),
                      thdPer=as.double(multiSiteInit$thdPer),
                      limPer=as.double(multiSiteInit$limPer),
-                     ftTapioPar = as.array(multiSiteInit$ftTapioPar),
+                     ftTapioPar = as.array(multiSiteInit$ftTapioPar), #40
                      tTapioPar = as.array(multiSiteInit$tTapioPar),
                      GVout = as.array(multiSiteInit$GVout),
                      #GVrun = as.integer(multiSiteInit$GVrun),#wdimpl pflags
                      thinInt=as.double(multiSiteInit$thinInt),
                      #fertThin = as.integer(fertThin),
                      flagFert = as.integer(0),
-                     nYearsFert = as.integer(nYearsFert),
+                     nYearsFert = as.integer(nYearsFert),#45
                      #oldLayer=as.integer(oldLayer),
                      mortMod=as.double(multiSiteInit$mortMod),
                      #ECMmod=as.integer(multiSiteInit$ECMmod),
                      pECMmod=as.double(multiSiteInit$pECMmod),
                      ETSstart=as.double(multiSiteInit$ETSstart),
                      siteInfoDist = as.matrix(siteInfoDist), #wdimpl
-                     outDist = as.array(outDist),
+                     outDist = as.array(outDist), #50
                      prebasFlags = as.integer(prebasFlags),#wdimpl
                      latitude=as.double(multiSiteInit$latitude),
-                     P00CN=as.double(multiSiteInit$P00CN),
+                     P00CN=as.double(multiSiteInit$P00CN), #53
                      TsumSBBs = as.matrix(multiSiteInit$TsumSBBs)
   )
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)

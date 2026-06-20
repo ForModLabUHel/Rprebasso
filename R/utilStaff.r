@@ -19,8 +19,10 @@ initPrebas_subsetter <- function(initPrebas,sitex){
                  "mortMod", "ECMmod",  "pECMmod",
                  "layerPRELES", "LUEtrees","LUEgv",  
                  "alpharNcalc", "siteInfoDist", 
-                 "dist_flag", "CO2model" )
-  
+                 "dist_flag", "CO2model")
+                 # "lightnings",
+                 # "popden","a_nd", "NIout","FDIout", "ingrowthInterval")
+                 # 
   # Subset all elements except 'notX'
   subset_initPrebas <- lapply(names(initPrebas), function(name) {
     x <- initPrebas[[name]]
