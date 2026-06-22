@@ -12,7 +12,7 @@
 initPrebas_subsetter <- function(initPrebas,sitex){
   notsubset <- c("nSites", "nClimID", "maxYears",
                  "maxThin","pCROBAS", "allSp","maxNlayers",
-                 "ETSy", "P0y", "weather", "DOY", "pPRELES", "etmodel", 
+                 "ETSy", "weather", "DOY", "pPRELES", "etmodel", 
                  "pYASSO",  "pAWEN",   "weatherYasso",
                  "litterSize","smoothP0","smoothETS", "tapioPars", 
                  "ftTapioPar","tTapioPar", "GVrun",
@@ -53,13 +53,13 @@ initPrebas_subsetter <- function(initPrebas,sitex){
     subset_initPrebas$siteInfo[2,2] <- 2
     climIDsunique <- c(climIDsunique,climIDsunique)
     subset_initPrebas$ETSy <- subset_initPrebas$ETSy[climIDsunique,]
-    subset_initPrebas$P0y <- subset_initPrebas$P0y[climIDsunique,,]
+    # subset_initPrebas$P0y <- subset_initPrebas$P0y[climIDsunique,,]
     subset_initPrebas$weather <- subset_initPrebas$weather[climIDsunique,,,]
     subset_initPrebas$weatherYasso <- subset_initPrebas$weatherYasso[climIDsunique,,]
   }else{
     subset_initPrebas$siteInfo[,2] <- match(subset_initPrebas$siteInfo[,2], climIDsunique)
     subset_initPrebas$ETSy <- subset_initPrebas$ETSy[climIDsunique,]
-    subset_initPrebas$P0y <- subset_initPrebas$P0y[climIDsunique,,]
+    # subset_initPrebas$P0y <- subset_initPrebas$P0y[climIDsunique,,]
     subset_initPrebas$weather <- subset_initPrebas$weather[climIDsunique,,,]
     subset_initPrebas$weatherYasso <- subset_initPrebas$weatherYasso[climIDsunique,,]
   }
