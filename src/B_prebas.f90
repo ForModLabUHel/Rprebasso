@@ -285,7 +285,7 @@ ETSmean = sum(ETSy)/nYears
   modOut(1,12,i,1) = initVar(4,i)
   modOut(1,13,i,1) = initVar(5,i)
   if(modOut(1,12,i,1) > 0.) then
-  modOut(1,17,i,1) = modOut(1,13,i,1)/(pi*((modOut(1,12,i,1)/2/100)**2))
+  modOut(1,17,i,1) = modOut(1,13,i,1)/(pi*((modOut(1,12,i,1)/2./100.)**2.))
   modOut(1,35,i,1) = modOut(1,13,i,1)/modOut(1,17,i,1)
   else
   modOut(1,17,i,1) = 0.
@@ -297,7 +297,7 @@ ETSmean = sum(ETSy)/nYears
 do year = 1, (nYears)
   VmortDist=0.
 
-siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind disturbance model predictor)
+  siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind disturbance model predictor)
 
 !!!! check if clearcut occured. If yes initialize forest (start)
   if (year == int(yearX)) then
@@ -937,7 +937,7 @@ if (N>0.) then
          ! ! litter fall in the absence of thinning
       S_fol = S_fol + wf_STKG / par_vf  !foliage litterfall
       S_fr  = S_fr + W_froot / par_vr  !fine root litter
-    S_branch = max(0.,S_branch + Wdb/Tdb)
+      S_branch = max(0.,S_branch + Wdb/Tdb)
 
     ! S_branch = S_branch + N * par_rhow * betab * A * (dHc + theta*Lc)
 
@@ -1779,16 +1779,22 @@ endif
 
  !calculate reneike and random mortality
  include 'mortalityCalc.h'
+ 
  !!model disturbances
  if(disturbance_wind) then
    include 'disturbanceCalc.h'
  endif
+
+do ij = 1, nLayers
+ if(STAND_all(12,ij)>0.) STAND_all(17,ij) = STAND_all(13,ij)/(pi*((STAND_all(12,ij)/2./100.)**2.))
+enddo
 
 !add dead trees from disturbances
 STAND_all(42,:) = STAND_all(42,:) + VmortDist
 
 outt(:,:,1) = STAND_all
 
+  
 modOut((year+1),2,:,:) = outt(2,:,:)
 modOut((year+1),4,:,:) = outt(4,:,:) !update species
 modOut((year+1),7,:,:) = outt(7,:,:)

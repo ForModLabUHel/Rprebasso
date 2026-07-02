@@ -73,7 +73,7 @@ if (mortMod==1. .or. mortMod==3. .or. mortMod==4. .or. mortMod==5.) then
     D = STAND(12)
     BA = STAND(13)
     Hc = STAND(14)
-    N = BA/(pi*((D/2/100)**2))
+    N = BA/(pi*((D/2./100.)**2.))
     B = BA/N! * par_ops2
     A = stand(16)
   !  Cw = STAND(15)
@@ -314,7 +314,7 @@ dN=0.d0
     D = STAND(12)
     BA = STAND(13)
     Hc = STAND(14)
-    N = BA/(pi*((D/2/100)**2))
+    N = BA/(pi*((D/2./100.)**2.))
     B = BA/N! * par_ops2
     A = stand(16)
   !  Cw = STAND(15)
