@@ -144,7 +144,7 @@ InitMultiSite <- function(nYearsMS,
                           pPeattp = NA,
                           peatType = 1, # vary between 1 and 2, is a vector of nSites length
                           soilmodel = 1,
-                          REWmodel = 2,
+                          REWmodel = 1,
                           ingrowthInterval = 25
     ){  
   
