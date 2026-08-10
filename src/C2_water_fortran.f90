@@ -82,7 +82,7 @@ module water_module
     fWsub = 1.0
 
     !--- CO2 mean effect ------------------------------------------------
-    fCO2mean = 1.0!fCO2_ET_model_mean(CO2model,CO2, GPP_par) 
+    fCO2mean = fCO2_ET_model_mean(CO2model,CO2, GPP_par) 
 
     !--- Physical constants ---------------------------------------------
     lambda = (-0.0000614342  * T**3 + 0.00158927  * T**2 -          &

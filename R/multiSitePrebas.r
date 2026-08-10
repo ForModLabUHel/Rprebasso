@@ -153,7 +153,7 @@ InitMultiSite <- function(nYearsMS,
   
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[18:19,] <- pCO2model[CO2model,]
+    pPRELES[18:19,] <- pCO2model[,CO2model]
   }
   if(all(is.na(pPeattp))){
     pPeattp <- pPeattp_def
