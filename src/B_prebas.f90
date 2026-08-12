@@ -1104,8 +1104,8 @@ endif
    BA = STAND(13)
    hc = STAND(14)
    
-     !!!check if ingrowth and calculate dominant species
-	if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0 .and. yearX==0) then !start skip ingrowth thinning if after clearcut
+   !!!check if ingrowth and calculate dominant species
+	! if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0 .and. yearX==0) then !start skip ingrowth thinning if after clearcut
    if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
     domSp = maxloc(STAND_all(13,:))
 	layer = int(domSp(1))
@@ -1324,7 +1324,7 @@ endif
     stand(51) = Wdb
     endif
   ! endif
-  endif !end skip ingrowth thinning if after clearcut
+  ! endif !end skip ingrowth thinning if after clearcut
   countThinning = countThinning + 1
 
    End If

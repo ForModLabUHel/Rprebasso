@@ -2383,3 +2383,37 @@ forest_management_update <- function(initPrebas,
   return(initPrebas)    
 }
 
+
+
+sp_per_replanting_updater <- function(initPrebas,brlv_per,brlv_species){
+  A <- initPrebas$multiInitVar[,1,]
+  M <- initPrebas$initCLcutRatio
+  
+  per_broadLeaves <- rowSums(M * (A %in% brlv_species), na.rm = TRUE)
+  
+  no_broadleaves <- which(per_broadLeaves==0)
+  
+  initPrebas$nLayers[no_broadleaves] <- pmin((initPrebas$nLayers[no_broadleaves]+1),initPrebas$maxNlayers)
+  
+  idx <- cbind(no_broadleaves, 1, initPrebas$nLayers[no_broadleaves])
+  initPrebas$multiInitVar[idx] <- 3
+  
+  broadLeav_deficit <- brlv_per - per_broadLeaves
+  
+  defSites <- which(broadLeav_deficit>0)
+  newM <- M
+  for(i in 1:length(defSites)){
+    brd_lay <- which(initPrebas$multiInitVar[defSites[i],1,] %in% brlv_species) 
+    if(broadLeav_deficit[defSites[i]]>0){
+      if(broadLeav_deficit[defSites[i]]==brlv_per){
+        newM[defSites[i],brd_lay] <- brlv_per/length(brd_lay)
+        newM[defSites[i],-brd_lay] <- (1-brlv_per)*newM[defSites[i],-brd_lay]
+      }else{
+        newM[defSites[i],brd_lay] <- brlv_per*newM[defSites[i],brd_lay]/sum(newM[defSites[i],brd_lay])
+        newM[defSites[i],-brd_lay] <- (1-brlv_per)*newM[defSites[i],-brd_lay]/sum(newM[defSites[i],-brd_lay])
+      }
+    } 
+  }
+  initPrebas$initCLcutRatio <- newM
+  return(initPrebas)  
+}
