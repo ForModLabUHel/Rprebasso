@@ -1030,14 +1030,19 @@ forest_management_update <- function(initPrebas,
                                      lat_bau_pars=lat_bau_pars_def,
                                      lit_bau_pars=lit_bau_pars_def,
                                      de_bau_pars=de_bau_pars_def,
-                                     pl_bau_pars=pl_bau_pars_def){
-  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland","United Kingdom")
-  available_managements <- c("bau", "noman")
+                                     pl_bau_pars=pl_bau_pars_def,
+                                     brlv_species = c(3, 8, 10),
+                                     brlv_per = 0.2,
+                                     change_rot_length = 1.45
+                                     ){
+  available_countries <- c("Sweden","Finland","Estonia","Denmark","Ireland","Latvia","Lithuania","Germany","Poland","United Kingdom","Norway")
+  available_managements <- c("bau", "noman","am1","am2","am3","am4")
   if(!country %in% available_countries) stop(cat("This country: ", country,
                                                  " is not between the available countries: ", available_countries,fill = TRUE))
   if(!management %in% available_managements) stop(cat("This management: ", management, 
                                                       " is not between the available managements: ", available_managements,fill = TRUE))
-  if(country == "Sweden" & management=="bau"){
+  
+  if(country == "Sweden" & management %in% c("bau","am1","am2","am3","am4")){
     if(dim(initPrebas$ftTapioPar)[2] < 12){
       dims <- dim(initPrebas$ftTapioPar)
       ftTapioPar <- array(999,dim = c(5,12,3,7))
@@ -1065,6 +1070,7 @@ forest_management_update <- function(initPrebas,
     if(length(pinco_sites)>0) initPrebas <- sw_bau_piCo(initPrebas,pinco_sites)
     if(length(fagus_sites)>0) initPrebas <- sw_bau_fagsy(initPrebas,fagus_sites)
     ##----##
+  
   }
   
   if(country == "Estonia" & management=="bau"){
@@ -2378,6 +2384,22 @@ forest_management_update <- function(initPrebas,
       acThin = -999,
       pHarvTreeThin = 1)
     
+  }
+
+  
+
+    ## AM managements ##
+  if(country %in% c("Sweden","Finland","Norway") & management %in% c("am1","am2","am3","am4")){
+    
+    ####I need to consider the target sites based on the forest type
+    # targetSites <- which pine spruce and birch
+    
+    if(management == "am2") initPrebas <- sp_per_replanting_updater(initPrebas,brlv_per,brlv_species)
+    if(management == "am3") initPrebas$clct_pars[,,1:2] <- initPrebas$clct_pars[,,1:2] * change_rot_length
+    if(management == "am4"){
+      initPrebas$clct_pars[,,1:2] <- initPrebas$clct_pars[,,1:2] * change_rot_length
+      initPrebas <- sp_per_replanting_updater(initPrebas,brlv_per,brlv_species)
+    }
   }
   
   return(initPrebas)    
