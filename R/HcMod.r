@@ -12,6 +12,19 @@ HcPipeMod <- function(initVar,pCROBAS){
 return(Hc)  
 }
 
+##catalonian Hc model function
+Hc_cat_sp <- function(initVar,pHc_Cat){
+  na_hc <- is.na(initVar[, 6, ])
+  idx <- match(initVar[, 1, ][na_hc], pHc_Cat$spID)
+  initVar[, 6, ][na_hc] <- ifelse(
+    initVar[, 3, ][na_hc] > pHc_Cat$H_lim[idx],
+    pHc_Cat$Intercept[idx] + pHc_Cat$Slope[idx] * initVar[, 3, ][na_hc],
+    pHc_Cat$Slope[idx] * initVar[, 3, ][na_hc]
+  ) 
+  return(initVar)
+}
+
+
 ###function to replace HC NAs in initial variable initVar
 findHcNAs <- function(initVar,pHcMod,pCrobas,HcModV){
   if(is.vector(initVar)){
