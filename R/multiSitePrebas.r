@@ -429,6 +429,15 @@ InitMultiSite <- function(nYearsMS,
     } 
     multiInitVar[which(is.na(multiInitVar))] <- 0.
   }else{
+    ###calculate Hc with Catalonian Hc models for species: 4,6,8,10,13:21
+    na_hc <- is.na(multiInitVar[, 6, ])
+    idx <- match(multiInitVar[, 1, ][na_hc], catalanHcMod$spID)
+    multiInitVar[, 6, ][na_hc] <- ifelse(
+      multiInitVar[, 3, ][na_hc] > catalanHcMod$H_lim[idx],
+      catalanHcMod$Intercept[idx] + catalanHcMod$Slope[idx] * multiInitVar[, 3, ][na_hc],
+      catalanHcMod$Slope[idx] * multiInitVar[, 3, ][na_hc]
+    )
+    
     ####if Height of the crown base is not available use model
     if(maxNlayers-nIngrowthLayers==1){
       multiInitVar <- array(aaply(multiInitVar,1,findHcNAs,pHcMod,pCROBAS,HcModV),dim=c(nSites,7,1))

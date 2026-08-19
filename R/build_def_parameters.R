@@ -61,6 +61,10 @@
 # parsAWEN = as.matrix(parsAWEN)
 # pHcM = as.matrix(pHcM)
 # 
+# ##parameters for Hc model from catalonia
+# catalanHcMod <- read.table("data/hc_calc_catalonia.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+# 
+# 
 # save(pCROB,pCROBAS_Ritika,
 #      speciesNam, nparsAll,
 #      inDclct_def,inAclct_def,pPeattp_def,
@@ -68,6 +72,8 @@
 #      # pPRELESpipi,pPRELES_Ritika,pPRELES_catalonia,
 #      pPRELES_tab,pLUEtrees,pLUEgv,
 #      parsAWEN,
-#      pHcM,file="data/parameters.rda")
+#      pHcM,
+#      catalanHcMod,
+#      file="data/parameters.rda")
 # 
 # ####code to create parameters objects  ##end
