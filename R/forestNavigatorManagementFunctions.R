@@ -2391,15 +2391,19 @@ forest_management_update <- function(initPrebas,
     ## AM managements ##
   if(country %in% c("Sweden","Finland","Norway") & management %in% c("am1","am2","am3","am4")){
     
-    forTarget <- c("BetPu", "BetSp", "BetSp", "BetSp-PicAb",
-                   "BetSp-PinSy", "CON01", "CON02", "CON03",
-                   "CONBLS01", "CONBLS02", "CONBLS03", "CONBLS04",
-                   "MIX01", "MIX02", "MIX03", "MIX04", "MIX05",
-                   "PicAb-BetSp", "PicAb-PinSy", "PicAb1", "PicAb3",
-                   "PicAb4", "PicAb5", "PicAb6", "PinCo", "PinSy",
-                   "PinSy-BetSp", "PinSy-PicAb")
-  
-    siteXs <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% forTarget)])
+    if(country == "Sweden"){
+      forTarget <- c("BetPu", "BetSp", "BetSp", "BetSp-PicAb",
+                     "BetSp-PinSy", "CON01", "CON02", "CON03",
+                     "CONBLS01", "CONBLS02", "CONBLS03", "CONBLS04",
+                     "MIX01", "MIX02", "MIX03", "MIX04", "MIX05",
+                     "PicAb-BetSp", "PicAb-PinSy", "PicAb1", "PicAb3",
+                     "PicAb4", "PicAb5", "PicAb6", "PinCo", "PinSy",
+                     "PinSy-BetSp", "PinSy-PicAb")
+      
+      siteXs <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% forTarget)])
+    }else{
+      siteX <- 1:initPrebas$nSites
+    }
 
     ####I need to consider the target sites based on the forest type
     # targetSites <- which pine spruce and birch
