@@ -2402,7 +2402,7 @@ forest_management_update <- function(initPrebas,
       
       siteXs <- sort(forest_type_management_tab$site[which(forest_type_management_tab$for_man %in% forTarget)])
     }else{
-      siteX <- 1:initPrebas$nSites
+      siteXs <- 1:initPrebas$nSites
     }
 
     ####I need to consider the target sites based on the forest type
