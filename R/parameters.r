@@ -7,8 +7,8 @@ peat_regression_pars <- list(p_st = c(-1383,-1440,-1662,-1771,-1814),
 
 ###parameters of the CO2 modifier of PRELES
 pCO2model <- matrix(NA,2,2)
-pCO2model[1,] <- c(0.5,-0.364)
-pCO2model[2,] <- c(2000,0.4)
+pCO2model[1,] <- c(2000,0.4) #Kaliokoski/Kolari
+pCO2model[2,] <- c(0.5,-0.364) # Launiainen
 
 ###default initial state at plantation
 initSeedling.def <- c(1.31,0.5,0.07343473,0.2,NA)
