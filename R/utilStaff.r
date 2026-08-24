@@ -884,6 +884,11 @@ getVarNam <- function(){
   ##for the oldLayer
   ###add layer for old layer in initial state
   addOldLayer <- function(multiSiteInit){
+    ###update names multiout array adding new layer
+    dimNamesX <- dimnames(multiSiteInit$multiOut)
+    dimNamesX$layer <- paste("layer",1:(length(dimNamesX$layer)+1)) 
+    ###
+    
     maxNlayers = multiSiteInit$maxNlayers = 
       multiSiteInit$maxNlayers + 1
     ###add layer for old layer in multiOut array
@@ -916,11 +921,12 @@ getVarNam <- function(){
     multiEnergyWood[,,1:(maxNlayers-1),] <- multiSiteInit$multiEnergyWood
     multiSiteInit$multiEnergyWood <- multiEnergyWood
     
+    ##update multiOut dim names
+    dimnames(multiSiteInit$multiOut) <- dimNamesX
+    
     return(multiSiteInit)
   }
-  
 
-  
   calETSmean <- function(ETSy,k=20){
     ETSmean <- ETSy
     nYears <- length(ETSmean)
