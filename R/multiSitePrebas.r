@@ -135,7 +135,7 @@ InitMultiSite <- function(nYearsMS,
                           SMIt0 = NA,
                           TminTmax = NA,
                           disturbanceON = NA,
-                          CO2model = 2, #default from kaliokoski (2018)
+                          CO2model = 1, #default from kaliokoski (2018)
                           lightnings = NA,
                           popden = NA,
                           a_nd = NA,
@@ -153,7 +153,7 @@ InitMultiSite <- function(nYearsMS,
   
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[18:19,] <- pCO2model[,CO2model]
+    pPRELES[18:19,] <- pCO2model[CO2model,]
   }
   if(all(is.na(pPeattp))){
     pPeattp <- pPeattp_def
