@@ -159,7 +159,7 @@ real (kind=8) :: Cpool_litter_wood,Cpool_litter_green,livegrass,soil_moisture(36
 real (kind=8) :: Tmin(365),Tmax(365),FDI(365), NI((nYears*365)),n_fire_year,lightnings(nYears*365),popden(nYears*365),a_nd
 !BB disturbances
 real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
-real (kind=8) :: dist_to_clct, frac_clct, Dlim = 650.,c_clct_prob, c_clct_PI
+real (kind=8) :: dist_to_clct, dist_to_clct_s, frac_clct, a_clct
 logical :: useDistToClct = .true.
                                
 
@@ -1801,7 +1801,9 @@ modOut((year+1),7,:,:) = outt(7,:,:)
 modOut((year+1),9:nVar,:,:) = outt(9:nVar,:,:)
 
 !!!!calculate bark beetle disturbance
+if(disturbance_bb) then  
    include 'SBB_dist_Calc.h'
+endif
 
  if(oldLayer==1) then
   modOut((year+1),:,nLayers,:) = outt(:,nLayers,:)

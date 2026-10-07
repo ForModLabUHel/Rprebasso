@@ -9,11 +9,11 @@
    if(SMIt0 < -998.d0) SMIt0 = SMI !!if year 1 SMIt0 is the same of first year  
   endif
   call spruceVars(outt((/4,7,13/),:,1),nLayers,(/2,10/),2,spruceStandVars,rBAspruce)
-  call dist_to_neigh_clct(frac_clct, dist_to_clct)
-  call compute_clct_effect(useDistToClct, dist_to_clct, Dlim,   &
-                               c_clct_prob, c_clct_PI)
+  call dist_to_neigh_clct(frac_clct, dist_to_clct, dist_to_clct_s)
+  call compute_clct_effect(useDistToClct, dist_to_clct, dist_to_clct_s,   &
+                               a_clct)
   call riskBB(pBB,TsumSBBs,spruceStandVars(1),spruceStandVars(3), &
-			spruceStandVars(2),(SMI+SMIt0)/2.,outt(3,1,1),c_clct_prob, c_clct_PI)
+			spruceStandVars(2),(SMI+SMIt0)/2.,outt(3,1,1),a_clct)
   !update output
   !modOut((year+1),45,:,2) = 0.
   !modOut((year+1),45,1,2) = pBB(1)
@@ -23,7 +23,7 @@
   
 !calculate intensity
   if(spruceStandVars(3)>0.) then
-   call bb_imp_mod(SMIt0,spruceStandVars(1)/spruceStandVars(3),intenSpruce)
+   call bb_imp_mod(SMIt0,spruceStandVars(1)/spruceStandVars(3),a_clct,intenSpruce)
  !old version (start)
    ! SHI = (spruceStandVars(1)/spruceStandVars(3))*(1.0-SMIt0)/0.2093014 !(spruceStandVars(1)/spruceStandVars(3)) = Baspruce fraction
    ! intenSpruce = 1.d0/(1.d0+exp(3.9725-2.9673*SHI))
