@@ -47,14 +47,14 @@ if(disturbance_bb) then !!!!mortality caused by bark beetle is switched off for 
 
 
 !!!a=0 b=5
-  if(vdam > 0. .and. vdam < 5.0) then ! threshold for salvage logging
+  if(vdam > 0. .and. vdam < 10.0) then ! threshold for salvage logging
     siteInfoDist(2) = 0. ! reset thinning counter, i.e. wind disturbance temporarily increases wind risk
     call random_number(rndm)
-    if(rndm<=0.5) then
+    if(rndm<=0.85) then
       pHarvTrees = 1. ! if sampled for salvlog set pHarvTrees
       outDist(year,7) = 1. !indicate salvage logging in output
     endif !if_s
-  elseif (vdam >= 5.) then !if_s
+  elseif (vdam >= 10.) then !if_s
    !if(vdam>=5.) then ! threshold for salvage logging
    ! call random_number(rndm)
    ! if(rndm<=siteInfoDist(10)) then
