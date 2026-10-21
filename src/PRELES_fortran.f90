@@ -113,6 +113,7 @@
 		prelesOut(5) = fS(NofDays)
 		prelesOut(6) = fD(NofDays)
 		! prelesOut(7) = fW(NofDays)
+		call SMIfromPRELES(GPP,fW,prelesOut(7),sum(fAPAR)/365.)
 		prelesOut(8) = fE(NofDays)
 		prelesOut(9) = Throughfall(NofDays)
 		prelesOut(10) = Interception(NofDays)
