@@ -393,8 +393,8 @@ InitMultiSite <- function(nYearsMS,
     multiThin[i,,1][which(multiThin[i,,1]<1)] <- 999
     multiThin[i,,] <- multiThin[i,order(multiThin[i,,1]),]
   } 
-  
   multThin[,,11][which(multThin[,,11]<0)] <- 1 ####default pHarv is 1 replace negative values with 1
+  
   ###PROCESS weather inputs for prebas
   multiweather <- array(-999,dim=c(nClimID,maxYears,365,5))
   
