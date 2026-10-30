@@ -6,7 +6,7 @@ src/Rprebasso.dll
 src/A_routines.o
 src/B_prebas.o
 src/C_multiPrebas.o
-src/C_regionPrebas.o
+src/C4_regionPrebas.o
 src/call_preles.o
 src/gpp.o
 src/initruns.o
