@@ -189,7 +189,7 @@ if(startSimYear>1) then
   initVar(i,3:6,1:nLayers(i)) = multiOut(i,(startSimYear-1),11:14,1:nLayers(i),1)
   initVar(i,7,1:nLayers(i)) = multiOut(i,(startSimYear-1),16,1:nLayers(i),1)
  enddo
- yearXrepl = multiOut(:,startSimYear,1,1,2)
+ yearXrepl = multiOut(:,startSimYear,4,1,2)
 else
  multiOut(:,1,7,:,1) = initVar(:,2,:) !initialize age used in the mitigation scenario to select the sites to harvest
  multiOut(:,1,4,:,1) = initVar(:,1,:) !initialize species
@@ -415,8 +415,8 @@ endif
   	energyCutX = 1.
   	energy_flag = 0.
    endif
-!!!check if the limit area for tendings has been exceeded if yes no tending havest
 
+!!!check if the limit area for tendings has been exceeded if yes no tending havest
   if (cuttingArea(ij,3) > 0. .and. cuttingArea(ij,4) > cuttingArea(ij,3)) then !!!swithch off tendings if threshold area (cuttingArea(3)), has been reached
    tTapioX = tTapio * 1.e5
   else
@@ -1234,7 +1234,7 @@ endif !roundWood < HarvLim .and. HarvLim /= 0.
   !HarvLim(ij,1) = roundWood
   !HarvLim(ij,2) = energyWood
 
-     multiOut(:,ij,1,1,2) = yearXrepl
+     multiOut(:,ij,4,1,2) = yearXrepl
     ! open(1,file="test1.txt")
   ! write(1,*) ij, "end"
   ! close(1)

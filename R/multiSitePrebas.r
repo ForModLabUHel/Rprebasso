@@ -393,7 +393,7 @@ InitMultiSite <- function(nYearsMS,
     multiThin[i,,1][which(multiThin[i,,1]<1)] <- 999
     multiThin[i,,] <- multiThin[i,order(multiThin[i,,1]),]
   } 
-  multThin[,,11][which(multThin[,,11]<0)] <- 1 ####default pHarv is 1 replace negative values with 1
+  multiThin[,,11][which(multiThin[,,11]<0)] <- 1 ####default pHarv is 1 replace negative values with 1
   
   ###PROCESS weather inputs for prebas
   multiweather <- array(-999,dim=c(nClimID,maxYears,365,5))
@@ -1019,7 +1019,8 @@ multiPrebas <- function(multiSiteInit,
 regionPrebas <- function(multiSiteInit,
                          HarvLim = NA, ##harvest limit matrix (nyears,2) col1= roundwood limit, col2= energyWood limit. If col1 between 0 and 10 harvest limits is calculated as fraction of the average gross growth of the previous 10 years                          
                          minDharv = 999.,
-                         cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations
+                         cutAreas = NA,  ### is a matrix: area of cuttings rows are years of simulations:
+                                         ### columns are: [,1:2] clcut areas stats/mod, [,3:4] tending areas stats/mod,  [,5:6] firstthinning areas stats/mod, [,7:8] thinning areas stats/mod
                          clcutlimiter = NA, # max share of harvested volume from clear cuts (range 0:1). Remainder needs to be filled by thinnings.
                          ### set to -1001 if you want to switch off the clearcut
                          ###columns: clcutArea target(1), simulated clCut area(2) (set to 0. will be filled by prebas output);
@@ -1078,6 +1079,7 @@ regionPrebas <- function(multiSiteInit,
   if(length(HarvLim)==2) HarvLim <- matrix(HarvLim,multiSiteInit$maxYears,2,byrow = T)
   if(all(is.na(HarvLim))) HarvLim <- matrix(0.,multiSiteInit$maxYears,2)
   if(all(is.na(cutAreas))) cutAreas <- matrix(-999.,(multiSiteInit$maxYears),6)
+  cutAreas
   
   if(all(!is.na(clcutlimiter))){ # if clcutlimiter is given as input, replace clearcut area limits with it (less objects passed to fortran, would be in conflict anyway)
     warning("clcutlimiter input given, superseedes cutArea limits for clearcuts!")
