@@ -1252,6 +1252,10 @@ prebas <- .Fortran("regionPrebas",
   }else{
     prebas$totHarv <- colSums(prebas$multiOut[,,37,1,1]*prebas$areas)
   }
+  # addthinning areas to cutAreas matrix
+  areaThin3 <- colSums(prebas$areas * (prebas$multiOut[,,1,1,2] == 3), na.rm = TRUE)
+  prebas$cutAreas <- cbind(prebas$cutAreas,areaThin3)
+  colnames(prebas$cutAreas) <- c("clct_stats","clct_mod","tending_stats","tending_mod","1stThin_stats","1stThin_mod","thinning_mod")
   
   dimnames(prebas$multiOut) <- dimnames(multiSiteInit$multiOut)
   dimnames(prebas$multiInitVar) <- dimnames(multiSiteInit$multiInitVar)
