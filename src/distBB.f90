@@ -264,40 +264,97 @@ subroutine dist_to_neigh_clct(frac_clct, dist_to_clct, dist_to_clct_s)
   real(8), intent(out) :: dist_to_clct, dist_to_clct_s
 
   ! parameters
-  real(8) :: a, p
-  real(8) :: p_clct_far
-  real(8) :: u
-  logical :: clct_near, clct_south
+  real(8) :: a, p, a0, aL
+  real(8) :: p_clct_far, p_clct_close, p_clct_far_s, p_clct_close_s 
+  real(8) :: u, ui
+  !logical :: clct_near, clct_south
 
   ! Fraction of segments with neigh clct > 800 m
-  a = 0.041d0
-  p = 2.42d0
+  a = 0.042d0 !0.041d0
+  p = 2.574d0 !2.42d0
   p_clct_far = a**p /(a**p + frac_clct**p)  
+
+  ! Fraction of segments with neigh clct < 32 m
+  a = 0.670d0 
+  p = 1.112d0
+  p_clct_close = a**p /(a**p + frac_clct**p)  
  
+  ! fraction of close has to be at least the same as far
+  if(p_clct_close < p_clct_far) then 
+      p_clct_close = p_clct_far
+  end if
+
+  ! Fraction of segments with south neigh clct > 800 m
+  a = 0.148d0
+  p = 1.362d0
+  p_clct_far_s = a**p /(a**p + frac_clct**p)  
+
+  ! fraction of far south has to be at least the same as far
+  if(p_clct_far_s < p_clct_far) then 
+      p_clct_far_s = p_clct_far
+  end if
+
+  ! Fraction of segments with south neigh clct < 32 m
+  a = 0.854d0 
+  p = 1.139d0
+  p_clct_close_s = a**p /(a**p + frac_clct**p)  
+ 
+  ! fraction of south close has to be at least the same as south far
+  if(p_clct_close_s < p_clct_far_s) then 
+      p_clct_close_s = p_clct_far_s
+  end if
+  
   ! random distance, if the neigh clct < 800 m
   call random_number(u)
-  clct_near = (u > p_clct_far)
+  !clct_near = (u > p_clct_far)
+
+  ! Distance range for inv-cdf functions
+  aL = 800.0d0
+  a0 = 32.0d0
 
   ! inverse-CDF for near clct distances
-  p = 1.538d0
-  a = 800.0d0
-  if(clct_near) then
-    dist_to_clct = a - ((u-p_clct_far)/(1-p_clct_far)*a**p)**(1/p)
-  else
+  p = 1.173d0 !1.538d0
+  p = p*(1.4-p_clct_far)
+
+  if(u > p_clct_far .and. u < p_clct_close) then
+    dist_to_clct = aL - ((u-p_clct_far)/(p_clct_close-p_clct_far)*(aL-a0)**p)**(1/p)
+  else if(u <= p_clct_far) then ! very far
     dist_to_clct = 2000.0d0
+  else  ! very close
+    dist_to_clct = 16.0d0
+    call random_number(ui)
+    if(ui < 0.3) then 
+      dist_to_clct = 22.62742d0 ! sqrt(2*16**2)
+    end if
   end if
 
-  ! random decision, if the near clct is in south
-  call random_number(u)
-  ! Franction of south locations, estimated from data
-  a = 0.3084515d0
-  ! If in south, set the south distance equal to clct distance
-  clct_south = (u < a)
-  if(clct_south) then
-    dist_to_clct_s = dist_to_clct
-  else
+  ! inverse-CDF to south distances
+  p = 1.875d0 
+  p = p*(1.4-p_clct_far_s)
+  if(u > p_clct_far_s .and. u < p_clct_close_s) then
+    dist_to_clct_s = aL - ((u-p_clct_far_s)/(p_clct_close_s-p_clct_far_s)*(aL-a0)**p)**(1/p)
+  else if(u <= p_clct_far_s) then ! very far
     dist_to_clct_s = 2000.0d0
+  else  ! very close
+    dist_to_clct_s = 16.0d0
+    call random_number(ui)
+    if(ui < 0.3) then 
+      dist_to_clct_s = 22.62742d0 ! sqrt(2*16**2)
+    end if
   end if
+
+
+  !! random decision, if the near clct is in south
+  !call random_number(u)
+  !! Franction of south locations, estimated from data
+  !a = 0.3084515d0
+  !! If in south, set the south distance equal to clct distance
+  !clct_south = (u < a)
+  !if(clct_south) then
+  !  dist_to_clct_s = dist_to_clct
+  !else
+  !  dist_to_clct_s = 2000.0d0
+  !end if
 
 end subroutine dist_to_neigh_clct
 
