@@ -31,7 +31,8 @@ subroutine fireDist(Cpool_litter_woodIn,Cpool_litter_greenIn,livegrass,soil_mois
 ! those should be arguments in the function from Juvaskyla data 
  ! lightnings = 0.01
  ! popden = 36 
- a_nd = 0.11
+ !a_nd = 0.11
+ 
 !!!!
  param = 6.8
  Cpool_litter_wood(:) = Cpool_litter_woodIn
