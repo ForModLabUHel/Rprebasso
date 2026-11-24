@@ -1210,7 +1210,7 @@ endif
       flagInitWithThin = .true.
       Nold = N
       Wdb = 0.
-      A = par_ksi/par_rhof * Lc**par_z
+      A = min(par_ksi/par_rhof * Lc**par_z, Lc/(H-1.3) * pi*(D/2./100.)**2.)
       stand(7) = Ainit
       yearX = 0
      endif
