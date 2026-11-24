@@ -1269,8 +1269,8 @@ if(pCrobas(2,species)>0.) energyWood(year,ij,1) = energyWood(year,ij,2) / pCroba
       flagInitWithThin = .true.
       Nold = N
       Wdb = 0.
-      A = par_ksi/par_rhof * Lc**par_z
-      stand(7) = Ainit
+      A = min(par_ksi/par_rhof * Lc**par_z, Lc/(H-1.3) * pi*(D/2./100.)**2.)
+	  stand(7) = Ainit
       yearX = 0.
      endif
      !!!reinitialize Nold and some variables when the thinning matrix is used to initialize the stand (end)
