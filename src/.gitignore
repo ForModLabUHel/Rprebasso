@@ -7,3 +7,12 @@ src/initruns_module.mod
 src/C4_regionPrebas.o
 C4_regionPrebas.o
 distFire.f90
+A_prelesglobalsF.o
+B_gpp_fortran.o
+C1_initruns_fortran.o
+C2_water_fortran.o
+C3_multiPrebas.o
+PRELES_fortran.o
+distBB.o
+distFire.o
+distSandboxWind.o
