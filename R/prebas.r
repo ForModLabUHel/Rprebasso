@@ -227,7 +227,7 @@ prebas <- function(nYears,
                    REWmodel = 2
               ){
   
-  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=65) stop("check that pCROBAS has 65 parameters, see pCROB to compare")
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
@@ -317,7 +317,7 @@ prebas <- function(nYears,
   if(ncol(thinning)==10) thinning <- cbind(thinning,1)
   thinning[is.na(thinning)] <- -999
   nThinning = max(1,nrow(thinning))
-  thinning <- thinning[order(thinning[,2],thinning[,1],thinning[,3]),]
+  thinning <- thinning[order(thinning[,1],thinning[,3]),]
   if(is.null(nrow(thinning))) thinning <- matrix(thinning,nrow = 1, ncol = 11)
   ###
   

@@ -14,7 +14,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 
 implicit none
 
-integer, parameter :: nVar=57,npar=64!, nSp=3
+integer, parameter :: nVar=57,npar=65!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: nYears(nSites),nLayers(nSites)!protect removed; neither in prebas subroutine nor multiPrebas() R function wdimpl
 integer :: i,climID,ij,iz,ijj,ki,n,jj,az

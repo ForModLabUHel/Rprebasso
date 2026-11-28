@@ -949,7 +949,7 @@ multiPrebas <- function(multiSiteInit,
     
     siteTypeOrig <- multiSiteInit$siteInfo[,3]
     
-    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite", PACKAGE = "Rprebasso2",
+    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite", PACKAGE = "Rprebasso",
                                               siteTAlpha = as.array(siteTAlpha),
                                               latitude = as.double(multiSiteInit$latitude),
                                               species = as.double(species),
@@ -967,7 +967,7 @@ multiPrebas <- function(multiSiteInit,
   }
   
   
-  prebas <- .Fortran("multiPrebas", PACKAGE = "Rprebasso2",
+  prebas <- .Fortran("multiPrebas", PACKAGE = "Rprebasso",
                      multiOut = as.array(multiSiteInit$multiOut), #1
                      nSites = as.integer(multiSiteInit$nSites),#2
                      nClimID = as.integer(multiSiteInit$nClimID),#3
@@ -1216,7 +1216,7 @@ regionPrebas <- function(multiSiteInit,
     
     siteTypeOrig <- multiSiteInit$siteInfo[,3]
     
-    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite", PACKAGE = "Rprebasso2",
+    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite", PACKAGE = "Rprebasso",
                                               siteTAlpha = as.array(siteTAlpha),
                                               latitude = as.double(multiSiteInit$latitude),
                                               species = as.double(species),
@@ -1250,7 +1250,7 @@ regionPrebas <- function(multiSiteInit,
   )) 
   
   if(!is.null(frac_clct)) multiSiteInit$fAPAR[1,1] <- frac_clct 
-  prebas <- .Fortran("regionPrebas", PACKAGE = "Rprebasso2",
+  prebas <- .Fortran("regionPrebas", PACKAGE = "Rprebasso",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),
@@ -1527,7 +1527,7 @@ reStartRegionPrebas <- function(multiSiteInit,
     
     siteTypeOrig <- multiSiteInit$siteInfo[,3]
     
-    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite", PACKAGE = "Rprebasso2",
+    multiSiteInit$multiOut[,,3,,] <- .Fortran("calcAlfarFert_MultiSite", PACKAGE = "Rprebasso",
                                               siteTAlpha = as.array(siteTAlpha),
                                               latitude = as.double(multiSiteInit$latitude),
                                               species = as.double(species),
@@ -1544,7 +1544,7 @@ reStartRegionPrebas <- function(multiSiteInit,
                                               yearFert=as.integer(yearFert))$siteTAlpha
   }
   
-  prebas <- .Fortran("regionPrebas", PACKAGE = "Rprebasso2",
+  prebas <- .Fortran("regionPrebas", PACKAGE = "Rprebasso",
                      siteOrder = as.matrix(siteOrder),
                      HarvLim = as.matrix(HarvLim),
                      minDharv = as.double(minDharv),

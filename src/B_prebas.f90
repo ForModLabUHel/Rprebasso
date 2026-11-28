@@ -15,7 +15,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=57, npar=64, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=57, npar=65, inttimes = 1 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -100,7 +100,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  ! Light is light at canopy bottom, MeanLight is layer-specific mean. Calculated by &
  ! Llight extinction subroutine.
  real (kind=8) :: par_sarShp, par_S_branchMod ! crobas param
- real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas ! crobas param
+ real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab,par_betabX, par_betas ! crobas param
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort ! crobas param
  real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test, par_thetaMax, par_H0max, par_kH, par_gamma,par_H0 ! more variables and crobas params.
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(30), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
@@ -156,7 +156,7 @@ real (kind=8) :: Nmort, BAmort, VmortDist(nLayers)
  !BB disturbances
  real (kind=8) :: spruceStandVars(3),pBB(5), SMI, SMIt0,SHI,intenSpruce,rBAspruce(nLAyers) !SMIt0 = SMI previous year
 ! real (kind=8) :: rBAspruce(nLAyers), spruceStandVars(3),pBB(5), SMI, SMIt0, intenSpruce, SHI !SMIt0 = SMI previous year
- real (kind=8) :: dist_to_clct, frac_clct, Dlim = 650.,c_clct_prob, c_clct_PI
+ real (kind=8) :: dist_to_clct, dist_to_clct_s, frac_clct, Dlim = 650., a_clct
  logical :: useDistToClct = .true. 
 
 frac_clct = fAPAR(1)
@@ -315,6 +315,7 @@ siteInfoDist(2) = siteInfoDist(2)+1 !counter for time since thinning (wind distu
   siteType = modOut(year,3,ijj,1) !siteInfo(3)
   !!set parameters
   par_betab = pCrobas(13,int(initVar(1,ijj)))
+  par_betabX = pCrobas(65,int(initVar(1,ijj)))
   par_x = pCrobas(19,int(initVar(1,ijj)))
   par_beta0 = pCrobas(12,int(initVar(1,ijj)))
   par_betas = pCrobas(14,int(initVar(1,ijj)))
@@ -441,6 +442,7 @@ do ij = 1 , nLayers     !loop Species
  par_z=param(11)
  par_beta0=param(12)
  par_betab=param(13)
+ par_betabX=param(65)
  par_betas = param(14)
  par_rhof2 = param(15)
  par_s1 = param(16)
@@ -492,7 +494,7 @@ do ij = 1 , nLayers     !loop Species
 !  Cw = STAND(15)
   Lc = H - Hc
   hb = par_betab * Lc ** par_x
-  Cw = 2. * hb
+  Cw = 2. * par_betabX * Lc ** par_x
   STAND(15) = Cw
   ! STAND(16) = LC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !ETS = STAND(5) !!##!!2
@@ -703,6 +705,7 @@ exud(ij) = 0.d0
  par_z=param(11)
  par_beta0=param(12)
  par_betab=param(13)
+ par_betabX=param(65)
  par_betas = param(14)
  par_rhof2 = param(15)
  par_s1 = param(16)
@@ -790,7 +793,8 @@ else
   ! B = STAND(35)
   Light = STAND(36)
   hb = par_betab * Lc ** par_x
-  Cw = 2. * hb
+!  Cw = 2. * hb
+  Cw = 2. * par_betabX * Lc ** par_x
 
   age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
 if (N>0.) then
@@ -1656,6 +1660,7 @@ if(defaultThin > 0.) then
     par_z=param(11)
     par_beta0=param(12)
     par_betab=param(13)
+    par_betabX=param(65)
     par_betas = param(14)
     par_rhof2 = param(15)
     par_s1 = param(16)
@@ -1732,7 +1737,8 @@ if(defaultThin > 0.) then
     B = BA/N
     A = stand_all(16,ij) * B/stand_all(35,ij) !!! to check
     hb = par_betab * Lc ** par_x
-    Cw = 2. * hb
+    !Cw = 2. * hb
+  Cw = 2. * par_betabX * Lc ** par_x
 
 
   !!update biomasses
