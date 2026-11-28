@@ -227,7 +227,7 @@ prebas <- function(nYears,
                    REWmodel = 2
               ){
   
-  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=54) stop("check that pCROBAS has 54 parameters, see pCROB to compare")
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL

@@ -17,7 +17,7 @@ subroutine multiPrebas(multiOut,nSites,nClimID,nLayers,maxYears,maxThin, &
 
 implicit none
 
-integer, parameter :: nVar=54,npar=53,npar_preles=40,npar_peat=20,dimTable=200!, nSp=3
+integer, parameter :: nVar=54,npar=54,npar_preles=40,npar_peat=20,dimTable=200!, nSp=3
 integer, intent(in) :: nSites, maxYears,maxThin,nClimID,maxNlayers,allSP
 integer, intent(in) :: soilmodel(nSites),REWmodel(nSites)
 integer, intent(in) :: nYears(nSites),nLayers(nSites) !protect removed; neither in prebas subroutine nor multiPrebas() R function

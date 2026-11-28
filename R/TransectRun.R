@@ -197,7 +197,7 @@ TransectRun <- function(SiteType = NA, initVar = NA, species = NA, nYears = 100,
     yassoRun = 1
   }
   if(soilC_steadyState) yassoRun = 1
-  if(nrow(pCROBAS)!=53) stop("check that pCROBAS has 53 parameters, see pCROB to compare")
+  if(nrow(pCROBAS)!=54) stop("check that pCROBAS has 54 parameters, see pCROB to compare")
   if(!modVersion %in% c("multiSite","region")) stop("modVersion must be region or multiSite")
   
   nSites <- 7

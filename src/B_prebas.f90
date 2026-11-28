@@ -19,7 +19,7 @@ subroutine prebas(nYears,nLayers,nSp,siteInfo,pCrobas,initVar,thinning,output, &
 implicit none
 
 !! Constants
- integer, parameter :: nVar=54, npar=53,npar_preles_all=60, inttimes = 1,dimTable=200 ! no. of variables, parameters, simulation time-step (always 1)
+ integer, parameter :: nVar=54, npar=54,npar_preles_all=60, inttimes = 1,dimTable=200 ! no. of variables, parameters, simulation time-step (always 1)
  real (kind=8), parameter :: pi = 3.1415927, t=1. , ln2 = 0.693147181, fAparFactor=0.9
  real (kind=8), parameter :: energyRatio = 0.7, harvRatio = 0.9 !energyCut
  integer, intent(in) :: nYears, nLayers, nSp ! no of year, layers, species (only to select param.)
@@ -107,7 +107,7 @@ REAL (kind=8):: BAdist(nLayers) !disturbed BA per layer
  ! Light is light at canopy bottom, MeanLight is layer-specific mean. Calculated by &
  ! Llight extinction subroutine.
  real (kind=8) :: par_sarShp, par_S_branchMod ! crobas param
- real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betas ! crobas param
+ real (kind=8) :: par_rhof, par_rhor, par_rhow, par_c, par_beta0, par_betab, par_betabX, par_betas ! crobas param
  real (kind=8) :: par_s1, par_p0, par_ksi, par_cr2,par_kRein,Rein, c_mort ! crobas param
  real (kind=8) :: BA, dA, dB, reineke(nLayers), dN, wf_test, par_thetaMax, par_H0max, par_kH, par_gamma,par_H0 ! more variables and crobas params.
  real (kind=8) :: par_rhof0, par_rhof1, par_rhof2, par_aETS, dHcCum, dHCum,pars(npar_preles_all), thinningType = 0. ! thinningType initialization zero, see thinning subroutines. Determines type of thinning that will occur next.
@@ -330,6 +330,7 @@ do year = 1, (nYears)
   siteType = modOut(year,3,ijj,1) !siteInfo(3)
   !!set parameters
   par_betab = pCrobas(13,int(initVar(1,ijj)))
+  par_betabX = pCrobas(54,int(initVar(1,ijj)))
   par_x = pCrobas(19,int(initVar(1,ijj)))
   par_beta0 = pCrobas(12,int(initVar(1,ijj)))
   par_betas = pCrobas(14,int(initVar(1,ijj)))
@@ -457,6 +458,7 @@ do ij = 1 , nLayers     !loop Species
  par_z=param(11)
  par_beta0=param(12)
  par_betab=param(13)
+ par_betabX = param(54)
  par_betas = param(14)
  par_rhof2 = param(15)
  par_s1 = param(16)
@@ -506,7 +508,7 @@ do ij = 1 , nLayers     !loop Species
 !  Cw = STAND(15)
   Lc = H - Hc
   hb = par_betab * Lc ** par_x
-  Cw = 2. * hb
+  Cw = 2. * par_betabX * Lc ** par_x
   STAND(15) = Cw
   ! STAND(16) = LC !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ETS = STAND(5) !!##!!2
@@ -744,6 +746,7 @@ exud(ij) = 0.d0
  par_z=param(11)
  par_beta0=param(12)
  par_betab=param(13)
+ par_betabX=param(54)
  par_betas = param(14)
  par_rhof2 = param(15)
  par_s1 = param(16)
@@ -828,7 +831,7 @@ else
   ! B = STAND(35)
   Light = STAND(36)
   hb = par_betab * Lc ** par_x
-  Cw = 2. * hb
+  Cw = 2. * par_betabX * Lc ** par_x
 
   age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
 if (N>0.) then
@@ -893,11 +896,11 @@ if (N>0.) then
         !Valentine & Makela 2005. Bridging process - based and empirical approaches to modeling tree growth.
         ! HERE the units are kg / ha
       gammaC = par_cR/Light
-            betab = hb/Lc
+      betab = hb/Lc
       age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
-            beta0 = par_beta0 * age_factor
-            beta1 = (beta0 + betab + par_betas) !!newX
-            beta2 = 1. - betab - par_betas     !!newX
+      beta0 = par_beta0 * age_factor
+      beta1 = (beta0 + betab + par_betas) !!newX
+      beta2 = 1. - betab - par_betas     !!newX
       betaC = (beta1 + gammaC * beta2) / par_betas
       W_wsap = stand(47)
             ! wf_treeKG = par_rhof * A  !!newX
@@ -1024,11 +1027,11 @@ endif
       ! hb = betab * Lc!!!to check one cause of not matching npp because betab was computed before growth
 
 ! more dependent variables (not used in calculation)
-        betab = hb/Lc
+    betab = hb/Lc
     age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa
-        beta0 = par_beta0 * age_factor
-        beta1 = (beta0 + betab + par_betas) !!newX
-        beta2 = 1. - betab - par_betas     !!newX
+    beta0 = par_beta0 * age_factor
+    beta1 = (beta0 + betab + par_betas) !!newX
+    beta2 = 1. - betab - par_betas     !!newX
     betaC = (beta1 + gammaC * beta2) / par_betas
     W_froot = par_rhor * A * N  !!to check  !!newX
     W_wsap = par_rhow * A * N * (beta1 * H + beta2 * Hc) !!newX
@@ -1108,13 +1111,13 @@ endif
 	! if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0 .and. yearX==0) then !start skip ingrowth thinning if after clearcut
    if(D==0.d0 .and. H==0.d0 .and. thinning(countThinning,6)==-777.d0) then
     domSp = maxloc(STAND_all(13,:))
-	layer = int(domSp(1))
-	species = int(max(1.,stand_all(4,layer)))
-	stand(4) = max(1.,stand_all(4,layer))
-	thinning(countThinning,2) = stand(4)
+	  layer = int(domSp(1))
+	  species = int(max(1.,stand_all(4,layer)))
+	  stand(4) = max(1.,stand_all(4,layer))
+	  thinning(countThinning,2) = stand(4)
 	
     modOut(:,3,ij,2) = pCrobas(int(20 + stand(3)),species)
-	prebasFlags(9) = ij
+	  prebasFlags(9) = ij
    endif
 !set species from thinning matrix (end)
 
@@ -1587,6 +1590,7 @@ endif
     par_z=param(11)
     par_beta0=param(12)
     par_betab=param(13)
+    par_betabX=param(54)
     par_betas = param(14)
     par_rhof2 = param(15)
     par_s1 = param(16)
@@ -1658,7 +1662,7 @@ endif
     B = BA/N
     A = stand_all(16,ij) * B/stand_all(35,ij) !!! to check
     hb = par_betab * Lc ** par_x
-    Cw = 2. * hb
+    Cw = 2. * par_betabX * Lc ** par_x
 
 
   !!update biomasses
