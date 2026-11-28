@@ -793,7 +793,6 @@ else
   ! B = STAND(35)
   Light = STAND(36)
   hb = par_betab * Lc ** par_x
-!  Cw = 2. * hb
   Cw = 2. * par_betabX * Lc ** par_x
 
   age_factor = (1. - (1. - par_fAa)/ (1. + exp((par_fAb - H)/par_fAc)))/par_fAa !! Root allocation of seedlings
@@ -1737,7 +1736,6 @@ if(defaultThin > 0.) then
     B = BA/N
     A = stand_all(16,ij) * B/stand_all(35,ij) !!! to check
     hb = par_betab * Lc ** par_x
-    !Cw = 2. * hb
   Cw = 2. * par_betabX * Lc ** par_x
 
 

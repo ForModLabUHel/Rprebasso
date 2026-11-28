@@ -231,7 +231,7 @@ prebas <- function(nYears,
   if(!CO2model %in% 1:2) stop(paste0("set CO2model 1 or 2"))
   if(all(is.na(pPRELES))){
     pPRELES <- pPREL
-    pPRELES[18:19,] <- pCO2model[CO2model,]
+    pPRELES[12:13] <- pCO2model[CO2model,]
   }
   if(is.na(pPeattp)){
     pPeattp <- pPeattp_def
